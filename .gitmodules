@@ -1,0 +1,6 @@
+[submodule "GDMEngine/thirdparty/imgui"]
+	path = GDMEngine/thirdparty/imgui
+	url = https://github.com/ocornut/imgui
+[submodule "GDMEngine/thirdparty/glm"]
+	path = GDMEngine/thirdparty/glm
+	url = https://github.com/g-truc/glm

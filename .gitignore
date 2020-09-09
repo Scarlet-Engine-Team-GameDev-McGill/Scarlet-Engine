@@ -392,3 +392,8 @@ FodyWeavers.xsd
 *.exe
 *.out
 *.app
+
+# CMake
+out/
+build/
+CMakeSettings.json
