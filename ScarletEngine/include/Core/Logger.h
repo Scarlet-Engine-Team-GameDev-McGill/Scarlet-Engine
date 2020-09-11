@@ -8,64 +8,72 @@
 #include <Windows.h>
 #endif
 
-enum class LogLevel
-{
-	LogVerbose,
-	LogInfo,
-	LogWarning,
-	LogError
-};
 
 namespace ScarletEngine
 {
+	enum class LogLevel
+	{
+		LogVerbose,
+		LogInfo,
+		LogWarning,
+		LogError
+	};
+
 	class Logger
 	{
 	public:
-		template <typename ...Args>
-		inline void Log(LogLevel Level, const char* Message, const Args&... args)
+		void Log(LogLevel Level, const char* Message)
 		{
-			char* Prefix = nullptr;
+			static const char* VerbosePrefix = "[Verbose] ";
+			static const char* InfoPrefix = "[Info] ";
+			static const char* WarningPrefix = "[Warn] ";
+			static const char* ErrorPrefix = "[Error] ";
+			static const char* DefaultPrefix = "";
+
+			const char** PrefixPtr = nullptr;
 			switch (Level)
 			{
 			case LogLevel::LogVerbose:
-				Prefix = "[Verbose] ";
+				PrefixPtr = &VerbosePrefix;
 				break;
 			case LogLevel::LogInfo:
-				Prefix = "[Info] ";
+				PrefixPtr = &InfoPrefix;
 				break;
 			case LogLevel::LogWarning:
-				Prefix = "[Warn] ";
+				PrefixPtr = &WarningPrefix;
 				break;
 			case LogLevel::LogError:
-				Prefix = "[Error] ";
+				PrefixPtr = &ErrorPrefix;
 				break;
 			default:
-				Prefix = "";
+				PrefixPtr = &DefaultPrefix;
 				break;
 			}
 			
-			printf(Prefix);
-			printf(Message, args...);
+			printf("%s", *PrefixPtr);
+			printf("%s", Message);
 			printf("\n");
 	
 			// If compiling for Windows and in debug mode, 
 			// we can print to the debug output (visible in Visual Studio Output tab)
 #if defined(_WIN32) && defined(DEBUG)
-			OutputDebugString(Prefix);
-			OutputDebugString(Message, Args...);
+			OutputDebugString(*PrefixPtr);
+			OutputDebugString(Message);
 			OutputDebugString("\n");
 #endif
 			if (LogFile)
 			{
 				time_t Now = time(0);
-				struct tm TimeStruct;
+				struct tm* TimeStruct;
 				char Buffer[80];
-				localtime_s(&TimeStruct, &Now);
-				strftime(Buffer, sizeof(Buffer), "[%Y-%m-%d.%X] ", &TimeStruct);
+				TimeStruct = localtime(&Now);
 
-				fprintf(LogFile, Buffer);
-				fprintf(LogFile, Prefix);
-				fprintf(LogFile, Message, args...);
+				assert(TimeStruct != nullptr);
+				strftime(Buffer, sizeof(Buffer), "[%Y-%m-%d.%X] ", TimeStruct);
+
+				fprintf(LogFile, "%s", Buffer);
+				fprintf(LogFile, "%s", *PrefixPtr);
+				fprintf(LogFile, "%s", Message);
 				fprintf(LogFile, "\n");
 			}
 		}
@@ -77,7 +85,7 @@ namespace ScarletEngine
 			{
 				fclose(LogFile);
 			}
-			fopen_s(&LogFile, FilePath, "w+");
+			LogFile = fopen(FilePath, "w+");
 		}
 
 		static Logger& Get() { static Logger Instance; return Instance; }
@@ -94,4 +102,10 @@ namespace ScarletEngine
 	};
 }
 
-#define SCAR_LOG(Level, ...) ScarletEngine::Logger::Get().Log(LogLevel::##Level, __VA_ARGS__)
+#define SCAR_LOG(Level, Format, ...)		\
+{											\
+	constexpr int BufferSize = 4096;		\
+	char Buffer[BufferSize];				\
+	snprintf(Buffer, BufferSize, Format, ##__VA_ARGS__);\
+	ScarletEngine::Logger::Get().Log(ScarletEngine::LogLevel::Level, Buffer);\
+}
