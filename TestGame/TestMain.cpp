@@ -3,9 +3,14 @@
 
 int main()
 {
-	ScarletEngine::TestLibraries();
+	using namespace ScarletEngine;
+	TestLibraries();
 
-	ScarletEngine::Logger::Get().SetLogFile("Log.txt");
+	Engine& GEngine = Engine::Get();
+
+	GEngine.Initialize();
+	GEngine.Run();
+
 	SCAR_LOG(LogInfo, "Hello world from GameDev McGill");
 	return 0;
 }
