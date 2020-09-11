@@ -1,6 +1,6 @@
 # --- Set up CMake version. Require at least version 3.1 and use the latest version policy possible (up to 3.15) ---
 cmake_minimum_required(VERSION 3.1...3.18)
-project("GDMEngine" VERSION 1.0 LANGUAGES CXX)
+project("ScarletEngine" VERSION 1.0 LANGUAGES CXX)
 
 if (${CMAKE_VERSION} VERSION_LESS 3.15)
 	cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
@@ -78,8 +78,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_compile_definitions(DEBUG)
 endif()
 
-# Compile the GDMEngine library
-add_subdirectory("GDMEngine")
+# Compile the ScarletEngine library
+add_subdirectory("ScarletEngine")
 
 # Testing
 option(TESTING "Compile and run test app" ON)

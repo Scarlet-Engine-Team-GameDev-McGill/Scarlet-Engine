@@ -39,6 +39,8 @@ endif()
 if( GLFW3_ROOT )
 	list( INSERT _glfw3_HEADER_SEARCH_DIRS 0 "${GLFW3_ROOT}/include" )
 	list( INSERT _glfw3_LIB_SEARCH_DIRS 0 "${GLFW3_ROOT}/lib" )
+	list( INSERT _glfw3_LIB_SEARCH_DIRS 1 "${GLFW3_ROOT}/lib-vc2019" )
+	list( INSERT _glfw3_LIB_SEARCH_DIRS 2 "${GLFW3_ROOT}/lib-vc2017" )
 endif()
 
 # Search for the header

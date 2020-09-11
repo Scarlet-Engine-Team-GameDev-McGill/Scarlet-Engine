@@ -1,11 +1,13 @@
 #include "Renderer/Renderer.h"
 
 #include <vulkan/vulkan.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <glm/glm.hpp>
 
-namespace GDMEngine
+#include <cstdio>
+
+namespace ScarletEngine
 {
 	void TestLibraries()
 	{

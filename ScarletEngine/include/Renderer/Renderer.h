@@ -1,6 +1,6 @@
 #pragma once
 
-namespace GDMEngine
+namespace ScarletEngine
 {
 	void TestLibraries();
 }

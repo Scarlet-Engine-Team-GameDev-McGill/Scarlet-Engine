@@ -2,6 +2,6 @@
 
 int main()
 {
-	GDMEngine::TestLibraries();
+	ScarletEngine::TestLibraries();
 	return 0;
 }

@@ -1,6 +1,6 @@
-[submodule "GDMEngine/thirdparty/imgui"]
-	path = GDMEngine/thirdparty/imgui
+[submodule "ScarletEngine/thirdparty/imgui"]
+	path = ScarletEngine/thirdparty/imgui
 	url = https://github.com/ocornut/imgui
-[submodule "GDMEngine/thirdparty/glm"]
-	path = GDMEngine/thirdparty/glm
+[submodule "ScarletEngine/thirdparty/glm"]
+	path = ScarletEngine/thirdparty/glm
 	url = https://github.com/g-truc/glm
