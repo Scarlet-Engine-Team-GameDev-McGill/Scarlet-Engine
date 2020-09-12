@@ -1,5 +1,5 @@
 # --- Set up CMake version. Require at least version 3.1 and use the latest version policy possible (up to 3.15) ---
-cmake_minimum_required(VERSION 3.1...3.18)
+cmake_minimum_required(VERSION 3.10)
 project("ScarletEngine" VERSION 1.0 LANGUAGES CXX)
 
 if (${CMAKE_VERSION} VERSION_LESS 3.15)
@@ -75,7 +75,7 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
 
 # Define a global DEBUG to determine if in debug mode
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	add_compile_definitions(DEBUG)
+	add_definitions(-DDEBUG)
 endif()
 
 # Compile the ScarletEngine library
