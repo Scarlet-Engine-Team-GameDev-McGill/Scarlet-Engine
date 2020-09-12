@@ -5,6 +5,7 @@ dist: bionic
 branches:
   only:
     - master
+    - /^dev-*/
 
 compiler:
   - clang
