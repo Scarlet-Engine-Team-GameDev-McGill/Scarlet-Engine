@@ -9,8 +9,8 @@ int main()
 	Engine& GEngine = Engine::Get();
 
 	GEngine.Initialize();
-	GEngine.Run();
-
 	SCAR_LOG(LogInfo, "Hello world from GameDev McGill");
+
+	GEngine.Run();
 	return 0;
 }

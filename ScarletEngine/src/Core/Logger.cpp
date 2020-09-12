@@ -1,5 +1,13 @@
 #include "Core/Logger.h"
 
+#include <cassert>
+#include <ctime>
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
+
 namespace ScarletEngine
 {
 	Logger::~Logger()
@@ -12,13 +20,13 @@ namespace ScarletEngine
 
 	void Logger::Log(LogLevel Level, const char* Message) const
 	{
-		static const char* VerbosePrefix = "[Verbose] ";
-		static const char* InfoPrefix = "[Info] ";
-		static const char* WarningPrefix = "[Warn] ";
-		static const char* ErrorPrefix = "[Error] ";
+		static const char* VerbosePrefix = "[Verbose]";
+		static const char* InfoPrefix = "[Info]";
+		static const char* WarningPrefix = "[Warn]";
+		static const char* ErrorPrefix = "[Error]";
 		static const char* DefaultPrefix = "";
 
-		const char** PrefixPtr = nullptr;
+		const char** PrefixPtr = &DefaultPrefix;
 		switch (Level)
 		{
 		case LogLevel::LogVerbose:
@@ -33,14 +41,9 @@ namespace ScarletEngine
 		case LogLevel::LogError:
 			PrefixPtr = &ErrorPrefix;
 			break;
-		default:
-			PrefixPtr = &DefaultPrefix;
-			break;
 		}
 
-		printf("%s", *PrefixPtr);
-		printf("%s", Message);
-		printf("\n");
+		printf("%s %s\n", *PrefixPtr, Message);
 
 		// If compiling for Windows and in debug mode, 
 		// we can print to the debug output (visible in Visual Studio Output tab)
@@ -53,16 +56,13 @@ namespace ScarletEngine
 		{
 			time_t Now = time(0);
 			struct tm* TimeStruct;
-			char Buffer[80];
+			char TimeStringBuffer[80];
 			TimeStruct = localtime(&Now);
 
 			assert(TimeStruct != nullptr);
-			strftime(Buffer, sizeof(Buffer), "[%Y-%m-%d.%X] ", TimeStruct);
+			strftime(TimeStringBuffer, sizeof(TimeStringBuffer), "[%Y-%m-%d.%X]", TimeStruct);
 
-			fprintf(LogFile, "%s", Buffer);
-			fprintf(LogFile, "%s", *PrefixPtr);
-			fprintf(LogFile, "%s", Message);
-			fprintf(LogFile, "\n");
+			fprintf(LogFile, "%s %s %s\n", TimeStringBuffer, *PrefixPtr, Message);
 		}
 	}
 

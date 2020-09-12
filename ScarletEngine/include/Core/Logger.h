@@ -1,13 +1,6 @@
 #pragma once
 
 #include <cstdio>
-#include <cassert>
-#include <ctime>
-
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 
 namespace ScarletEngine
 {
