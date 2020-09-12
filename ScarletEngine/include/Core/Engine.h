@@ -18,7 +18,7 @@ namespace ScarletEngine
 		void Update(double DeltaTime);
 		void FixedUpdate(double DeltaTime);
 
-		bool IsInitialized() { return bIsInitialized; }
+		bool IsInitialized() const { return bIsInitialized; }
 
 		/** Enqueue the addition of a new tickable object for the next frame */
 		void QueueAddTickable(ITickable* TickableObject);

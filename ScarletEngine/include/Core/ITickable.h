@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 namespace ScarletEngine
 {
 	/** Base class for all tickable objects */
