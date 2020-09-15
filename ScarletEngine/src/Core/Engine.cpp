@@ -2,6 +2,7 @@
 
 #include "Core/CoreUtils.h"
 #include "Core/ITickable.h"
+#include "Renderer/Renderer.h"
 
 #include <chrono>
 #include <algorithm>
@@ -26,6 +27,7 @@ namespace ScarletEngine
 	{
 		Logger::Get().SetLogFile("Log.txt");
 
+		Renderer::Get().Initialize();
 		bIsInitialized = true;
 	}
 
@@ -76,7 +78,7 @@ namespace ScarletEngine
 
 	void Engine::PostUpdate()
 	{
-
+		Renderer::Get().DrawFrame();
 	}
 
 	void Engine::Terminate()
