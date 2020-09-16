@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <glm/glm.hpp>
+
 #include "Logger.h"
 
 // include signal.h to raise a debug break in POSIX systems (non-windows)

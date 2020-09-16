@@ -4,6 +4,25 @@
 
 namespace ScarletEngine
 {
+	class OpenGLFramebuffer : public RALFramebuffer
+	{
+	public:
+		OpenGLFramebuffer(uint32_t InWidth, uint32_t InHeight, uint32_t InSamples);
+		virtual ~OpenGLFramebuffer();
+
+		virtual void Bind() const override;
+		virtual void Unbind() const override;
+		virtual void Resize(uint32_t NewWidth, uint32_t NewHeight) override;
+
+		virtual uint64_t GetColorAttachmentID() const override { return ColorAttachment; };
+	private:
+		void RecreateResource();
+	private:
+		uint32_t FramebufferObject;
+		uint32_t ColorAttachment;
+		uint32_t DepthAttachment;
+	};
+
 	class OpenGLVertexBuffer : public RALVertexBuffer
 	{
 	public:

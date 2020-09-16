@@ -6,6 +6,12 @@
 
 #include <chrono>
 #include <algorithm>
+#ifdef RAL_USE_OPENGL
+// #todo: move imgui out
+#include <imgui.h>
+#include <examples/imgui_impl_glfw.h>
+#include <examples/imgui_impl_opengl3.h>
+#endif
 
 #define FIXED_UPDATE_MS 20.0
 
@@ -28,6 +34,29 @@ namespace ScarletEngine
 		Logger::Get().SetLogFile("Log.txt");
 
 		Renderer::Get().Initialize();
+
+		// #todo: move ImGUI out of Engine initialization
+#ifdef RAL_USE_OPENGL
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& IO = ImGui::GetIO();
+		IO.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		IO.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		IO.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports;
+		IO.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;
+		// Enable floating windows
+		//IO.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+		ImGui::StyleColorsDark();
+
+		ImGuiStyle& Style = ImGui::GetStyle();
+		Style.WindowRounding = 0.0f;
+		Style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+
+		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)Renderer::Get().GetWindowPtr(), true);
+		ImGui_ImplOpenGL3_Init("#version 330");
+#endif
+
 		bIsInitialized = true;
 	}
 
@@ -74,11 +103,31 @@ namespace ScarletEngine
 	void Engine::PreUpdate()
 	{
 		AddQueuedTickables();
+
+		// #todo: move ImGUI out of Engine initialization
+#ifdef RAL_USE_OPENGL
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+#endif
 	}
 
 	void Engine::PostUpdate()
 	{
-		Renderer::Get().DrawFrame();
+		// #todo: move ImGUI out of Engine initialization
+#ifdef RAL_USE_OPENGL
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			void* BackupCurrentContext = Renderer::Get().GetWindowPtr();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			Renderer::Get().SetWindowCtx(BackupCurrentContext);
+		}
+#endif
+		Renderer::Get().EndFrame();
 	}
 
 	void Engine::Terminate()

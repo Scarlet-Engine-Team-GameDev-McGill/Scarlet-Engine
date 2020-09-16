@@ -2,12 +2,14 @@ file(GLOB_RECURSE ScarletEngine_SRC "src/*.cpp")
 
 find_package(glfw3 3.3 REQUIRED)
 find_package(Vulkan REQUIRED)
+find_package(OpenGL REQUIRED)
 
 # Include the imgui sources in the main engine binary
 file (GLOB ImGUI_SRC
 	"thirdparty/imgui/*.cpp"
 	"thirdparty/imgui/examples/imgui_impl_glfw.cpp"
-	"thirdparty/imgui/examples/imgui_impl_vulkan.cpp")
+	"thirdparty/imgui/examples/imgui_impl_vulkan.cpp"
+	"thirdparty/imgui/examples/imgui_impl_opengl3.cpp")
 
 set (IMGUI_INCLUDE "thirdparty/imgui")
 
@@ -32,6 +34,6 @@ add_library(ScarletEngine STATIC ${ScarletEngine_SRC} ${ImGUI_SRC} ${Glad_SRC})
 target_include_directories(ScarletEngine PUBLIC "include/" ${IMGUI_INCLUDE} ${GLFW3_INCLUDE} ${GLM_INCLUDE} ${GLAD_INCLUDE})
 target_include_directories(ScarletEngine PRIVATE "src/")
 
-target_link_libraries(ScarletEngine PRIVATE ${GLFW3_LIBRARY} Vulkan::Vulkan opengl32)
+target_link_libraries(ScarletEngine PRIVATE ${GLFW3_LIBRARY} Vulkan::Vulkan OpenGL::GL ${CMAKE_DL_LIBS})
 
 target_compile_features(ScarletEngine PUBLIC cxx_std_17)

@@ -5,8 +5,76 @@
 
 namespace ScarletEngine
 {
+	OpenGLFramebuffer::OpenGLFramebuffer(uint32_t InWidth, uint32_t InHeight, uint32_t InSamples)
+		: RALFramebuffer(InWidth, InHeight, InSamples)
+		, FramebufferObject(0)
+		, ColorAttachment(0)
+		, DepthAttachment(0)
+	{
+		RecreateResource();
+	}
+
+	OpenGLFramebuffer::~OpenGLFramebuffer()
+	{
+		glDeleteFramebuffers(1, &FramebufferObject);
+		uint32_t Textures[] = { ColorAttachment, DepthAttachment };
+		glDeleteTextures(2, Textures);
+	}
+
+	void OpenGLFramebuffer::RecreateResource()
+	{
+		if (FramebufferObject)
+		{
+			glDeleteFramebuffers(1, &FramebufferObject);
+			uint32_t Textures[] = { ColorAttachment, DepthAttachment };
+			glDeleteTextures(2, Textures);
+		}
+
+		glCreateFramebuffers(1, &FramebufferObject);
+		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferObject);
+
+		// Create the color attachment texture for the framebuffer
+		glCreateTextures(GL_TEXTURE_2D, 1, &ColorAttachment);
+		glBindTexture(GL_TEXTURE_2D, ColorAttachment);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Create the depth attachment texture for the framebuffer
+		glCreateTextures(GL_TEXTURE_2D, 1, &DepthAttachment);
+		glBindTexture(GL_TEXTURE_2D, DepthAttachment);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, Width, Height);
+
+		// Bind the textures to the framebuffer object
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ColorAttachment, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, DepthAttachment, 0);
+
+		// Ensure the framebuffer is complete
+		check(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+		
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void OpenGLFramebuffer::Bind() const
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferObject);
+		glViewport(0, 0, Width, Height);
+	}
+
+	void OpenGLFramebuffer::Unbind() const
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void OpenGLFramebuffer::Resize(uint32_t NewWidth, uint32_t NewHeight)
+	{
+		Width = NewWidth;
+		Height = NewHeight;
+	}
+
 	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t InSize, uint32_t InUsage)
 		: RALVertexBuffer(InSize, InUsage)
+		, BufferObject(0)
 	{
 		glGenBuffers(1, &BufferObject);
 	}
@@ -14,6 +82,7 @@ namespace ScarletEngine
 	void OpenGLVertexBuffer::UploadData(void* DataPtr, size_t InSize) const
 	{
 		check(InSize <= Size);
+		(void)InSize;
 		glBindBuffer(GL_ARRAY_BUFFER, BufferObject);
 		glBufferData(GL_ARRAY_BUFFER, Size, DataPtr, Usage);
 	}
@@ -45,7 +114,8 @@ namespace ScarletEngine
 			ShaderObject = glCreateShader(GL_COMPUTE_SHADER);
 			break;
 		}
-		glShaderBinary(1, &ShaderObject, GL_SHADER_BINARY_FORMAT_SPIR_V, ShaderCode.data(), NULL);
+
+		glShaderBinary(1, &ShaderObject, GL_SHADER_BINARY_FORMAT_SPIR_V, ShaderCode.data(), static_cast<uint32_t>(ShaderCode.size()));
 		glSpecializeShader(ShaderObject, "main", 0, NULL, NULL);
 
 		int Success;

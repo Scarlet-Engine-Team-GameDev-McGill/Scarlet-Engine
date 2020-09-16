@@ -5,12 +5,14 @@
 #include "Core/CoreUtils.h"
 #include "Renderer/OpenGLRAL/OpenGLRAL.h"
 
+#include "Renderer/Scene.h"
+#include "Renderer/Viewport.h"
+
 namespace ScarletEngine
 {
 	Renderer::Renderer()
 		: RAL(nullptr)
 	{
-
 	}
 
 	void Renderer::Initialize()
@@ -28,9 +30,29 @@ namespace ScarletEngine
 	}
 
 
-	void Renderer::DrawFrame()
+	void Renderer::EndFrame()
 	{
 		RAL->SwapWindowBuffers();
 		RAL->PollWindowEvents();
+	}
+	
+	void Renderer::SetWindowCtx(void* WindowPtr)
+	{
+		RAL->SetWindowCtx(WindowPtr);
+	}
+
+	Viewport* Renderer::CreateViewport(uint32_t Width, uint32_t Height)
+	{
+		return new Viewport(RAL.get(), Width, Height);
+	}
+
+	void Renderer::DrawScene(Scene*, Viewport* ActiveViewport)
+	{
+		ActiveViewport->Bind();
+		// For now default to clearing with Scarlet Red
+		RAL->SetClearColorCommand({ 1.f, 0.14f, 0.f, 1.f });
+		RAL->ClearCommand(true, true, true);
+
+		ActiveViewport->Unbind();
 	}
 }

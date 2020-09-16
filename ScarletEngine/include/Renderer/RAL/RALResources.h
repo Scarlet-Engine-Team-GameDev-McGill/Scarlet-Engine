@@ -6,6 +6,29 @@
 
 namespace ScarletEngine
 {
+	class RALFramebuffer
+	{
+	public:
+		RALFramebuffer(uint32_t InWidth, uint32_t InHeight, uint32_t InSamples)
+			: Width(InWidth)
+			, Height(InHeight)
+			, Samples(InSamples)
+		{}
+		virtual ~RALFramebuffer() {}
+
+		virtual void Bind() const = 0;
+		virtual void Unbind() const = 0;
+		virtual void Resize(uint32_t NewWidth, uint32_t NewHeight) = 0;
+
+		virtual uint64_t GetColorAttachmentID() const = 0;
+
+		glm::ivec2 GetSize() const { return { Width, Height }; }
+	protected:
+		uint32_t Width;
+		uint32_t Height;
+		uint32_t Samples;
+	};
+
 	class RALVertexBuffer
 	{
 	public:

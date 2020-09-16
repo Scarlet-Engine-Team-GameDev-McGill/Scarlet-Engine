@@ -81,8 +81,14 @@ endif()
 # Compile the ScarletEngine library
 add_subdirectory("ScarletEngine")
 
+# Editor
+option(COMPILE_EDITOR "Should compile Editor" ON)
+if (COMPILE_EDITOR)
+	add_subdirectory("ScarletEditor")
+endif()
+
 # Testing
-option(TESTING "Compile and run test app" ON)
+option(TESTING "Compile test app" ON)
 if (TESTING)
 	add_subdirectory("TestGame")
 endif()
