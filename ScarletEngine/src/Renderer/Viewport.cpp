@@ -9,6 +9,11 @@ namespace ScarletEngine
 		Framebuffer = RAL->CreateFramebuffer(Width, Height, 1);
 	}
 
+	Viewport::~Viewport()
+	{
+		delete Framebuffer;
+	}
+
 	void Viewport::Bind() const
 	{
 		Framebuffer->Bind();

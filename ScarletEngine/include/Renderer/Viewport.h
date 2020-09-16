@@ -11,6 +11,7 @@ namespace ScarletEngine
 	{
 	public:
 		Viewport(IRAL* RAL, uint32_t Width, uint32_t Height);
+		~Viewport();
 
 		void Bind() const;
 		void Unbind() const;
