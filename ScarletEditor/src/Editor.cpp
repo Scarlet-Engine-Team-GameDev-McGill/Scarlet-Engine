@@ -7,23 +7,27 @@
 namespace ScarletEngine
 {
 	Editor::Editor()
+		: FrameTimes()
 	{
-		MainViewport = std::unique_ptr<Viewport>(Renderer::Get().CreateViewport(1280, 720));
+		Viewports.emplace_back(Renderer::Get().CreateViewport(1280, 720));
 	}
 
 	void Editor::Tick(double DeltaTime)
 	{
 		FrameTimes[CurrentFrameTimeIndex] = (float)DeltaTime;
-		
-		glm::ivec2 ViewportFramebufferSize = MainViewport->GetSize();
-		if (std::fabs((float)ViewportFramebufferSize.x - ViewportSize.x) < 1.0 ||
-			std::fabs((float)ViewportFramebufferSize.y - ViewportSize.y) < 1.0)
-		{
-			MainViewport->ResizeFramebuffer((uint32_t)ViewportSize.x, (uint32_t)ViewportSize.y);
-		}
 
-		
-		Renderer::Get().DrawScene(nullptr, MainViewport.get());
+		for (const auto& EdViewport : Viewports)
+		{
+			glm::ivec2 ViewportFramebufferSize = EdViewport.View->GetSize();
+			if (std::fabs((float)ViewportFramebufferSize.x - EdViewport.ViewportSize.x) < 1.0 ||
+				std::fabs((float)ViewportFramebufferSize.y - EdViewport.ViewportSize.y) < 1.0)
+			{
+				EdViewport.View->ResizeFramebuffer((uint32_t)EdViewport.ViewportSize.x, (uint32_t)EdViewport.ViewportSize.y);
+			}
+
+			Renderer::Get().DrawScene(nullptr, EdViewport.View.get());
+		}
+				
 		DrawUI();
 
 		CurrentFrameTimeIndex = (CurrentFrameTimeIndex + 1) % 100;
@@ -80,27 +84,54 @@ namespace ScarletEngine
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Exit")) Engine::Get().SignalQuit();
+				if (ImGui::MenuItem("Exit"))
+				{
+					Engine::Get().SignalQuit();
+				}
+				if (ImGui::MenuItem("Create Viewport"))
+				{
+					if (Viewports.size() < 10)
+					{
+						Viewports.emplace_back(Renderer::Get().CreateViewport(1280, 720));
+					}
+				}
 				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Windows"))
+			{
+				if (ImGui::MenuItem("Output Log"))
+				{
+					// Create an output log
+				}
 			}
 
 			ImGui::EndMenuBar();
 		}
 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-		ImGui::Begin("Viewport");
+		uint32_t ViewportIndex = 0;
+		for (auto& EdViewport : Viewports)
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+			char Buff[32];
+			snprintf(Buff, 32, "Viewport##%d", ViewportIndex);
+			ImGui::Begin(Buff);
 
-		bViewportIsFocused = ImGui::IsWindowFocused();
-		bViewportIsHovered = ImGui::IsWindowHovered();
+			EdViewport.bViewportIsFocused = ImGui::IsWindowFocused();
+			EdViewport.bViewportIsHovered = ImGui::IsWindowHovered();
 
-		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+			EdViewport.ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
-		uint64_t TextureID = MainViewport->GetColorAttachmentID();
+			uint64_t TextureID = EdViewport.View->GetColorAttachmentID();
 
-		ImGui::Image(reinterpret_cast<void*>(TextureID), ImVec2{ ViewportSize.x, ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-		ImGui::End();
-		ImGui::PopStyleVar();
+			ImGui::Image(reinterpret_cast<void*>(TextureID), ImVec2{ EdViewport.ViewportSize.x, EdViewport.ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			ImGui::End();
+			ImGui::PopStyleVar();
+
+			ViewportIndex++;
+		}
+		
 
 		ImGui::Begin("Stats");
 		ImGui::Text("Last frame time: %.2f ms", FrameTimes[CurrentFrameTimeIndex]);

@@ -15,10 +15,21 @@ namespace ScarletEngine
 	private:
 		void DrawUI();
 	private:
-		std::unique_ptr<Viewport> MainViewport;
-		bool bViewportIsFocused;
-		bool bViewportIsHovered;
-		glm::vec2 ViewportSize;
+		struct EditorViewport
+		{
+			EditorViewport(Viewport* InView)
+				: View(InView)
+				, bViewportIsFocused(false)
+				, bViewportIsHovered(false)
+				, ViewportSize({ 0, 0 })
+			{}
+
+			std::unique_ptr<Viewport> View;
+			bool bViewportIsFocused;
+			bool bViewportIsHovered;
+			glm::vec2 ViewportSize;
+		};
+		std::vector<EditorViewport> Viewports;
 
 		uint32_t CurrentFrameTimeIndex = 0;
 		float FrameTimes[100];
