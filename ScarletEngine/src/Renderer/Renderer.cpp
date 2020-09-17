@@ -50,7 +50,7 @@ namespace ScarletEngine
 	{
 		ActiveViewport->Bind();
 		// For now default to clearing with Scarlet Red
-		RAL->SetClearColorCommand({ 1.f, 0.14f, 0.f, 1.f });
+		RAL->SetClearColorCommand({ 0.5f, 0.04f, 0.f, 1.f });
 		RAL->ClearCommand(true, true, true);
 
 		ActiveViewport->Unbind();

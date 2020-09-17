@@ -19,10 +19,11 @@ namespace ScarletEngine
 		for (const auto& EdViewport : Viewports)
 		{
 			glm::ivec2 ViewportFramebufferSize = EdViewport.View->GetSize();
-			if (std::fabs((float)ViewportFramebufferSize.x - EdViewport.ViewportSize.x) < 1.0 ||
-				std::fabs((float)ViewportFramebufferSize.y - EdViewport.ViewportSize.y) < 1.0)
+			if (std::fabs((float)ViewportFramebufferSize.x - EdViewport.ViewportSize.x) > 1.0 ||
+				std::fabs((float)ViewportFramebufferSize.y - EdViewport.ViewportSize.y) > 1.0)
 			{
 				EdViewport.View->ResizeFramebuffer((uint32_t)EdViewport.ViewportSize.x, (uint32_t)EdViewport.ViewportSize.y);
+				SCAR_LOG(LogVerbose, "Framebuffer Resized");
 			}
 
 			Renderer::Get().DrawScene(nullptr, EdViewport.View.get());
@@ -88,22 +89,23 @@ namespace ScarletEngine
 				{
 					Engine::Get().SignalQuit();
 				}
-				if (ImGui::MenuItem("Create Viewport"))
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Windows"))
+			{
+				if (ImGui::MenuItem("Add Viewport"))
 				{
 					if (Viewports.size() < 10)
 					{
 						Viewports.emplace_back(Renderer::Get().CreateViewport(1280, 720));
 					}
 				}
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("Windows"))
-			{
 				if (ImGui::MenuItem("Output Log"))
 				{
 					// Create an output log
 				}
+				ImGui::EndMenu();
 			}
 
 			ImGui::EndMenuBar();

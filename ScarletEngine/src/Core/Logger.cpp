@@ -45,23 +45,24 @@ namespace ScarletEngine
 
 		printf("%s %s\n", *PrefixPtr, Message);
 
+		time_t Now = time(0);
+		struct tm* TimeStruct;
+		char TimeStringBuffer[80];
+		TimeStruct = localtime(&Now);
+
+		assert(TimeStruct != nullptr);
+		strftime(TimeStringBuffer, sizeof(TimeStringBuffer), "[%Y-%m-%d.%X]", TimeStruct);
+
 		// If compiling for Windows and in debug mode, 
 		// we can print to the debug output (visible in Visual Studio Output tab)
 #if defined(_WIN32) && defined(DEBUG)
+		OutputDebugString(TimeStringBuffer);
 		OutputDebugString(*PrefixPtr);
 		OutputDebugString(Message);
 		OutputDebugString("\n");
 #endif
 		if (LogFile)
 		{
-			time_t Now = time(0);
-			struct tm* TimeStruct;
-			char TimeStringBuffer[80];
-			TimeStruct = localtime(&Now);
-
-			assert(TimeStruct != nullptr);
-			strftime(TimeStringBuffer, sizeof(TimeStringBuffer), "[%Y-%m-%d.%X]", TimeStruct);
-
 			fprintf(LogFile, "%s %s %s\n", TimeStringBuffer, *PrefixPtr, Message);
 		}
 	}
