@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include "Core/Core.h"
 #include "Renderer/OpenGLRAL/OpenGLResources.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 namespace ScarletEngine
 {
@@ -24,12 +26,21 @@ namespace ScarletEngine
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		Window = glfwCreateWindow(800, 600, "Test Window", nullptr, nullptr);
+		// #todo: remove hard coded window title
+		Window = glfwCreateWindow(800, 600, "Scarlet Editor", nullptr, nullptr);
 		if (Window == nullptr)
 		{
 			glfwTerminate();
 			check(false);
 		}
+
+		// Set the window icon;
+		GLFWimage Images[1]; 
+		// #todo: use a global asset loader/manager to load from content
+		Images[0].pixels = stbi_load("../ScarletEngine/content/scarlet_logo.png", &Images[0].width, &Images[0].height, 0, 4);
+		glfwSetWindowIcon(Window, 1, Images);
+		stbi_image_free(Images[0].pixels);
+
 		glfwMakeContextCurrent(Window);
 		glfwSwapInterval(1);
 

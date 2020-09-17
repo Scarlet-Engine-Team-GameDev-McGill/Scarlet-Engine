@@ -70,6 +70,24 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
+# Add a helper macro to move files to the build directory
+macro(configure_files srcDir destDir)
+	message(STATUS "Configuring directory ${destDir}")
+	make_directory(${destDir})
+
+	file(GLOB templateFiles RELATIVE "${srcDir}" "${srcDir}/*")
+	foreach(templateFile ${templateFiles})
+		set(srcTemplatePath ${srcDir}/${templateFile})
+		if(NOT IS_DIRECTORY ${srcTemplatePath})
+			message(STATUS "Configuring file ${templateFile}")
+			configure_file(
+					${srcTemplatePath}
+					${destDir}/${templateFile}
+					COPYONLY)
+		endif(NOT IS_DIRECTORY ${srcTemplatePath})
+	endforeach(templateFile)
+endmacro(configure_files)
+
 # Append the "CMake" directory to the module path so that Find*.cmake files can be used
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
 
