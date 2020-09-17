@@ -157,7 +157,6 @@ namespace ScarletEngine
 
 	void Engine::QueueAddTickable(ITickable* TickableObject)
 	{
-		check(bIsInitialized);
 		std::lock_guard<std::mutex> Lock(TickableQueueMutex);
 
 		TickableQueue.push_back(TickableObject);
