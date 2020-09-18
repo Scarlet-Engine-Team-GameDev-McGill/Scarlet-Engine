@@ -8,10 +8,10 @@ namespace ScarletEngine
 {
 	Editor::Editor()
 		: FrameTimes()
-		, SelectedEntity()
 		, EditorWorld(nullptr)
 		, SceneHierarchy(nullptr)
 		, PropertyEditor(nullptr)
+		, SelectedEntity()
 	{
 	}
 
@@ -152,7 +152,7 @@ namespace ScarletEngine
 
 		float FrameTimeSum = 0.f;
 		const uint32_t NumberFramesToAverageOver = 50;
-		for (int i = 0; i < NumberFramesToAverageOver; ++i)
+		for (uint32_t i = 0; i < NumberFramesToAverageOver; ++i)
 		{
 			FrameTimeSum += FrameTimes[(CurrentFrameTimeIndex - i) % MaxFrameTimes];
 		}

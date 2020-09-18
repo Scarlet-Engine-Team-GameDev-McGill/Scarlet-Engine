@@ -11,7 +11,7 @@ namespace ScarletEngine
 {
 	using OnEntityAddedToWorldEvent = Event<const std::shared_ptr<Entity>&>;
 
-	class World : public ITickable
+	class World final : public ITickable
 	{
 	public:
 		World();

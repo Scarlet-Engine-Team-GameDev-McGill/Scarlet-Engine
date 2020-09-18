@@ -25,7 +25,7 @@ namespace ScarletEngine
 			ImGui::SameLine();
 			ImGui::InputText("###Name", &FocusedEntity.lock()->Name);
 
-			ImGui::Text("ID: %d", FocusedEntity.lock()->ID);
+			ImGui::Text("ID: %lu", FocusedEntity.lock()->ID);
 
 			ImGui::Separator();
 			

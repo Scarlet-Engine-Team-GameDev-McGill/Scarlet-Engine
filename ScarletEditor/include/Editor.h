@@ -65,7 +65,5 @@ namespace ScarletEngine
 		std::shared_ptr<PropertyEditorPanel> PropertyEditor;
 
 		std::weak_ptr<Entity> SelectedEntity;
-
-		bool bInitialized = false;
 	};
 }
