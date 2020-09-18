@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "TypeInfo.h"
-#include "System.h"
+#include "Entity.h"
 
 #define INVALID_EID UINT64_MAX
 
@@ -124,14 +124,11 @@ namespace ScarletEngine
 		/* Entity Interface */
 
 		template <typename ...Ts>
-		std::tuple<EID, std::add_pointer_t<Ts>...> CreateEntity()
+		std::tuple<std::add_pointer_t<Ts>...> CreateEntity(Entity& Ent)
 		{
-			EID EntityID = NextAvailableEID++;
-			Entities.push_back(EntityID);
-			return std::make_tuple(EntityID, AddComponent<Ts>(EntityID)...);
+			Ent.ID = NextAvailableEID++;
+			return std::make_tuple(AddComponent<Ts>(Ent.ID)...);
 		}
-
-		const std::vector<EID>& GetEntities() const { return Entities; }
 	public:
 		/* Component Interface */
 
@@ -219,8 +216,6 @@ namespace ScarletEngine
 		}
 	private:
 		EID NextAvailableEID = 0;
-
-		std::vector<EID> Entities;
 		std::unordered_map<CTID, std::unique_ptr<IComponentContainer>> ComponentContainers;
 	};
 }

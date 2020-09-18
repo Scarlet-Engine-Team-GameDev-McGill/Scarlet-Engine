@@ -1,6 +1,11 @@
 #pragma once
 #include "Core/Core.h"
+#include "ECS/ECS.h"
+#include "World.h"
 #include "Renderer/Viewport.h"
+#include "Panels/SceneHierarchy.h"
+#include "Panels/PropertyEditor.h"
+
 #include <memory>
 #include <glm/glm.hpp>
 
@@ -11,7 +16,26 @@ namespace ScarletEngine
 	public:
 		Editor();
 
+		virtual void Initialize() override;
+
 		virtual void Tick(double DeltaTime) override;
+
+		void SetSelection(const std::shared_ptr<Entity>& InSelectedEntity) 
+		{
+			SelectedEntity = InSelectedEntity;
+			OnSelectionChangedEvent.Broadcast(InSelectedEntity);
+		}
+
+		void ClearSelection()
+		{
+			SelectedEntity.reset();
+			OnSelectionCleared.Broadcast();
+		}
+
+		Event<const std::shared_ptr<Entity>&> OnSelectionChangedEvent;
+		Event<> OnSelectionCleared;
+
+		static Editor& Get() { static Editor Instance; return Instance; }
 	private:
 		void DrawUI();
 	private:
@@ -33,5 +57,14 @@ namespace ScarletEngine
 
 		uint32_t CurrentFrameTimeIndex = 0;
 		float FrameTimes[100];
+
+		std::shared_ptr<World> EditorWorld;
+		
+		std::shared_ptr<SceneHierarchyPanel> SceneHierarchy;
+		std::shared_ptr<PropertyEditorPanel> PropertyEditor;
+
+		std::weak_ptr<Entity> SelectedEntity;
+
+		bool bInitialized = false;
 	};
 }

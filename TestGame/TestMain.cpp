@@ -22,16 +22,14 @@ int main()
 
 	World TestWorld;
 
-	TestWorld.AddSystem<Position, const Velocity>([](EID EntityID, Position&, const Velocity&)
+	TestWorld.AddSystem<Position, const Velocity>([](EID, Position&, const Velocity&)
 		{
 			SCAR_LOG(LogVerbose, "TEST");
 		});
 	
-	Registry& Reg = TestWorld.GetRegistry();
-
-	Reg.CreateEntity<Position, Velocity>();
-	Reg.CreateEntity<Position, Velocity, int>();
-	Reg.CreateEntity<Position>();
+	TestWorld.CreateEntity<Position, Velocity>("Pos/Vel");
+	TestWorld.CreateEntity<Position, Velocity, int>("Pos/Vel/Int");
+	TestWorld.CreateEntity<Position>("Pos");
 
 
 	Engine& GEngine = Engine::Get();

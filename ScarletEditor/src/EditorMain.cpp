@@ -8,8 +8,8 @@ int main()
 	Engine& GEngine = Engine::Get();
 	GEngine.Initialize();
 
-	Editor GEditor;
-
+	// initialize the global editor
+	Editor::Get();
 	GEngine.Run();
 
 	return 0;

@@ -7,6 +7,11 @@ namespace ScarletEngine
 	{
 	}
 
+	void World::Initialize()
+	{
+		
+	}
+
 	void World::Tick(double DeltaTime)
 	{
 		LastDeltaTime = DeltaTime;

@@ -8,7 +8,24 @@ namespace ScarletEngine
 {
 	Editor::Editor()
 		: FrameTimes()
+		, SelectedEntity()
+		, EditorWorld(nullptr)
+		, SceneHierarchy(nullptr)
+		, PropertyEditor(nullptr)
 	{
+	}
+
+	void Editor::Initialize()
+	{
+		EditorWorld = std::make_shared<World>();
+		SceneHierarchy = std::make_shared<SceneHierarchyPanel>(EditorWorld);
+		PropertyEditor = std::make_shared<PropertyEditorPanel>();
+
+		// Test entities
+		EditorWorld->CreateEntity<Transform>("Empty 1");
+		EditorWorld->CreateEntity<Transform>("Empty 2");
+		EditorWorld->CreateEntity<Transform>("Empty 3");
+
 		Viewports.emplace_back(Renderer::Get().CreateViewport(1280, 720));
 	}
 
@@ -28,7 +45,7 @@ namespace ScarletEngine
 
 			Renderer::Get().DrawScene(nullptr, EdViewport.View.get());
 		}
-				
+
 		DrawUI();
 
 		CurrentFrameTimeIndex = (CurrentFrameTimeIndex + 1) % 100;
@@ -81,6 +98,7 @@ namespace ScarletEngine
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
 
+		// Draw the top menu bar
 		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -111,6 +129,7 @@ namespace ScarletEngine
 			ImGui::EndMenuBar();
 		}
 
+		// Draw individual viewports
 		uint32_t ViewportIndex = 0;
 		for (auto& EdViewport : Viewports)
 		{
@@ -134,6 +153,8 @@ namespace ScarletEngine
 			ViewportIndex++;
 		}
 		
+		SceneHierarchy->Draw();
+		PropertyEditor->Draw();
 
 		ImGui::Begin("Stats");
 		ImGui::Text("Last frame time: %.2f ms", FrameTimes[CurrentFrameTimeIndex]);
