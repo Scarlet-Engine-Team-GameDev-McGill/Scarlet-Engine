@@ -1,5 +1,5 @@
 # --- Set up CMake version. Require minimum version 3.1 but prefer 3.16 for precompiled headers ---
-cmake_minimum_required(VERSION 3.1...3.16)
+cmake_minimum_required(VERSION 3.8...3.16)
 message(STATUS "CMake Version: ${CMAKE_VERSION}")
 project("ScarletEngine" VERSION 1.0 LANGUAGES CXX)
 
@@ -17,7 +17,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	# Disable C++ exceptions.
 	string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
-	# Disable RTTI in the future. Currently needed for CTIDs
+	# Disable RTTI in the future.
 	string(REGEX REPLACE "/GR" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -37,7 +37,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	# Disable C++ exceptions.
 	string(REGEX REPLACE "-fexceptions" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
-	# Disable RTTI in the future. Currently needed for CTIDs
+	# Disable RTTI in the future.
 	string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 	if(NOT CMAKE_CXX_FLAGS MATCHES "-fsanitize")
@@ -60,7 +60,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	# Disable C++ exceptions.
 	string(REGEX REPLACE "-fexceptions" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
-	# Disable RTTI in the future. Currently needed for CTIDs
+	# Disable RTTI in the future.
 	string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")

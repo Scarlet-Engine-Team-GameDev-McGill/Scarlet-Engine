@@ -43,7 +43,7 @@ target_link_libraries(ScarletEngine PRIVATE ${GLFW3_LIBRARY} Vulkan::Vulkan Open
 target_compile_features(ScarletEngine PUBLIC cxx_std_17)
 
 if(${CMAKE_VERSION} VERSION_LESS "3.16.0") 
-    message("Please consider to switch to CMake 3.16 or higher for PCH support!")
+    message(STATUS "Please consider switching to CMake 3.16 or higher for PCH support!")
 else()
 	message(STATUS "Using Precompiled Headers")
 	target_precompile_headers(ScarletEngine PUBLIC "include/Core/CorePCH.h")
