@@ -1,12 +1,7 @@
-# --- Set up CMake version. Require at least version 3.1 and use the latest version policy possible (up to 3.15) ---
-cmake_minimum_required(VERSION 3.1...3.18)
+# --- Set up CMake version. Require minimum version 3.1 but prefer 3.16 for precompiled headers ---
+cmake_minimum_required(VERSION 3.1...3.16)
+message(STATUS "CMake Version: ${CMAKE_VERSION}")
 project("ScarletEngine" VERSION 1.0 LANGUAGES CXX)
-
-if (${CMAKE_VERSION} VERSION_LESS 3.15)
-	cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-else()
-	cmake_policy(VERSION 3.15)
-endif()
 
 # --- Set compiler warnings and disable RTTI/Exceptions
 # https://github.com/izenecloud/cmake/blob/master/SetCompilerWarningAll.cmake

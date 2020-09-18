@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CoreUtils.h"
+#include "CoreMinimal.h"
 #include "Engine.h"
 #include "ITickable.h"
 #include "Event.h"

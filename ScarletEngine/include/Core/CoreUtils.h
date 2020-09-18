@@ -1,15 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <memory>
-#include <vector>
-#include <map>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <imgui.h>
-#include <misc/cpp/imgui_stdlib.h>
-
 #include "Logger.h"
 
 // include signal.h to raise a debug break in POSIX systems (non-windows)
