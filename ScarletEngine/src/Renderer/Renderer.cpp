@@ -1,74 +1,58 @@
 #include "Renderer/Renderer.h"
 
-#include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <glm/glm.hpp>
+#include "Core/CoreUtils.h"
+#include "Renderer/OpenGLRAL/OpenGLRAL.h"
 
-#include <cstdio>
+#include "Renderer/Scene.h"
+#include "Renderer/Viewport.h"
 
 namespace ScarletEngine
 {
-	void TestLibraries()
+	Renderer::Renderer()
+		: RAL(nullptr)
 	{
-		glfwInit();
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		if (GLFWwindow* Window = glfwCreateWindow(800, 600, "Test Window", nullptr, nullptr))
-		{
-			printf("Glfw working!\n");
-			glfwDestroyWindow(Window);
-		}
-		else
-		{
-			printf("Glfw not working!\n");
-			return;
-		}
+	}
 
-		if (glfwVulkanSupported())
-		{
-			VkApplicationInfo AppInfo{};
-			AppInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-			AppInfo.pApplicationName = "Test Window";
-			AppInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-			AppInfo.pEngineName = "GDMEngine";
-			AppInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-			AppInfo.apiVersion = VK_API_VERSION_1_0;
+	void Renderer::Initialize()
+	{
 
-			VkInstance Instance;
-			VkInstanceCreateInfo CreateInfo{};
-			CreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-			CreateInfo.pApplicationInfo = &AppInfo;
+#ifdef RAL_USE_OPENGL
+		RAL = std::unique_ptr<IRAL>(new OpenGLRAL);
+#elif defined RAL_USE_VULKAN
+		// initialize a vulkan RAL
+#endif
+		// Ensure we have some kind of RAL set up by here
+		check(RAL != nullptr);
 
-			uint32_t GlfwExtensionCount = 0;
-			const char** GlfwExtensionNames = glfwGetRequiredInstanceExtensions(&GlfwExtensionCount);
-			CreateInfo.enabledExtensionCount = GlfwExtensionCount;
-			CreateInfo.ppEnabledExtensionNames = GlfwExtensionNames;
-			CreateInfo.enabledLayerCount = 0;
-			if (vkCreateInstance(&CreateInfo, nullptr, &Instance) == VK_SUCCESS)
-			{
-				printf("Vulkan working!\n");
-				vkDestroyInstance(Instance, nullptr);
-			}
-			else
-			{
-				printf("Failed to create a Vulkan instance!\n");
-			}
-		}
-		else
-		{
-			printf("Vulkan not supported!\n");
-		}
+		RAL->Initialize();
+	}
 
-		glfwTerminate();
 
-		if (ImGuiContext* Ctx = ImGui::CreateContext())
-		{
-			printf("ImGUI working!\n");
-			ImGui::DestroyContext(Ctx);
-		}
-		else
-		{
-			printf("ImGUI not working!\n");
-		}
+	void Renderer::EndFrame()
+	{
+		RAL->SwapWindowBuffers();
+		RAL->PollWindowEvents();
+	}
+	
+	void Renderer::SetWindowCtx(void* WindowPtr)
+	{
+		RAL->SetWindowCtx(WindowPtr);
+	}
+
+	Viewport* Renderer::CreateViewport(uint32_t Width, uint32_t Height)
+	{
+		return new Viewport(RAL.get(), Width, Height);
+	}
+
+	void Renderer::DrawScene(Scene*, Viewport* ActiveViewport)
+	{
+		ActiveViewport->Bind();
+		// For now default to clearing with Scarlet Red
+		RAL->SetClearColorCommand({ 1.0f, 0.13f, 0.f, 1.f });
+		RAL->ClearCommand(true, true, true);
+
+		ActiveViewport->Unbind();
 	}
 }

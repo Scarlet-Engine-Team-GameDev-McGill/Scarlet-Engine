@@ -1,12 +1,7 @@
-# --- Set up CMake version. Require at least version 3.1 and use the latest version policy possible (up to 3.15) ---
-cmake_minimum_required(VERSION 3.1...3.18)
+# --- Set up CMake version. Require minimum version 3.1 but prefer 3.16 for precompiled headers ---
+cmake_minimum_required(VERSION 3.1...3.16)
+message(STATUS "CMake Version: ${CMAKE_VERSION}")
 project("ScarletEngine" VERSION 1.0 LANGUAGES CXX)
-
-if (${CMAKE_VERSION} VERSION_LESS 3.15)
-	cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-else()
-	cmake_policy(VERSION 3.15)
-endif()
 
 # --- Set compiler warnings and disable RTTI/Exceptions
 # https://github.com/izenecloud/cmake/blob/master/SetCompilerWarningAll.cmake
@@ -70,6 +65,24 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
+# Add a helper macro to move files to the build directory
+macro(configure_files srcDir destDir)
+	message(STATUS "Configuring directory ${destDir}")
+	make_directory(${destDir})
+
+	file(GLOB templateFiles RELATIVE "${srcDir}" "${srcDir}/*")
+	foreach(templateFile ${templateFiles})
+		set(srcTemplatePath ${srcDir}/${templateFile})
+		if(NOT IS_DIRECTORY ${srcTemplatePath})
+			message(STATUS "Configuring file ${templateFile}")
+			configure_file(
+					${srcTemplatePath}
+					${destDir}/${templateFile}
+					COPYONLY)
+		endif(NOT IS_DIRECTORY ${srcTemplatePath})
+	endforeach(templateFile)
+endmacro(configure_files)
+
 # Append the "CMake" directory to the module path so that Find*.cmake files can be used
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
 
@@ -81,8 +94,14 @@ endif()
 # Compile the ScarletEngine library
 add_subdirectory("ScarletEngine")
 
+# Editor
+option(COMPILE_EDITOR "Should compile Editor" ON)
+if (COMPILE_EDITOR)
+	add_subdirectory("ScarletEditor")
+endif()
+
 # Testing
-option(TESTING "Compile and run test app" ON)
+option(TESTING "Compile test app" ON)
 if (TESTING)
 	add_subdirectory("TestGame")
 endif()

@@ -16,7 +16,7 @@
 #ifdef DEBUG
 #define check(pred)	\
 {					\
-	if (!pred)		\
+	if (!(pred))	\
 	{				\
 		PLATFORM_BREAK();\
 	}				\

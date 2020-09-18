@@ -7,7 +7,6 @@ namespace ScarletEngine
 	ITickable::ITickable()
 	{
 		Engine& GEngine = Engine::Get();
-		check(GEngine.IsInitialized());
 
 		GEngine.QueueAddTickable(this);
 	}

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <vector>
-#include <mutex>
+#include "CoreMinimal.h"
 
 namespace ScarletEngine
 {

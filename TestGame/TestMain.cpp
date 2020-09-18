@@ -1,53 +1,40 @@
-#include "Renderer/Renderer.h"
 #include "Core/Core.h"
+#include "World.h"
+#include "ECS/ECS.h"
 
-class TestTickable : public ScarletEngine::ITickable
+struct Position
 {
-public:
-	virtual void Tick(double) override
-	{
-		if (Count >= 5)
-		{
-			ScarletEngine::Engine::Get().SignalQuit();
-		}
-		SCAR_LOG(LogVerbose, "Tick #%d", Count++);
-	}
+	float X = 0.f;
+	float Y = 0.f;
+	float Z = 0.f;
+};
 
-	int Count = 0;
+struct Velocity
+{
+	float X = 0.f;
+	float Y = 0.f;
+	float Z = 0.f;
 };
 
 int main()
 {
 	using namespace ScarletEngine;
-	TestLibraries();
 
-	Event<int, int, int> TestEvent;
-	TestEvent.Bind([](int a, int b, int c)
-		{
-			SCAR_LOG(LogVerbose, "Event %d %d %d", a, b, c);
-		});
-	TestEvent.Bind([](int a, int b, int c)
-		{
-			SCAR_LOG(LogVerbose, "Event %d %d %d", a * 2, b * 2, c * 2);
-		});
+	World TestWorld;
 
-	TestEvent.Broadcast(10, 10, 10);
+	TestWorld.AddSystem<Position, const Velocity>("Test System")
+		.Each([](EID, Position&, const Velocity&)
+			{
+				SCAR_LOG(LogVerbose, "TEST");
+			});
+	
+	TestWorld.CreateEntity<Position, Velocity>("Pos/Vel");
+	TestWorld.CreateEntity<Position, Velocity, int>("Pos/Vel/Int");
+	TestWorld.CreateEntity<Position>("Pos");
 
-	Delegate<int(int)> Add;
-	Add.Bind([](int a) { return a * 2; });
-	SCAR_LOG(LogVerbose, "Delegate %d", Add(10));
-
-	Delegate<void(int)> Nothing;
-	Nothing.Bind([](int) {});
-	Nothing(10);
 
 	Engine& GEngine = Engine::Get();
 	GEngine.Initialize();
-
-	TestTickable Tickable;
-
 	GEngine.Run();
-
-	Event<void(int)> a;
 	return 0;
 }
