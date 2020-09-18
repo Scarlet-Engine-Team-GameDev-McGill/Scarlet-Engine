@@ -56,7 +56,8 @@ namespace ScarletEngine
 		std::vector<EditorViewport> Viewports;
 
 		uint32_t CurrentFrameTimeIndex = 0;
-		float FrameTimes[100];
+		static const uint32_t MaxFrameTimes = 200;
+		float FrameTimes[MaxFrameTimes];
 
 		std::shared_ptr<World> EditorWorld;
 		
