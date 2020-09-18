@@ -1,7 +1,6 @@
 #pragma once
 
-#include <memory>
-#include <vector>
+#include "Core/CoreMinimal.h"
 #include "RAL/RAL.h"
 
 namespace ScarletEngine

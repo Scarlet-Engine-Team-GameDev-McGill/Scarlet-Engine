@@ -22,10 +22,11 @@ int main()
 
 	World TestWorld;
 
-	TestWorld.AddSystem<Position, const Velocity>([](EID, Position&, const Velocity&)
-		{
-			SCAR_LOG(LogVerbose, "TEST");
-		});
+	TestWorld.AddSystem<Position, const Velocity>("Test System")
+		.Each([](EID, Position&, const Velocity&)
+			{
+				SCAR_LOG(LogVerbose, "TEST");
+			});
 	
 	TestWorld.CreateEntity<Position, Velocity>("Pos/Vel");
 	TestWorld.CreateEntity<Position, Velocity, int>("Pos/Vel/Int");

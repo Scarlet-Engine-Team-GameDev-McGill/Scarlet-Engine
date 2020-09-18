@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/CoreMinimal.h"
 #include "Renderer/RAL/RALResources.h"
 
 namespace ScarletEngine

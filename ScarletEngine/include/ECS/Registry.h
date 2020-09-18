@@ -1,11 +1,6 @@
 #pragma once
-#include <tuple>
-#include <map>
-#include <unordered_map>
-#include <vector>
-#include <functional>
-#include <memory>
 
+#include "Core/CoreMinimal.h"
 #include "TypeInfo.h"
 #include "Entity.h"
 

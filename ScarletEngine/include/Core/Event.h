@@ -1,7 +1,6 @@
 #pragma once
 
-#include <functional>
-#include <vector>
+#include "CoreMinimal.h"
 
 namespace ScarletEngine
 {
@@ -10,13 +9,15 @@ namespace ScarletEngine
 	class Event
 	{
 	public:
-		void Bind(const std::function<void(Args...)>& Callback)
+		void Bind(const std::function<void(Args...)>& Callback) const
 		{
+			// This method is not actually const, 
+			// it just allows us to prevent const references from broadcasting
 			Callbacks.emplace_back(Callback);
 		}
 
 		template <typename CallerType, typename FunctionType>
-		void Bind(CallerType Ptr, FunctionType Func)
+		void Bind(CallerType Ptr, FunctionType Func) const
 		{
 			if constexpr (sizeof...(Args) == 0)
 			{
@@ -44,7 +45,7 @@ namespace ScarletEngine
 			}
 		}
 
-		void Broadcast(Args... args) const
+		void Broadcast(Args... args)
 		{
 			for (const auto& Callback : Callbacks)
 			{
@@ -57,6 +58,6 @@ namespace ScarletEngine
 			Callbacks.clear();
 		}
 	private:
-		std::vector<std::function<void(Args...)>> Callbacks;
+		mutable std::vector<std::function<void(Args...)>> Callbacks;
 	};
 }

@@ -12,7 +12,7 @@ namespace ScarletEngine
 		, SelectedEntityID(INVALID_EID)
 	{
 		RepresentingWorld.lock()->GetOnEntityAddedToWorldEvent().Bind(this, &SceneHierarchyPanel::OnEntityAddedToWorld);
-		Editor::Get().OnSelectionChangedEvent.Bind(this, &SceneHierarchyPanel::OnWorldSelectionChanged);
+		Editor::Get().GetOnSelectionChanged().Bind(this, &SceneHierarchyPanel::OnWorldSelectionChanged);
 		RepopulateItems();
 	}
 

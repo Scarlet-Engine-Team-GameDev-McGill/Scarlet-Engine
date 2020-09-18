@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/CoreUtils.h"
+#include "Core/CoreMinimal.h"
 
 namespace ScarletEngine
 {

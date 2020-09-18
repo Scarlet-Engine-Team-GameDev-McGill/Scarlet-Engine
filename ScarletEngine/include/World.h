@@ -37,9 +37,9 @@ namespace ScarletEngine
 
 		/** Register a new system with the world */
 		template <typename... SystemSig>
-		void AddSystem(const typename System<SystemSig...>::ForEachFunctionType ForEach)
+		System<SystemSig...>& AddSystem(const std::string& Name)
 		{
-			Systems.emplace_back(new System<SystemSig...>(&Reg, ForEach));
+			return *static_cast<System<SystemSig...>*>(Systems.emplace_back(new System<SystemSig...>(&Reg, Name)).get());
 		}
 
 		auto GetEntities()

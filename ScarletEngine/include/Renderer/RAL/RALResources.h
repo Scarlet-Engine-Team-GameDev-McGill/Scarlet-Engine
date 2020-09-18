@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cstdint>
-#include <vector>
-#include "Core/CoreUtils.h"
+#include "Core/CoreMinimal.h"
 
 namespace ScarletEngine
 {

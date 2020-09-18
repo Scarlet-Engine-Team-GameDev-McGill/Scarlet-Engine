@@ -6,11 +6,11 @@
 #include "Panels/SceneHierarchy/SceneHierarchy.h"
 #include "Panels/PropertyEditor.h"
 
-#include <memory>
-#include <glm/glm.hpp>
-
 namespace ScarletEngine
 {
+	using OnSelectionChangedEvent = Event<const std::shared_ptr<Entity>&>;
+	using OnSelectionClearedEvent = Event<>;
+
 	class Editor : public ITickable
 	{
 	public:
@@ -23,7 +23,7 @@ namespace ScarletEngine
 		void SetSelection(const std::shared_ptr<Entity>& InSelectedEntity) 
 		{
 			SelectedEntity = InSelectedEntity;
-			OnSelectionChangedEvent.Broadcast(InSelectedEntity);
+			OnSelectionChanged.Broadcast(InSelectedEntity);
 		}
 
 		void ClearSelection()
@@ -32,8 +32,8 @@ namespace ScarletEngine
 			OnSelectionCleared.Broadcast();
 		}
 
-		Event<const std::shared_ptr<Entity>&> OnSelectionChangedEvent;
-		Event<> OnSelectionCleared;
+		const OnSelectionChangedEvent& GetOnSelectionChanged() const { return OnSelectionChanged; }
+		const OnSelectionClearedEvent& GetOnSelectionCleared() const { return OnSelectionCleared; }
 
 		static Editor& Get() { static Editor Instance; return Instance; }
 	private:
@@ -65,5 +65,8 @@ namespace ScarletEngine
 		std::shared_ptr<PropertyEditorPanel> PropertyEditor;
 
 		std::weak_ptr<Entity> SelectedEntity;
+
+		OnSelectionChangedEvent OnSelectionChanged;
+		OnSelectionClearedEvent OnSelectionCleared;
 	};
 }
