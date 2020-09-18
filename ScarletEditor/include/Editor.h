@@ -3,7 +3,7 @@
 #include "ECS/ECS.h"
 #include "World.h"
 #include "Renderer/Viewport.h"
-#include "Panels/SceneHierarchy.h"
+#include "Panels/SceneHierarchy/SceneHierarchy.h"
 #include "Panels/PropertyEditor.h"
 
 #include <memory>

@@ -134,9 +134,12 @@ namespace ScarletEngine
 		for (auto& EdViewport : Viewports)
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+			
+			window_flags = Viewports.size() > 1 ? ImGuiWindowFlags_NoMove : 0;
+
 			char Buff[32];
 			snprintf(Buff, 32, "Viewport##%d", ViewportIndex);
-			ImGui::Begin(Buff);
+			ImGui::Begin(Buff, nullptr, window_flags);
 
 			EdViewport.bViewportIsFocused = ImGui::IsWindowFocused();
 			EdViewport.bViewportIsHovered = ImGui::IsWindowHovered();

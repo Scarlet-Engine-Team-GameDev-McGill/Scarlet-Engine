@@ -9,7 +9,8 @@ file (GLOB ImGUI_SRC
 	"thirdparty/imgui/*.cpp"
 	"thirdparty/imgui/examples/imgui_impl_glfw.cpp"
 	"thirdparty/imgui/examples/imgui_impl_vulkan.cpp"
-	"thirdparty/imgui/examples/imgui_impl_opengl3.cpp")
+	"thirdparty/imgui/examples/imgui_impl_opengl3.cpp"
+	"thirdparty/imgui/misc/cpp/imgui_stdlib.cpp")
 
 set (IMGUI_INCLUDE "thirdparty/imgui")
 
