@@ -4,3 +4,8 @@
 
 #include "CorePCH.h"
 #include "CoreUtils.h"
+
+namespace ScarletEngine
+{
+	using byte_t = uint8_t;
+}

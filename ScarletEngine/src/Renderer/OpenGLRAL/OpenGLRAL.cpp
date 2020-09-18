@@ -4,8 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "Core/Core.h"
 #include "Renderer/OpenGLRAL/OpenGLResources.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "AssetManager/AssetManager.h"
 
 namespace ScarletEngine
 {
@@ -35,11 +34,13 @@ namespace ScarletEngine
 		}
 
 		// Set the window icon;
-		GLFWimage Images[1]; 
-		// #todo: use a global asset loader/manager to load from content
-		Images[0].pixels = stbi_load("../ScarletEngine/content/scarlet_logo.png", &Images[0].width, &Images[0].height, 0, 4);
-		glfwSetWindowIcon(Window, 1, Images);
-		stbi_image_free(Images[0].pixels);
+		std::shared_ptr<TextureHandle> LogoTex = AssetManager::LoadTexture("../ScarletEngine/content/scarlet_logo.png");
+		GLFWimage Image;
+		Image.pixels = LogoTex->PixelDataBuffer;
+		Image.width = LogoTex->Width;
+		Image.height = LogoTex->Height;
+
+		glfwSetWindowIcon(Window, 1, &Image);
 
 		glfwMakeContextCurrent(Window);
 		glfwSwapInterval(1);
