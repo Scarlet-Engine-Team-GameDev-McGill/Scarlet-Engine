@@ -14,9 +14,9 @@ namespace ScarletEngine
 {
 	SceneHierarchyPanel::SceneHierarchyPanel(const std::shared_ptr<World>& InRepresentingWorld)
 		: RepresentingWorld(InRepresentingWorld)
-		, SelectedEntityID(INVALID_EID)
 		, EntityIcon(nullptr)
 		, EntityTexture(nullptr)
+		, SelectedEntityID(INVALID_EID)
 	{
 		RepresentingWorld.lock()->GetOnEntityAddedToWorldEvent().Bind(this, &SceneHierarchyPanel::OnEntityAddedToWorld);
 		Editor::Get().GetOnSelectionChanged().Bind(this, &SceneHierarchyPanel::OnWorldSelectionChanged);
