@@ -26,6 +26,7 @@ namespace ScarletEngine
 		virtual void ClearCommand(bool bColor, bool bDepth, bool bStencil) const override;
 
 		virtual RALFramebuffer* CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples) const override;
+		virtual RALTexture2D* CreateTexture2D(const std::weak_ptr<TextureHandle>& AssetHandle) const override;
 		virtual RALVertexBuffer* CreateVertexBuffer(uint32_t Size, uint32_t Usage) const override;
 		virtual RALShader* CreateShader(RALShaderStage Stage, const std::vector<uint8_t>& ShaderCode) const override;
 		virtual RALShaderProgram* CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) const override;

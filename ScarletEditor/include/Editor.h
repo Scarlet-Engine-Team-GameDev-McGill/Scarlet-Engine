@@ -5,6 +5,8 @@
 #include "Renderer/Viewport.h"
 #include "Panels/SceneHierarchy/SceneHierarchy.h"
 #include "Panels/PropertyEditor.h"
+#include "AssetManager/AssetHandle.h"
+#include "Renderer/RAL/RALResources.h"
 
 namespace ScarletEngine
 {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/CoreMinimal.h"
+#include "AssetManager/AssetHandle.h"
 
 namespace ScarletEngine
 {
@@ -25,6 +26,21 @@ namespace ScarletEngine
 		uint32_t Width;
 		uint32_t Height;
 		uint32_t Samples;
+	};
+
+	class RALTexture2D
+	{
+	public:
+		RALTexture2D(const std::weak_ptr<TextureHandle>& InAssetHandle)
+			: AssetHandle(InAssetHandle)
+		{}
+		virtual ~RALTexture2D() {}
+
+		virtual void Bind() const = 0;
+		virtual void Unbind() const = 0;
+		virtual uint64_t GetTextureResource() const = 0;
+	protected:
+		std::weak_ptr<TextureHandle> AssetHandle;
 	};
 
 	class RALVertexBuffer

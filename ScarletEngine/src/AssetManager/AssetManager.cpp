@@ -4,7 +4,6 @@
 
 namespace ScarletEngine
 {
-	AssetManager AssetManager::Instance;
 	std::unordered_map<std::string, std::weak_ptr<IAssetHandle>> AssetManager::CachedAssets;
 
 	std::shared_ptr<TextureHandle> AssetManager::LoadTexture(const std::string& FilePath)
@@ -48,6 +47,17 @@ namespace ScarletEngine
 		}
 
 		return nullptr;
+	}
+
+	void AssetManager::ForEachLoadedAsset(const std::function<bool(IAssetHandle&)>& Func)
+	{
+		for (const auto& Pair : CachedAssets)
+		{
+			if (!Func(*(Pair.second.lock())))
+			{
+				break;
+			}
+		}
 	}
 
 	void AssetManager::UnloadAsset(const std::string& AssetToUnload)

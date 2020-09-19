@@ -12,6 +12,7 @@ namespace ScarletEngine
 
 		static void UnloadAsset(const std::string& AssetToUnload);
 
+		static void ForEachLoadedAsset(const std::function<bool(IAssetHandle&)>& Func);
 	private:
 		static std::shared_ptr<IAssetHandle> LoadAsset(const std::string& FilePath, AssetType Type);
 	private:
@@ -19,8 +20,6 @@ namespace ScarletEngine
 		AssetManager(const AssetManager&) = delete;
 		AssetManager(AssetManager&&) = delete;
 	private:
-		static AssetManager Instance;
-
 		static std::unordered_map<std::string, std::weak_ptr<IAssetHandle>> CachedAssets;
 	};
 }

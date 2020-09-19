@@ -11,16 +11,18 @@ namespace ScarletEngine
 	IAssetHandle::IAssetHandle(AssetType InType, const std::string& InFilePath)
 		: Type(InType)
 		, FilePath(InFilePath)
-	{}
+	{
+	}
 
 	IAssetHandle::~IAssetHandle()
 	{
 		// When nothing is referencing this asset, remove its entry in the cache
-		AssetManager::UnloadAsset(FilePath);
+		AssetManager::UnloadAsset(FilePath.string());
 	}
 
 	TextureHandle::TextureHandle(const std::string& InFilePath)
 		: IAssetHandle(AssetType::Texture, InFilePath)
+		, PixelDataBuffer(nullptr)
 	{
 		// potentially dangerous casting happening here
 		int ImageWidth;
@@ -28,10 +30,11 @@ namespace ScarletEngine
 		int NumChannels;
 
 		PixelDataBuffer = stbi_load(InFilePath.c_str(), &ImageWidth, &ImageHeight, &NumChannels, STBI_rgb_alpha);
+		check(PixelDataBuffer != nullptr);
 
 		Width = ImageWidth;
 		Height = ImageHeight;
-		Channels = NumChannels;
+		Channels = (uint8_t)NumChannels;
 	}
 
 	TextureHandle::~TextureHandle()

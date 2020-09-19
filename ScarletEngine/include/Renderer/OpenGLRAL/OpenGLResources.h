@@ -24,6 +24,20 @@ namespace ScarletEngine
 		uint32_t DepthAttachment;
 	};
 
+	class OpenGLTexture2D : public RALTexture2D
+	{
+	public:
+		OpenGLTexture2D(const std::weak_ptr<TextureHandle>& InAssetHandle);
+
+		virtual ~OpenGLTexture2D();
+
+		virtual void Bind() const override;
+		virtual void Unbind() const override;
+		virtual uint64_t GetTextureResource() const override { return TextureObject; }
+	private:
+		uint32_t TextureObject;
+	};
+
 	class OpenGLVertexBuffer : public RALVertexBuffer
 	{
 	public:

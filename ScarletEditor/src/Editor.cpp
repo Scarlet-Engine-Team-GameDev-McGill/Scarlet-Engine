@@ -4,6 +4,8 @@
 #include <imgui.h>
 #include <cmath>
 
+#include "AssetManager/AssetManager.h"
+
 namespace ScarletEngine
 {
 	Editor::Editor()

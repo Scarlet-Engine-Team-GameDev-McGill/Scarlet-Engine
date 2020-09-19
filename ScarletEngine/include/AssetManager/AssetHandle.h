@@ -11,7 +11,7 @@ namespace ScarletEngine
 		virtual ~IAssetHandle();
 
 		AssetType Type;
-		std::string FilePath;
+		std::filesystem::path FilePath;
 	protected:
 		// Constructor is protected to prevent instantiation of this abstract class
 		IAssetHandle(AssetType InType, const std::string& InFilePath);

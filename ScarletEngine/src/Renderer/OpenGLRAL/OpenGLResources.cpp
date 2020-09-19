@@ -72,6 +72,40 @@ namespace ScarletEngine
 		Height = NewHeight;
 	}
 
+	OpenGLTexture2D::OpenGLTexture2D(const std::weak_ptr<TextureHandle>& InAssetHandle)
+		: RALTexture2D(InAssetHandle)
+		, TextureObject(0)
+	{
+		check(!InAssetHandle.expired());
+		std::shared_ptr<TextureHandle> TexHandle = AssetHandle.lock();
+		check(TexHandle->PixelDataBuffer != nullptr);
+		
+		glGenTextures(1, &TextureObject);
+		glBindTexture(GL_TEXTURE_2D, TextureObject);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TexHandle->Width, TexHandle->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, AssetHandle.lock()->PixelDataBuffer);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
+	OpenGLTexture2D::~OpenGLTexture2D()
+	{
+		glDeleteTextures(1, &TextureObject);
+	}
+
+	void OpenGLTexture2D::Bind() const
+	{
+		glBindTexture(GL_TEXTURE_2D, TextureObject);
+	}
+
+	void OpenGLTexture2D::Unbind() const
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
 	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t InSize, uint32_t InUsage)
 		: RALVertexBuffer(InSize, InUsage)
 		, BufferObject(0)

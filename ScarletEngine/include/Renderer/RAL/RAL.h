@@ -31,6 +31,8 @@ namespace ScarletEngine
 
 		virtual RALFramebuffer* CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples) const = 0;
 
+		virtual RALTexture2D* CreateTexture2D(const std::weak_ptr<TextureHandle>& AssetHandle) const = 0;
+
 		virtual RALVertexBuffer* CreateVertexBuffer(uint32_t Size, uint32_t Usage) const = 0;
 		
 		virtual RALShader* CreateShader(RALShaderStage Stage, const std::vector<uint8_t>& ShaderCode) const = 0;

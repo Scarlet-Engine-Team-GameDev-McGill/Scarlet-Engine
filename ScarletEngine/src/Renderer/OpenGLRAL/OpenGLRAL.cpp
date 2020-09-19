@@ -94,6 +94,11 @@ namespace ScarletEngine
 		return new OpenGLFramebuffer(Width, Height, Samples);
 	}
 
+	ScarletEngine::RALTexture2D* OpenGLRAL::CreateTexture2D(const std::weak_ptr<TextureHandle>& AssetHandle) const
+	{
+		return new OpenGLTexture2D(AssetHandle);
+	}
+
 	RALVertexBuffer* OpenGLRAL::CreateVertexBuffer(uint32_t Size, uint32_t Usage) const
 	{
 		return new OpenGLVertexBuffer(Size, Usage);
