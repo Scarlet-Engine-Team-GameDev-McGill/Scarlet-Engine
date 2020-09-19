@@ -26,6 +26,9 @@ set (GLM_INCLUDE "thirdparty/glm")
 # Add STB_Image to private headers
 set(STBIMAGE_INCLUDE "thirdparty/stb_image")
 
+# Add IconFontCppHeaders to public headers
+set (ICONFONTCPPHEADERS_INCLUDE "thirdparty/IconFontCppHeaders")
+
 set(GRAPHICS_API "OpenGL" CACHE STRING "Which Graphics API to use")
 if (GRAPHICS_API STREQUAL "OpenGL")
 	add_definitions(-DRAL_USE_OPENGL)
@@ -35,7 +38,7 @@ endif()
 
 add_library(ScarletEngine STATIC ${ScarletEngine_SRC} ${ImGUI_SRC} ${Glad_SRC})
 
-target_include_directories(ScarletEngine PUBLIC "include/" ${IMGUI_INCLUDE} ${GLFW3_INCLUDE} ${GLM_INCLUDE})
+target_include_directories(ScarletEngine PUBLIC "include/" ${IMGUI_INCLUDE} ${GLFW3_INCLUDE} ${GLM_INCLUDE} ${ICONFONTCPPHEADERS_INCLUDE})
 target_include_directories(ScarletEngine PRIVATE "src/" ${STBIMAGE_INCLUDE} ${GLAD_INCLUDE})
 
 target_link_libraries(ScarletEngine PRIVATE ${GLFW3_LIBRARY} Vulkan::Vulkan OpenGL::GL ${CMAKE_DL_LIBS})

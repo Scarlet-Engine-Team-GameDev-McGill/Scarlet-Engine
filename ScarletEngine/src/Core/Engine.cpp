@@ -46,7 +46,17 @@ namespace ScarletEngine
 		IO.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;
 		// Enable floating windows
 		//IO.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/content/OpenSans-Regular.ttf", 18.f);
+		ImFontConfig Config;
+		Config.OversampleH = 4;
+		Config.OversampleV = 4;
+		Config.GlyphOffset.y -= 1.0f;
+		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/content/OpenSans-Regular.ttf", 18.0f, &Config);
+
+		Config.MergeMode = true;
+		Config.GlyphOffset.y -= -4.f;
+		const ImWchar MDIconRanges[] = { ICON_MIN_MD, ICON_MAX_MD, 0 };
+		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/content/MaterialIcons-Regular.ttf", 18.0f, &Config, MDIconRanges);
+		IO.Fonts->Build();
 
 		ImGui::StyleColorsDark();
 
@@ -61,8 +71,10 @@ namespace ScarletEngine
 		style.Colors[ImGuiCol_FrameBg] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
 		style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
 		style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.67f, 0.67f, 0.67f, 0.39f);
-		style.Colors[ImGuiCol_TitleBg] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
-		style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
+		//style.Colors[ImGuiCol_TitleBg] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
+		//style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
+		style.Colors[ImGuiCol_TitleBg] = ImVec4(0.129f, 0.141f, 0.149f, 1.0f);
+		style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.129f, 0.141f, 0.149f, 1.0F);
 		style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
 		style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
 		style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
@@ -84,7 +96,8 @@ namespace ScarletEngine
 		style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 		style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.29f, 0.30f, 0.31f, 0.67f);
 		style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-		style.Colors[ImGuiCol_Tab] = ImVec4(0.08f, 0.08f, 0.09f, 0.83f);
+		//style.Colors[ImGuiCol_Tab] = ImVec4(0.08f, 0.08f, 0.09f, 0.83f);
+		style.Colors[ImGuiCol_Tab] = ImVec4(0.129f, 0.141f, 0.149f, 1.0f);
 		style.Colors[ImGuiCol_TabHovered] = ImVec4(0.33f, 0.34f, 0.36f, 0.83f);
 		style.Colors[ImGuiCol_TabActive] = ImVec4(0.23f, 0.23f, 0.24f, 1.00f);
 		style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
@@ -103,6 +116,9 @@ namespace ScarletEngine
 		style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 		style.GrabRounding = style.FrameRounding = 2.3f;
 		style.WindowRounding = 0.f;
+		style.WindowMenuButtonPosition = ImGuiDir_Right;
+		style.TabRounding = 0.f;
+		style.FramePadding.x = 8.f;
 
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)RAL::Get().GetWindowPtr(), true);
 		ImGui_ImplOpenGL3_Init("#version 330");

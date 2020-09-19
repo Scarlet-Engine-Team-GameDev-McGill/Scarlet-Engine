@@ -11,6 +11,7 @@
 #include <mutex>
 #include <type_traits>
 #include <string>
+#include <string_view>
 #include <functional>
 #include <tuple>
 #include <map>
@@ -22,3 +23,4 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
+#include <GoogleMaterialDesign.h>

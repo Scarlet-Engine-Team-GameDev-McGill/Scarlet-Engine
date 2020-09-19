@@ -127,7 +127,7 @@ namespace ScarletEngine
 		for (auto& EdViewport : Viewports)
 		{
 			char Buff[32];
-			snprintf(Buff, 32, "Viewport##%d", ViewportIndex);
+			snprintf(Buff, 32, "%s Viewport##%d", ICON_MD_CROP_ORIGINAL, ViewportIndex);
 			ImGui::Begin(Buff);
 
 			EdViewport.bViewportIsFocused = ImGui::IsWindowFocused();

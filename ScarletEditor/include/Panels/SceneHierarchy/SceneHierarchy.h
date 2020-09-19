@@ -25,10 +25,5 @@ namespace ScarletEngine
 		 std::weak_ptr<World> RepresentingWorld;
 
 		 std::unordered_map<EID, std::unique_ptr<SceneHierarchyItem>> Items;
-
-		 std::shared_ptr<TextureHandle> EntityIcon;
-		 std::shared_ptr<RALTexture2D> EntityTexture;
-
-		 EID SelectedEntityID;
 	};
 }

@@ -11,13 +11,17 @@ namespace ScarletEngine
 	IAssetHandle::IAssetHandle(AssetType InType, const std::string& InFilePath)
 		: Type(InType)
 		, FilePath(InFilePath)
+		, Leafname(FilePath)
+		, Extension(Leafname)
 	{
+		Leafname = Leafname.substr(Leafname.find_last_of("/") + 1);
+		Extension = Extension.substr(Extension.find_last_of("."));
 	}
 
 	IAssetHandle::~IAssetHandle()
 	{
 		// When nothing is referencing this asset, remove its entry in the cache
-		AssetManager::UnloadAsset(FilePath.string());
+		AssetManager::UnloadAsset(FilePath);
 	}
 
 	TextureHandle::TextureHandle(const std::string& InFilePath)

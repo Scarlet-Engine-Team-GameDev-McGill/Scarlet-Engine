@@ -12,6 +12,9 @@ namespace ScarletEngine
 		
 		const char* GetDisplayString() const;
 
+		bool bIsSelected = false;
+
 		std::weak_ptr<Entity> Ent;
+		std::vector<std::weak_ptr<SceneHierarchyItem>> Children;
 	};
 }
