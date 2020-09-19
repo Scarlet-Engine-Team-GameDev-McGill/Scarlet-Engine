@@ -1,12 +1,11 @@
 #include "Renderer/Viewport.h"
-#include "Renderer/RAL/RAL.h"
+#include "RAL/RAL.h"
 
 namespace ScarletEngine
 {
-	Viewport::Viewport(IRAL* RAL, uint32_t Width, uint32_t Height)
+	Viewport::Viewport(uint32_t Width, uint32_t Height)
 	{
-		check(RAL);
-		Framebuffer = RAL->CreateFramebuffer(Width, Height, 1);
+		Framebuffer = RAL::Get().CreateFramebuffer(Width, Height, 1);
 	}
 
 	Viewport::~Viewport()

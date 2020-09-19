@@ -1,4 +1,4 @@
-#include "Renderer/OpenGLRAL/OpenGLResources.h"
+#include "OpenGLRAL/OpenGLResources.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

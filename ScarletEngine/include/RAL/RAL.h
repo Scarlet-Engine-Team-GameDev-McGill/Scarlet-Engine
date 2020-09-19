@@ -5,10 +5,17 @@
 
 namespace ScarletEngine
 {
-	class IRAL
+	enum class RenderAPI
+	{
+		OpenGL,
+		Vulkan,
+		Invalid
+	};
+
+	class RAL
 	{
 	public:
-		virtual ~IRAL() {}
+		virtual ~RAL() {}
 
 		virtual void Initialize() = 0;
 
@@ -37,5 +44,12 @@ namespace ScarletEngine
 		
 		virtual RALShader* CreateShader(RALShaderStage Stage, const std::vector<uint8_t>& ShaderCode) const = 0;
 		virtual RALShaderProgram* CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) const = 0;
+	
+		static RAL& Get() { return *Instance; }
+		static RenderAPI GetAPI() { return API; }
+	private:
+		friend class Renderer;
+		static std::unique_ptr<RAL> Instance;
+		static RenderAPI API;
 	};
 }

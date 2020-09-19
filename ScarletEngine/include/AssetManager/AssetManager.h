@@ -8,7 +8,7 @@ namespace ScarletEngine
 	class AssetManager
 	{
 	public:
-		static std::shared_ptr<TextureHandle> LoadTexture(const std::string& FilePath);
+		static std::shared_ptr<TextureHandle> LoadTextureFile(const std::string& FilePath);
 
 		static void UnloadAsset(const std::string& AssetToUnload);
 

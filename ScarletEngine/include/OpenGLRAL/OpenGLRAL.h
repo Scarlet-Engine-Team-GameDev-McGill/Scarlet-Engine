@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Core/CoreMinimal.h"
-#include "Renderer/RAL/RAL.h"
+#include "RAL/RAL.h"
 
 struct GLFWwindow;
 
 namespace ScarletEngine
 {
-	class OpenGLRAL : public IRAL
+	class OpenGLRAL : public RAL
 	{
 	public:
 		virtual void Initialize() override;

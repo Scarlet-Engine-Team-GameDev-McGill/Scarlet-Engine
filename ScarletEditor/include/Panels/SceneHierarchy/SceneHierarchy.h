@@ -2,7 +2,7 @@
 
 #include "Core/Core.h"
 #include "ECS/ECS.h"
-#include "Renderer/RAL/RALResources.h"
+#include "RAL/RALResources.h"
 
 #include "SceneHierarchyItem.h"
 

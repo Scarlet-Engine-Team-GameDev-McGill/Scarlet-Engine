@@ -1,9 +1,7 @@
 #include "Renderer/Renderer.h"
 
-#include <imgui.h>
-#include <glm/glm.hpp>
 #include "Core/CoreUtils.h"
-#include "Renderer/OpenGLRAL/OpenGLRAL.h"
+#include "OpenGLRAL/OpenGLRAL.h"
 
 #include "Renderer/Scene.h"
 #include "Renderer/Viewport.h"
@@ -11,7 +9,6 @@
 namespace ScarletEngine
 {
 	Renderer::Renderer()
-		: RAL(nullptr)
 	{
 	}
 
@@ -19,39 +16,44 @@ namespace ScarletEngine
 	{
 
 #ifdef RAL_USE_OPENGL
-		RAL = std::unique_ptr<IRAL>(new OpenGLRAL);
+		RAL::Instance = std::unique_ptr<RAL>(new OpenGLRAL);
+		RAL::API = RenderAPI::OpenGL;
 #elif defined RAL_USE_VULKAN
 		// initialize a vulkan RAL
+
+#else
+		RAL::API = RenderAPI::Invalid;
 #endif
 		// Ensure we have some kind of RAL set up by here
-		check(RAL != nullptr);
+		check(RAL::Instance != nullptr);
+		check(RAL::API != RenderAPI::Invalid);
 
-		RAL->Initialize();
+		RAL::Get().Initialize();
 	}
 
 
 	void Renderer::EndFrame()
 	{
-		RAL->SwapWindowBuffers();
-		RAL->PollWindowEvents();
+		RAL::Get().SwapWindowBuffers();
+		RAL::Get().PollWindowEvents();
 	}
 	
 	void Renderer::SetWindowCtx(void* WindowPtr)
 	{
-		RAL->SetWindowCtx(WindowPtr);
+		RAL::Get().SetWindowCtx(WindowPtr);
 	}
 
 	Viewport* Renderer::CreateViewport(uint32_t Width, uint32_t Height)
 	{
-		return new Viewport(RAL.get(), Width, Height);
+		return new Viewport(Width, Height);
 	}
 
 	void Renderer::DrawScene(Scene*, Viewport* ActiveViewport)
 	{
 		ActiveViewport->Bind();
 		// For now default to clearing with Scarlet Red
-		RAL->SetClearColorCommand({ 1.0f, 0.13f, 0.f, 1.f });
-		RAL->ClearCommand(true, true, true);
+		RAL::Get().SetClearColorCommand({ 1.0f, 0.13f, 0.f, 1.f });
+		RAL::Get().ClearCommand(true, true, true);
 
 		ActiveViewport->Unbind();
 	}

@@ -1,13 +1,14 @@
 #include "Panels/SceneHierarchy/SceneHierarchy.h"
 
-#include "Editor.h"
+#include "Core/Core.h"
 #include "World.h"
 #include "ECS/ECS.h"
-#include <imgui.h>
+
+#include "Editor.h"
 
 #include "AssetManager/AssetManager.h"
 #include "Renderer/Renderer.h"
-#include "Renderer/RAL/RAL.h"
+#include "RAL/RAL.h"
 
 namespace ScarletEngine
 {
@@ -21,8 +22,8 @@ namespace ScarletEngine
 		Editor::Get().GetOnSelectionChanged().Bind(this, &SceneHierarchyPanel::OnWorldSelectionChanged);
 		RepopulateItems();
 
-		EntityIcon = AssetManager::LoadTexture("../ScarletEngine/content/EntityIcon.png");
-		EntityTexture = std::shared_ptr<RALTexture2D>(Renderer::Get().GetRAL()->CreateTexture2D(EntityIcon));
+		EntityIcon = AssetManager::LoadTextureFile("../ScarletEngine/content/EntityIcon.png");
+		EntityTexture = std::shared_ptr<RALTexture2D>(RAL::Get().CreateTexture2D(EntityIcon));
 	}
 
 	void SceneHierarchyPanel::Draw()

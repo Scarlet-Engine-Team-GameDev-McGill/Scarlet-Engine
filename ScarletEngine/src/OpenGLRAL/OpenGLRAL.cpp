@@ -1,10 +1,11 @@
-#include "Renderer/OpenGLRAL/OpenGLRAL.h"
+#include "OpenGLRAL/OpenGLRAL.h"
+
+#include "Core/Core.h"
+#include "OpenGLRAL/OpenGLResources.h"
+#include "AssetManager/AssetManager.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "Core/Core.h"
-#include "Renderer/OpenGLRAL/OpenGLResources.h"
-#include "AssetManager/AssetManager.h"
 
 namespace ScarletEngine
 {
@@ -34,7 +35,7 @@ namespace ScarletEngine
 		}
 
 		// Set the window icon;
-		std::shared_ptr<TextureHandle> LogoTex = AssetManager::LoadTexture("../ScarletEngine/content/scarlet_logo.png");
+		std::shared_ptr<TextureHandle> LogoTex = AssetManager::LoadTextureFile("../ScarletEngine/content/scarlet_logo.png");
 		GLFWimage Image;
 		Image.pixels = LogoTex->PixelDataBuffer;
 		Image.width = LogoTex->Width;

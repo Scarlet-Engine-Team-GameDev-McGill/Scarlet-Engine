@@ -104,7 +104,7 @@ namespace ScarletEngine
 		style.GrabRounding = style.FrameRounding = 2.3f;
 		style.WindowRounding = 0.f;
 
-		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)Renderer::Get().GetWindowPtr(), true);
+		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)RAL::Get().GetWindowPtr(), true);
 		ImGui_ImplOpenGL3_Init("#version 330");
 #endif
 

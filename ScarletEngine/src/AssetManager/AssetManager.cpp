@@ -6,7 +6,7 @@ namespace ScarletEngine
 {
 	std::unordered_map<std::string, std::weak_ptr<IAssetHandle>> AssetManager::CachedAssets;
 
-	std::shared_ptr<TextureHandle> AssetManager::LoadTexture(const std::string& FilePath)
+	std::shared_ptr<TextureHandle> AssetManager::LoadTextureFile(const std::string& FilePath)
 	{
 		return std::static_pointer_cast<TextureHandle>(LoadAsset(FilePath, AssetType::Texture));
 	}
