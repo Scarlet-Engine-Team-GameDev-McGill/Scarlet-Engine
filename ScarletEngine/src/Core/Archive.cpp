@@ -23,7 +23,7 @@ namespace ScarletEngine
 		{
 			if (InMode == ArchiveMode::Read)
 			{
-				std::ifstream File(Filename, std::ios::binary | std::ios::ate);
+				std::ifstream File(Filename.c_str(), std::ios::binary | std::ios::ate);
 				if (File.is_open())
 				{
 					size_t Size = (size_t)File.tellg();
