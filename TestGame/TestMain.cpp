@@ -7,6 +7,20 @@ struct Position
 	float X = 0.f;
 	float Y = 0.f;
 	float Z = 0.f;
+
+	void Serialize(ScarletEngine::Archive& Arc) const
+	{
+		Arc << X
+			<< Y
+			<< Z;
+	}
+
+	void Deserialize(ScarletEngine::Archive& Arc)
+	{
+		Arc >> X
+			>> Y
+			>> Z;
+	}
 };
 
 struct Velocity
@@ -19,23 +33,41 @@ struct Velocity
 int main()
 {
 	using namespace ScarletEngine;
+	Archive Arch;
 
+	for (int i = 0; i < 20; ++i)
 	{
-		World TestWorld;
-
-		TestWorld.AddSystem<Position, const Velocity>("Test System")
-			.Each([](EID, Position&, const Velocity&)
-				{
-					SCAR_LOG(LogVerbose, "TEST");
-				});
-
-		TestWorld.CreateEntity<Position, Velocity>("Pos/Vel");
-		TestWorld.CreateEntity<Position, Velocity, int>("Pos/Vel/Int");
-		TestWorld.CreateEntity<Position>("Pos");
+		Position Pos{ (float)i, (float)(i + 1), (float)(i + 2) };
+		Arch << Pos;
 	}
 
-	Engine& GEngine = Engine::Get();
-	GEngine.Initialize();
-	GEngine.Run();
+	Arch.SaveToFile("TestFile.data");
+
+	Array<Position> Values;
+
+	Archive InArch("TestFile.data");
+
+	for (int i = 0; i < 20; ++i)
+	{
+		Position Pos;
+		InArch >> Pos;
+		Values.push_back(Pos);
+	}
+
+	Values.clear();
+	
+	Array<Position> SerializedArray;
+	for (int i = 0; i < 20; ++i)
+	{
+		SerializedArray.push_back({ (float)(i / 1.f), (float)(i / 2.f), (float)(i / 3.f) });
+	}
+	Archive ArrayArch;
+	ArrayArch << SerializedArray;
+	ArrayArch.SaveToFile("ArrayFile.data");
+
+	Archive InArrayArch("ArrayFile.data");
+	Array<Position> InArray;
+	InArrayArch >> InArray;
+
 	return 0;
 }
