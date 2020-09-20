@@ -2,6 +2,9 @@
 
 #include "Core/CoreUtils.h"
 
+#define INVALID_EID 0
+#define INVALID_CTID 0
+
 namespace ScarletEngine
 {
 	using CTID = uint64_t;
@@ -13,7 +16,7 @@ namespace ScarletEngine
 		{
 			static CTID GetNextTypeID()
 			{
-				static CTID NextID = 0;
+				static CTID NextID = 1;
 				return NextID++;
 			}
 		};

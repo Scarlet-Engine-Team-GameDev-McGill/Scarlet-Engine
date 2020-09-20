@@ -4,8 +4,6 @@
 #include "TypeInfo.h"
 #include "Entity.h"
 
-#define INVALID_EID UINT64_MAX
-
 namespace ScarletEngine
 {
 	class Registry
@@ -210,7 +208,7 @@ namespace ScarletEngine
 			return Container;
 		}
 	private:
-		EID NextAvailableEID = 0;
+		EID NextAvailableEID = 1;
 		std::unordered_map<CTID, std::unique_ptr<IComponentContainer>> ComponentContainers;
 	};
 }
