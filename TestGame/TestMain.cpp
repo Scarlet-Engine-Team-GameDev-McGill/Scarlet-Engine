@@ -69,5 +69,21 @@ int main()
 	Array<Position> InArray;
 	InArrayArch >> InArray;
 
+
+	Array<String> SerializedStringArray;
+	for (int i = 0; i < 20; ++i)
+	{
+		char Buff[32];
+		snprintf(Buff, 32, "Hello world %d", i);
+		SerializedStringArray.emplace_back(Buff);
+	}
+	Archive StringArch;
+	StringArch << SerializedStringArray;
+	StringArch.SaveToFile("StringFile.data");
+
+	Archive InStringArch("StringFile.data");
+	Array<String> InStringArray;
+	InStringArch >> InStringArray;
+
 	return 0;
 }

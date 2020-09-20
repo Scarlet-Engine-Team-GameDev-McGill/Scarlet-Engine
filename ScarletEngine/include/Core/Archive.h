@@ -104,6 +104,15 @@ namespace ScarletEngine
 			return *this;
 		}
 
+		template <typename ElemType, typename Traits, typename Alloc>
+		inline Archive& operator<<(const BasicString<ElemType, Traits, Alloc>& Str)
+		{
+			size_t StrCount = (size_t)Str.size();
+			(*this) << StrCount;
+			Write(*Str.c_str(), StrCount);
+			return *this;
+		}
+
 		template <typename Serializable>
 		inline Archive& operator<<(const Serializable& Data)
 		{
@@ -217,6 +226,16 @@ namespace ScarletEngine
 			return *this;
 		}
 
+		template <typename ElemType, typename Traits, typename Alloc>
+		inline Archive& operator>>(BasicString<ElemType, Traits, Alloc>& Str)
+		{
+			size_t StringCount = 0;
+			(*this) >> StringCount;
+			Str.resize(StringCount);
+			Read(*(char*)Str.c_str(), StringCount);
+			return *this;
+		}
+
 	private:
 		template <typename DataType>
 		inline void Write(const DataType& Data, uint64_t Count = 1)
@@ -228,8 +247,6 @@ namespace ScarletEngine
 			{
 				DataArray.resize(NewPos * 2);
 			}
-			// Track the new size
-			//DataArray.resize(Pos);
 			memcpy(reinterpret_cast<void*>((uint64_t)DataArray.data() + (uint64_t)Pos), &Data, Size);
 			Pos = NewPos;
 		}
