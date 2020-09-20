@@ -17,7 +17,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	# Disable C++ exceptions.
 	string(REGEX REPLACE "/EH[a-z]+" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
-	# Disable RTTI in the future.
+	# Disable RTTI.
 	string(REGEX REPLACE "/GR" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -37,7 +37,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	# Disable C++ exceptions.
 	string(REGEX REPLACE "-fexceptions" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
-	# Disable RTTI in the future.
+	# Disable RTTI.
 	string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 	if(NOT CMAKE_CXX_FLAGS MATCHES "-fsanitize")
@@ -60,7 +60,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	# Disable C++ exceptions.
 	string(REGEX REPLACE "-fexceptions" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
-	# Disable RTTI in the future.
+	# Disable RTTI.
 	string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
