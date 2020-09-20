@@ -166,8 +166,8 @@ namespace ScarletEngine
 		
 		ImGui::Separator();
 		ImGui::Text("Memory");
-		ImGui::Text("Number of allocations: %lu", GlobalAllocator::GetNumAllocs());
-		ImGui::Text("Memory used: %lu bytes", GlobalAllocator::GetMemUsed());
+		ImGui::Text("Number of allocations: %lu", MemoryTracker::GetNumAllocs());
+		ImGui::Text("Memory used: %lu bytes", MemoryTracker::GetMemUsed());
 
 		ImGui::Text("GPU");
 		ImGui::Separator();

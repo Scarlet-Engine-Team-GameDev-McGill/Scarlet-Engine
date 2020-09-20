@@ -52,7 +52,7 @@ namespace ScarletEngine
 	class OpenGLShader : public RALShader
 	{
 	public:
-		OpenGLShader(RALShaderStage Stage, const std::vector<uint8_t>& ShaderCode);
+		OpenGLShader(RALShaderStage Stage, const Array<uint8_t>& ShaderCode);
 	private:
 		friend class OpenGLShaderProgram;
 		uint32_t ShaderObject;

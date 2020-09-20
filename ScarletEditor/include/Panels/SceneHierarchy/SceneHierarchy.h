@@ -24,6 +24,6 @@ namespace ScarletEngine
 	private:
 		WeakPtr<World> RepresentingWorld;
 
-		 std::unordered_map<EID, UniquePtr<SceneHierarchyItem>> Items;
+		UnorderedMap<EID, UniquePtr<SceneHierarchyItem>> Items;
 	};
 }

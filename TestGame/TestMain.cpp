@@ -19,7 +19,7 @@ struct Velocity
 int main()
 {
 	using namespace ScarletEngine;
-	
+
 	{
 		World TestWorld;
 
@@ -33,7 +33,6 @@ int main()
 		TestWorld.CreateEntity<Position, Velocity, int>("Pos/Vel/Int");
 		TestWorld.CreateEntity<Position>("Pos");
 	}
-	
 
 	Engine& GEngine = Engine::Get();
 	GEngine.Initialize();

@@ -6,5 +6,5 @@
 
 namespace ScarletEngine
 {
-	using EntityPtr = std::shared_ptr<Entity>;
+	using EntityPtr = SharedPtr<Entity>;
 }

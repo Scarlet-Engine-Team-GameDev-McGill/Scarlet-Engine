@@ -55,7 +55,7 @@ namespace ScarletEngine
 			bool bViewportIsHovered;
 			glm::vec2 ViewportSize;
 		};
-		std::vector<EditorViewport> Viewports;
+		Array<EditorViewport> Viewports;
 
 		uint32_t CurrentFrameTimeIndex = 0;
 		static const uint32_t MaxFrameTimes = 200;

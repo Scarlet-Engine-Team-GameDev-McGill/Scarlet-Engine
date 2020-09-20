@@ -129,7 +129,7 @@ namespace ScarletEngine
 	}
 
 
-	OpenGLShader::OpenGLShader(RALShaderStage Stage, const std::vector<uint8_t>& ShaderCode)
+	OpenGLShader::OpenGLShader(RALShaderStage Stage, const Array<uint8_t>& ShaderCode)
 		: RALShader(Stage)
 		, ShaderObject(0)
 	{

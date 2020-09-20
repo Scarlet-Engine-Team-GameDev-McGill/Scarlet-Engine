@@ -15,6 +15,7 @@ namespace ScarletEngine
 	{
 	public:
 		World();
+		~World() {}
 
 		virtual void Initialize() override;
 
@@ -38,9 +39,9 @@ namespace ScarletEngine
 
 		/** Register a new system with the world */
 		template <typename... SystemSig>
-		System<SystemSig...>& AddSystem(const std::string& Name)
+		System<SystemSig...>& AddSystem(const String& Name)
 		{
-			return *static_cast<System<SystemSig...>*>(Systems.emplace_back(new System<SystemSig...>(&Reg, Name)).get());
+			return *static_cast<System<SystemSig...>*>(Systems.emplace_back(GlobalAllocator<System<SystemSig...>>::New(&Reg, Name)).get());
 		}
 
 		auto GetEntities()
@@ -68,8 +69,8 @@ namespace ScarletEngine
 		double LastDeltaTime;
 		Registry Reg;
 
-		std::vector<SharedPtr<Entity>> Entities;
-		std::vector<UniquePtr<ISystem>> Systems;
+		Array<SharedPtr<Entity>> Entities;
+		Array<UniquePtr<ISystem>> Systems;
 
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
 	};

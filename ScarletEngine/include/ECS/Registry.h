@@ -24,7 +24,7 @@ namespace ScarletEngine
 			T* Add(EID EntityID)
 			{
 				const size_t Index = Components.size();
-				Map[EntityID] = Index;
+				EntityMap[EntityID] = Index;
 				return &Components.emplace_back(T());
 			}
 
@@ -32,19 +32,19 @@ namespace ScarletEngine
 			{
 				if (Has(EntityID))
 				{
-					return &Components[Map.at(EntityID)];
+					return &Components[EntityMap.at(EntityID)];
 				}
 				return nullptr;
 			}
 
 			virtual bool Has(EID EntityID) const override
 			{
-				return Map.find(EntityID) != Map.end();
+				return EntityMap.find(EntityID) != EntityMap.end();
 			}
 
 			virtual bool Remove(EID EntityID) override
 			{
-				const size_t IndexToRemove = Map.at(EntityID);
+				const size_t IndexToRemove = EntityMap.at(EntityID);
 				const T* BackElement = &Components.back();
 				const EID BackOwner = FindOwner(BackElement);
 
@@ -54,9 +54,9 @@ namespace ScarletEngine
 				}
 
 				Components[IndexToRemove] = *BackElement;
-				Map[BackOwner] = IndexToRemove;
+				EntityMap[BackOwner] = IndexToRemove;
 				Components.pop_back();
-				Map.erase(EntityID);
+				EntityMap.erase(EntityID);
 
 				return true;
 			}
@@ -66,21 +66,21 @@ namespace ScarletEngine
 				if (!Has(EntityID))
 				{
 					const size_t Index = Components.size();
-					Map[EntityID] = Index;
+					EntityMap[EntityID] = Index;
 					return &Components.emplace_back(Component);
 				}
 
-				const size_t Index = Map.at(EntityID);
+				const size_t Index = EntityMap.at(EntityID);
 				Components[Index] = Component;
 				return &Components.at(Index);
 			}
 
 			virtual void Sort() override
 			{
-				std::vector<size_t> Ids(Map.size());
+				Array<size_t> Ids(EntityMap.size());
 
 				size_t NextIndex = 0;
-				for (auto& Pair : Map)
+				for (auto& Pair : EntityMap)
 				{
 					Ids[Pair.second] = NextIndex;
 					Pair.second = NextIndex;
@@ -101,7 +101,7 @@ namespace ScarletEngine
 			/** Warning: Potentially slow! */
 			EID FindOwner(const T* Component) const
 			{
-				for (const auto& Pair : Map)
+				for (const auto& Pair : EntityMap)
 				{
 					if (&Components[Pair.second] == Component) return Pair.first;
 				}
@@ -109,9 +109,9 @@ namespace ScarletEngine
 			}
 		private:
 			/** Maps EID to index in component map */
-			std::map<EID, size_t> Map;
+			Map<EID, size_t> EntityMap;
 			/** Stores components */
-			std::vector<T> Components;
+			Array<T> Components;
 		};
 	public:
 		/* Entity Interface */
@@ -202,13 +202,13 @@ namespace ScarletEngine
 			ComponentContainer<T>* Container = GetComponentContainer<T>();
 			if (!Container)
 			{
-				Container = GlobalAllocator::Alloc<ComponentContainer<T>>();
+				Container = GlobalAllocator<ComponentContainer<T>>::New();
 				ComponentContainers[ComponentTypeID<T>::Value()] = UniquePtr<IComponentContainer>(Container);
 			}
 			return Container;
 		}
 	private:
 		EID NextAvailableEID = 1;
-		std::unordered_map<CTID, UniquePtr<IComponentContainer>> ComponentContainers;
+		UnorderedMap<CTID, UniquePtr<IComponentContainer>> ComponentContainers;
 	};
 }

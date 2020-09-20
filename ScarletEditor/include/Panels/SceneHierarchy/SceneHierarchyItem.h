@@ -15,6 +15,6 @@ namespace ScarletEngine
 		bool bIsSelected = false;
 
 		WeakPtr<Entity> Ent;
-		std::vector<std::weak_ptr<SceneHierarchyItem>> Children;
+		Array<WeakPtr<SceneHierarchyItem>> Children;
 	};
 }

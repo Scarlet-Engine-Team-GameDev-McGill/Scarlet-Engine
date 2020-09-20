@@ -28,7 +28,7 @@ namespace ScarletEngine
 		virtual RALFramebuffer* CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples) const override;
 		virtual RALTexture2D* CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle) const override;
 		virtual RALVertexBuffer* CreateVertexBuffer(uint32_t Size, uint32_t Usage) const override;
-		virtual RALShader* CreateShader(RALShaderStage Stage, const std::vector<uint8_t>& ShaderCode) const override;
+		virtual RALShader* CreateShader(RALShaderStage Stage, const Array<uint8_t>& ShaderCode) const override;
 		virtual RALShaderProgram* CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) const override;
 	private:
 		// #todo: this shouldn't really be part of the RAL but rather some other windowing abstraction layer

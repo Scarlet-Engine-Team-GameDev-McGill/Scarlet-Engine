@@ -11,7 +11,7 @@ namespace ScarletEngine
 	class ISystem
 	{
 	public:
-		ISystem(Registry* InReg, const std::string& InName) 
+		ISystem(Registry* InReg, const String& InName)
 			: Reg(InReg)
 			, Name(InName) 
 		{}
@@ -20,7 +20,7 @@ namespace ScarletEngine
 		virtual ~ISystem() {}
 
 		Registry* Reg;
-		std::string Name;
+		String Name;
 	};
 
 	template <typename... ComponentTypes>
@@ -29,7 +29,7 @@ namespace ScarletEngine
 	public:
 		using ForEachFunctionType = std::function<void(EID EntityID, std::add_lvalue_reference_t<ComponentTypes>...)>;
 
-		System(Registry* InReg, const std::string& InName)
+		System(Registry* InReg, const String& InName)
 			: ISystem(InReg, InName)
 			, ForEach()
 		{}

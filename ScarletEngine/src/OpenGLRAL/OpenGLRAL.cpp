@@ -92,26 +92,26 @@ namespace ScarletEngine
 
 	RALFramebuffer* OpenGLRAL::CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples) const
 	{
-		return GlobalAllocator::Alloc<OpenGLFramebuffer>(Width, Height, Samples);
+		return GlobalAllocator<OpenGLFramebuffer>::New(Width, Height, Samples);
 	}
 
 	ScarletEngine::RALTexture2D* OpenGLRAL::CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle) const
 	{
-		return GlobalAllocator::Alloc<OpenGLTexture2D>(AssetHandle);
+		return GlobalAllocator<OpenGLTexture2D>::New(AssetHandle);
 	}
 
 	RALVertexBuffer* OpenGLRAL::CreateVertexBuffer(uint32_t Size, uint32_t Usage) const
 	{
-		return GlobalAllocator::Alloc<OpenGLVertexBuffer>(Size, Usage);
+		return GlobalAllocator<OpenGLVertexBuffer>::New(Size, Usage);
 	}
 
-	RALShader* OpenGLRAL::CreateShader(RALShaderStage Stage, const std::vector<uint8_t>& ShaderCode) const
+	RALShader* OpenGLRAL::CreateShader(RALShaderStage Stage, const Array<uint8_t>& ShaderCode) const
 	{
-		return GlobalAllocator::Alloc<OpenGLShader>(Stage, ShaderCode);
+		return GlobalAllocator<OpenGLShader>::New(Stage, ShaderCode);
 	}
 
 	RALShaderProgram* OpenGLRAL::CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) const
 	{
-		return GlobalAllocator::Alloc<OpenGLShaderProgram>(InVertexShader, InPixelShader, InGeometryShader, InComputeShader);
+		return GlobalAllocator<OpenGLShaderProgram>::New(InVertexShader, InPixelShader, InGeometryShader, InComputeShader);
 	}
 }

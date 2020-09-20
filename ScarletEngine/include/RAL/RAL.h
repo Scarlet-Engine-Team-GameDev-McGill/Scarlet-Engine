@@ -42,7 +42,7 @@ namespace ScarletEngine
 
 		virtual RALVertexBuffer* CreateVertexBuffer(uint32_t Size, uint32_t Usage) const = 0;
 		
-		virtual RALShader* CreateShader(RALShaderStage Stage, const std::vector<uint8_t>& ShaderCode) const = 0;
+		virtual RALShader* CreateShader(RALShaderStage Stage, const Array<uint8_t>& ShaderCode) const = 0;
 		virtual RALShaderProgram* CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) const = 0;
 	
 		static RAL& Get() { return *Instance; }

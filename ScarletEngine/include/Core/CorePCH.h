@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <array>
 #include <map>
 #include <optional>
 #include <mutex>

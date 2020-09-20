@@ -23,7 +23,8 @@ namespace ScarletEngine
 		{
 			ImGui::Text("Name");
 			ImGui::SameLine();
-			ImGui::InputText("###Name", &FocusedEntity.lock()->Name);
+			auto Ent = FocusedEntity.lock();
+			ImGui::InputText("###Name", (char*)Ent->Name.c_str(), Ent->Name.capacity());
 
 			ImGui::Text("ID: %lu", FocusedEntity.lock()->ID);
 

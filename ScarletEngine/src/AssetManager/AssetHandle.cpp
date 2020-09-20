@@ -8,7 +8,7 @@
 namespace ScarletEngine
 {
 
-	IAssetHandle::IAssetHandle(AssetType InType, const std::string& InFilePath)
+	IAssetHandle::IAssetHandle(AssetType InType, const String& InFilePath)
 		: Type(InType)
 		, FilePath(InFilePath)
 		, Leafname(FilePath)
@@ -24,7 +24,7 @@ namespace ScarletEngine
 		AssetManager::UnloadAsset(FilePath);
 	}
 
-	TextureHandle::TextureHandle(const std::string& InFilePath)
+	TextureHandle::TextureHandle(const String& InFilePath)
 		: IAssetHandle(AssetType::Texture, InFilePath)
 		, PixelDataBuffer(nullptr)
 	{

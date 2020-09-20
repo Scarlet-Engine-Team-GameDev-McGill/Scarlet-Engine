@@ -10,15 +10,15 @@ namespace ScarletEngine
 	struct Entity
 	{
 	public:
-		Entity(const std::string& InName)
+		Entity(const String& InName)
 			: Name(InName)
+			, OwningWorld(nullptr)
 		{
 			Name.reserve(64);
 		}
 
+		String Name;
 		EID ID;
-		std::string Name;
-		
 		World* OwningWorld;
 	};
 }

@@ -11,18 +11,18 @@ namespace ScarletEngine
 		virtual ~IAssetHandle();
 
 		AssetType Type;
-		std::string FilePath;
+		String FilePath;
 		std::string_view Leafname;
 		std::string_view Extension;
 	protected:
 		// Constructor is protected to prevent instantiation of this abstract class
-		IAssetHandle(AssetType InType, const std::string& InFilePath);
+		IAssetHandle(AssetType InType, const String& InFilePath);
 	};
 
 	class TextureHandle final : public IAssetHandle
 	{
 	public:
-		TextureHandle(const std::string& InFilePath);
+		TextureHandle(const String& InFilePath);
 
 		virtual ~TextureHandle();
 

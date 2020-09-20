@@ -44,11 +44,11 @@ namespace ScarletEngine
 		Engine(Engine&&) = delete;
 		
 		/** List of tickables to update on a fixed-timestep */
-		std::vector<ITickable*> VariableUpdateTickables;
+		Array<ITickable*> VariableUpdateTickables;
 		/** List of tickables to update on a variable-timestep */
-		std::vector<ITickable*> FixedUpdateTickables;
+		Array<ITickable*> FixedUpdateTickables;
 		/** Queue of tickables to add at the beginning of the next frame */
-		std::vector<ITickable*> TickableQueue;
+		Array<ITickable*> TickableQueue;
 		/** Used to lock the TickableQueue */
 		std::mutex TickableQueueMutex;
 

@@ -16,7 +16,7 @@ namespace ScarletEngine
 	{
 
 #ifdef RAL_USE_OPENGL
-		RAL::Instance = UniquePtr<RAL>(new OpenGLRAL);
+		RAL::Instance = UniquePtr<RAL>(GlobalAllocator<OpenGLRAL>::New());
 		RAL::API = RenderAPI::OpenGL;
 #elif defined RAL_USE_VULKAN
 		// initialize a vulkan RAL
@@ -45,7 +45,7 @@ namespace ScarletEngine
 
 	Viewport* Renderer::CreateViewport(uint32_t Width, uint32_t Height)
 	{
-		return GlobalAllocator::Alloc<Viewport>(Width, Height);
+		return GlobalAllocator<Viewport>::New(Width, Height);
 	}
 
 	void Renderer::DrawScene(Scene*, Viewport* ActiveViewport)

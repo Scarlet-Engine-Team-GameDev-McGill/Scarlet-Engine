@@ -58,6 +58,6 @@ namespace ScarletEngine
 			Callbacks.clear();
 		}
 	private:
-		mutable std::vector<std::function<void(Args...)>> Callbacks;
+		mutable Array<std::function<void(Args...)>> Callbacks;
 	};
 }
