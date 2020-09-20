@@ -28,3 +28,23 @@ namespace ScarletEngine
 
 	using String = BasicString<char>;
 }
+
+
+// Inject some template specializations into the std namespace for our custom stl types
+namespace std
+{
+	// This is only needed in non-msvc builds
+#ifndef _MSC_VER
+	template <class Elem, class Traits, class Alloc>
+	struct hash<ScarletEngine::BasicString<Elem, Traits, Alloc>>
+	{
+		using argument_type = ScarletEngine::BasicString<Elem, Traits, Alloc>;
+		using result_type = size_t;
+
+		[[nodiscard]] size_t operator()(const ScarletEngine::BasicString<Elem, Traits, Alloc>& Keyval) const
+		{
+			return std::hash<std::string_view>{}(Keyval.c_str());
+		}
+	};
+#endif
+}

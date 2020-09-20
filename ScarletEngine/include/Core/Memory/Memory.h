@@ -65,6 +65,6 @@ namespace ScarletEngine
 	template <typename T, typename... Args>
 	[[nodiscard]] SharedPtr<T> MakeShared(Args&&... args)
 	{
-		return SharedPtr<T>(GlobalAllocator<T>::New(std::forward<Args>(args)...), GlobalAllocator<T>::Delete());
+		return SharedPtr<T>(GlobalAllocator<T>::New(std::forward<Args>(args)...), typename GlobalAllocator<T>::Delete());
 	}
 }
