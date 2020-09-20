@@ -19,19 +19,21 @@ struct Velocity
 int main()
 {
 	using namespace ScarletEngine;
-
-	World TestWorld;
-
-	TestWorld.AddSystem<Position, const Velocity>("Test System")
-		.Each([](EID, Position&, const Velocity&)
-			{
-				SCAR_LOG(LogVerbose, "TEST");
-			});
 	
-	TestWorld.CreateEntity<Position, Velocity>("Pos/Vel");
-	TestWorld.CreateEntity<Position, Velocity, int>("Pos/Vel/Int");
-	TestWorld.CreateEntity<Position>("Pos");
+	{
+		World TestWorld;
 
+		TestWorld.AddSystem<Position, const Velocity>("Test System")
+			.Each([](EID, Position&, const Velocity&)
+				{
+					SCAR_LOG(LogVerbose, "TEST");
+				});
+
+		TestWorld.CreateEntity<Position, Velocity>("Pos/Vel");
+		TestWorld.CreateEntity<Position, Velocity, int>("Pos/Vel/Int");
+		TestWorld.CreateEntity<Position>("Pos");
+	}
+	
 
 	Engine& GEngine = Engine::Get();
 	GEngine.Initialize();

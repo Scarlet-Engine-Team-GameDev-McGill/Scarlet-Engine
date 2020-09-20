@@ -14,7 +14,7 @@ namespace ScarletEngine
 	class SceneHierarchyPanel
 	{
 	public:
-		SceneHierarchyPanel(const std::shared_ptr<World>& InRepresentingWorld);
+		SceneHierarchyPanel(const SharedPtr<World>& InRepresentingWorld);
 		void Draw();
 
 		void RepopulateItems();
@@ -22,8 +22,8 @@ namespace ScarletEngine
 		void OnEntityAddedToWorld(const EntityPtr& AddedEntity);
 		void OnWorldSelectionChanged(const EntityPtr& LastSelectedEntity);
 	private:
-		 std::weak_ptr<World> RepresentingWorld;
+		WeakPtr<World> RepresentingWorld;
 
-		 std::unordered_map<EID, std::unique_ptr<SceneHierarchyItem>> Items;
+		 std::unordered_map<EID, UniquePtr<SceneHierarchyItem>> Items;
 	};
 }

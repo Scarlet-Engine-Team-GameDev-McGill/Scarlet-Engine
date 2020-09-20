@@ -9,7 +9,7 @@
 
 namespace ScarletEngine
 {
-	using OnEntityAddedToWorldEvent = Event<const std::shared_ptr<Entity>&>;
+	using OnEntityAddedToWorldEvent = Event<const SharedPtr<Entity>&>;
 
 	class World final : public ITickable
 	{
@@ -25,9 +25,10 @@ namespace ScarletEngine
 		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
 	public:
 		template <typename... ComponentTypes>
-		std::tuple<std::shared_ptr<Entity>, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name = "")
+		std::tuple<SharedPtr<Entity>, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name = "")
 		{
-			auto& Ent = Entities.emplace_back(new Entity(Name));
+			Entities.push_back(MakeShared<Entity>(Name));
+			SharedPtr<Entity>& Ent = Entities.back();
 			Ent->OwningWorld = this;
 			
 			auto Ret = Reg.CreateEntity<ComponentTypes...>(*Ent);
@@ -57,7 +58,7 @@ namespace ScarletEngine
 		{
 			for (const auto& Sys : Systems)
 			{
-				for (const std::shared_ptr<Entity>& Ent : Entities)
+				for (const SharedPtr<Entity>& Ent : Entities)
 				{
 					Sys->Run(Ent->ID);
 				}
@@ -67,8 +68,8 @@ namespace ScarletEngine
 		double LastDeltaTime;
 		Registry Reg;
 
-		std::vector<std::shared_ptr<Entity>> Entities;
-		std::vector<std::unique_ptr<ISystem>> Systems;
+		std::vector<SharedPtr<Entity>> Entities;
+		std::vector<UniquePtr<ISystem>> Systems;
 
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
 	};

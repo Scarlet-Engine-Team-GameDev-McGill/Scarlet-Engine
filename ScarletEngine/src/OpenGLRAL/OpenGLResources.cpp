@@ -72,12 +72,12 @@ namespace ScarletEngine
 		Height = NewHeight;
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const std::weak_ptr<TextureHandle>& InAssetHandle)
+	OpenGLTexture2D::OpenGLTexture2D(const WeakPtr<TextureHandle>& InAssetHandle)
 		: RALTexture2D(InAssetHandle)
 		, TextureObject(0)
 	{
 		check(!InAssetHandle.expired());
-		std::shared_ptr<TextureHandle> TexHandle = AssetHandle.lock();
+		SharedPtr<TextureHandle> TexHandle = AssetHandle.lock();
 		check(TexHandle->PixelDataBuffer != nullptr);
 		
 		glGenTextures(1, &TextureObject);

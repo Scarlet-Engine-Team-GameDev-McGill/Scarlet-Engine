@@ -31,7 +31,7 @@ namespace ScarletEngine
 	class RALTexture2D
 	{
 	public:
-		RALTexture2D(const std::weak_ptr<TextureHandle>& InAssetHandle)
+		RALTexture2D(const WeakPtr<TextureHandle>& InAssetHandle)
 			: AssetHandle(InAssetHandle)
 		{}
 		virtual ~RALTexture2D() {}
@@ -40,7 +40,7 @@ namespace ScarletEngine
 		virtual void Unbind() const = 0;
 		virtual uint64_t GetTextureResource() const = 0;
 	protected:
-		std::weak_ptr<TextureHandle> AssetHandle;
+		WeakPtr<TextureHandle> AssetHandle;
 	};
 
 	class RALVertexBuffer

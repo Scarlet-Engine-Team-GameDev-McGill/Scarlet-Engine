@@ -8,13 +8,13 @@ namespace ScarletEngine
 	class SceneHierarchyItem
 	{
 	public:
-		SceneHierarchyItem(const std::shared_ptr<Entity>& InEnt);
+		SceneHierarchyItem(const SharedPtr<Entity>& InEnt);
 		
 		const char* GetDisplayString() const;
 
 		bool bIsSelected = false;
 
-		std::weak_ptr<Entity> Ent;
+		WeakPtr<Entity> Ent;
 		std::vector<std::weak_ptr<SceneHierarchyItem>> Children;
 	};
 }

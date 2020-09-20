@@ -35,7 +35,7 @@ namespace ScarletEngine
 		}
 
 		// Set the window icon;
-		std::shared_ptr<TextureHandle> LogoTex = AssetManager::LoadTextureFile("../ScarletEngine/content/scarlet_logo.png");
+		SharedPtr<TextureHandle> LogoTex = AssetManager::LoadTextureFile("../ScarletEngine/content/scarlet_logo.png");
 		GLFWimage Image;
 		Image.pixels = LogoTex->PixelDataBuffer;
 		Image.width = LogoTex->Width;
@@ -92,26 +92,26 @@ namespace ScarletEngine
 
 	RALFramebuffer* OpenGLRAL::CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples) const
 	{
-		return new OpenGLFramebuffer(Width, Height, Samples);
+		return GlobalAllocator::Alloc<OpenGLFramebuffer>(Width, Height, Samples);
 	}
 
-	ScarletEngine::RALTexture2D* OpenGLRAL::CreateTexture2D(const std::weak_ptr<TextureHandle>& AssetHandle) const
+	ScarletEngine::RALTexture2D* OpenGLRAL::CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle) const
 	{
-		return new OpenGLTexture2D(AssetHandle);
+		return GlobalAllocator::Alloc<OpenGLTexture2D>(AssetHandle);
 	}
 
 	RALVertexBuffer* OpenGLRAL::CreateVertexBuffer(uint32_t Size, uint32_t Usage) const
 	{
-		return new OpenGLVertexBuffer(Size, Usage);
+		return GlobalAllocator::Alloc<OpenGLVertexBuffer>(Size, Usage);
 	}
 
 	RALShader* OpenGLRAL::CreateShader(RALShaderStage Stage, const std::vector<uint8_t>& ShaderCode) const
 	{
-		return new OpenGLShader(Stage, ShaderCode);
+		return GlobalAllocator::Alloc<OpenGLShader>(Stage, ShaderCode);
 	}
 
 	RALShaderProgram* OpenGLRAL::CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) const
 	{
-		return new OpenGLShaderProgram(InVertexShader, InPixelShader, InGeometryShader, InComputeShader);
+		return GlobalAllocator::Alloc<OpenGLShaderProgram>(InVertexShader, InPixelShader, InGeometryShader, InComputeShader);
 	}
 }

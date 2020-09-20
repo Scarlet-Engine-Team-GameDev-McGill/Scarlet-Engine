@@ -77,7 +77,7 @@ namespace ScarletEngine
 		}
 	}
 
-	void PropertyEditorPanel::OnSelectionChanged(const std::shared_ptr<Entity>& Ent)
+	void PropertyEditorPanel::OnSelectionChanged(const SharedPtr<Entity>& Ent)
 	{
 		FocusedEntity = Ent;
 		bHasSelection = true;

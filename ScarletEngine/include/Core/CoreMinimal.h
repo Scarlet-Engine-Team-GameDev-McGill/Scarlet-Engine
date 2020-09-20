@@ -4,6 +4,8 @@
 
 #include "CorePCH.h"
 #include "CoreUtils.h"
+#include "Logger.h"
+#include "Memory/Memory.h"
 
 namespace ScarletEngine
 {

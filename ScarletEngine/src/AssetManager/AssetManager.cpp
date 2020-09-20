@@ -4,14 +4,14 @@
 
 namespace ScarletEngine
 {
-	std::unordered_map<std::string, std::weak_ptr<IAssetHandle>> AssetManager::CachedAssets;
+	std::unordered_map<std::string, WeakPtr<IAssetHandle>> AssetManager::CachedAssets;
 
-	std::shared_ptr<TextureHandle> AssetManager::LoadTextureFile(const std::string& FilePath)
+	SharedPtr<TextureHandle> AssetManager::LoadTextureFile(const std::string& FilePath)
 	{
 		return std::static_pointer_cast<TextureHandle>(LoadAsset(FilePath, AssetType::Texture));
 	}
 
-	std::shared_ptr<IAssetHandle> AssetManager::LoadAsset(const std::string& FilePath, AssetType Type)
+	SharedPtr<IAssetHandle> AssetManager::LoadAsset(const std::string& FilePath, AssetType Type)
 	{
 		// Check that we are loading a file which exists
 		check(std::filesystem::exists(FilePath));
@@ -34,7 +34,7 @@ namespace ScarletEngine
 		{
 		case AssetType::Texture:
 		{
-			std::shared_ptr<IAssetHandle> Ret = std::make_shared<TextureHandle>(FilePath);
+			SharedPtr<IAssetHandle> Ret = std::make_shared<TextureHandle>(FilePath);
 			CachedAssets.emplace(FilePath, Ret);
 			return Ret;
 		}

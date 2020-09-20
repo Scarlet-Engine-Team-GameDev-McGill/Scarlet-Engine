@@ -19,9 +19,9 @@ namespace ScarletEngine
 
 	void Editor::Initialize()
 	{
-		EditorWorld = std::make_shared<World>();
-		SceneHierarchy = std::make_shared<SceneHierarchyPanel>(EditorWorld);
-		PropertyEditor = std::make_shared<PropertyEditorPanel>();
+		EditorWorld = MakeShared<World>();
+		SceneHierarchy = MakeShared<SceneHierarchyPanel>(EditorWorld);
+		PropertyEditor = MakeShared<PropertyEditorPanel>();
 
 		// Test entities
 		EditorWorld->CreateEntity<Transform>("Empty 1");
@@ -151,7 +151,6 @@ namespace ScarletEngine
 		ImGui::Begin("Stats");
 		ImGui::Text("CPU");
 		ImGui::Separator();
-
 		float FrameTimeSum = 0.f;
 		const uint32_t NumberFramesToAverageOver = 50;
 		for (uint32_t i = 0; i < NumberFramesToAverageOver; ++i)
@@ -159,12 +158,16 @@ namespace ScarletEngine
 			FrameTimeSum += FrameTimes[(CurrentFrameTimeIndex - i) % MaxFrameTimes];
 		}
 		const float FrameTimeAverage = FrameTimeSum / NumberFramesToAverageOver;
-
 		ImVec2 ContentRegion = ImGui::GetContentRegionAvail();
 		char Buff[32];
 		snprintf(Buff, 32, "Frame time: %.2f ms", FrameTimeAverage);
 		ImGui::PlotLines("", FrameTimes, IM_ARRAYSIZE(FrameTimes), CurrentFrameTimeIndex, Buff, 0.f, 20.f, ImVec2(ContentRegion.x, 80.0f));
 		ImGui::Text("FPS: %.1f", (double)(1.f / FrameTimeAverage) * 1000.f);
+		
+		ImGui::Separator();
+		ImGui::Text("Memory");
+		ImGui::Text("Number of allocations: %lu", GlobalAllocator::GetNumAllocs());
+		ImGui::Text("Memory used: %lu bytes", GlobalAllocator::GetMemUsed());
 
 		ImGui::Text("GPU");
 		ImGui::Separator();

@@ -10,7 +10,7 @@
 
 namespace ScarletEngine
 {
-	using OnSelectionChangedEvent = Event<const std::shared_ptr<Entity>&>;
+	using OnSelectionChangedEvent = Event<const SharedPtr<Entity>&>;
 	using OnSelectionClearedEvent = Event<>;
 
 	class Editor : public ITickable
@@ -22,7 +22,7 @@ namespace ScarletEngine
 
 		virtual void Tick(double DeltaTime) override;
 
-		void SetSelection(const std::shared_ptr<Entity>& InSelectedEntity) 
+		void SetSelection(const SharedPtr<Entity>& InSelectedEntity)
 		{
 			SelectedEntity = InSelectedEntity;
 			OnSelectionChanged.Broadcast(InSelectedEntity);
@@ -50,7 +50,7 @@ namespace ScarletEngine
 				, ViewportSize({ 0, 0 })
 			{}
 
-			std::unique_ptr<Viewport> View;
+			UniquePtr<Viewport> View;
 			bool bViewportIsFocused;
 			bool bViewportIsHovered;
 			glm::vec2 ViewportSize;
@@ -61,12 +61,12 @@ namespace ScarletEngine
 		static const uint32_t MaxFrameTimes = 200;
 		float FrameTimes[MaxFrameTimes];
 
-		std::shared_ptr<World> EditorWorld;
+		SharedPtr<World> EditorWorld;
 		
-		std::shared_ptr<SceneHierarchyPanel> SceneHierarchy;
-		std::shared_ptr<PropertyEditorPanel> PropertyEditor;
+		SharedPtr<SceneHierarchyPanel> SceneHierarchy;
+		SharedPtr<PropertyEditorPanel> PropertyEditor;
 
-		std::weak_ptr<Entity> SelectedEntity;
+		WeakPtr<Entity> SelectedEntity;
 
 		OnSelectionChangedEvent OnSelectionChanged;
 		OnSelectionClearedEvent OnSelectionCleared;

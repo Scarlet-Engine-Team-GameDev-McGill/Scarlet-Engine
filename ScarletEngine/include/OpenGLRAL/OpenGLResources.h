@@ -27,7 +27,7 @@ namespace ScarletEngine
 	class OpenGLTexture2D : public RALTexture2D
 	{
 	public:
-		OpenGLTexture2D(const std::weak_ptr<TextureHandle>& InAssetHandle);
+		OpenGLTexture2D(const WeakPtr<TextureHandle>& InAssetHandle);
 
 		virtual ~OpenGLTexture2D();
 

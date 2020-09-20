@@ -10,14 +10,14 @@ namespace ScarletEngine
 	public:
 		PropertyEditorPanel();
 
-		void OnSelectionChanged(const std::shared_ptr<Entity>& Ent);
+		void OnSelectionChanged(const SharedPtr<Entity>& Ent);
 		void OnSelectionCleared();
 
 		void Draw();
 	private:
 		void DrawTransformEditor();
 	private:
-		std::weak_ptr<Entity> FocusedEntity;
+		WeakPtr<Entity> FocusedEntity;
 		bool bHasSelection;
 
 	};

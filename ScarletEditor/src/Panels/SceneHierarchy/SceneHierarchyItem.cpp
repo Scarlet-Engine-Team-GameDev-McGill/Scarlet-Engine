@@ -2,7 +2,7 @@
 
 namespace ScarletEngine
 {
-	SceneHierarchyItem::SceneHierarchyItem(const std::shared_ptr<Entity>& InEnt)
+	SceneHierarchyItem::SceneHierarchyItem(const SharedPtr<Entity>& InEnt)
 		: Ent(InEnt)
 	{}
 

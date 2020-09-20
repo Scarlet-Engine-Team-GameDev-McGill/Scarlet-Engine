@@ -202,13 +202,13 @@ namespace ScarletEngine
 			ComponentContainer<T>* Container = GetComponentContainer<T>();
 			if (!Container)
 			{
-				Container = new ComponentContainer<T>();
-				ComponentContainers[ComponentTypeID<T>::Value()] = std::unique_ptr<IComponentContainer>(Container);
+				Container = GlobalAllocator::Alloc<ComponentContainer<T>>();
+				ComponentContainers[ComponentTypeID<T>::Value()] = UniquePtr<IComponentContainer>(Container);
 			}
 			return Container;
 		}
 	private:
 		EID NextAvailableEID = 1;
-		std::unordered_map<CTID, std::unique_ptr<IComponentContainer>> ComponentContainers;
+		std::unordered_map<CTID, UniquePtr<IComponentContainer>> ComponentContainers;
 	};
 }

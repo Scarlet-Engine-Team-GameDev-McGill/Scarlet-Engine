@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Logger.h"
-
 // include signal.h to raise a debug break in POSIX systems (non-windows)
 #ifndef _MSC_VER
 #include <signal.h>
