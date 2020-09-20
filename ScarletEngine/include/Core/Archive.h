@@ -93,8 +93,9 @@ namespace ScarletEngine
 			return *this;
 		}
 
-		template <typename ElemType>
-		inline Archive& operator<<(const Array<ElemType>& Arr)
+
+		template <typename ElemType, typename Alloc>
+		inline Archive& operator<<(const Array<ElemType, Alloc>& Arr)
 		{
 			(*this) << Arr.size();
 			for (const auto& Data : Arr)
@@ -213,8 +214,8 @@ namespace ScarletEngine
 			return *this;
 		}
 
-		template <typename ElemType>
-		inline Archive& operator>>(Array<ElemType>& Arr)
+		template <typename ElemType, typename Alloc>
+		inline Archive& operator>>(Array<ElemType, Alloc>& Arr)
 		{
 			size_t ArrayCount = 0;
 			(*this) >> ArrayCount;
