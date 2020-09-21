@@ -67,4 +67,10 @@ namespace ScarletEngine
 	{
 		return SharedPtr<T>(GlobalAllocator<T>::New(std::forward<Args>(args)...), typename GlobalAllocator<T>::Delete());
 	}
+
+	template <typename T, typename... Args>
+	[[nodiscard]] UniquePtr<T> MakeUnique(Args&&... args)
+	{
+		return UniquePtr<T>(GlobalAllocator<T>::New(std::forward<Args>(args)...));
+	}
 }

@@ -8,6 +8,8 @@
 
 namespace ScarletEngine
 {
+	UniquePtr<Editor> GEditor = nullptr;
+
 	Editor::Editor()
 		: FrameTimes()
 		, EditorWorld(nullptr)
@@ -97,7 +99,7 @@ namespace ScarletEngine
 			{
 				if (ImGui::MenuItem("Exit"))
 				{
-					Engine::Get().SignalQuit();
+					GEngine->SignalQuit();
 				}
 				ImGui::EndMenu();
 			}
