@@ -12,6 +12,8 @@ namespace ScarletEngine
 		/** Removes the object from the engine tickable list */
 		~ITickable();
 
+		virtual void Initialize() {}
+
 		virtual void Tick(double DeltaTime) = 0;
 
 		/** Override if object wants a fixed timestep rather than variable */

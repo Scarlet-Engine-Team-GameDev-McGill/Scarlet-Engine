@@ -1,7 +1,6 @@
 #pragma once
 
-#include <functional>
-#include <vector>
+#include "CoreMinimal.h"
 
 namespace ScarletEngine
 {
@@ -10,12 +9,43 @@ namespace ScarletEngine
 	class Event
 	{
 	public:
-		void Bind(const std::function<void(Args...)>& Callback)
+		void Bind(const std::function<void(Args...)>& Callback) const
 		{
+			// This method is not actually const, 
+			// it just allows us to prevent const references from broadcasting
 			Callbacks.emplace_back(Callback);
 		}
 
-		void Broadcast(Args... args) const
+		template <typename CallerType, typename FunctionType>
+		void Bind(CallerType Ptr, FunctionType Func) const
+		{
+			if constexpr (sizeof...(Args) == 0)
+			{
+				Bind(std::bind(Func, Ptr));
+			}
+			else  if constexpr (sizeof...(Args) == 1)
+			{
+				Bind(std::bind(Func, Ptr, std::placeholders::_1));
+			}
+			else if constexpr (sizeof...(Args) == 2)
+			{
+				Bind(std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2));
+			}
+			else if constexpr (sizeof...(Args) == 3)
+			{
+				Bind(std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+			}
+			else if constexpr (sizeof...(Args) == 4)
+			{
+				Bind(std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+			}
+			else
+			{
+				static_assert(sizeof...(Args) <= 4, "Too many arguments for event! Only supports up to 4!");
+			}
+		}
+
+		void Broadcast(Args... args)
 		{
 			for (const auto& Callback : Callbacks)
 			{
@@ -28,6 +58,6 @@ namespace ScarletEngine
 			Callbacks.clear();
 		}
 	private:
-		std::vector<std::function<void(Args...)>> Callbacks;
+		mutable Array<std::function<void(Args...)>> Callbacks;
 	};
 }

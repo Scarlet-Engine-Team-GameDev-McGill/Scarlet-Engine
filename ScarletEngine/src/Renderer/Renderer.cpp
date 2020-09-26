@@ -1,74 +1,60 @@
 #include "Renderer/Renderer.h"
 
-#include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h>
-#include <imgui.h>
-#include <glm/glm.hpp>
+#include "Core/CoreUtils.h"
+#include "OpenGLRAL/OpenGLRAL.h"
 
-#include <cstdio>
+#include "Renderer/Scene.h"
+#include "Renderer/Viewport.h"
 
 namespace ScarletEngine
 {
-	void TestLibraries()
+	Renderer::Renderer()
 	{
-		glfwInit();
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		if (GLFWwindow* Window = glfwCreateWindow(800, 600, "Test Window", nullptr, nullptr))
-		{
-			printf("Glfw working!\n");
-			glfwDestroyWindow(Window);
-		}
-		else
-		{
-			printf("Glfw not working!\n");
-			return;
-		}
+	}
 
-		if (glfwVulkanSupported())
-		{
-			VkApplicationInfo AppInfo{};
-			AppInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-			AppInfo.pApplicationName = "Test Window";
-			AppInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-			AppInfo.pEngineName = "GDMEngine";
-			AppInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-			AppInfo.apiVersion = VK_API_VERSION_1_0;
+	void Renderer::Initialize()
+	{
 
-			VkInstance Instance;
-			VkInstanceCreateInfo CreateInfo{};
-			CreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-			CreateInfo.pApplicationInfo = &AppInfo;
+#ifdef RAL_USE_OPENGL
+		RAL::Instance = UniquePtr<RAL>(GlobalAllocator<OpenGLRAL>::New());
+		RAL::API = RenderAPI::OpenGL;
+#elif defined RAL_USE_VULKAN
+		// initialize a vulkan RAL
 
-			uint32_t GlfwExtensionCount = 0;
-			const char** GlfwExtensionNames = glfwGetRequiredInstanceExtensions(&GlfwExtensionCount);
-			CreateInfo.enabledExtensionCount = GlfwExtensionCount;
-			CreateInfo.ppEnabledExtensionNames = GlfwExtensionNames;
-			CreateInfo.enabledLayerCount = 0;
-			if (vkCreateInstance(&CreateInfo, nullptr, &Instance) == VK_SUCCESS)
-			{
-				printf("Vulkan working!\n");
-				vkDestroyInstance(Instance, nullptr);
-			}
-			else
-			{
-				printf("Failed to create a Vulkan instance!\n");
-			}
-		}
-		else
-		{
-			printf("Vulkan not supported!\n");
-		}
+#else
+		RAL::API = RenderAPI::Invalid;
+#endif
+		// Ensure we have some kind of RAL set up by here
+		check(RAL::Instance != nullptr);
+		check(RAL::API != RenderAPI::Invalid);
 
-		glfwTerminate();
+		RAL::Get().Initialize();
+	}
 
-		if (ImGuiContext* Ctx = ImGui::CreateContext())
-		{
-			printf("ImGUI working!\n");
-			ImGui::DestroyContext(Ctx);
-		}
-		else
-		{
-			printf("ImGUI not working!\n");
-		}
+
+	void Renderer::EndFrame()
+	{
+		RAL::Get().SwapWindowBuffers();
+		RAL::Get().PollWindowEvents();
+	}
+	
+	void Renderer::SetWindowCtx(void* WindowPtr)
+	{
+		RAL::Get().SetWindowCtx(WindowPtr);
+	}
+
+	Viewport* Renderer::CreateViewport(uint32_t Width, uint32_t Height)
+	{
+		return GlobalAllocator<Viewport>::New(Width, Height);
+	}
+
+	void Renderer::DrawScene(Scene*, Viewport* ActiveViewport)
+	{
+		ActiveViewport->Bind();
+		// For now default to clearing with Scarlet Red
+		RAL::Get().SetClearColorCommand({ 1.0f, 0.13f, 0.f, 1.f });
+		RAL::Get().ClearCommand(true, true, true);
+
+		ActiveViewport->Unbind();
 	}
 }
