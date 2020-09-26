@@ -91,6 +91,12 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_definitions(-DDEBUG)
 endif()
 
+# Define TRACY_ENABLE when compiling with profiler
+option (PROFILER "Should compile with profiler" ON)
+if (PROFILER)
+	add_definitions(-DTRACY_ENABLE)
+endif()
+
 # Compile the ScarletEngine library
 add_subdirectory("ScarletEngine")
 

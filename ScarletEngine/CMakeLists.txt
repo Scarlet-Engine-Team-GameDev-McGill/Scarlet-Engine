@@ -29,6 +29,12 @@ set(STBIMAGE_INCLUDE "thirdparty/stb_image")
 # Add IconFontCppHeaders to public headers
 set (ICONFONTCPPHEADERS_INCLUDE "thirdparty/IconFontCppHeaders")
 
+# Add Tracy profiler sources to engine
+file (GLOB Tracy_SRC "thirdparty/tracy/*.cpp")
+
+# Add Tracy profiler to public headers
+set (TRACY_INCLUDE "thirdparty/tracy")
+
 set(GRAPHICS_API "OpenGL" CACHE STRING "Which Graphics API to use")
 if (GRAPHICS_API STREQUAL "OpenGL")
 	add_definitions(-DRAL_USE_OPENGL)
@@ -36,9 +42,9 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Vulkan")
 	add_definitions(-DRAL_USE_VULKAN)
 endif()
 
-add_library(ScarletEngine STATIC ${ScarletEngine_SRC} ${ImGUI_SRC} ${Glad_SRC})
+add_library(ScarletEngine STATIC ${ScarletEngine_SRC} ${ImGUI_SRC} ${Glad_SRC} ${Tracy_SRC})
 
-target_include_directories(ScarletEngine PUBLIC "include/" ${IMGUI_INCLUDE} ${GLFW3_INCLUDE} ${GLM_INCLUDE} ${ICONFONTCPPHEADERS_INCLUDE})
+target_include_directories(ScarletEngine PUBLIC "include/" ${IMGUI_INCLUDE} ${GLFW3_INCLUDE} ${GLM_INCLUDE} ${ICONFONTCPPHEADERS_INCLUDE} ${TRACY_INCLUDE})
 target_include_directories(ScarletEngine PRIVATE "src/" ${STBIMAGE_INCLUDE} ${GLAD_INCLUDE})
 
 target_link_libraries(ScarletEngine PRIVATE ${GLFW3_LIBRARY} Vulkan::Vulkan OpenGL::GL ${CMAKE_DL_LIBS})

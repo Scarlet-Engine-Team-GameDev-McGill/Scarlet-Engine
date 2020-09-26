@@ -27,3 +27,4 @@
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 #include <GoogleMaterialDesign.h>
+#include <Tracy.hpp>

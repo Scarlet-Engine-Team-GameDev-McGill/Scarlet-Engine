@@ -142,6 +142,7 @@ namespace ScarletEngine
 		bIsRunning = true;
 		while (bIsRunning)
 		{
+			FrameMark
 			const double DeltaTime = std::chrono::duration_cast<ms>(Clock.now() - LastTime).count();
 			LastTime = Clock.now();
 			Lag += DeltaTime;
