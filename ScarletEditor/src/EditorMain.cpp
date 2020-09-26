@@ -17,5 +17,7 @@ int main()
 	GEngine->Terminate();
 	GEngine.reset();
 
+	SCAR_LOG(LogInfo, "Terminating");
+
 	return 0;
 }

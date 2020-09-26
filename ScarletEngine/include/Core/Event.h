@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CoreMinimal.h"
+#include "CoreSTL.h"
 
 namespace ScarletEngine
 {
@@ -8,36 +8,50 @@ namespace ScarletEngine
 	template <typename... Args>
 	class Event
 	{
-	public:
-		void Bind(const std::function<void(Args...)>& Callback) const
+		using FunctionType = std::function<void(Args...)>;
+		struct CallbackData
 		{
-			// This method is not actually const, 
-			// it just allows us to prevent const references from broadcasting
-			Callbacks.emplace_back(Callback);
+			void* CallbackOwner;
+			FunctionType Func;
+		};
+
+	public:
+		/**
+		 * Bind a free function or lambda to the event 
+		 * note: this function is not actually const. Marking it as such is just so that we can prevent const refs from broadcasting
+		 */
+		void Bind(const FunctionType& Callback, void* OwnerPtr = nullptr) const
+		{
+			Callbacks.push_back({ OwnerPtr, Callback });
 		}
 
-		template <typename CallerType, typename FunctionType>
-		void Bind(CallerType Ptr, FunctionType Func) const
+		/**
+		 * Bind a member function to the event
+		 * note: this function is not actually const. Marking it as such is just so that we can prevent const refs from broadcasting
+		 */
+		template <typename CallerType, typename MemberFuncType>
+		void Bind(CallerType Ptr, MemberFuncType Func) const
 		{
 			if constexpr (sizeof...(Args) == 0)
 			{
-				Bind(std::bind(Func, Ptr));
+				//Bind(std::bind(Func, Ptr));
+				Callbacks.push_back({ Ptr, std::bind(Func, Ptr) });
 			}
 			else  if constexpr (sizeof...(Args) == 1)
 			{
-				Bind(std::bind(Func, Ptr, std::placeholders::_1));
+				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1) });
 			}
 			else if constexpr (sizeof...(Args) == 2)
 			{
-				Bind(std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2));
+				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2) });
 			}
 			else if constexpr (sizeof...(Args) == 3)
 			{
-				Bind(std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3) });
 			}
 			else if constexpr (sizeof...(Args) == 4)
 			{
-				Bind(std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) });
 			}
 			else
 			{
@@ -45,11 +59,24 @@ namespace ScarletEngine
 			}
 		}
 
+		void Unbind(void* Ptr) const
+		{
+			auto It = std::find_if(Callbacks.begin(), Callbacks.end(), [Ptr](const CallbackData& Data)
+				{
+					return Data.CallbackOwner == Ptr;
+				});
+
+			if (It != Callbacks.end())
+			{
+				Callbacks.erase(It);
+			}
+		}
+
 		void Broadcast(Args... args)
 		{
-			for (const auto& Callback : Callbacks)
+			for (const auto& CallbackInfo: Callbacks)
 			{
-				Callback(args...);
+				CallbackInfo.Func(args...);
 			}
 		}
 
@@ -58,6 +85,8 @@ namespace ScarletEngine
 			Callbacks.clear();
 		}
 	private:
-		mutable Array<std::function<void(Args...)>> Callbacks;
+		// #todo: This can be optimized to use a flat array of pure Functions
+		//		  and store the metadata elsewhere
+		mutable Array<CallbackData> Callbacks;
 	};
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdio>
+#include "Event.h"
 
 namespace ScarletEngine
 {
@@ -12,18 +13,23 @@ namespace ScarletEngine
 		LogError
 	};
 
+	using OnMessageLoggedEvent = Event<LogLevel, const char*>;
+
 	class Logger
 	{
 	public:
-		void Log(LogLevel Level, const char* Message) const;
+		void Log(LogLevel Level, const char* Message);
 
 		void SetLogFile(const char* FilePath);
 
 		static Logger& Get() { static Logger Instance; return Instance; }
 
+		const OnMessageLoggedEvent& GetOnMessageLogged() const { return OnMessageLogged; }
+
 		~Logger();
 	private:
 		FILE* LogFile = nullptr;
+		OnMessageLoggedEvent OnMessageLogged;
 	};
 }
 

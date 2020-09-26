@@ -5,6 +5,7 @@
 #include "Renderer/Viewport.h"
 #include "Panels/SceneHierarchy/SceneHierarchy.h"
 #include "Panels/PropertyEditor.h"
+#include "Panels/OutputLog.h"
 #include "AssetManager/AssetHandle.h"
 #include "RAL/RALResources.h"
 
@@ -68,6 +69,7 @@ namespace ScarletEngine
 		
 		SharedPtr<SceneHierarchyPanel> SceneHierarchy;
 		SharedPtr<PropertyEditorPanel> PropertyEditor;
+		SharedPtr<OutputLogPanel> OutputLog;
 
 		Set<Entity*> SelectedEntities;
 

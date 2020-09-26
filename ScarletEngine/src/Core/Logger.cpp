@@ -18,7 +18,7 @@ namespace ScarletEngine
 		}
 	}
 
-	void Logger::Log(LogLevel Level, const char* Message) const
+	void Logger::Log(LogLevel Level, const char* Message)
 	{
 		static const char* VerbosePrefix = "[Verbose]";
 		static const char* InfoPrefix = "[Info]";
@@ -65,6 +65,13 @@ namespace ScarletEngine
 		{
 			fprintf(LogFile, "%s %s %s\n", TimeStringBuffer, *PrefixPtr, Message);
 		}
+
+		strftime(TimeStringBuffer, sizeof(TimeStringBuffer), "[%X]", TimeStruct);
+
+		char Buffer[4096];
+		snprintf(Buffer, 4096, "%s %s %s\n", TimeStringBuffer , *PrefixPtr, Message);
+
+		OnMessageLogged.Broadcast(Level, Buffer);
 	}
 
 	void Logger::SetLogFile(const char* FilePath)

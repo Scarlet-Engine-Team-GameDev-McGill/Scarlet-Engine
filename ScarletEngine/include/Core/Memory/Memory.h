@@ -1,7 +1,6 @@
 #pragma once
 
 #include "MemoryTracker.h"
-#include <iostream>
 namespace ScarletEngine
 {
 	template <class T>
@@ -15,8 +14,9 @@ namespace ScarletEngine
 		using const_reference = const T&;
 		using value_type = T;
 
-		GlobalAllocator() = default;
-		template <class U> constexpr GlobalAllocator(const GlobalAllocator <U>&) {}
+		inline GlobalAllocator() = default;
+		inline GlobalAllocator(const GlobalAllocator&) {}
+		template <class U> inline GlobalAllocator(const GlobalAllocator<U>&) {}
 
 		[[nodiscard]] T* allocate(size_t Number) 
 		{
@@ -42,6 +42,9 @@ namespace ScarletEngine
 			return Ptr;
 		}
 	
+		inline bool operator==(const GlobalAllocator&) { return true; }
+		inline bool operator!=(const GlobalAllocator&) { return true; }
+
 		struct Delete
 		{
 			void operator()(T* Ptr)
