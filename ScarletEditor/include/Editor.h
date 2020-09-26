@@ -10,7 +10,7 @@
 
 namespace ScarletEngine
 {
-	using OnSelectionChangedEvent = Event<const SharedPtr<Entity>&>;
+	using OnSelectionChangedEvent = Event<>;
 	using OnSelectionClearedEvent = Event<>;
 
 	class Editor : public ITickable
@@ -22,20 +22,25 @@ namespace ScarletEngine
 		virtual void Initialize() override;
 		virtual void Tick(double DeltaTime) override;
 
-		void SetSelection(const SharedPtr<Entity>& InSelectedEntity)
-		{
-			SelectedEntity = InSelectedEntity;
-			OnSelectionChanged.Broadcast(InSelectedEntity);
-		}
+	public:
+		/* Selection */
+		void SetSelection(const Array<Entity*>& NewSelection);
+		void SetSelection(Entity* SelectedItem);
 
-		void ClearSelection()
-		{
-			SelectedEntity.reset();
-			OnSelectionCleared.Broadcast();
-		}
+		void AddToSelection(const Array<Entity*>& EntitiesToAdd);
+		void AddToSelection(Entity* EntityToAdd);
+
+		void RemoveFromSelection(Entity* EntityToRemove);
+
+		void ClearSelection();
+
+		bool IsEntitySelected(Entity* Ent) const;
+
+		const Set<Entity*>& GetSelection() const { return SelectedEntities; }
 
 		const OnSelectionChangedEvent& GetOnSelectionChanged() const { return OnSelectionChanged; }
 		const OnSelectionClearedEvent& GetOnSelectionCleared() const { return OnSelectionCleared; }
+
 	private:
 		void DrawUI();
 	private:
@@ -64,7 +69,7 @@ namespace ScarletEngine
 		SharedPtr<SceneHierarchyPanel> SceneHierarchy;
 		SharedPtr<PropertyEditorPanel> PropertyEditor;
 
-		WeakPtr<Entity> SelectedEntity;
+		Set<Entity*> SelectedEntities;
 
 		OnSelectionChangedEvent OnSelectionChanged;
 		OnSelectionClearedEvent OnSelectionCleared;

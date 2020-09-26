@@ -15,7 +15,7 @@ namespace ScarletEngine
 		, EditorWorld(nullptr)
 		, SceneHierarchy(nullptr)
 		, PropertyEditor(nullptr)
-		, SelectedEntity()
+		, SelectedEntities()
 	{
 	}
 
@@ -26,9 +26,13 @@ namespace ScarletEngine
 		PropertyEditor = MakeShared<PropertyEditorPanel>();
 
 		// Test entities
-		EditorWorld->CreateEntity<Transform>("Empty 1");
-		EditorWorld->CreateEntity<Transform>("Empty 2");
-		EditorWorld->CreateEntity<Transform>("Empty 3");
+		EditorWorld->CreateEntity<Transform>("Entity 1");
+		EditorWorld->CreateEntity<Transform>("Entity 2");
+		EditorWorld->CreateEntity<Transform>("Entity 3");
+		EditorWorld->CreateEntity<Transform>("Entity 4");
+		EditorWorld->CreateEntity<Transform>("Entity 5");
+		EditorWorld->CreateEntity<Transform>("Entity 6");
+		EditorWorld->CreateEntity<Transform>("Entity 7");
 
 		Viewports.emplace_back(Renderer::Get().CreateViewport(1280, 720));
 	}
@@ -179,5 +183,54 @@ namespace ScarletEngine
 		ImGui::ShowDemoWindow();
 
 		ImGui::End();
+	}
+
+	void Editor::SetSelection(const Array<Entity*>& NewSelection)
+	{
+		SelectedEntities.clear();
+		for (Entity* Ent : NewSelection)
+		{
+			SelectedEntities.insert(Ent);
+		}
+		OnSelectionChanged.Broadcast();
+	}
+	
+	void Editor::SetSelection(Entity* SelectedItem)
+	{
+		SelectedEntities.clear();
+		SelectedEntities.insert(SelectedItem);
+		OnSelectionChanged.Broadcast();
+	}
+
+	void Editor::AddToSelection(const Array<Entity*>& EntitiesToAdd)
+	{
+		for (Entity* Ent : EntitiesToAdd)
+		{
+			SelectedEntities.insert(Ent);
+		}
+		OnSelectionChanged.Broadcast();
+	}
+
+	void Editor::AddToSelection(Entity* EntityToAdd)
+	{
+		SelectedEntities.insert(EntityToAdd);
+		OnSelectionChanged.Broadcast();
+	}
+
+	void Editor::ClearSelection()
+	{
+		SelectedEntities.clear();
+		OnSelectionCleared.Broadcast();
+	}
+
+	void Editor::RemoveFromSelection(Entity* EntityToRemove)
+	{
+		SelectedEntities.erase(EntityToRemove);
+		OnSelectionChanged.Broadcast();
+	}
+
+	bool Editor::IsEntitySelected(Entity* Ent) const
+	{
+		return SelectedEntities.find(Ent) != SelectedEntities.end();
 	}
 }

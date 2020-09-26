@@ -14,6 +14,8 @@ namespace ScarletEngine
 {
 	SceneHierarchyPanel::SceneHierarchyPanel(const SharedPtr<World>& InRepresentingWorld)
 		: RepresentingWorld(InRepresentingWorld)
+		, Items()
+		, CurrentSelectionIndex(INVALID_EID)
 	{
 		RepresentingWorld.lock()->GetOnEntityAddedToWorldEvent().Bind(this, &SceneHierarchyPanel::OnEntityAddedToWorld);
 		GEditor->GetOnSelectionChanged().Bind(this, &SceneHierarchyPanel::OnWorldSelectionChanged);
@@ -29,11 +31,10 @@ namespace ScarletEngine
 		{
 			ImGui::PushID((uint32_t)ID);
 			char Buffer[128];
-			snprintf(Buffer, 128, "%s %s", u8"\ue9fe", EntItem->GetDisplayString());
+			snprintf(Buffer, 128, "%s %s", ICON_MD_CUBE, EntItem->GetDisplayString());
 			
 			ImGuiTreeNodeFlags Flags = BaseFlags;
-			const bool bIsAlreadySelected = EntItem->bIsSelected;
-			if (bIsAlreadySelected)
+			if (EntItem->bIsSelected)
 			{
 				Flags |= ImGuiTreeNodeFlags_Selected;
 			}
@@ -41,10 +42,12 @@ namespace ScarletEngine
 			if (EntItem->Children.size() > 0)
 			{
 				bool bNodeOpen = ImGui::TreeNodeEx(Buffer, Flags);
-				if (ImGui::IsItemClicked() && !bIsAlreadySelected)
+				if (ImGui::IsItemClicked())
 				{
-					EntItem->bIsSelected = true;
-					GEditor->SetSelection(EntItem->Ent.lock());
+					if (SelectItem(*EntItem))
+					{
+						CurrentSelectionIndex = ID;
+					}
 				}
 
 				if (bNodeOpen)
@@ -56,10 +59,12 @@ namespace ScarletEngine
 			{
 				Flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 				ImGui::TreeNodeEx(Buffer, Flags);
-				if (ImGui::IsItemClicked() && !bIsAlreadySelected)
+				if (ImGui::IsItemClicked())
 				{
-					EntItem->bIsSelected = true;
-					GEditor->SetSelection(EntItem->Ent.lock());
+					if (SelectItem(*EntItem))
+					{
+						CurrentSelectionIndex = ID;
+					}
 				}
 			}
 
@@ -90,16 +95,79 @@ namespace ScarletEngine
 		}
 	}
 
-	void SceneHierarchyPanel::OnWorldSelectionChanged(const EntityPtr& LastSelectedEntity)
+	void SceneHierarchyPanel::OnWorldSelectionChanged()
 	{
-		// For now just clear all old selection and add the newly selected
+		SynchronizeSelection();
+	}
+
+	void SceneHierarchyPanel::SynchronizeSelection()
+	{
+		// We need to resynchronize the entire selection when something changes since we may have selected multiple
 		for (const auto& [ID, EntItem] : Items)
 		{
-			EntItem->bIsSelected = false;
+			EntItem->bIsSelected = GEditor->IsEntitySelected(EntItem->Ent.lock().get());
 		}
-		if (auto It = Items.find(LastSelectedEntity->ID); It != Items.end())
+	}
+
+	bool SceneHierarchyPanel::SelectItem(const SceneHierarchyItem& Item)
+	{
+		const ImGuiIO& IO = ImGui::GetIO();
+		if (IO.KeyCtrl)
 		{
-			It->second->bIsSelected = true;
+			// If the item is already selected we need to remove it
+			if (Item.bIsSelected)
+			{
+				GEditor->RemoveFromSelection(Item.Ent.lock().get());
+				return false;
+			}
+			else
+			{
+				GEditor->AddToSelection(Item.Ent.lock().get());
+			}
 		}
+		else if (IO.KeyShift)
+		{
+			// Select items from the current selection index until the newly selected item
+			Array<Entity*> EntitiesToSelect;
+			EID ClickedIndex = Item.Ent.lock()->ID;
+
+			// Determine the iterator direction
+			if (ClickedIndex > CurrentSelectionIndex)
+			{
+				auto It = Items.find(CurrentSelectionIndex);
+				// We want to select everything up to _and including_ the clicked item
+				auto EndIndex = (++Items.find(Item.Ent.lock()->ID));
+				for (; It != EndIndex; ++It)
+				{
+					EntitiesToSelect.push_back(It->second->Ent.lock().get());
+				}
+			}
+			else if (ClickedIndex < CurrentSelectionIndex)
+			{
+				auto It = Items.find(CurrentSelectionIndex);
+				// We want to select everything up to _and including_ the clicked item
+				auto EndIndex = (--Items.find(Item.Ent.lock()->ID));
+				for (; It != EndIndex; --It)
+				{
+					EntitiesToSelect.push_back(It->second->Ent.lock().get());
+				}
+			}
+			else
+			{
+				EntitiesToSelect.push_back(Item.Ent.lock().get());
+			}
+			
+
+			if (EntitiesToSelect.size() > 0)
+			{
+				GEditor->AddToSelection(EntitiesToSelect);
+			}
+		}
+		else
+		{
+			GEditor->SetSelection(Item.Ent.lock().get());		
+		}
+
+		return true;
 	}
 }

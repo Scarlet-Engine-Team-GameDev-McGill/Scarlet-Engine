@@ -20,10 +20,15 @@ namespace ScarletEngine
 		void RepopulateItems();
 	private:
 		void OnEntityAddedToWorld(const EntityPtr& AddedEntity);
-		void OnWorldSelectionChanged(const EntityPtr& LastSelectedEntity);
+		void OnWorldSelectionChanged();
+
+		void SynchronizeSelection();
+
+		bool SelectItem(const SceneHierarchyItem& Item);
 	private:
 		WeakPtr<World> RepresentingWorld;
 
-		UnorderedMap<EID, UniquePtr<SceneHierarchyItem>> Items;
+		Map<EID, UniquePtr<SceneHierarchyItem>> Items;
+		EID CurrentSelectionIndex;
 	};
 }
