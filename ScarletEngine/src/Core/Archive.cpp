@@ -19,6 +19,7 @@ namespace ScarletEngine
 		, Pos(0)
 		, Mode(InMode)
 	{
+		ZoneScoped
 		if (!Filename.empty())
 		{
 			if (InMode == ArchiveMode::Read)
@@ -38,6 +39,7 @@ namespace ScarletEngine
 
 	void Archive::Close()
 	{
+		ZoneScoped
 		if (Mode == ArchiveMode::Write && !Filename.empty())
 		{
 			SaveToFile();
@@ -47,6 +49,7 @@ namespace ScarletEngine
 
 	bool Archive::SaveToFile(const char* OverrideFile)
 	{
+		ZoneScoped
 		if (Pos > 0)
 		{
 			// trunc to immediately remove the old file contents

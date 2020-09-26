@@ -15,12 +15,14 @@ namespace ScarletEngine
 	public:
 		static void MarkAlloc(void* Ptr, size_t Size)
 		{
+			ZoneScoped
 			Allocs[Ptr] = AllocationInfo{ Size };
 			MemUsed += Size;
 		}
 
 		static void RemoveAlloc(void* Ptr, size_t Size)
 		{
+			ZoneScoped
 			if (Allocs.find(Ptr) != Allocs.end())
 			{
 				Allocs.erase(Ptr);

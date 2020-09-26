@@ -10,11 +10,12 @@ namespace ScarletEngine
 {
 	Renderer::Renderer()
 	{
+		ZoneScoped
 	}
 
 	void Renderer::Initialize()
 	{
-
+		ZoneScoped
 #ifdef RAL_USE_OPENGL
 		RAL::Instance = UniquePtr<RAL>(GlobalAllocator<OpenGLRAL>::New());
 		RAL::API = RenderAPI::OpenGL;
@@ -34,22 +35,26 @@ namespace ScarletEngine
 
 	void Renderer::EndFrame()
 	{
+		ZoneScoped
 		RAL::Get().SwapWindowBuffers();
 		RAL::Get().PollWindowEvents();
 	}
 	
 	void Renderer::SetWindowCtx(void* WindowPtr)
 	{
+		ZoneScoped
 		RAL::Get().SetWindowCtx(WindowPtr);
 	}
 
 	Viewport* Renderer::CreateViewport(uint32_t Width, uint32_t Height)
 	{
+		ZoneScoped
 		return GlobalAllocator<Viewport>::New(Width, Height);
 	}
 
 	void Renderer::DrawScene(Scene*, Viewport* ActiveViewport)
 	{
+		ZoneScoped
 		ActiveViewport->Bind();
 		// For now default to clearing with Scarlet Red
 		RAL::Get().SetClearColorCommand({ 1.0f, 0.13f, 0.f, 1.f });

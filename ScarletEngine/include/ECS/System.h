@@ -36,6 +36,7 @@ namespace ScarletEngine
 
 		virtual void Run(EID EntityID) const override
 		{
+			ZoneScoped
 			// If our entity has the specified components
 			if((Reg->HasComponent<std::remove_cv_t<ComponentTypes>>(EntityID) && ...))
 			{
@@ -43,7 +44,7 @@ namespace ScarletEngine
 			}
 		}
 
-		void Each(const ForEachFunctionType& InForEach)
+		inline void Each(const ForEachFunctionType& InForEach)
 		{
 			ForEach = InForEach;
 		}

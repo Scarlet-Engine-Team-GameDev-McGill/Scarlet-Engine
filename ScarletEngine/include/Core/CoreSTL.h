@@ -45,6 +45,7 @@ namespace std
 
 		[[nodiscard]] size_t operator()(const ScarletEngine::BasicString<Elem, Traits, Alloc>& Keyval) const
 		{
+			ZoneScoped
 			return std::hash<std::string_view>{}(Keyval.c_str());
 		}
 	};

@@ -7,7 +7,7 @@ namespace ScarletEngine
 		, CurrentMessageIndex(0)
 		, NumMessages(0)
 	{
-		
+		ZoneScoped
 		MessageBuffer.resize(MaxBufferLength);
 		FilterText.reserve(32);
 
@@ -16,11 +16,13 @@ namespace ScarletEngine
 
 	OutputLogPanel::~OutputLogPanel()
 	{
+		ZoneScoped
 		Logger::Get().GetOnMessageLogged().Unbind(this);
 	}
 
 	void OutputLogPanel::Draw()
 	{
+		ZoneScoped
 		if (ImGui::Begin("Output Log"))
 		{
 			ImGui::TextUnformatted(ICON_MD_FILTER_LIST " Filter:");
@@ -100,11 +102,13 @@ namespace ScarletEngine
 
 	bool OutputLogPanel::PassesFilter(const String& Msg) const
 	{
+		ZoneScoped
 		return Msg.find(FilterText.c_str()) != std::string::npos;
 	}
 
 	void OutputLogPanel::OnMessageLogged(LogLevel Level, const char* Msg)
 	{
+		ZoneScoped
 		MessageBuffer[CurrentMessageIndex] = { Msg, Level };
 		CurrentMessageIndex = (CurrentMessageIndex + 1) % MaxBufferLength;
 		if (NumMessages != MaxBufferLength)
@@ -116,6 +120,7 @@ namespace ScarletEngine
 
 	void OutputLogPanel::Clear()
 	{
+		ZoneScoped
 		CurrentMessageIndex = 0;
 		NumMessages = 0;
 	}

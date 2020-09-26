@@ -16,6 +16,7 @@ namespace ScarletEngine
 		{
 			static CTID GetNextTypeID()
 			{
+				ZoneScoped
 				static CTID NextID = 1;
 				return NextID++;
 			}
@@ -28,6 +29,7 @@ namespace ScarletEngine
 	{
 		static CTID Value()
 		{
+			ZoneScoped
 			static CTID ID = Internal::ComponentTypeID::GetNextTypeID();
 			return ID;
 		}

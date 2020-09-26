@@ -23,6 +23,7 @@ namespace ScarletEngine
 		public:
 			T* Add(EID EntityID)
 			{
+				ZoneScoped
 				const size_t Index = Components.size();
 				EntityMap[EntityID] = Index;
 				return &Components.emplace_back(T());
@@ -30,6 +31,7 @@ namespace ScarletEngine
 
 			T* Get(EID EntityID)
 			{
+				ZoneScoped
 				if (Has(EntityID))
 				{
 					return &Components[EntityMap.at(EntityID)];
@@ -39,11 +41,13 @@ namespace ScarletEngine
 
 			virtual bool Has(EID EntityID) const override
 			{
+				ZoneScoped
 				return EntityMap.find(EntityID) != EntityMap.end();
 			}
 
 			virtual bool Remove(EID EntityID) override
 			{
+				ZoneScoped
 				const size_t IndexToRemove = EntityMap.at(EntityID);
 				const T* BackElement = &Components.back();
 				const EID BackOwner = FindOwner(BackElement);
@@ -63,6 +67,7 @@ namespace ScarletEngine
 
 			T* Attach(EID EntityID, const T& Component)
 			{
+				ZoneScoped
 				if (!Has(EntityID))
 				{
 					const size_t Index = Components.size();
@@ -77,6 +82,7 @@ namespace ScarletEngine
 
 			virtual void Sort() override
 			{
+				ZoneScoped
 				Array<size_t> Ids(EntityMap.size());
 
 				size_t NextIndex = 0;
@@ -101,6 +107,7 @@ namespace ScarletEngine
 			/** Warning: Potentially slow! */
 			EID FindOwner(const T* Component) const
 			{
+				ZoneScoped
 				for (const auto& Pair : EntityMap)
 				{
 					if (&Components[Pair.second] == Component) return Pair.first;
@@ -119,6 +126,7 @@ namespace ScarletEngine
 		template <typename ...Ts>
 		std::tuple<std::add_pointer_t<Ts>...> CreateEntity(Entity& Ent)
 		{
+			ZoneScoped
 			Ent.ID = NextAvailableEID++;
 			return std::make_tuple(AddComponent<Ts>(Ent.ID)...);
 		}
@@ -128,6 +136,7 @@ namespace ScarletEngine
 		template <typename T>
 		T* AddComponent(EID EntityID)
 		{
+			ZoneScoped
 			auto Container = GetOrCreateComponentContainer<T>();
 			check(Container);
 			check(!Container->Has(EntityID));
@@ -138,6 +147,7 @@ namespace ScarletEngine
 		template <typename T>
 		bool RemoveComponent(EID EntityID) const
 		{
+			ZoneScoped
 			if (auto Container = GetComponentContainer<T>())
 			{
 				return Container->Remove(EntityID);
@@ -148,6 +158,7 @@ namespace ScarletEngine
 		template <typename T>
 		T* AttachComponent(EID EntityID, const T& Component) const
 		{
+			ZoneScoped
 			if (auto Container = GetComponentContainer<T>())
 			{
 				return Container->Attach(EntityID, Component);
@@ -158,6 +169,7 @@ namespace ScarletEngine
 		template <typename T>
 		T* GetComponent(EID EntityID) const
 		{
+			ZoneScoped
 			if (auto Container = GetComponentContainer<T>())
 			{
 				return Container->Get(EntityID);
@@ -169,6 +181,7 @@ namespace ScarletEngine
 		template <typename T>
 		bool HasComponent(EID EntityID) const
 		{
+			ZoneScoped
 			if (auto Container = GetComponentContainer<T>())
 			{
 				return Container->Has(EntityID);
@@ -180,6 +193,7 @@ namespace ScarletEngine
 
 		void SortAll()
 		{
+			ZoneScoped
 			for (auto& Container : ComponentContainers)
 			{
 				Container.second->Sort();
@@ -189,6 +203,7 @@ namespace ScarletEngine
 		template <typename T>
 		ComponentContainer<T>* GetComponentContainer() const
 		{
+			ZoneScoped
 			if (ComponentContainers.find(ComponentTypeID<T>::Value()) != ComponentContainers.end())
 			{
 				return static_cast<ComponentContainer<T>*>(ComponentContainers.at(ComponentTypeID<T>::Value()).get());
@@ -199,6 +214,7 @@ namespace ScarletEngine
 		template <typename T>
 		ComponentContainer<T>* GetOrCreateComponentContainer()
 		{
+			ZoneScoped
 			ComponentContainer<T>* Container = GetComponentContainer<T>();
 			if (!Container)
 			{

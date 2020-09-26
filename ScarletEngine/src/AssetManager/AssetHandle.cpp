@@ -14,12 +14,14 @@ namespace ScarletEngine
 		, Leafname(FilePath)
 		, Extension(Leafname)
 	{
+		ZoneScoped
 		Leafname = Leafname.substr(Leafname.find_last_of("/") + 1);
 		Extension = Extension.substr(Extension.find_last_of("."));
 	}
 
 	IAssetHandle::~IAssetHandle()
 	{
+		ZoneScoped
 		// When nothing is referencing this asset, remove its entry in the cache
 		AssetManager::UnloadAsset(FilePath);
 	}
@@ -28,6 +30,7 @@ namespace ScarletEngine
 		: IAssetHandle(AssetType::Texture, InFilePath)
 		, PixelDataBuffer(nullptr)
 	{
+		ZoneScoped
 		// potentially dangerous casting happening here
 		int ImageWidth;
 		int ImageHeight;
@@ -43,6 +46,7 @@ namespace ScarletEngine
 
 	TextureHandle::~TextureHandle()
 	{
+		ZoneScoped
 		stbi_image_free(PixelDataBuffer);
 	}
 

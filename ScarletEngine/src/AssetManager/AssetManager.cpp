@@ -8,11 +8,13 @@ namespace ScarletEngine
 
 	SharedPtr<TextureHandle> AssetManager::LoadTextureFile(const String& FilePath)
 	{
+		ZoneScoped
 		return std::static_pointer_cast<TextureHandle>(LoadAsset(FilePath, AssetType::Texture));
 	}
 
 	SharedPtr<IAssetHandle> AssetManager::LoadAsset(const String& FilePath, AssetType Type)
 	{
+		ZoneScoped
 		// Check that we are loading a file which exists
 		check(std::filesystem::exists(FilePath));
 
@@ -51,6 +53,7 @@ namespace ScarletEngine
 
 	void AssetManager::ForEachLoadedAsset(const std::function<bool(IAssetHandle&)>& Func)
 	{
+		ZoneScoped
 		for (const auto& Pair : CachedAssets)
 		{
 			if (!Func(*(Pair.second.lock())))
@@ -62,6 +65,7 @@ namespace ScarletEngine
 
 	void AssetManager::UnloadAsset(const String& AssetToUnload)
 	{
+		ZoneScoped
 		CachedAssets.erase(AssetToUnload);
 	}
 	
