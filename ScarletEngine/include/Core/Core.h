@@ -7,6 +7,7 @@
 #include "ITickable.h"
 #include "Event.h"
 #include "Delegate.h"
+#include "Archive.h"
 
 // Core component types
 #include "Transform.h"

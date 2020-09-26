@@ -12,7 +12,7 @@ namespace ScarletEngine
 	using byte_t = uint8_t;
 
 	template <typename T, typename Alloc = GlobalAllocator<T>>
-	using Array = std::vector<T, GlobalAllocator<T>>;
+	using Array = std::vector<T, Alloc>;
 
 	template <typename T, size_t Size>
 	using StaticArray = std::array<T, Size>;
