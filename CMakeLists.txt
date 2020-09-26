@@ -93,8 +93,13 @@ endif()
 
 # Define TRACY_ENABLE when compiling with profiler
 option (PROFILER "Should compile with profiler" ON)
+option (PROFILER_COLLECT_CALLSTACK "Should collect callstacks" OFF)
 if (PROFILER)
 	add_definitions(-DTRACY_ENABLE)
+
+	if (PROFILER_COLLECT_CALLSTACK)
+		add_definitions(-DTRACY_CALLSTACK=10)
+	endif()
 endif()
 
 # Compile the ScarletEngine library
