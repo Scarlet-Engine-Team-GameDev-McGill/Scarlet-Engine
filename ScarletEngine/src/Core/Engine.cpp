@@ -17,6 +17,8 @@
 
 namespace ScarletEngine
 {
+	UniquePtr<Engine> GEngine = nullptr;
+
 	Engine::Engine()
 		: VariableUpdateTickables()
 		, FixedUpdateTickables()
@@ -163,8 +165,6 @@ namespace ScarletEngine
 			// Process anything that should happen before the next update
 			PostUpdate();
 		}
-
-		Terminate();
 	}
 
 	void Engine::PreUpdate()

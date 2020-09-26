@@ -17,9 +17,9 @@ namespace ScarletEngine
 	{
 	public:
 		Editor();
+		virtual ~Editor() {}
 
 		virtual void Initialize() override;
-
 		virtual void Tick(double DeltaTime) override;
 
 		void SetSelection(const SharedPtr<Entity>& InSelectedEntity)
@@ -36,8 +36,6 @@ namespace ScarletEngine
 
 		const OnSelectionChangedEvent& GetOnSelectionChanged() const { return OnSelectionChanged; }
 		const OnSelectionClearedEvent& GetOnSelectionCleared() const { return OnSelectionCleared; }
-
-		static Editor& Get() { static Editor Instance; return Instance; }
 	private:
 		void DrawUI();
 	private:
@@ -71,4 +69,6 @@ namespace ScarletEngine
 		OnSelectionChangedEvent OnSelectionChanged;
 		OnSelectionClearedEvent OnSelectionCleared;
 	};
+
+	extern UniquePtr<Editor> GEditor;
 }

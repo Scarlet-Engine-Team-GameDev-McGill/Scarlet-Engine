@@ -16,7 +16,7 @@ namespace ScarletEngine
 		: RepresentingWorld(InRepresentingWorld)
 	{
 		RepresentingWorld.lock()->GetOnEntityAddedToWorldEvent().Bind(this, &SceneHierarchyPanel::OnEntityAddedToWorld);
-		Editor::Get().GetOnSelectionChanged().Bind(this, &SceneHierarchyPanel::OnWorldSelectionChanged);
+		GEditor->GetOnSelectionChanged().Bind(this, &SceneHierarchyPanel::OnWorldSelectionChanged);
 		RepopulateItems();
 	}
 
@@ -44,7 +44,7 @@ namespace ScarletEngine
 				if (ImGui::IsItemClicked() && !bIsAlreadySelected)
 				{
 					EntItem->bIsSelected = true;
-					Editor::Get().SetSelection(EntItem->Ent.lock());
+					GEditor->SetSelection(EntItem->Ent.lock());
 				}
 
 				if (bNodeOpen)
@@ -59,7 +59,7 @@ namespace ScarletEngine
 				if (ImGui::IsItemClicked() && !bIsAlreadySelected)
 				{
 					EntItem->bIsSelected = true;
-					Editor::Get().SetSelection(EntItem->Ent.lock());
+					GEditor->SetSelection(EntItem->Ent.lock());
 				}
 			}
 

@@ -16,7 +16,7 @@ namespace ScarletEngine
 
 	void WindowCloseCallback(GLFWwindow*)
 	{
-		Engine::Get().SignalQuit();
+		GEngine->SignalQuit();
 	}
 
 	void OpenGLRAL::Initialize()

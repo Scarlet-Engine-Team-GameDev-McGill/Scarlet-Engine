@@ -9,8 +9,8 @@ namespace ScarletEngine
 		: FocusedEntity()
 		, bHasSelection(false)
 	{
-		Editor::Get().GetOnSelectionChanged().Bind(this, &PropertyEditorPanel::OnSelectionChanged);
-		Editor::Get().GetOnSelectionCleared().Bind(this, &PropertyEditorPanel::OnSelectionCleared);
+		GEditor->GetOnSelectionChanged().Bind(this, &PropertyEditorPanel::OnSelectionChanged);
+		GEditor->GetOnSelectionCleared().Bind(this, &PropertyEditorPanel::OnSelectionCleared);
 	}
 
 	void PropertyEditorPanel::Draw()
