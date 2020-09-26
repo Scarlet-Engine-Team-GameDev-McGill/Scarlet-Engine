@@ -6,15 +6,11 @@ namespace ScarletEngine
 {
 	ITickable::ITickable()
 	{
-		Engine& GEngine = Engine::Get();
-
-		GEngine.QueueAddTickable(this);
+		GEngine->QueueAddTickable(this);
 	}
 
 	ITickable::~ITickable()
 	{
-		Engine& GEngine = Engine::Get();
-
-		GEngine.RemoveTickable(this);
+		GEngine->RemoveTickable(this);
 	}
 }

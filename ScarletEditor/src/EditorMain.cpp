@@ -5,12 +5,17 @@ int main()
 {
 	using namespace ScarletEngine;
 
-	Engine& GEngine = Engine::Get();
-	GEngine.Initialize();
+	GEngine = MakeUnique<Engine>();
+	GEngine->Initialize();
 
 	// initialize the global editor
-	Editor::Get();
-	GEngine.Run();
+	GEditor = MakeUnique<Editor>();
+
+	GEngine->Run();
+
+	GEditor.reset();
+	GEngine->Terminate();
+	GEngine.reset();
 
 	return 0;
 }

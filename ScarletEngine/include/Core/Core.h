@@ -11,3 +11,8 @@
 
 // Core component types
 #include "Transform.h"
+
+namespace ScarletEngine
+{
+	extern UniquePtr<Engine> GEngine;
+}

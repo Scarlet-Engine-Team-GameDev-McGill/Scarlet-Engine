@@ -9,6 +9,8 @@ namespace ScarletEngine
 	class Engine
 	{
 	public:
+		Engine();
+
 		void Initialize();
 		void Run();
 
@@ -24,10 +26,8 @@ namespace ScarletEngine
 		/** Remove a tickable object. This must be immediate as it will only be called on destruction of an ITickable */
 		void RemoveTickable(ITickable* TickableObject);
 
-		/** Return a reference to the global Engine object */
-		static Engine& Get() { static Engine Instance; return Instance; }
-	private:
 		void Terminate();
+	private:
 
 		/** Called before objects are ticked each frame */
 		void PreUpdate();
@@ -38,8 +38,7 @@ namespace ScarletEngine
 		void AddQueuedTickables();
 		void AddTickable(ITickable* TickableToAdd);
 	private:
-		// Prevent instantiations of this class and disable copy/move constructors
-		Engine();
+		// Prevent disable copy/move constructors
 		Engine(const Engine&) = delete;
 		Engine(Engine&&) = delete;
 		
@@ -61,4 +60,6 @@ namespace ScarletEngine
 		/** True when the engine is in the middle of ticking objects */
 		uint32_t bTickingObjects : 1;
 	};
+
+	extern UniquePtr<Engine> GEngine;
 }

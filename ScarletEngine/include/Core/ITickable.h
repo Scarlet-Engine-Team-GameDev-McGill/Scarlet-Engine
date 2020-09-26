@@ -16,6 +16,8 @@ namespace ScarletEngine
 
 		virtual void Tick(double DeltaTime) = 0;
 
+		virtual void Terminate() {}
+
 		/** Override if object wants a fixed timestep rather than variable */
 		virtual bool WantsFixedTimestep() const { return false; }
 	};
