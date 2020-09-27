@@ -19,6 +19,7 @@ namespace ScarletEngine
 		, PropertyEditor(nullptr)
 		, OutputLog(nullptr)
 		, SelectedEntities()
+		, SceneCamera()
 	{
 		ZoneScoped
 	}
@@ -42,7 +43,7 @@ namespace ScarletEngine
 
 		Viewports.emplace_back(Renderer::Get().CreateViewport(1280, 720));
 
-		SMH = AssetManager::LoadStaticMesh("../ScarletEngine/content/Cube.obj");
+		SMH = AssetManager::LoadStaticMesh("../ScarletEngine/content/Monkey.obj");
 		VB = RAL::Get().CreateBuffer((uint32_t)SMH->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
 		VB->UploadData(SMH->Vertices.data(), SMH->Vertices.size() * sizeof(Vertex));
 		IB = RAL::Get().CreateBuffer((uint32_t)SMH->Indices.size() * sizeof(uint32_t), RALBufferUsage::STATIC_DRAW);
@@ -52,12 +53,12 @@ namespace ScarletEngine
 		auto VertShader = RAL::Get().CreateShader(RALShaderStage::Vertex, "../ScarletEngine/shaders/test_shader.vert");
 		auto FragShader = RAL::Get().CreateShader(RALShaderStage::Pixel, "../ScarletEngine/shaders/test_shader.frag");
 		Shader = RAL::Get().CreateShaderProgram(VertShader, FragShader, nullptr, nullptr);
-		GlobalAllocator<RALShader>::Delete()(VertShader);
-		GlobalAllocator<RALShader>::Delete()(FragShader);
+		GlobalAllocator<RALShader>::Free(VertShader);
+		GlobalAllocator<RALShader>::Free(FragShader);
 
-		Projection = glm::perspective(glm::radians(45.f), (float)1280 / (float)720, 0.0f, 100.0f);
-		CameraPos = glm::vec3(0, -2, 0);
-		View = glm::lookAt(CameraPos, CameraPos + glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
+		SceneCamera.SetPosition({ 0, -2, 0 });
+		SceneCamera.SetFoV(45.f);
+		SceneCamera.SetAspectRatio((float)1280 / (float)720);
 	}
 
 	void Editor::Tick(double DeltaTime)
@@ -75,7 +76,7 @@ namespace ScarletEngine
 				EdViewport.View->ResizeFramebuffer((uint32_t)EdViewport.ViewportSize.x, (uint32_t)EdViewport.ViewportSize.y);
 				if (EdViewport.ViewportSize.y > 0)
 				{
-					Projection = glm::perspective(glm::radians(45.f), EdViewport.ViewportSize.x / EdViewport.ViewportSize.y, 0.1f, 100.0f);
+					SceneCamera.SetAspectRatio(EdViewport.ViewportSize.x / EdViewport.ViewportSize.y);
 				}
 				SCAR_LOG(LogVerbose, "Framebuffer Resized");
 			}
@@ -85,12 +86,12 @@ namespace ScarletEngine
 			Shader->Bind();
 			auto model = glm::mat4(1.f);
 			model = glm::translate(model, glm::vec3(0.f));
-			model = glm::rotate(model, glm::radians(45.f), glm::vec3(1, 0, 0));
-			model = glm::rotate(model, glm::radians(45.f), glm::vec3(0, 0, 1));
+			model = glm::rotate(model, glm::radians(90.f), glm::vec3(1, 0, 0));
+			model = glm::rotate(model, glm::radians(0.f), glm::vec3(0, 0, 1));
 			model = glm::scale(model, glm::vec3(0.5f));
 			Shader->SetUniformMat4(model, "model");
-			Shader->SetUniformMat4(Projection * View, "vp");
-			Shader->SetUniformVec3(CameraPos, "CameraPos");
+			Shader->SetUniformMat4(SceneCamera.GetViewProj(), "vp");
+			Shader->SetUniformVec3(SceneCamera.GetPosition(), "CameraPos");
 			RAL::Get().DrawVertexArray(VA);
 			EdViewport.View->Unbind();
 			Shader->Unbind();

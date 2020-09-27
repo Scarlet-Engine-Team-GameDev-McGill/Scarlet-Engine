@@ -8,6 +8,7 @@
 #include "Panels/OutputLog.h"
 #include "AssetManager/AssetHandle.h"
 #include "RAL/RALResources.h"
+#include "Core/Camera.h"
 
 namespace ScarletEngine
 {
@@ -83,9 +84,7 @@ namespace ScarletEngine
 		RALVertexArray* VA;
 		RALShaderProgram* Shader;
 
-		glm::mat4 View;
-		glm::mat4 Projection;
-		glm::vec3 CameraPos;
+		Camera SceneCamera;
 	};
 
 	extern UniquePtr<Editor> GEditor;
