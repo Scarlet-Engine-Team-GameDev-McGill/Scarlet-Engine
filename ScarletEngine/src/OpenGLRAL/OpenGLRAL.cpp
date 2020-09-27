@@ -11,6 +11,7 @@
 
 namespace ScarletEngine
 {
+#ifdef DEBUG
 	// Debug output taken from https://learnopengl.com
 	static void APIENTRY glDebugOutput(GLenum source,
 		GLenum type,
@@ -61,6 +62,7 @@ namespace ScarletEngine
 
 		SCAR_LOG(LogError, "OGL Error: %s", Message.str().c_str());
 	}
+#endif
 
 	void FramebufferResizeCallback(GLFWwindow*, int Width, int Height)
 	{

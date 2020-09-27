@@ -69,7 +69,7 @@ namespace ScarletEngine
 		while (true)
 		{
 			char LineHeader[128];
-			uint32_t Result = fscanf(File, "%s", LineHeader);
+			int32_t Result = fscanf(File, "%s", LineHeader);
 			if (Result == EOF)
 			{
 				break;
