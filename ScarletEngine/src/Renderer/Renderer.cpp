@@ -56,8 +56,7 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 		ActiveViewport->Bind();
-		// For now default to clearing with Scarlet Red
-		RAL::Get().SetClearColorCommand({ 1.0f, 0.13f, 0.f, 1.f });
+		RAL::Get().SetClearColorCommand({ 0.1f, 0.1f, 0.1f, 1.f });
 		RAL::Get().ClearCommand(true, true, true);
 
 		ActiveViewport->Unbind();

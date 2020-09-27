@@ -44,6 +44,7 @@ else()
 endif()
 
 configure_files("${CMAKE_CURRENT_SOURCE_DIR}/content" "${CMAKE_CURRENT_BINARY_DIR}/content")
+configure_files("${CMAKE_CURRENT_SOURCE_DIR}/shaders" "${CMAKE_CURRENT_BINARY_DIR}/shaders")
 
 set(GRAPHICS_API "OpenGL" CACHE STRING "Which Graphics API to use")
 if (GRAPHICS_API STREQUAL "OpenGL")

@@ -13,14 +13,14 @@ namespace ScarletEngine
 	class MemoryTracker
 	{
 	public:
-		static void MarkAlloc(void* Ptr, size_t Size)
+		void MarkAlloc(void* Ptr, size_t Size)
 		{
 			ZoneScoped
 			Allocs[Ptr] = AllocationInfo{ Size };
 			MemUsed += Size;
 		}
 
-		static void RemoveAlloc(void* Ptr, size_t Size)
+		void RemoveAlloc(void* Ptr, size_t Size)
 		{
 			ZoneScoped
 			if (Allocs.find(Ptr) != Allocs.end())
@@ -35,11 +35,13 @@ namespace ScarletEngine
 			}
 		}
 
-		static size_t GetNumAllocs() { return Allocs.size(); }
-		static size_t GetMemUsed() { return MemUsed; }
+		size_t GetNumAllocs() const { return Allocs.size(); }
+		size_t GetMemUsed() const { return MemUsed; }
+
+		static MemoryTracker& Get() { static MemoryTracker Instance; return Instance; }
 	private:
 		// Using a regular std::unordered map to prevent tracking memory used by this
-		static std::unordered_map<void*, AllocationInfo> Allocs;
-		static size_t MemUsed;
+		std::unordered_map<void*, AllocationInfo> Allocs;
+		size_t MemUsed;
 	};
 }

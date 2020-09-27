@@ -10,6 +10,8 @@ namespace ScarletEngine
 	public:
 		static SharedPtr<TextureHandle> LoadTextureFile(const String& FilePath);
 
+		static SharedPtr<StaticMeshHandle> LoadStaticMesh(const String& FilePath);
+
 		static void UnloadAsset(const String& AssetToUnload);
 
 		static void ForEachLoadedAsset(const std::function<bool(IAssetHandle&)>& Func);

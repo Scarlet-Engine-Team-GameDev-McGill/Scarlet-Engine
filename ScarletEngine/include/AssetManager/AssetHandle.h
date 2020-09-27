@@ -31,4 +31,22 @@ namespace ScarletEngine
 		uint32_t Height;
 		uint8_t Channels;
 	};
+
+	// #todo: move this somewhere else
+	struct Vertex
+	{
+		glm::vec3 VertexPos;
+		glm::vec3 Normal;
+		glm::vec2 UV;
+	};
+
+	class StaticMeshHandle final : public IAssetHandle
+	{
+	public:
+		StaticMeshHandle(const String& InFilePath);
+		virtual ~StaticMeshHandle();
+
+		Array<Vertex> Vertices;
+		Array<uint32_t> Indices;
+	};
 }

@@ -75,6 +75,17 @@ namespace ScarletEngine
 
 		OnSelectionChangedEvent OnSelectionChanged;
 		OnSelectionClearedEvent OnSelectionCleared;
+
+		//#todo: temp section
+		SharedPtr<StaticMeshHandle> SMH;
+		RALGpuBuffer* VB;
+		RALGpuBuffer* IB;
+		RALVertexArray* VA;
+		RALShaderProgram* Shader;
+
+		glm::mat4 View;
+		glm::mat4 Projection;
+		glm::vec3 CameraPos;
 	};
 
 	extern UniquePtr<Editor> GEditor;

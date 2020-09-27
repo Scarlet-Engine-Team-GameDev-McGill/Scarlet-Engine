@@ -23,7 +23,7 @@ namespace ScarletEngine
 			ZoneScoped
 			T* Ptr = static_cast<T*>(std::malloc(Number * sizeof(T)));
 			check(Ptr != nullptr);
-			MemoryTracker::MarkAlloc(Ptr, Number * sizeof(T));
+			MemoryTracker::Get().MarkAlloc(Ptr, Number * sizeof(T));
 			TracyAlloc(Ptr, Number * sizeof(T));
 			return Ptr;
 		}
@@ -32,7 +32,7 @@ namespace ScarletEngine
 		{
 			ZoneScoped
 			check(Ptr != nullptr);
-			MemoryTracker::RemoveAlloc(Ptr, Number * sizeof(T));
+			MemoryTracker::Get().RemoveAlloc(Ptr, Number * sizeof(T));
 			TracyFree(Ptr);
 			std::free(Ptr);
 		}
@@ -43,7 +43,7 @@ namespace ScarletEngine
 			ZoneScoped
 			T* Ptr = new T(std::forward<Args>(args)...);
 			check(Ptr != nullptr);
-			MemoryTracker::MarkAlloc(Ptr, sizeof(T));
+			MemoryTracker::Get().MarkAlloc(Ptr, sizeof(T));
 			TracyAlloc(Ptr, sizeof(T));
 			return Ptr;
 		}
@@ -52,7 +52,7 @@ namespace ScarletEngine
 		{
 			ZoneScoped
 			check (Ptr != nullptr)
-			MemoryTracker::RemoveAlloc(Ptr, sizeof(T));
+			MemoryTracker::Get().RemoveAlloc(Ptr, sizeof(T));
 			TracyFree(Ptr);
 			delete Ptr;
 		}
@@ -66,7 +66,7 @@ namespace ScarletEngine
 			{
 				ZoneScoped
 				check(Ptr != nullptr);
-				MemoryTracker::RemoveAlloc(Ptr, sizeof(T));
+				MemoryTracker::Get().RemoveAlloc(Ptr, sizeof(T));
 				TracyFree(Ptr);
 				delete Ptr;
 			}

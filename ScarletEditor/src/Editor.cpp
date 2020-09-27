@@ -1,8 +1,10 @@
 #include "Editor.h"
 
 #include "Renderer/Renderer.h"
+#include "RAL/RAL.h"
 #include <imgui.h>
 #include <cmath>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "AssetManager/AssetManager.h"
 
@@ -39,6 +41,23 @@ namespace ScarletEngine
 		EditorWorld->CreateEntity<Transform>("Entity 7");
 
 		Viewports.emplace_back(Renderer::Get().CreateViewport(1280, 720));
+
+		SMH = AssetManager::LoadStaticMesh("../ScarletEngine/content/Cube.obj");
+		VB = RAL::Get().CreateBuffer((uint32_t)SMH->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
+		VB->UploadData(SMH->Vertices.data(), SMH->Vertices.size() * sizeof(Vertex));
+		IB = RAL::Get().CreateBuffer((uint32_t)SMH->Indices.size() * sizeof(uint32_t), RALBufferUsage::STATIC_DRAW);
+		IB->UploadData(SMH->Indices.data(), SMH->Indices.size() * sizeof(uint32_t));
+		VA = RAL::Get().CreateVertexArray(VB, IB);
+
+		auto VertShader = RAL::Get().CreateShader(RALShaderStage::Vertex, "../ScarletEngine/shaders/test_shader.vert");
+		auto FragShader = RAL::Get().CreateShader(RALShaderStage::Pixel, "../ScarletEngine/shaders/test_shader.frag");
+		Shader = RAL::Get().CreateShaderProgram(VertShader, FragShader, nullptr, nullptr);
+		GlobalAllocator<RALShader>::Delete()(VertShader);
+		GlobalAllocator<RALShader>::Delete()(FragShader);
+
+		Projection = glm::perspective(glm::radians(45.f), (float)1280 / (float)720, 0.0f, 100.0f);
+		CameraPos = glm::vec3(0, -2, 0);
+		View = glm::lookAt(CameraPos, CameraPos + glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
 	}
 
 	void Editor::Tick(double DeltaTime)
@@ -49,14 +68,32 @@ namespace ScarletEngine
 		for (const auto& EdViewport : Viewports)
 		{
 			glm::ivec2 ViewportFramebufferSize = EdViewport.View->GetSize();
-			if (std::fabs((float)ViewportFramebufferSize.x - EdViewport.ViewportSize.x) > 1.0 ||
-				std::fabs((float)ViewportFramebufferSize.y - EdViewport.ViewportSize.y) > 1.0)
+			if ((EdViewport.ViewportSize.x >= 1.f && EdViewport.ViewportSize.y >= 1.f) &&
+				(std::fabs((float)ViewportFramebufferSize.x - EdViewport.ViewportSize.x) > 1.0 ||
+				std::fabs((float)ViewportFramebufferSize.y - EdViewport.ViewportSize.y) > 1.0))
 			{
 				EdViewport.View->ResizeFramebuffer((uint32_t)EdViewport.ViewportSize.x, (uint32_t)EdViewport.ViewportSize.y);
+				if (EdViewport.ViewportSize.y > 0)
+				{
+					Projection = glm::perspective(glm::radians(45.f), EdViewport.ViewportSize.x / EdViewport.ViewportSize.y, 0.1f, 100.0f);
+				}
 				SCAR_LOG(LogVerbose, "Framebuffer Resized");
 			}
 
 			Renderer::Get().DrawScene(nullptr, EdViewport.View.get());
+			EdViewport.View->Bind();
+			Shader->Bind();
+			auto model = glm::mat4(1.f);
+			model = glm::translate(model, glm::vec3(0.f));
+			model = glm::rotate(model, glm::radians(45.f), glm::vec3(1, 0, 0));
+			model = glm::rotate(model, glm::radians(45.f), glm::vec3(0, 0, 1));
+			model = glm::scale(model, glm::vec3(0.5f));
+			Shader->SetUniformMat4(model, "model");
+			Shader->SetUniformMat4(Projection * View, "vp");
+			Shader->SetUniformVec3(CameraPos, "CameraPos");
+			RAL::Get().DrawVertexArray(VA);
+			EdViewport.View->Unbind();
+			Shader->Unbind();
 		}
 
 		DrawUI();
@@ -196,8 +233,8 @@ namespace ScarletEngine
 
 			ImGui::Separator();
 			ImGui::Text("Memory");
-			ImGui::Text("Number of allocations: %lu", MemoryTracker::GetNumAllocs());
-			ImGui::Text("Memory used: %.2f KB", MemoryTracker::GetMemUsed() / 1024.f);
+			ImGui::Text("Number of allocations: %lu", MemoryTracker::Get().GetNumAllocs());
+			ImGui::Text("Memory used: %.2f KB", MemoryTracker::Get().GetMemUsed() / 1024.f);
 
 			ImGui::Text("GPU");
 			ImGui::Separator();

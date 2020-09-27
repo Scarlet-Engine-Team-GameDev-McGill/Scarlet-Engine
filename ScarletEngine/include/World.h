@@ -3,10 +3,6 @@
 #include "Core/Core.h"
 #include "ECS/ECS.h"
 
-#include <memory>
-#include <tuple>
-#include <vector>
-
 namespace ScarletEngine
 {
 	using OnEntityAddedToWorldEvent = Event<const SharedPtr<Entity>&>;
