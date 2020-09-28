@@ -5,7 +5,7 @@
 
 namespace ScarletEngine
 {
-	class Scene;
+	class SceneProxy;
 	class Viewport;
 
 	class Renderer
@@ -19,7 +19,7 @@ namespace ScarletEngine
 		void SetWindowCtx(void* WindowPtr);
 
 		Viewport* CreateViewport(uint32_t Width, uint32_t Height);
-		void DrawScene(Scene* ActiveScene, Viewport* ActiveViewport);
+		void DrawScene(SceneProxy* Scene, Viewport* ActiveViewport);
 
 		static Renderer& Get() { static Renderer Instance; return Instance; }
 	private:

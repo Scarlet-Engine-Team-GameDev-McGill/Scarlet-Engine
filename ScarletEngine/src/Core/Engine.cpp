@@ -278,7 +278,6 @@ namespace ScarletEngine
 		{
 			AddTickable(TickableToAdd);
 		}
-		TickableQueue.clear();
 	}
 
 	void Engine::AddTickable(ITickable* TickableObject)
@@ -296,6 +295,12 @@ namespace ScarletEngine
 		else
 		{
 			VariableUpdateTickables.push_back(TickableObject);
+		}
+
+		auto It = std::remove(TickableQueue.begin(), TickableQueue.end(), TickableObject);
+		if (It != TickableQueue.end())
+		{
+			TickableQueue.erase(It, TickableQueue.end());
 		}
 	}
 }

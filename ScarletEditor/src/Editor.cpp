@@ -5,6 +5,7 @@
 #include <imgui.h>
 #include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Renderer/StaticMeshComponent.h"
 
 #include "AssetManager/AssetManager.h"
 
@@ -19,7 +20,7 @@ namespace ScarletEngine
 		, PropertyEditor(nullptr)
 		, OutputLog(nullptr)
 		, SelectedEntities()
-		, SceneCamera()
+		, EditorCam(nullptr)
 	{
 		ZoneScoped
 	}
@@ -31,34 +32,33 @@ namespace ScarletEngine
 		SceneHierarchy = MakeShared<SceneHierarchyPanel>(EditorWorld);
 		PropertyEditor = MakeShared<PropertyEditorPanel>();
 		OutputLog = MakeShared<OutputLogPanel>();
-
-		// Test entities
-		EditorWorld->CreateEntity<Transform>("Entity 1");
-		EditorWorld->CreateEntity<Transform>("Entity 2");
-		EditorWorld->CreateEntity<Transform>("Entity 3");
-		EditorWorld->CreateEntity<Transform>("Entity 4");
-		EditorWorld->CreateEntity<Transform>("Entity 5");
-		EditorWorld->CreateEntity<Transform>("Entity 6");
-		EditorWorld->CreateEntity<Transform>("Entity 7");
-
+		EditorCam = MakeShared<Camera>();
 		Viewports.emplace_back(Renderer::Get().CreateViewport(1280, 720));
 
-		SMH = AssetManager::LoadStaticMesh("../ScarletEngine/content/Monkey.obj");
-		VB = RAL::Get().CreateBuffer((uint32_t)SMH->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
-		VB->UploadData(SMH->Vertices.data(), SMH->Vertices.size() * sizeof(Vertex));
-		IB = RAL::Get().CreateBuffer((uint32_t)SMH->Indices.size() * sizeof(uint32_t), RALBufferUsage::STATIC_DRAW);
-		IB->UploadData(SMH->Indices.data(), SMH->Indices.size() * sizeof(uint32_t));
-		VA = RAL::Get().CreateVertexArray(VB, IB);
+		// Test entities
+		auto [Ent, Trans, Mesh] = EditorWorld->CreateEntity<Transform, StaticMeshComponent>("Entity 1");
+
+		Trans->Position = glm::vec3(0.f);
+		Trans->Rotation = glm::vec3(90.f, 0.f, 0.f);
+		Trans->Scale = glm::vec3(0.5f);
+
+		Mesh->MeshHandle = AssetManager::LoadStaticMesh("../ScarletEngine/content/Monkey.obj");
+		Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
+		Mesh->VertexBuff->UploadData(Mesh->MeshHandle->Vertices.data(), Mesh->MeshHandle->Vertices.size() * sizeof(Vertex));
+		Mesh->IndexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Indices.size() * sizeof(uint32_t), RALBufferUsage::STATIC_DRAW);
+		Mesh->IndexBuff->UploadData(Mesh->MeshHandle->Indices.data(), Mesh->MeshHandle->Indices.size() * sizeof(uint32_t));
+		Mesh->VertexArray = RAL::Get().CreateVertexArray(Mesh->VertexBuff, Mesh->IndexBuff);
 
 		auto VertShader = RAL::Get().CreateShader(RALShaderStage::Vertex, "../ScarletEngine/shaders/test_shader.vert");
 		auto FragShader = RAL::Get().CreateShader(RALShaderStage::Pixel, "../ScarletEngine/shaders/test_shader.frag");
-		Shader = RAL::Get().CreateShaderProgram(VertShader, FragShader, nullptr, nullptr);
+		Mesh->Shader = RAL::Get().CreateShaderProgram(VertShader, FragShader, nullptr, nullptr);
 		GlobalAllocator<RALShader>::Free(VertShader);
 		GlobalAllocator<RALShader>::Free(FragShader);
 
-		SceneCamera.SetPosition({ 0, -2, 0 });
-		SceneCamera.SetFoV(45.f);
-		SceneCamera.SetAspectRatio((float)1280 / (float)720);
+		EditorCam->SetPosition({ 0, -2, 0 });
+		EditorCam->SetFoV(45.f);
+		EditorCam->SetAspectRatio((float)1280 / (float)720);
+		Viewports.back().View->SetCamera(EditorCam);
 	}
 
 	void Editor::Tick(double DeltaTime)
@@ -76,25 +76,13 @@ namespace ScarletEngine
 				EdViewport.View->ResizeFramebuffer((uint32_t)EdViewport.ViewportSize.x, (uint32_t)EdViewport.ViewportSize.y);
 				if (EdViewport.ViewportSize.y > 0)
 				{
-					SceneCamera.SetAspectRatio(EdViewport.ViewportSize.x / EdViewport.ViewportSize.y);
+					EditorCam->SetAspectRatio(EdViewport.ViewportSize.x / EdViewport.ViewportSize.y);
 				}
 				SCAR_LOG(LogVerbose, "Framebuffer Resized");
 			}
 
-			Renderer::Get().DrawScene(nullptr, EdViewport.View.get());
-			EdViewport.View->Bind();
-			Shader->Bind();
-			auto model = glm::mat4(1.f);
-			model = glm::translate(model, glm::vec3(0.f));
-			model = glm::rotate(model, glm::radians(90.f), glm::vec3(1, 0, 0));
-			model = glm::rotate(model, glm::radians(0.f), glm::vec3(0, 0, 1));
-			model = glm::scale(model, glm::vec3(0.5f));
-			Shader->SetUniformMat4(model, "model");
-			Shader->SetUniformMat4(SceneCamera.GetViewProj(), "vp");
-			Shader->SetUniformVec3(SceneCamera.GetPosition(), "CameraPos");
-			RAL::Get().DrawVertexArray(VA);
-			EdViewport.View->Unbind();
-			Shader->Unbind();
+			Renderer::Get().DrawScene(EditorWorld->GetRenderSceneProxy(), EdViewport.View.get());
+			
 		}
 
 		DrawUI();

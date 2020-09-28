@@ -3,7 +3,8 @@
 #include "Core/CoreUtils.h"
 #include "OpenGLRAL/OpenGLRAL.h"
 
-#include "Renderer/Scene.h"
+#include "Core/Transform.h"
+#include "Renderer/SceneProxy.h"
 #include "Renderer/Viewport.h"
 
 namespace ScarletEngine
@@ -52,13 +53,26 @@ namespace ScarletEngine
 		return GlobalAllocator<Viewport>::New(Width, Height);
 	}
 
-	void Renderer::DrawScene(Scene*, Viewport* ActiveViewport)
+	void Renderer::DrawScene(SceneProxy* Scene, Viewport* ActiveViewport)
 	{
 		ZoneScoped
 		ActiveViewport->Bind();
 		RAL::Get().SetClearColorCommand({ 0.1f, 0.1f, 0.1f, 1.f });
 		RAL::Get().ClearCommand(true, true, true);
 
+		ActiveViewport->Bind();
+		for (auto Pair : Scene->SMCs)
+		{
+			RALShaderProgram* Shader = Pair.second->Shader;
+			Shader->Bind();
+			Shader->SetUniformMat4(Pair.first->GetTransformMatrix() , "model");
+			Shader->SetUniformMat4(ActiveViewport->GetCamera().GetViewProj(), "vp");
+			Shader->SetUniformVec3(ActiveViewport->GetCamera().GetPosition(), "CameraPos");
+			RAL::Get().DrawVertexArray(Pair.second->VertexArray);
+			Shader->Unbind();
+		}
+		
+		
 		ActiveViewport->Unbind();
 	}
 }

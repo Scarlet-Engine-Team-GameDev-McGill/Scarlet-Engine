@@ -77,14 +77,7 @@ namespace ScarletEngine
 		OnSelectionChangedEvent OnSelectionChanged;
 		OnSelectionClearedEvent OnSelectionCleared;
 
-		//#todo: temp section
-		SharedPtr<StaticMeshHandle> SMH;
-		RALGpuBuffer* VB;
-		RALGpuBuffer* IB;
-		RALVertexArray* VA;
-		RALShaderProgram* Shader;
-
-		Camera SceneCamera;
+		SharedPtr<Camera> EditorCam;
 	};
 
 	extern UniquePtr<Editor> GEditor;
