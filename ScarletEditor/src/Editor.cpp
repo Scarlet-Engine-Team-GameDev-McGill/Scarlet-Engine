@@ -36,7 +36,7 @@ namespace ScarletEngine
 		Viewports.emplace_back(Renderer::Get().CreateViewport(1280, 720));
 
 		// Test entities
-		auto [Ent, Trans, Mesh] = EditorWorld->CreateEntity<Transform, StaticMeshComponent>("Entity 1");
+		auto [Ent, Trans, Mesh] = EditorWorld->CreateEntity<Transform, StaticMeshComponent>("Monkey");
 
 		Trans->Position = glm::vec3(0.f);
 		Trans->Rotation = glm::vec3(90.f, 0.f, 0.f);
