@@ -29,11 +29,10 @@ add_library(ScarletEngine STATIC ${ScarletEngine_SRC})
 target_compile_features(ScarletEngine PUBLIC cxx_std_17)
 
 target_include_directories(ScarletEngine PUBLIC "include/"
-										 PRIVATE "src/"
-										 SYSTEM PUBLIC ${GLFW3_INCLUDE})
+										 PRIVATE "src/")
 
-target_link_libraries(ScarletEngine	PUBLIC TracyProfiler ImGUI glm IconFontCppHeaders
-									PRIVATE Vulkan::Vulkan OpenGL::GL ${CMAKE_DL_LIBS} Glad STBImage)
+target_link_libraries(ScarletEngine PUBLIC TracyProfiler ImGUI glm IconFontCppHeaders
+									PRIVATE Vulkan::Vulkan OpenGL::GL ${CMAKE_DL_LIBS} Glad STBImage glfw)
 
 if(${CMAKE_VERSION} VERSION_LESS "3.16.0") 
     message(STATUS "Please consider switching to CMake 3.16 or higher for PCH support!")
