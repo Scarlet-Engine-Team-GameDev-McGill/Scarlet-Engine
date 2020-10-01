@@ -25,9 +25,10 @@ void main()
 
 	// specular
 	float SpecularStrength = 0.5;
+	int SpecularIntesity = 32;
 	vec3 ViewDir = normalize(CameraPos - FragPos);
 	vec3 ReflectDir = reflect(-LightDir, Norm);
-	float Spec = pow(max(dot(ViewDir, ReflectDir), 0.0), 2);
+	float Spec = pow(max(dot(ViewDir, ReflectDir), 0.0), SpecularIntesity);
 	vec3 Specular = Spec * SpecularStrength * LightColor;
 
 	vec3 Result = (Ambient + Diffuse + Specular) * ObjectColor;
