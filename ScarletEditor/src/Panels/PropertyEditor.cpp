@@ -7,7 +7,6 @@ namespace ScarletEngine
 {
 	PropertyEditorPanel::PropertyEditorPanel()
 		: FocusedEntity()
-		, bHasSelection(false)
 	{
 		GEditor->GetOnSelectionChanged().Bind(this, &PropertyEditorPanel::OnSelectionChanged);
 		GEditor->GetOnSelectionCleared().Bind(this, &PropertyEditorPanel::OnSelectionCleared);
@@ -19,14 +18,13 @@ namespace ScarletEngine
 
 		ImGui::Begin("Property Editor");
 
-		if (bHasSelection)
+		if (FocusedEntity)
 		{
 			ImGui::Text("Name");
 			ImGui::SameLine();
-			auto Ent = FocusedEntity.lock();
-			ImGui::InputText("###Name", (char*)Ent->Name.c_str(), Ent->Name.capacity());
+			ImGui::InputText("###Name", (char*)FocusedEntity->Name.c_str(), FocusedEntity->Name.capacity());
 
-			ImGui::Text("ID: %lu", FocusedEntity.lock()->ID);
+			ImGui::Text("ID: %lu", FocusedEntity->ID);
 
 			ImGui::Separator();
 			
@@ -45,9 +43,9 @@ namespace ScarletEngine
 	void PropertyEditorPanel::DrawTransformEditor()
 	{
 		static bool bOpen = true;
-		if (auto FocusedEntityPtr = FocusedEntity.lock())
+		if (FocusedEntity != nullptr)
 		{
-			Transform* TransformComponent = FocusedEntityPtr->OwningWorld->GetComponent<Transform>(*FocusedEntityPtr);
+			Transform* TransformComponent = FocusedEntity->OwningWorld->GetComponent<Transform>(*FocusedEntity);
 			
 			if (ImGui::CollapsingHeader("Transform Component", &bOpen, ImGuiTreeNodeFlags_DefaultOpen))
 			{
@@ -78,15 +76,21 @@ namespace ScarletEngine
 		}
 	}
 
-	void PropertyEditorPanel::OnSelectionChanged(const SharedPtr<Entity>& Ent)
+	void PropertyEditorPanel::OnSelectionChanged()
 	{
-		FocusedEntity = Ent;
-		bHasSelection = true;
+		const auto& Selection = GEditor->GetSelection();
+		if (Selection.size() == 1)
+		{
+			FocusedEntity = *Selection.begin();
+		}
+		else
+		{
+			OnSelectionCleared();
+		}
 	}
 	
 	void PropertyEditorPanel::OnSelectionCleared()
 	{
-		bHasSelection = false;
-		FocusedEntity.reset();
+		FocusedEntity = nullptr;
 	}
 }

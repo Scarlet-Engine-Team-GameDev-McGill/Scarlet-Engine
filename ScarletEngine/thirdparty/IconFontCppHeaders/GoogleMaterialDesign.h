@@ -218,6 +218,7 @@
 #define ICON_MD_CROP_PORTRAIT u8"\ue3c5"
 #define ICON_MD_CROP_ROTATE u8"\ue437"
 #define ICON_MD_CROP_SQUARE u8"\ue3c6"
+#define ICON_MD_CUBE u8"\ue9fe"
 #define ICON_MD_DASHBOARD u8"\ue871"
 #define ICON_MD_DATA_USAGE u8"\ue1af"
 #define ICON_MD_DATE_RANGE u8"\ue916"
