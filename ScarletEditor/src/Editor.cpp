@@ -15,6 +15,7 @@ namespace ScarletEngine
 		, EditorWorld(nullptr)
 		, SceneHierarchy(nullptr)
 		, PropertyEditor(nullptr)
+		, OutputLog(nullptr)
 		, SelectedEntities()
 	{
 	}
@@ -24,6 +25,7 @@ namespace ScarletEngine
 		EditorWorld = MakeShared<World>();
 		SceneHierarchy = MakeShared<SceneHierarchyPanel>(EditorWorld);
 		PropertyEditor = MakeShared<PropertyEditorPanel>();
+		OutputLog = MakeShared<OutputLogPanel>();
 
 		// Test entities
 		EditorWorld->CreateEntity<Transform>("Entity 1");
@@ -153,6 +155,7 @@ namespace ScarletEngine
 
 		SceneHierarchy->Draw();
 		PropertyEditor->Draw();
+		OutputLog->Draw();
 
 		ImGui::Begin("Stats");
 		ImGui::Text("CPU");

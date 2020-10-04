@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/CoreUtils.h"
-#include "Core/Logger.h"
 #include "Core/CorePCH.h"
 
 namespace ScarletEngine
