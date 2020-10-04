@@ -26,8 +26,12 @@ namespace ScarletEngine
 
 		const OnMessageLoggedEvent& GetOnMessageLogged() const { return OnMessageLogged; }
 
-		~Logger();
 	private:
+		Logger() = default;
+		Logger(const Logger&) = delete;
+		Logger(Logger&&) = delete;
+		~Logger();
+
 		FILE* LogFile = nullptr;
 		OnMessageLoggedEvent OnMessageLogged;
 	};
