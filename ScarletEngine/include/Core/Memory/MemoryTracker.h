@@ -15,7 +15,6 @@ namespace ScarletEngine
 	public:
 		void MarkAlloc(void* Ptr, size_t Size)
 		{
-			ZoneScoped
 			Allocs[Ptr] = AllocationInfo{ Size };
 			MemUsed += Size;
 		}
@@ -29,6 +28,20 @@ namespace ScarletEngine
 				MemUsed -= Size;
 			}
 			else
+			{
+				// Attempting to delete a pointer which is not tracked by the application
+				check(false);
+			}
+		}
+
+		void RemoveAlloc(void* Ptr)
+		{
+			if (auto It = Allocs.find(Ptr); It != Allocs.end())
+			{
+				MemUsed -= It->second.Size;
+				Allocs.erase(It);
+			}
+			else if (Ptr != nullptr)
 			{
 				// Attempting to delete a pointer which is not tracked by the application
 				check(false);

@@ -7,6 +7,10 @@ namespace ScarletEngine
 		, CurrentMessageIndex(0)
 		, NumMessages(0)
 	{
+	}
+
+	void OutputLogPanel::Initialize()
+	{
 		ZoneScoped
 		MessageBuffer.resize(MaxBufferLength);
 		FilterText.reserve(32);
@@ -14,7 +18,7 @@ namespace ScarletEngine
 		Logger::Get().GetOnMessageLogged().Bind(this, &OutputLogPanel::OnMessageLogged);
 	}
 
-	OutputLogPanel::~OutputLogPanel()
+	void OutputLogPanel::Destroy()
 	{
 		ZoneScoped
 		Logger::Get().GetOnMessageLogged().Unbind(this);

@@ -17,7 +17,7 @@ namespace ScarletEngine
 
 		SceneProxy* ProxyPtr = &RenderSceneProxy;
 		AddSystem<const Transform, const StaticMeshComponent>("Draw Static Meshes")
-			.Each([ProxyPtr](const EID Ent, const Transform& Trans, const StaticMeshComponent& SMC)
+			.Each([ProxyPtr](const EID, const Transform& Trans, const StaticMeshComponent& SMC)
 				{
 					ProxyPtr->AddSMC(Trans, SMC);
 				});

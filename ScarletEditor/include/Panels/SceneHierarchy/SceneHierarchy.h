@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Core.h"
+#include "UI/UIWidget.h"
 #include "ECS/ECS.h"
 #include "RAL/RALResources.h"
 
@@ -11,11 +12,12 @@ namespace ScarletEngine
 	class World;
 	class SceneHierarchyItem;
 
-	class SceneHierarchyPanel
+	class SceneHierarchyPanel : public UIWidget
 	{
 	public:
 		SceneHierarchyPanel(const SharedPtr<World>& InRepresentingWorld);
-		void Draw();
+		virtual void Initialize() override;
+		virtual void Draw() override;
 
 		void RepopulateItems();
 	private:

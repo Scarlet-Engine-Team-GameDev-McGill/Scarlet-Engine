@@ -1,9 +1,12 @@
 #include "Core/Core.h"
 #include "Editor.h"
+#include "EditorStyle.h"
 
 int main()
 {
 	using namespace ScarletEngine;
+
+	EditorStyle::Initialize();
 
 	GEngine = MakeUnique<Engine>();
 	GEngine->Initialize();

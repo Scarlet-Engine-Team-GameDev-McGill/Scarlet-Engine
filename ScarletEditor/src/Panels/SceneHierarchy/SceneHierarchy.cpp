@@ -17,6 +17,10 @@ namespace ScarletEngine
 		, Items()
 		, CurrentSelectionIndex(INVALID_EID)
 	{
+	}
+
+	void SceneHierarchyPanel::Initialize()
+	{
 		ZoneScoped
 		RepresentingWorld.lock()->GetOnEntityAddedToWorldEvent().Bind(this, &SceneHierarchyPanel::OnEntityAddedToWorld);
 		GEditor->GetOnSelectionChanged().Bind(this, &SceneHierarchyPanel::OnWorldSelectionChanged);

@@ -8,6 +8,10 @@ namespace ScarletEngine
 	PropertyEditorPanel::PropertyEditorPanel()
 		: FocusedEntity()
 	{
+	}
+
+	void PropertyEditorPanel::Initialize()
+	{
 		ZoneScoped
 		GEditor->GetOnSelectionChanged().Bind(this, &PropertyEditorPanel::OnSelectionChanged);
 		GEditor->GetOnSelectionCleared().Bind(this, &PropertyEditorPanel::OnSelectionCleared);
@@ -45,12 +49,11 @@ namespace ScarletEngine
 	void PropertyEditorPanel::DrawTransformEditor()
 	{
 		ZoneScoped
-		static bool bOpen = true;
 		if (FocusedEntity != nullptr)
 		{
 			Transform* TransformComponent = FocusedEntity->OwningWorld->GetComponent<Transform>(*FocusedEntity);
 			
-			if (ImGui::CollapsingHeader("Transform Component", &bOpen, ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				static bool bFirstColumnOffsetSet = false;
 				float FirstColumnOffset = ImGui::CalcTextSize("Position").x + 2 * ImGui::GetStyle().ItemSpacing.x;
