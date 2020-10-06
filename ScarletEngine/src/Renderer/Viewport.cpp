@@ -10,7 +10,7 @@ namespace ScarletEngine
 
 	Viewport::~Viewport()
 	{
-		delete Framebuffer;
+		GlobalAllocator<RALFramebuffer>::Free(Framebuffer);
 	}
 
 	void Viewport::Bind() const
@@ -35,6 +35,7 @@ namespace ScarletEngine
 
 	void Viewport::ResizeFramebuffer(uint32_t NewWidth, uint32_t NewHeight)
 	{
+		ZoneScoped
 		Framebuffer->Resize(NewWidth, NewHeight);
 	}
 }

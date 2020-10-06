@@ -12,6 +12,7 @@ namespace ScarletEngine
 {
 	Logger::~Logger()
 	{
+		ZoneScoped
 		if (LogFile)
 		{
 			fclose(LogFile);
@@ -20,6 +21,7 @@ namespace ScarletEngine
 
 	void Logger::Log(LogLevel Level, const char* Message)
 	{
+		ZoneScoped
 		static const char* VerbosePrefix = "[Verbose]";
 		static const char* InfoPrefix = "[Info]";
 		static const char* WarningPrefix = "[Warn]";
@@ -76,6 +78,7 @@ namespace ScarletEngine
 
 	void Logger::SetLogFile(const char* FilePath)
 	{
+		ZoneScoped
 		if (LogFile)
 		{
 			fclose(LogFile);

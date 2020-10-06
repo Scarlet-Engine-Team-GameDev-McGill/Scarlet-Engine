@@ -12,6 +12,7 @@ namespace ScarletEngine
 	public:
 		Entity(const String& InName)
 			: Name(InName)
+			, ID(INVALID_EID)
 			, OwningWorld(nullptr)
 		{
 			Name.reserve(64);

@@ -28,6 +28,7 @@ namespace ScarletEngine
 		template <typename... ComponentTypes>
 		std::tuple<SharedPtr<Entity>, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name = "")
 		{
+			ZoneScoped
 			Entities.push_back(MakeShared<Entity>(Name));
 			SharedPtr<Entity>& Ent = Entities.back();
 			Ent->OwningWorld = this;
@@ -41,22 +42,26 @@ namespace ScarletEngine
 		template <typename... SystemSig>
 		System<SystemSig...>& AddSystem(const String& Name)
 		{
+			ZoneScoped
 			return *static_cast<System<SystemSig...>*>(Systems.emplace_back(GlobalAllocator<System<SystemSig...>>::New(&Reg, Name)).get());
 		}
 
 		auto GetEntities()
 		{
+			ZoneScoped
 			return Entities;
 		}
 
 		template <typename ComponentType>
 		auto GetComponent(const Entity& Ent)
 		{
+			ZoneScoped
 			return Reg.GetComponent<ComponentType>(Ent.ID);
 		}
 	private:
 		void RunSystems()
 		{
+			ZoneScoped
 			for (const auto& Sys : Systems)
 			{
 				for (const SharedPtr<Entity>& Ent : Entities)
