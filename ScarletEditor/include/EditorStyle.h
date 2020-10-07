@@ -1,11 +1,13 @@
 #pragma once
 
+#include "UI/UIStyle.h"
+
 namespace ScarletEngine
 {
-	class EditorStyle
+	class EditorStyle : public IUIStyle
 	{
 	public:
-		static void Initialize();
+		virtual void Initialize() {}
 	private:
 	};
 }

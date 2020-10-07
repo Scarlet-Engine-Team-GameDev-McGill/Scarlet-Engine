@@ -6,7 +6,9 @@
 
 #include <chrono>
 #include <common/TracySystem.hpp>
+#include "UI/UIStyleRegistry.h"
 #include "UI/UISystem.h"
+#include "UI/CoreUIStyle.h"
 
 #define FIXED_UPDATE_MS 20.0
 
@@ -32,6 +34,8 @@ namespace ScarletEngine
 		Logger::Get().SetLogFile("Log.txt");
 
 		Renderer::Get().Initialize();
+
+		UIStyleRegistry::Get().RegisterStyle("Core", MakeShared<CoreUIStyle>());
 
 		bIsInitialized = true;
 	}

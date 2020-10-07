@@ -1,7 +1,8 @@
 #include "UI/ImGuiUILayer.h"
 
 #include "Core/Core.h"
-#include "UI/Style.h"
+#include "UI/UIStyleRegistry.h"
+#include "UI/UIStyle.h"
 #include "RAL/RAL.h"
 #include "Renderer/Renderer.h"
 
@@ -52,61 +53,62 @@ namespace ScarletEngine
 		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/content/MaterialIcons-Regular.ttf", 18.0f, &Config, MDIconRanges);
 		IO.Fonts->Build();
 
-		ImGuiStyle& style = ImGui::GetStyle();
-		style.Colors[ImGuiCol_Text] = Style::GetColor("Text").AsVec4();
-		style.Colors[ImGuiCol_TextDisabled] = Style::GetColor("TextDisabled").AsVec4();
-		style.Colors[ImGuiCol_WindowBg] = Style::GetColor("WindowBg").AsVec4();
-		style.Colors[ImGuiCol_ChildBg] = Style::GetColor("ChildBg").AsVec4();
-		style.Colors[ImGuiCol_PopupBg] = Style::GetColor("PopupBg").AsVec4();
-		style.Colors[ImGuiCol_Border] = Style::GetColor("Border").AsVec4();
-		style.Colors[ImGuiCol_BorderShadow] = Style::GetColor("BorderShadow").AsVec4();
-		style.Colors[ImGuiCol_FrameBg] = Style::GetColor("FrameBg").AsVec4();
-		style.Colors[ImGuiCol_FrameBgHovered] = Style::GetColor("FrameBgHovered").AsVec4();
-		style.Colors[ImGuiCol_FrameBgActive] = Style::GetColor("FrameBgActive").AsVec4();
-		style.Colors[ImGuiCol_TitleBg] = Style::GetColor("TitleBg").AsVec4();
-		style.Colors[ImGuiCol_TitleBgActive] = Style::GetColor("TitleBgActive").AsVec4();
-		style.Colors[ImGuiCol_TitleBgCollapsed] = Style::GetColor("TitleBgCollapsed").AsVec4();
-		style.Colors[ImGuiCol_MenuBarBg] = Style::GetColor("MenuBarBg").AsVec4();
-		style.Colors[ImGuiCol_ScrollbarBg] = Style::GetColor("ScrollbarBg").AsVec4();
-		style.Colors[ImGuiCol_ScrollbarGrab] = Style::GetColor("ScrollbarGrab").AsVec4();
-		style.Colors[ImGuiCol_ScrollbarGrabHovered] = Style::GetColor("ScrollbarGrabHovered").AsVec4();
-		style.Colors[ImGuiCol_ScrollbarGrabActive] = Style::GetColor("ScrollbarGrabActive").AsVec4();
-		style.Colors[ImGuiCol_CheckMark] = Style::GetColor("CheckMark").AsVec4();
-		style.Colors[ImGuiCol_SliderGrab] = Style::GetColor("SliderGrab").AsVec4();
-		style.Colors[ImGuiCol_SliderGrabActive] = Style::GetColor("SliderGrabActive").AsVec4();
-		style.Colors[ImGuiCol_Button] = Style::GetColor("Button").AsVec4();
-		style.Colors[ImGuiCol_ButtonHovered] = Style::GetColor("ButtonHovered").AsVec4();
-		style.Colors[ImGuiCol_ButtonActive] = Style::GetColor("ButtonActive").AsVec4();
-		style.Colors[ImGuiCol_Header] = Style::GetColor("Header").AsVec4();
-		style.Colors[ImGuiCol_HeaderHovered] = Style::GetColor("HeaderHovered").AsVec4();
-		style.Colors[ImGuiCol_HeaderActive] = Style::GetColor("HeaderActive").AsVec4();
-		style.Colors[ImGuiCol_Separator] = Style::GetColor("Separator").AsVec4();
-		style.Colors[ImGuiCol_SeparatorActive] = Style::GetColor("SeparatorActive").AsVec4();
-		style.Colors[ImGuiCol_ResizeGrip] = Style::GetColor("ResizeGrip").AsVec4();
-		style.Colors[ImGuiCol_ResizeGripHovered] = Style::GetColor("ResizeGripHovered").AsVec4();
-		style.Colors[ImGuiCol_ResizeGripActive] = Style::GetColor("ResizeGripActive").AsVec4();
-		style.Colors[ImGuiCol_Tab] = Style::GetColor("Tab").AsVec4();
-		style.Colors[ImGuiCol_TabHovered] = Style::GetColor("TabHovered").AsVec4();
-		style.Colors[ImGuiCol_TabActive] = Style::GetColor("TabActive").AsVec4();
-		style.Colors[ImGuiCol_TabUnfocused] = Style::GetColor("TabUnfocused").AsVec4();
-		style.Colors[ImGuiCol_TabUnfocusedActive] = Style::GetColor("TabUnfocusedActive").AsVec4();
-		style.Colors[ImGuiCol_DockingPreview] = Style::GetColor("DockingPreview").AsVec4();
-		style.Colors[ImGuiCol_DockingEmptyBg] = Style::GetColor("DockingEmptyBg").AsVec4();
-		style.Colors[ImGuiCol_PlotLines] = Style::GetColor("PlotLines").AsVec4();
-		style.Colors[ImGuiCol_PlotLinesHovered] = Style::GetColor("PlotLinesHovered").AsVec4();
-		style.Colors[ImGuiCol_PlotHistogram] = Style::GetColor("PlotHistogram").AsVec4();
-		style.Colors[ImGuiCol_PlotHistogramHovered] = Style::GetColor("PlotHistogramHovered").AsVec4();
-		style.Colors[ImGuiCol_TextSelectedBg] = Style::GetColor("TextSelectedBg").AsVec4();
-		style.Colors[ImGuiCol_DragDropTarget] = Style::GetColor("DragDropTarget").AsVec4();
-		style.Colors[ImGuiCol_NavHighlight] = Style::GetColor("NavHighlight").AsVec4();
-		style.Colors[ImGuiCol_NavWindowingHighlight] = Style::GetColor("NavWindowingHighlight").AsVec4();
-		style.Colors[ImGuiCol_NavWindowingDimBg] = Style::GetColor("NavWindowingDimBg").AsVec4();
-		style.Colors[ImGuiCol_ModalWindowDimBg] = Style::GetColor("ModalWindowDimBg").AsVec4();
-		style.GrabRounding = style.FrameRounding = 2.3f;
-		style.WindowRounding = 0.f;
-		style.WindowMenuButtonPosition = ImGuiDir_Right;
-		style.TabRounding = 0.f;
-		style.FramePadding.x = 8.f;
+		IUIStyle* CoreStyle = UIStyleRegistry::Get().GetStyle("Core");
+		ImGuiStyle& Style = ImGui::GetStyle();
+		Style.Colors[ImGuiCol_Text] = CoreStyle->GetColor("Text").AsVec4();
+		Style.Colors[ImGuiCol_TextDisabled] = CoreStyle->GetColor("TextDisabled").AsVec4();
+		Style.Colors[ImGuiCol_WindowBg] = CoreStyle->GetColor("WindowBg").AsVec4();
+		Style.Colors[ImGuiCol_ChildBg] = CoreStyle->GetColor("ChildBg").AsVec4();
+		Style.Colors[ImGuiCol_PopupBg] = CoreStyle->GetColor("PopupBg").AsVec4();
+		Style.Colors[ImGuiCol_Border] = CoreStyle->GetColor("Border").AsVec4();
+		Style.Colors[ImGuiCol_BorderShadow] = CoreStyle->GetColor("BorderShadow").AsVec4();
+		Style.Colors[ImGuiCol_FrameBg] = CoreStyle->GetColor("FrameBg").AsVec4();
+		Style.Colors[ImGuiCol_FrameBgHovered] = CoreStyle->GetColor("FrameBgHovered").AsVec4();
+		Style.Colors[ImGuiCol_FrameBgActive] = CoreStyle->GetColor("FrameBgActive").AsVec4();
+		Style.Colors[ImGuiCol_TitleBg] = CoreStyle->GetColor("TitleBg").AsVec4();
+		Style.Colors[ImGuiCol_TitleBgActive] = CoreStyle->GetColor("TitleBgActive").AsVec4();
+		Style.Colors[ImGuiCol_TitleBgCollapsed] = CoreStyle->GetColor("TitleBgCollapsed").AsVec4();
+		Style.Colors[ImGuiCol_MenuBarBg] = CoreStyle->GetColor("MenuBarBg").AsVec4();
+		Style.Colors[ImGuiCol_ScrollbarBg] = CoreStyle->GetColor("ScrollbarBg").AsVec4();
+		Style.Colors[ImGuiCol_ScrollbarGrab] = CoreStyle->GetColor("ScrollbarGrab").AsVec4();
+		Style.Colors[ImGuiCol_ScrollbarGrabHovered] = CoreStyle->GetColor("ScrollbarGrabHovered").AsVec4();
+		Style.Colors[ImGuiCol_ScrollbarGrabActive] = CoreStyle->GetColor("ScrollbarGrabActive").AsVec4();
+		Style.Colors[ImGuiCol_CheckMark] = CoreStyle->GetColor("CheckMark").AsVec4();
+		Style.Colors[ImGuiCol_SliderGrab] = CoreStyle->GetColor("SliderGrab").AsVec4();
+		Style.Colors[ImGuiCol_SliderGrabActive] = CoreStyle->GetColor("SliderGrabActive").AsVec4();
+		Style.Colors[ImGuiCol_Button] = CoreStyle->GetColor("Button").AsVec4();
+		Style.Colors[ImGuiCol_ButtonHovered] = CoreStyle->GetColor("ButtonHovered").AsVec4();
+		Style.Colors[ImGuiCol_ButtonActive] = CoreStyle->GetColor("ButtonActive").AsVec4();
+		Style.Colors[ImGuiCol_Header] = CoreStyle->GetColor("Header").AsVec4();
+		Style.Colors[ImGuiCol_HeaderHovered] = CoreStyle->GetColor("HeaderHovered").AsVec4();
+		Style.Colors[ImGuiCol_HeaderActive] = CoreStyle->GetColor("HeaderActive").AsVec4();
+		Style.Colors[ImGuiCol_Separator] = CoreStyle->GetColor("Separator").AsVec4();
+		Style.Colors[ImGuiCol_SeparatorActive] = CoreStyle->GetColor("SeparatorActive").AsVec4();
+		Style.Colors[ImGuiCol_ResizeGrip] = CoreStyle->GetColor("ResizeGrip").AsVec4();
+		Style.Colors[ImGuiCol_ResizeGripHovered] = CoreStyle->GetColor("ResizeGripHovered").AsVec4();
+		Style.Colors[ImGuiCol_ResizeGripActive] = CoreStyle->GetColor("ResizeGripActive").AsVec4();
+		Style.Colors[ImGuiCol_Tab] = CoreStyle->GetColor("Tab").AsVec4();
+		Style.Colors[ImGuiCol_TabHovered] = CoreStyle->GetColor("TabHovered").AsVec4();
+		Style.Colors[ImGuiCol_TabActive] = CoreStyle->GetColor("TabActive").AsVec4();
+		Style.Colors[ImGuiCol_TabUnfocused] = CoreStyle->GetColor("TabUnfocused").AsVec4();
+		Style.Colors[ImGuiCol_TabUnfocusedActive] = CoreStyle->GetColor("TabUnfocusedActive").AsVec4();
+		Style.Colors[ImGuiCol_DockingPreview] = CoreStyle->GetColor("DockingPreview").AsVec4();
+		Style.Colors[ImGuiCol_DockingEmptyBg] = CoreStyle->GetColor("DockingEmptyBg").AsVec4();
+		Style.Colors[ImGuiCol_PlotLines] = CoreStyle->GetColor("PlotLines").AsVec4();
+		Style.Colors[ImGuiCol_PlotLinesHovered] = CoreStyle->GetColor("PlotLinesHovered").AsVec4();
+		Style.Colors[ImGuiCol_PlotHistogram] = CoreStyle->GetColor("PlotHistogram").AsVec4();
+		Style.Colors[ImGuiCol_PlotHistogramHovered] = CoreStyle->GetColor("PlotHistogramHovered").AsVec4();
+		Style.Colors[ImGuiCol_TextSelectedBg] = CoreStyle->GetColor("TextSelectedBg").AsVec4();
+		Style.Colors[ImGuiCol_DragDropTarget] = CoreStyle->GetColor("DragDropTarget").AsVec4();
+		Style.Colors[ImGuiCol_NavHighlight] = CoreStyle->GetColor("NavHighlight").AsVec4();
+		Style.Colors[ImGuiCol_NavWindowingHighlight] = CoreStyle->GetColor("NavWindowingHighlight").AsVec4();
+		Style.Colors[ImGuiCol_NavWindowingDimBg] = CoreStyle->GetColor("NavWindowingDimBg").AsVec4();
+		Style.Colors[ImGuiCol_ModalWindowDimBg] = CoreStyle->GetColor("ModalWindowDimBg").AsVec4();
+		Style.GrabRounding = Style.FrameRounding = 2.3f;
+		Style.WindowRounding = 0.f;
+		Style.WindowMenuButtonPosition = ImGuiDir_Right;
+		Style.TabRounding = 0.f;
+		Style.FramePadding.x = 8.f;
 
 #ifdef RAL_USE_OPENGL
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)RAL::Get().GetWindowPtr(), true);
