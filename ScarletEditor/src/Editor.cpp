@@ -115,11 +115,6 @@ namespace ScarletEngine
 			}
 			ImGui::PopStyleVar();
 		}
-
-		{
-			ZoneScopedN("Demo Window")
-			ImGui::ShowDemoWindow();
-		}
 	}
 
 	void Editor::SetSelection(const Array<Entity*>& NewSelection)

@@ -10,23 +10,15 @@ namespace ScarletEngine
 {
 	void EditorUILayer::Initialize()
 	{
-		ImGuiUILayer::Initialize();
-
 		AddWidget(MakeShared<SceneHierarchyPanel>(GEditor->GetActiveWorld()));
 		AddWidget(MakeShared<PropertyEditorPanel>());
 		AddWidget(MakeShared<OutputLogPanel>());
 		AddWidget(MakeShared<StatsPanel>());
 	}
 
-	void EditorUILayer::Terminate()
-	{
-		ImGuiUILayer::Terminate();
-	}
-
-	void EditorUILayer::BeginFrame()
+	void EditorUILayer::Draw()
 	{
 		ZoneScoped
-		ImGuiUILayer::BeginFrame();
 
 		static bool bDockspaceOpen = true;
 		static ImGuiDockNodeFlags DockspaceFlags = ImGuiDockNodeFlags_None;
@@ -68,13 +60,12 @@ namespace ScarletEngine
 
 		DrawMenuBar();
 
-		ImGui::End();
+		ImGui::End(); // end Dockspace
 
-	}
-
-	void EditorUILayer::Draw()
-	{
-		ImGuiUILayer::Draw();
+		{
+			ZoneScopedN("Demo Window")
+			ImGui::ShowDemoWindow();
+		}
 	}
 
 	void EditorUILayer::DrawMenuBar()

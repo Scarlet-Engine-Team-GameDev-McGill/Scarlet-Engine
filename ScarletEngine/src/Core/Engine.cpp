@@ -37,6 +37,8 @@ namespace ScarletEngine
 
 		UIStyleRegistry::Get().RegisterStyle("Core", MakeShared<CoreUIStyle>());
 
+		UISystem::Get().Initialize();
+
 		bIsInitialized = true;
 	}
 

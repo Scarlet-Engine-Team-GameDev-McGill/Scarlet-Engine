@@ -8,10 +8,13 @@ namespace ScarletEngine
 	class UILayer
 	{
 	public:
-		virtual void Initialize() = 0;
-		virtual void BeginFrame() = 0;
+		virtual ~UILayer();
+
+		virtual void Initialize() {};
+		virtual void BeginFrame() {};
 		virtual void Draw() = 0;
-		virtual void Terminate();
+		virtual void Terminate() {};
+
 
 		void AddWidget(const SharedPtr<UIWidget>& Widget);
 		void RemoveWidget(const SharedPtr<UIWidget>& Widget);

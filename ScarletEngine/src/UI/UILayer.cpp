@@ -2,7 +2,7 @@
 
 namespace ScarletEngine
 {
-	void UILayer::Terminate()
+	UILayer::~UILayer()
 	{
 		for (const auto& Widget : Widgets)
 		{
