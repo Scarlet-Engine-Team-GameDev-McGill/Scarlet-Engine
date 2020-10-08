@@ -2,6 +2,7 @@
 
 #include "Editor.h"
 #include "Panels/SceneHierarchy/SceneHierarchy.h"
+#include "Panels/EditorViewport.h"
 #include "Panels/PropertyEditor.h"
 #include "Panels/OutputLog.h"
 #include "Panels/Stats.h"
@@ -14,6 +15,9 @@ namespace ScarletEngine
 		AddWidget(MakeShared<PropertyEditorPanel>());
 		AddWidget(MakeShared<OutputLogPanel>());
 		AddWidget(MakeShared<StatsPanel>());
+
+		// Create an initial viewport
+		AddWidget(MakeShared<EditorViewportPanel>(GEditor->GetActiveWorld()));
 	}
 
 	void EditorUILayer::Draw()
@@ -86,7 +90,7 @@ namespace ScarletEngine
 			{
 				if (ImGui::MenuItem("Add Viewport"))
 				{
-					GEditor->AddViewport();
+					AddViewport();
 				}
 				if (ImGui::MenuItem("Output Log"))
 				{
@@ -97,5 +101,10 @@ namespace ScarletEngine
 
 			ImGui::EndMenuBar();
 		}
+	}
+
+	void EditorUILayer::AddViewport()
+	{
+		AddWidget(MakeShared<EditorViewportPanel>(GEditor->GetActiveWorld()));
 	}
 }

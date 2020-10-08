@@ -17,8 +17,6 @@ namespace ScarletEngine
 	Editor::Editor()
 		: EditorWorld(nullptr)
 		, SelectedEntities()
-		, EditorCam(nullptr)
-		, Viewports()
 	{
 	}
 
@@ -26,8 +24,6 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 		EditorWorld = MakeShared<World>();
-		EditorCam = MakeShared<Camera>();
-		Viewports.emplace_back(Renderer::Get().CreateViewport(1280, 720));
 
 		// Test entities
 		auto [Ent, Trans, Mesh] = EditorWorld->CreateEntity<Transform, StaticMeshComponent>("Monkey");
@@ -49,36 +45,12 @@ namespace ScarletEngine
 		GlobalAllocator<RALShader>::Free(VertShader);
 		GlobalAllocator<RALShader>::Free(FragShader);
 
-		EditorCam->SetPosition({ 0, -2, 0 });
-		EditorCam->SetFoV(45.f);
-		EditorCam->SetAspectRatio((float)1280 / (float)720);
-		Viewports.back().View->SetCamera(EditorCam);
-
 		UISystem::Get().SetActiveLayer(MakeShared<EditorUILayer>());
 	}
 
 	void Editor::Tick(double)
 	{
 		ZoneScoped
-
-		for (const auto& EdViewport : Viewports)
-		{
-			glm::ivec2 ViewportFramebufferSize = EdViewport.View->GetSize();
-			if ((EdViewport.ViewportSize.x >= 1.f && EdViewport.ViewportSize.y >= 1.f) &&
-				(std::fabs((float)ViewportFramebufferSize.x - EdViewport.ViewportSize.x) > 1.0 ||
-				std::fabs((float)ViewportFramebufferSize.y - EdViewport.ViewportSize.y) > 1.0))
-			{
-				EdViewport.View->ResizeFramebuffer((uint32_t)EdViewport.ViewportSize.x, (uint32_t)EdViewport.ViewportSize.y);
-				if (EdViewport.ViewportSize.y > 0)
-				{
-					EditorCam->SetAspectRatio(EdViewport.ViewportSize.x / EdViewport.ViewportSize.y);
-				}
-				SCAR_LOG(LogVerbose, "Framebuffer Resized");
-			}
-
-			Renderer::Get().DrawScene(EditorWorld->GetRenderSceneProxy(), EdViewport.View.get());
-			
-		}
 
 		DrawUI();
 	}
@@ -87,34 +59,6 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 
-		{
-			ZoneScopedN("Draw Editor Viewports")
-			// Draw individual viewports
-			uint32_t ViewportIndex = 0;
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-			for (auto& EdViewport : Viewports)
-			{
-				char Buff[32];
-				snprintf(Buff, 32, "%s Viewport##%d", ICON_MD_CROP_ORIGINAL, ViewportIndex);
-				ImGuiWindowClass WindowClass;
-				WindowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_AutoHideTabBar;
-				ImGui::SetNextWindowClass(&WindowClass);
-				ImGui::Begin(Buff);
-				EdViewport.bViewportIsFocused = ImGui::IsWindowFocused();
-				EdViewport.bViewportIsHovered = ImGui::IsWindowHovered();
-
-				ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-				EdViewport.ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-
-				uint64_t TextureID = EdViewport.View->GetColorAttachmentID();
-
-				ImGui::Image(reinterpret_cast<void*>(TextureID), ImVec2{ EdViewport.ViewportSize.x, EdViewport.ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 }); \
-				ImGui::End();
-
-				ViewportIndex++;
-			}
-			ImGui::PopStyleVar();
-		}
 	}
 
 	void Editor::SetSelection(const Array<Entity*>& NewSelection)
@@ -171,18 +115,5 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 		return SelectedEntities.find(Ent) != SelectedEntities.end();
-	}
-
-	bool Editor::AddViewport()
-	{
-		if (Viewports.size() < MaxViewports)
-		{
-			Viewports.emplace_back(Renderer::Get().CreateViewport(1280, 720));
-			// #todo: each viewport should have its own camera.
-			Viewports.back().View->SetCamera(EditorCam);
-			return true;
-		}
-
-		return false;
 	}
 }

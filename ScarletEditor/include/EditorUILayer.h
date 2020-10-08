@@ -10,6 +10,8 @@ namespace ScarletEngine
 		virtual void Initialize() override;
 		virtual void Draw() override;
 	private:
+		void AddViewport();
+
 		void DrawMenuBar();
 	};
 }
