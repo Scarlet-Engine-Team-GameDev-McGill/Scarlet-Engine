@@ -13,7 +13,8 @@
 namespace ScarletEngine
 {
 	SceneHierarchyPanel::SceneHierarchyPanel(const SharedPtr<World>& InRepresentingWorld)
-		: RepresentingWorld(InRepresentingWorld)
+		: UIWidget(ICON_MD_ACCOUNT_TREE " Scene Hierarchy")
+		, RepresentingWorld(InRepresentingWorld)
 		, Items()
 		, CurrentSelectionIndex(INVALID_EID)
 	{
@@ -30,8 +31,6 @@ namespace ScarletEngine
 	void SceneHierarchyPanel::Draw()
 	{
 		ZoneScoped
-		ImGui::Begin(ICON_MD_ACCOUNT_TREE " Scene Hierarchy");
-
 		ImGuiTreeNodeFlags BaseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		for (const auto& [ID, EntItem] : Items)
 		{
@@ -73,12 +72,8 @@ namespace ScarletEngine
 					}
 				}
 			}
-
-			
-
 			ImGui::PopID();
 		}
-		ImGui::End();
 	}
 
 	void SceneHierarchyPanel::RepopulateItems()

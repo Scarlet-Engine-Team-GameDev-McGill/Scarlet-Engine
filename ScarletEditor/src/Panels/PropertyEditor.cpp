@@ -6,7 +6,8 @@
 namespace ScarletEngine
 {
 	PropertyEditorPanel::PropertyEditorPanel()
-		: FocusedEntity()
+		: UIWidget("Property Editor")
+		, FocusedEntity()
 	{
 	}
 
@@ -20,12 +21,9 @@ namespace ScarletEngine
 	void PropertyEditorPanel::Draw()
 	{
 		ZoneScoped
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 10, ImGui::GetStyle().FramePadding.y });
-
-		ImGui::Begin("Property Editor");
-
 		if (FocusedEntity)
 		{
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 10, ImGui::GetStyle().FramePadding.y });
 			ImGui::Text("Name");
 			ImGui::SameLine();
 			ImGui::InputText("###Name", (char*)FocusedEntity->Name.c_str(), FocusedEntity->Name.capacity());
@@ -39,11 +37,8 @@ namespace ScarletEngine
 			ImGui::Separator();
 			
 			ImGui::Button("Add Component");
+			ImGui::PopStyleVar(1);
 		}
-
-		ImGui::End();
-
-		ImGui::PopStyleVar(1);
 	}
 
 	void PropertyEditorPanel::DrawTransformEditor()

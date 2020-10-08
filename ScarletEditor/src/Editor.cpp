@@ -51,14 +51,6 @@ namespace ScarletEngine
 	void Editor::Tick(double)
 	{
 		ZoneScoped
-
-		DrawUI();
-	}
-
-	void Editor::DrawUI()
-	{
-		ZoneScoped
-
 	}
 
 	void Editor::SetSelection(const Array<Entity*>& NewSelection)

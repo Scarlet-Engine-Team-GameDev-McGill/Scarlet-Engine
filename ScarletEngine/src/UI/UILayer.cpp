@@ -31,7 +31,7 @@ namespace ScarletEngine
 	{
 		for (const auto& Widget : Widgets)
 		{
-			Widget->Draw();
+			Widget->Paint();
 		}
 	}
 }

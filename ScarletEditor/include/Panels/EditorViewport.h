@@ -14,6 +14,9 @@ namespace ScarletEngine
 		virtual void Initialize() override;
 		virtual void Tick(double DeltaTime) override;
 		virtual void Draw() override;
+
+		virtual void PreDraw() override;
+		virtual void PostDraw() override;
 	private:
 		static uint32_t NextViewportID;
 

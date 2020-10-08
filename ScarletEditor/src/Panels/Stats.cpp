@@ -4,6 +4,13 @@
 
 namespace ScarletEngine
 {
+	StatsPanel::StatsPanel()
+		: UIWidget("Stats")
+		, FrameTimes()
+	{
+
+	}
+
 	void StatsPanel::Tick(double DeltaTime)
 	{
 		ZoneScoped
@@ -19,7 +26,6 @@ namespace ScarletEngine
 	void StatsPanel::Draw()
 	{
 		ZoneScoped
-		ImGui::Begin("Stats");
 		ImGui::Text("CPU");
 		ImGui::Separator();
 
@@ -40,6 +46,5 @@ namespace ScarletEngine
 		ImGui::Text("GPU");
 		ImGui::Separator();
 		// No gpu stats available yet
-		ImGui::End();
 	}
 }

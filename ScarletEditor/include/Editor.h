@@ -42,8 +42,6 @@ namespace ScarletEngine
 		const OnSelectionChangedEvent& GetOnSelectionChanged() const { return OnSelectionChanged; }
 		const OnSelectionClearedEvent& GetOnSelectionCleared() const { return OnSelectionCleared; }
 	private:
-		void DrawUI();
-	private:
 		SharedPtr<World> EditorWorld;
 
 		Set<Entity*> SelectedEntities;

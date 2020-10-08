@@ -8,6 +8,8 @@ namespace ScarletEngine
 	class StatsPanel : public UIWidget, ITickable
 	{
 	public:
+		StatsPanel();
+
 		virtual void Tick(double DeltaTime) override;
 		virtual void Draw() override;
 	private:

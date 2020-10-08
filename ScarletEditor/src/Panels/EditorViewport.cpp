@@ -7,7 +7,8 @@ namespace ScarletEngine
 	uint32_t EditorViewportPanel::NextViewportID = 0;
 
 	EditorViewportPanel::EditorViewportPanel(const SharedPtr<World>& InWorld)
-		: RepresentingWorld(InWorld)
+		: UIWidget("TempViewportTitle")
+		, RepresentingWorld(InWorld)
 		, PanelSize(1280, 720)
 		, bViewportIsFocused(false)
 		, bViewportIsHovered(false)
@@ -15,7 +16,7 @@ namespace ScarletEngine
 		ZoneScoped
 		char Buffer[32];
 		snprintf(Buffer, 32, "%s Viewport##%d", ICON_MD_CROP_ORIGINAL, NextViewportID++);
-		ViewportTitle = Buffer;
+		SetWindowTitle(Buffer);
 	}
 
 	void EditorViewportPanel::Initialize()
@@ -46,23 +47,31 @@ namespace ScarletEngine
 			}
 			SCAR_LOG(LogVerbose, "Framebuffer Resized");
 		}
-	}
 
-	void EditorViewportPanel::Draw()
-	{
 		{
 			ZoneScopedN("Render world");
 			Renderer::Get().DrawScene(RepresentingWorld->GetRenderSceneProxy(), View.get());
 		}
+	}
 
+	void EditorViewportPanel::PreDraw()
+	{
 		ZoneScoped
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGuiWindowClass WindowClass;
 		WindowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_AutoHideTabBar;
 		ImGui::SetNextWindowClass(&WindowClass);
 		ImGui::SetNextWindowSize({ 1280, 720 }, ImGuiCond_FirstUseEver);
+	}
 
-		ImGui::Begin(ViewportTitle.c_str());
+	void EditorViewportPanel::PostDraw()
+	{
+		ImGui::PopStyleVar();
+	}
+
+	void EditorViewportPanel::Draw()
+	{
+		ZoneScoped
 		bViewportIsFocused = ImGui::IsWindowFocused();
 		bViewportIsHovered = ImGui::IsWindowHovered();
 
@@ -71,8 +80,5 @@ namespace ScarletEngine
 		uint64_t TextureID = View->GetColorAttachmentID();
 
 		ImGui::Image(reinterpret_cast<void*>(TextureID), ImVec2{ PanelSize.x, PanelSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-		ImGui::End();
-
-		ImGui::PopStyleVar();
 	}
 }
