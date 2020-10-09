@@ -13,18 +13,15 @@ namespace ScarletEngine
 
 	void UILayer::AddWidget(const SharedPtr<UIWidget>& Widget)
 	{
-		Widget->Initialize();
+		Widget->Construct();
+		Widget->OwningLayer = this;
 		Widgets.push_back(Widget);
 	}
 
-	void UILayer::RemoveWidget(const SharedPtr<UIWidget>& Widget)
+	void UILayer::RemoveWidget(const UIWidget* WidgetToRemove)
 	{
-		auto It = std::remove(Widgets.begin(), Widgets.end(), Widget);
-		if (It != Widgets.end())
-		{
-			(*It)->Destroy();
-			Widgets.erase(It, Widgets.end());
-		}
+		check(WidgetToRemove != nullptr);
+		WidgetsToRemove.push_back(WidgetToRemove);
 	}
 
 	void UILayer::DrawWidgets()
@@ -33,5 +30,26 @@ namespace ScarletEngine
 		{
 			Widget->Paint();
 		}
+
+		RemoveQueuedWidgets();
+	}
+
+	void UILayer::RemoveQueuedWidgets()
+	{
+		for (const auto& WidgetToRemove : WidgetsToRemove)
+		{
+			auto It = std::find_if(Widgets.begin(), Widgets.end(), [WidgetToRemove](const SharedPtr<UIWidget>& Widget)
+				{
+					return Widget.get() == WidgetToRemove;
+				});
+
+			if (It != Widgets.end())
+			{
+				(*It)->Destroy();
+				Widgets.erase(It);
+			}
+		}
+
+		WidgetsToRemove.clear();
 	}
 }

@@ -8,6 +8,8 @@ namespace ScarletEngine
 
 	EditorViewportPanel::EditorViewportPanel(const SharedPtr<World>& InWorld)
 		: UIWidget("TempViewportTitle")
+		, View(nullptr)
+		, ViewportCam(nullptr)
 		, RepresentingWorld(InWorld)
 		, PanelSize(1280, 720)
 		, bViewportIsFocused(false)
@@ -19,7 +21,7 @@ namespace ScarletEngine
 		SetWindowTitle(Buffer);
 	}
 
-	void EditorViewportPanel::Initialize()
+	void EditorViewportPanel::Construct()
 	{
 		ZoneScoped
 		View = UniquePtr<Viewport>(Renderer::Get().CreateViewport((uint32_t)PanelSize.x, (uint32_t)PanelSize.y));

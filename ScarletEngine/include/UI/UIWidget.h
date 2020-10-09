@@ -11,7 +11,7 @@ namespace ScarletEngine
 		/** Creates a new ImGui frame for this widget and calls draw */
 		void Paint();
 
-		virtual void Initialize() {};
+		virtual void Construct() {};
 		virtual void Destroy() {};
 
 		// #todo: rename
@@ -23,8 +23,12 @@ namespace ScarletEngine
 	protected:
 		void SetWindowTitle(const String& NewTitle);
 	private:
+		friend class UILayer;
+
 		String WindowTitle;
+		UILayer* OwningLayer;
 		uint32_t WindowFlags;
-		bool bShouldClose = false;
+
+		bool bOpen;
 	};
 }

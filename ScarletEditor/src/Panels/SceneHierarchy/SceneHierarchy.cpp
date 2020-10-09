@@ -20,7 +20,7 @@ namespace ScarletEngine
 	{
 	}
 
-	void SceneHierarchyPanel::Initialize()
+	void SceneHierarchyPanel::Construct()
 	{
 		ZoneScoped
 		RepresentingWorld.lock()->GetOnEntityAddedToWorldEvent().Bind(this, &SceneHierarchyPanel::OnEntityAddedToWorld);

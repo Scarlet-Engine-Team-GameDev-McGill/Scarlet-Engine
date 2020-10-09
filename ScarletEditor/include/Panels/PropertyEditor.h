@@ -11,7 +11,7 @@ namespace ScarletEngine
 	public:
 		PropertyEditorPanel();
 
-		virtual void Initialize() override;
+		virtual void Construct() override;
 		virtual void Draw() override;
 
 		void OnSelectionChanged();

@@ -18,7 +18,7 @@ namespace ScarletEngine
 		Editor();
 		virtual ~Editor() {}
 
-		virtual void Initialize() override;
+		void Initialize();
 		virtual void Tick(double DeltaTime) override;
 
 	public:

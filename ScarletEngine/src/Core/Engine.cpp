@@ -177,8 +177,6 @@ namespace ScarletEngine
 		check(bIsInitialized);
 		check(!bTickingObjects);
 
-		TickableObject->Initialize();
-
 		if (TickableObject->WantsFixedTimestep())
 		{
 			FixedUpdateTickables.push_back(TickableObject);

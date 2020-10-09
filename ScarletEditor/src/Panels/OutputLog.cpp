@@ -10,7 +10,7 @@ namespace ScarletEngine
 	{
 	}
 
-	void OutputLogPanel::Initialize()
+	void OutputLogPanel::Construct()
 	{
 		ZoneScoped
 		MessageBuffer.resize(MaxBufferLength);

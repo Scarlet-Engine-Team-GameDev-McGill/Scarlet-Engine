@@ -12,9 +12,8 @@ namespace ScarletEngine
 	{
 	public:
 		World();
-		~World() {}
 
-		virtual void Initialize() override;
+		void Initialize();
 
 		virtual void Tick(double DeltaTime) override;
 

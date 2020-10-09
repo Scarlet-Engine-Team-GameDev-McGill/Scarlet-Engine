@@ -11,7 +11,7 @@ namespace ScarletEngine
 	{
 	public:
 		EditorViewportPanel(const SharedPtr<World>& InWorld);
-		virtual void Initialize() override;
+		virtual void Construct() override;
 		virtual void Tick(double DeltaTime) override;
 		virtual void Draw() override;
 

@@ -16,7 +16,7 @@ namespace ScarletEngine
 	{
 	public:
 		SceneHierarchyPanel(const SharedPtr<World>& InRepresentingWorld);
-		virtual void Initialize() override;
+		virtual void Construct() override;
 		virtual void Draw() override;
 
 		void RepopulateItems();

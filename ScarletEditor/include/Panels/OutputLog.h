@@ -16,7 +16,7 @@ namespace ScarletEngine
 	public:
 		OutputLogPanel();
 
-		virtual void Initialize() override;
+		virtual void Construct() override;
 		virtual void Draw() override;
 		virtual void Destroy() override;
 	private:
