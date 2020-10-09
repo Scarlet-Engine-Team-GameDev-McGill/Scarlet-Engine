@@ -8,6 +8,8 @@ namespace ScarletEngine
 	class IUIStyle
 	{
 	public:
+		virtual ~IUIStyle() {}
+
 		virtual void Initialize() = 0;
 		virtual void Shutdown() {};
 

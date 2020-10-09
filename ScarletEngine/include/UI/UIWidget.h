@@ -9,6 +9,7 @@ namespace ScarletEngine
 	class UIWidget
 	{
 	public:
+		virtual ~UIWidget() {}
 		virtual void Construct() {};
 		virtual void Paint() = 0;
 		virtual void Destroy() {};

@@ -4,7 +4,7 @@
 
 namespace ScarletEngine
 {
-	class CoreUIStyle : public IUIStyle
+	class CoreUIStyle final : public IUIStyle
 	{
 	public:
 		virtual void Initialize() override;
