@@ -3,7 +3,7 @@
 namespace ScarletEngine
 {
 	OutputLogPanel::OutputLogPanel()
-		: UIWidget("Output Log")
+		: UIWindow("Output Log")
 		, FilterText()
 		, CurrentMessageIndex(0)
 		, NumMessages(0)
@@ -25,7 +25,7 @@ namespace ScarletEngine
 		Logger::Get().GetOnMessageLogged().Unbind(this);
 	}
 
-	void OutputLogPanel::Draw()
+	void OutputLogPanel::DrawWindowContent()
 	{
 		ZoneScoped
 		ImGui::TextUnformatted(ICON_MD_FILTER_LIST " Filter:");

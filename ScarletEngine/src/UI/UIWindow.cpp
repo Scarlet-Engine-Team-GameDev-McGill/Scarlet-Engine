@@ -1,34 +1,33 @@
-#include "UI/UIWidget.h"
+#include "UI/UIWindow.h"
 #include "UI/UILayer.h"
 
 namespace ScarletEngine
 {
-	UIWidget::UIWidget(const String& Title, uint32_t Flags)
+	UIWindow::UIWindow(const String& Title, uint32_t Flags)
 		: WindowTitle(Title)
 		, WindowFlags(Flags)
-		, OwningLayer(nullptr)
 		, bOpen(true)
 	{
 
 	}
 
-	void UIWidget::Paint()
+	void UIWindow::Paint()
 	{
-		PreDraw();
+		PushWindowFlags();
 		if (ImGui::Begin(WindowTitle.c_str(), &bOpen, WindowFlags))
 		{
-			Draw();
+			DrawWindowContent();
 		}
 		ImGui::End();
-		PostDraw();
+		PopWindowFlags();
 
 		if (!bOpen)
 		{
-			OwningLayer->RemoveWidget(this);
+			GetOwningLayer()->RemoveWidget(this);
 		}
 	}
 
-	void UIWidget::SetWindowTitle(const String& NewTitle)
+	void UIWindow::SetWindowTitle(const String& NewTitle)
 	{
 		WindowTitle = NewTitle;
 	}

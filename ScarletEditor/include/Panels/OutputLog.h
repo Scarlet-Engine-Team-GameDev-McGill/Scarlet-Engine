@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Core.h"
-#include "UI/UIWidget.h"
+#include "UI/UIWindow.h"
 
 namespace ScarletEngine
 {
@@ -11,13 +11,13 @@ namespace ScarletEngine
 		LogLevel Severity;
 	};
 
-	class OutputLogPanel : public UIWidget
+	class OutputLogPanel : public UIWindow
 	{
 	public:
 		OutputLogPanel();
 
 		virtual void Construct() override;
-		virtual void Draw() override;
+		virtual void DrawWindowContent() override;
 		virtual void Destroy() override;
 	private:
 		bool PassesFilter(const String& Msg) const;

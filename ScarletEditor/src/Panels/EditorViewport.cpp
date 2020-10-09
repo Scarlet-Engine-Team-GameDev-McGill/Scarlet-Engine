@@ -7,7 +7,7 @@ namespace ScarletEngine
 	uint32_t EditorViewportPanel::NextViewportID = 0;
 
 	EditorViewportPanel::EditorViewportPanel(const SharedPtr<World>& InWorld)
-		: UIWidget("TempViewportTitle")
+		: UIWindow("TempViewportTitle")
 		, View(nullptr)
 		, ViewportCam(nullptr)
 		, RepresentingWorld(InWorld)
@@ -56,7 +56,7 @@ namespace ScarletEngine
 		}
 	}
 
-	void EditorViewportPanel::PreDraw()
+	void EditorViewportPanel::PushWindowFlags()
 	{
 		ZoneScoped
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -66,12 +66,12 @@ namespace ScarletEngine
 		ImGui::SetNextWindowSize({ 1280, 720 }, ImGuiCond_FirstUseEver);
 	}
 
-	void EditorViewportPanel::PostDraw()
+	void EditorViewportPanel::PopWindowFlags()
 	{
 		ImGui::PopStyleVar();
 	}
 
-	void EditorViewportPanel::Draw()
+	void EditorViewportPanel::DrawWindowContent()
 	{
 		ZoneScoped
 		bViewportIsFocused = ImGui::IsWindowFocused();

@@ -1,18 +1,19 @@
 #pragma once
 
 #include "Core/Core.h"
-#include "UI/UIWidget.h"
-#include "ECS/ECS.h"
+#include "UI/UIWindow.h"
 
 namespace ScarletEngine
 {
-	class PropertyEditorPanel : public UIWidget
+	struct Entity;
+
+	class PropertyEditorPanel : public UIWindow
 	{
 	public:
 		PropertyEditorPanel();
 
 		virtual void Construct() override;
-		virtual void Draw() override;
+		virtual void DrawWindowContent() override;
 
 		void OnSelectionChanged();
 		void OnSelectionCleared();

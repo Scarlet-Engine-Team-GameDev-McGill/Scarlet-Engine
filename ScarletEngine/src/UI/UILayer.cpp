@@ -14,7 +14,7 @@ namespace ScarletEngine
 	void UILayer::AddWidget(const SharedPtr<UIWidget>& Widget)
 	{
 		Widget->Construct();
-		Widget->OwningLayer = this;
+		Widget->SetOwningLayer(this);
 		Widgets.push_back(Widget);
 	}
 

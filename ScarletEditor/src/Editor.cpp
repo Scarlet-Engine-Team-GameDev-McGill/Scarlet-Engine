@@ -17,7 +17,7 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 		EditorWorld = MakeShared<World>();
-		// #todo: this should be handled by the engine
+		// #todo_core: this should be handled by the engine
 		EditorWorld->Initialize();
 
 		UISystem::Get().SetActiveLayer(MakeShared<EditorUILayer>());

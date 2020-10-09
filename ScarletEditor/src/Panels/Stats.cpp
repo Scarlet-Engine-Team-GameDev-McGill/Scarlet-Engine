@@ -5,7 +5,7 @@
 namespace ScarletEngine
 {
 	StatsPanel::StatsPanel()
-		: UIWidget("Stats")
+		: UIWindow("Stats")
 		, FrameTimes()
 	{
 
@@ -23,7 +23,7 @@ namespace ScarletEngine
 		FrameTimeMean = (float)(FrameTimeSum / FrameWindowSize);
 	}
 
-	void StatsPanel::Draw()
+	void StatsPanel::DrawWindowContent()
 	{
 		ZoneScoped
 		ImGui::Text("CPU");

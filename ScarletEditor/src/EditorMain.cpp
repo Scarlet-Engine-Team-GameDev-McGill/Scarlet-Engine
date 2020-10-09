@@ -14,7 +14,7 @@ int main()
 
 	// initialize the global editor
 	GEditor = MakeUnique<Editor>();
-	// #todo: this should be handled automatically by the engine
+	// #todo_core: this should be handled automatically by the engine
 	GEditor->Initialize();
 
 	{

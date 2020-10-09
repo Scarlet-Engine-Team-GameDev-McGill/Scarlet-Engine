@@ -1,12 +1,12 @@
 #include "Panels/PropertyEditor.h"
 
-#include <imgui.h>
 #include "Editor.h"
+#include "ECS/ECS.h"
 
 namespace ScarletEngine
 {
 	PropertyEditorPanel::PropertyEditorPanel()
-		: UIWidget("Property Editor")
+		: UIWindow("Property Editor")
 		, FocusedEntity()
 	{
 	}
@@ -18,7 +18,7 @@ namespace ScarletEngine
 		GEditor->GetOnSelectionCleared().Bind(this, &PropertyEditorPanel::OnSelectionCleared);
 	}
 
-	void PropertyEditorPanel::Draw()
+	void PropertyEditorPanel::DrawWindowContent()
 	{
 		ZoneScoped
 		if (FocusedEntity)

@@ -1,17 +1,17 @@
 #pragma once
 
 #include "Core/Core.h"
-#include "UI/UIWidget.h"
+#include "UI/UIWindow.h"
 
 namespace ScarletEngine
 {
-	class StatsPanel : public UIWidget, ITickable
+	class StatsPanel : public UIWindow, ITickable
 	{
 	public:
 		StatsPanel();
 
 		virtual void Tick(double DeltaTime) override;
-		virtual void Draw() override;
+		virtual void DrawWindowContent() override;
 	private:
 		static const int FrameWindowSize = 50;
 		float FrameTimes[FrameWindowSize];
