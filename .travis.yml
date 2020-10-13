@@ -38,7 +38,7 @@ install:
     - wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
     - sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.2.148-bionic.list https://packages.lunarg.com/vulkan/1.2.148/lunarg-vulkan-1.2.148-bionic.list
     - sudo apt-get update
-    - sudo apt-get install cmake libglfw3-dev vulkan-sdk
+    - sudo apt-get install cmake libgl1-mesa-dev xorg-dev vulkan-sdk
 script:
     - mkdir build
     - cd build
@@ -48,4 +48,4 @@ script:
 notifications:
   email:
     on_success: change
-    on_failure: always
+    on_failure: change

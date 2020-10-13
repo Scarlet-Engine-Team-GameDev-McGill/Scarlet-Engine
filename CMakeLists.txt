@@ -92,7 +92,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # Define TRACY_ENABLE when compiling with profiler
-option (PROFILER "Should compile with profiler" ON)
+option (PROFILER "Should compile with profiler" OFF)
 option (PROFILER_COLLECT_CALLSTACK "Should collect callstacks" OFF)
 if (PROFILER)
 	add_definitions(-DTRACY_ENABLE)

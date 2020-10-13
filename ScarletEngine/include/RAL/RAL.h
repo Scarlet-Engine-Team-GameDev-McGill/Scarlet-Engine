@@ -33,6 +33,7 @@ namespace ScarletEngine
 		// Functions which correspond to rendering commands
 		virtual void SetClearColorCommand(const glm::vec4& ClearColor) const = 0;
 		virtual void ClearCommand(bool bColor, bool bDepth, bool bStencil) const = 0;
+		virtual void DrawVertexArray(const RALVertexArray* VA) const = 0;
 
 		// Functions for device resource management and creation
 
@@ -40,9 +41,11 @@ namespace ScarletEngine
 
 		virtual RALTexture2D* CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle) const = 0;
 
-		virtual RALVertexBuffer* CreateVertexBuffer(uint32_t Size, uint32_t Usage) const = 0;
+		virtual RALGpuBuffer* CreateBuffer(uint32_t Size, RALBufferUsage Usage) const = 0;
+		// #todo_RAL: need a more generic way to handle this concept, VAs are OpenGL specific
+		virtual RALVertexArray* CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB) const = 0;
 		
-		virtual RALShader* CreateShader(RALShaderStage Stage, const Array<uint8_t>& ShaderCode) const = 0;
+		virtual RALShader* CreateShader(RALShaderStage Stage, const String& ShaderPath) const = 0;
 		virtual RALShaderProgram* CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) const = 0;
 	
 		static RAL& Get() { return *Instance; }

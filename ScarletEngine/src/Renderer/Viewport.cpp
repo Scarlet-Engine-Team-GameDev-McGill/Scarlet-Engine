@@ -5,7 +5,7 @@ namespace ScarletEngine
 {
 	Viewport::Viewport(uint32_t Width, uint32_t Height)
 	{
-		Framebuffer = RAL::Get().CreateFramebuffer(Width, Height, 1);
+		Framebuffer = RAL::Get().CreateFramebuffer(Width, Height, 4);
 	}
 
 	Viewport::~Viewport()

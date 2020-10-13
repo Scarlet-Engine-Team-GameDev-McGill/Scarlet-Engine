@@ -2,10 +2,7 @@
 
 #include "Core/Core.h"
 #include "ECS/ECS.h"
-
-#include <memory>
-#include <tuple>
-#include <vector>
+#include "Renderer/SceneProxy.h"
 
 namespace ScarletEngine
 {
@@ -22,6 +19,8 @@ namespace ScarletEngine
 		virtual void Tick(double DeltaTime) override;
 
 		inline double GetDeltaTime() const { return LastDeltaTime; }
+
+		SceneProxy* GetRenderSceneProxy() { return &RenderSceneProxy; }
 
 		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
 	public:
@@ -78,5 +77,7 @@ namespace ScarletEngine
 		Array<UniquePtr<ISystem>> Systems;
 
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
+
+		SceneProxy RenderSceneProxy;
 	};
 }

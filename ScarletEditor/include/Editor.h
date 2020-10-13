@@ -8,6 +8,7 @@
 #include "Panels/OutputLog.h"
 #include "AssetManager/AssetHandle.h"
 #include "RAL/RALResources.h"
+#include "Core/Camera.h"
 
 namespace ScarletEngine
 {
@@ -75,6 +76,8 @@ namespace ScarletEngine
 
 		OnSelectionChangedEvent OnSelectionChanged;
 		OnSelectionClearedEvent OnSelectionCleared;
+
+		SharedPtr<Camera> EditorCam;
 	};
 
 	extern UniquePtr<Editor> GEditor;

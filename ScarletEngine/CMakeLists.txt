@@ -1,11 +1,11 @@
 file(GLOB_RECURSE ScarletEngine_SRC "src/*.cpp")
 
-find_package(glfw3 3.3 REQUIRED)
 find_package(Vulkan REQUIRED)
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 
 add_subdirectory("thirdparty/glad")
+add_subdirectory("thirdparty/glfw")
 
 # Include the imgui sources in the main engine binary
 file (GLOB ImGUI_SRC
@@ -16,8 +16,7 @@ file (GLOB ImGUI_SRC
 	"thirdparty/imgui/misc/cpp/imgui_stdlib.cpp")
 add_library(ImGUI STATIC ${ImGUI_SRC})
 target_include_directories(ImGUI PUBLIC "thirdparty/imgui")
-target_include_directories(ImGUI PRIVATE ${GLFW3_INCLUDE})
-target_link_libraries(ImGUI PRIVATE Vulkan::Vulkan OpenGL::GL ${GLFW3_LIBRARY} Glad)
+target_link_libraries(ImGUI PRIVATE Vulkan::Vulkan OpenGL::GL glfw Glad)
 
 set(GLM_TEST_ENABLE OFF CACHE BOOL "Compile GLM tests")
 set(GLM_TEST_ENABLE_CXX_17 ON CACHE BOOL "")
@@ -30,11 +29,10 @@ add_library(ScarletEngine STATIC ${ScarletEngine_SRC})
 target_compile_features(ScarletEngine PUBLIC cxx_std_17)
 
 target_include_directories(ScarletEngine PUBLIC "include/"
-										 PRIVATE "src/"
-										 SYSTEM PUBLIC ${GLFW3_INCLUDE})
+										 PRIVATE "src/")
 
-target_link_libraries(ScarletEngine	PUBLIC TracyProfiler ImGUI glm IconFontCppHeaders
-									PRIVATE ${GLFW3_LIBRARY} Vulkan::Vulkan OpenGL::GL ${CMAKE_DL_LIBS} Glad STBImage)
+target_link_libraries(ScarletEngine PUBLIC TracyProfiler ImGUI glm IconFontCppHeaders
+									PRIVATE Vulkan::Vulkan OpenGL::GL ${CMAKE_DL_LIBS} Glad STBImage glfw)
 
 if(${CMAKE_VERSION} VERSION_LESS "3.16.0") 
     message(STATUS "Please consider switching to CMake 3.16 or higher for PCH support!")
@@ -44,6 +42,7 @@ else()
 endif()
 
 configure_files("${CMAKE_CURRENT_SOURCE_DIR}/content" "${CMAKE_CURRENT_BINARY_DIR}/content")
+configure_files("${CMAKE_CURRENT_SOURCE_DIR}/shaders" "${CMAKE_CURRENT_BINARY_DIR}/shaders")
 
 set(GRAPHICS_API "OpenGL" CACHE STRING "Which Graphics API to use")
 if (GRAPHICS_API STREQUAL "OpenGL")

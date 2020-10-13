@@ -25,10 +25,14 @@ namespace ScarletEngine
 	template <typename Key, typename KeyCmp = std::equal_to<Key>, typename Alloc = GlobalAllocator<Key>>
 	using UnorderedSet = std::unordered_set<Key, KeyCmp, Alloc>;
 
-	template <typename CharType = char, typename Traits = std::char_traits<CharType>, typename Alloc = GlobalAllocator<CharType>>
+	template <typename CharType, typename Traits = std::char_traits<CharType>, typename Alloc = GlobalAllocator<CharType>>
 	using BasicString = std::basic_string<CharType, Traits, Alloc>;
 
+	template <typename CharType>
+	using BasicStringView = std::basic_string_view<CharType>;
+
 	using String = BasicString<char>;
+	using StringView = BasicStringView<char>;
 }
 
 

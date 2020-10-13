@@ -38,21 +38,33 @@ namespace ScarletEngine
 		uint32_t TextureObject;
 	};
 
-	class OpenGLVertexBuffer : public RALVertexBuffer
+	class OpenGLGpuBuffer : public RALGpuBuffer
 	{
 	public:
-		OpenGLVertexBuffer(uint32_t InSize, uint32_t InUsage);
+		OpenGLGpuBuffer(uint32_t InSize, RALBufferUsage InUsage);
 
 		virtual void UploadData(void* DataPtr, size_t InSize) const override;
 		virtual void Release() override;
-	private:
+
 		uint32_t BufferObject;
+	};
+
+	class OpenGLVertexArray : public RALVertexArray
+	{
+	public:
+		OpenGLVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB);
+		
+		virtual void Bind() const override;
+		virtual void Unbind() const override;
+		virtual void Release() override;
+
+		uint32_t VAObject;
 	};
 
 	class OpenGLShader : public RALShader
 	{
 	public:
-		OpenGLShader(RALShaderStage Stage, const Array<uint8_t>& ShaderCode);
+		OpenGLShader(RALShaderStage Stage, const String& ShaderPath);
 	private:
 		friend class OpenGLShaderProgram;
 		uint32_t ShaderObject;
@@ -62,6 +74,12 @@ namespace ScarletEngine
 	{
 	public:
 		OpenGLShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader);
+
+		virtual void Bind() const override;
+		virtual void Unbind() const override;
+
+		virtual void SetUniformMat4(const glm::mat4& Mat, const char* Binding) const override;
+		virtual void SetUniformVec3(const glm::vec3& Vec, const char* Binding) const override;
 	private:
 		uint32_t ProgramObject;
 	};

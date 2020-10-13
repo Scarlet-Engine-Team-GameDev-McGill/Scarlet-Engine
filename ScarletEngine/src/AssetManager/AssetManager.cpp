@@ -12,6 +12,12 @@ namespace ScarletEngine
 		return std::static_pointer_cast<TextureHandle>(LoadAsset(FilePath, AssetType::Texture));
 	}
 
+	SharedPtr<StaticMeshHandle> AssetManager::LoadStaticMesh(const String& FilePath)
+	{
+		ZoneScoped
+		return std::static_pointer_cast<StaticMeshHandle>(LoadAsset(FilePath, AssetType::StaticMesh));
+	}
+
 	SharedPtr<IAssetHandle> AssetManager::LoadAsset(const String& FilePath, AssetType Type)
 	{
 		ZoneScoped
@@ -32,23 +38,28 @@ namespace ScarletEngine
 			}
 		}
 
+		SharedPtr<IAssetHandle> Ret(nullptr);
+
 		switch (Type)
 		{
 		case AssetType::Texture:
-		{
-			SharedPtr<IAssetHandle> Ret = std::make_shared<TextureHandle>(FilePath);
-			CachedAssets.emplace(FilePath, Ret);
-			return Ret;
-		}
+			Ret = std::make_shared<TextureHandle>(FilePath);
+			break;
 		case AssetType::Font:
 		case AssetType::StaticMesh:
+			Ret = std::make_shared<StaticMeshHandle>(FilePath);
+			break;
 		default:
 			// Unsupported asset type
-			check(false)
-				break;
+			check(false);
+			break;
 		}
-
-		return nullptr;
+		
+		if (Ret != nullptr)
+		{
+			CachedAssets.emplace(FilePath, Ret);
+		}
+		return Ret;
 	}
 
 	void AssetManager::ForEachLoadedAsset(const std::function<bool(IAssetHandle&)>& Func)

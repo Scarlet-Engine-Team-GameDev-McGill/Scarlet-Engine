@@ -43,19 +43,49 @@ namespace ScarletEngine
 		WeakPtr<TextureHandle> AssetHandle;
 	};
 
-	class RALVertexBuffer
+	enum class RALBufferUsage
+	{
+		STATIC_DRAW,
+		STATIC_READ,
+		STATIC_COPY,
+		DYNAMIC_DRAW,
+		DYNAMIC_READ,
+		DYNAMIC_COPY,
+		INVALID
+	};
+
+	class RALGpuBuffer
 	{
 	public:
-		RALVertexBuffer(uint32_t InSize, uint32_t InUsage)
+		RALGpuBuffer(uint32_t InSize, RALBufferUsage InUsage)
 			: Size(InSize)
 			, Usage(InUsage)
 		{}
-		
+
 		virtual void UploadData(void* DataPtr, size_t Size) const = 0;
 		virtual void Release() = 0;
-	protected:
+
 		uint32_t Size;
-		uint32_t Usage;
+		RALBufferUsage Usage;
+	};
+
+	class RALVertexArray
+	{
+	public:
+		RALVertexArray(const RALGpuBuffer* InVB, const RALGpuBuffer* InIB)
+			: VB(InVB)
+			, IB(InIB)
+			, VertexCount(IB->Size / sizeof(uint32_t)) // index buffer is always uint32_t, so count = buff_size / elem_size
+		{}
+
+		virtual void Bind() const = 0;
+		virtual void Unbind() const = 0;
+		virtual void Release() = 0;
+		inline uint32_t GetCount() const { return VertexCount; }
+
+		const RALGpuBuffer* VB;
+		const RALGpuBuffer* IB;
+		uint32_t VertexCount;
 	};
 
 	enum class RALShaderStage
@@ -88,17 +118,11 @@ namespace ScarletEngine
 			, ComputeShader(InComputeShader)
 		{}
 
-		RALShader* GetShader(RALShaderStage Stage) const
-		{
-			switch (Stage)
-			{
-			case RALShaderStage::Vertex: return VertexShader;
-			case RALShaderStage::Pixel: return PixelShader;
-			case RALShaderStage::Geometry: return GeometryShader;
-			case RALShaderStage::Compute: return ComputeShader;
-			default: check(false); return nullptr;
-			}
-		}
+		virtual void Bind() const = 0;
+		virtual void Unbind() const = 0;
+
+		virtual void SetUniformMat4(const glm::mat4& Mat, const char* Binding) const = 0;
+		virtual void SetUniformVec3(const glm::vec3& Vec, const char* Binding) const = 0;
 	protected:
 		RALShader* VertexShader;
 		RALShader* PixelShader;
