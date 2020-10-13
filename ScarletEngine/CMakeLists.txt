@@ -7,20 +7,10 @@ find_package(OpenGL REQUIRED)
 add_subdirectory("thirdparty/glad")
 add_subdirectory("thirdparty/glfw")
 
-# Include the imgui sources in the main engine binary
-file (GLOB ImGUI_SRC
-	"thirdparty/imgui/*.cpp"
-	"thirdparty/imgui/examples/imgui_impl_glfw.cpp"
-	"thirdparty/imgui/examples/imgui_impl_vulkan.cpp"
-	"thirdparty/imgui/examples/imgui_impl_opengl3.cpp"
-	"thirdparty/imgui/misc/cpp/imgui_stdlib.cpp")
-add_library(ImGUI STATIC ${ImGUI_SRC})
-target_include_directories(ImGUI PUBLIC "thirdparty/imgui")
-target_link_libraries(ImGUI PRIVATE Vulkan::Vulkan OpenGL::GL glfw Glad)
-
 set(GLM_TEST_ENABLE OFF CACHE BOOL "Compile GLM tests")
 set(GLM_TEST_ENABLE_CXX_17 ON CACHE BOOL "")
 add_subdirectory("thirdparty/glm")
+add_subdirectory("thirdparty/imgui")
 add_subdirectory("thirdparty/tracy")
 add_subdirectory("thirdparty/stb_image")
 add_subdirectory("thirdparty/IconFontCppHeaders")
@@ -31,7 +21,7 @@ target_compile_features(ScarletEngine PUBLIC cxx_std_17)
 target_include_directories(ScarletEngine PUBLIC "include/"
 										 PRIVATE "src/")
 
-target_link_libraries(ScarletEngine PUBLIC TracyProfiler ImGUI glm IconFontCppHeaders
+target_link_libraries(ScarletEngine	PUBLIC TracyProfiler ImGUI glm IconFontCppHeaders
 									PRIVATE Vulkan::Vulkan OpenGL::GL ${CMAKE_DL_LIBS} Glad STBImage glfw)
 
 if(${CMAKE_VERSION} VERSION_LESS "3.16.0") 

@@ -2,6 +2,10 @@
 
 /** This is where large headers which we don't expect to change often should go. They will be precompiled on compatible systems */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 // STL
 #include <cstdint>
 #include <memory>
@@ -26,6 +30,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
-#include <misc/cpp/imgui_stdlib.h>
+#include <imgui_stdlib.h>
 #include <GoogleMaterialDesign.h>
 #include <Tracy.hpp>

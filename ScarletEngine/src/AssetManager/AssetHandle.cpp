@@ -2,6 +2,7 @@
 
 #include "AssetManager/AssetManager.h"
 
+#define STBI_ASSERT(pred) check(pred)
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 

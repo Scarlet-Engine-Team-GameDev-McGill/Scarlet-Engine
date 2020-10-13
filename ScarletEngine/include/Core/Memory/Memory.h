@@ -1,8 +1,13 @@
 #pragma once
 
 #include "MemoryTracker.h"
+
 namespace ScarletEngine
 {
+	[[nodiscard]] void* ScarMalloc(size_t Size);
+
+	void ScarFree(void* Ptr);
+
 	template <class T>
 	struct GlobalAllocator
 	{
@@ -18,29 +23,20 @@ namespace ScarletEngine
 		inline GlobalAllocator(const GlobalAllocator&) {}
 		template <class U> inline GlobalAllocator(const GlobalAllocator<U>&) {}
 
-		[[nodiscard]] T* allocate(size_t Number) 
+		[[nodiscard]] inline T* allocate(size_t Number) 
 		{
-			ZoneScoped
-			T* Ptr = static_cast<T*>(std::malloc(Number * sizeof(T)));
-			check(Ptr != nullptr);
-			MemoryTracker::Get().MarkAlloc(Ptr, Number * sizeof(T));
-			TracyAlloc(Ptr, Number * sizeof(T));
+			T* Ptr = static_cast<T*>(ScarMalloc(Number * sizeof(T)));
 			return Ptr;
 		}
 
-		void deallocate(T* Ptr, size_t Number)
+		inline void deallocate(T* Ptr, size_t)
 		{
-			ZoneScoped
-			check(Ptr != nullptr);
-			MemoryTracker::Get().RemoveAlloc(Ptr, Number * sizeof(T));
-			TracyFree(Ptr);
-			std::free(Ptr);
+			ScarFree(Ptr);
 		}
 
 		template <typename... Args>
 		[[nodiscard]] static inline T* New(Args&&... args)
 		{
-			ZoneScoped
 			T* Ptr = new T(std::forward<Args>(args)...);
 			check(Ptr != nullptr);
 			MemoryTracker::Get().MarkAlloc(Ptr, sizeof(T));
@@ -50,7 +46,6 @@ namespace ScarletEngine
 
 		static inline void Free(T* Ptr)
 		{
-			ZoneScoped
 			check (Ptr != nullptr)
 			MemoryTracker::Get().RemoveAlloc(Ptr, sizeof(T));
 			TracyFree(Ptr);
@@ -64,7 +59,6 @@ namespace ScarletEngine
 		{
 			void operator()(T* Ptr)
 			{
-				ZoneScoped
 				check(Ptr != nullptr);
 				MemoryTracker::Get().RemoveAlloc(Ptr, sizeof(T));
 				TracyFree(Ptr);
@@ -85,14 +79,12 @@ namespace ScarletEngine
 	template <typename T, typename... Args>
 	[[nodiscard]] SharedPtr<T> MakeShared(Args&&... args)
 	{
-		ZoneScoped
 		return SharedPtr<T>(GlobalAllocator<T>::New(std::forward<Args>(args)...), typename GlobalAllocator<T>::Delete());
 	}
 
 	template <typename T, typename... Args>
 	[[nodiscard]] UniquePtr<T> MakeUnique(Args&&... args)
 	{
-		ZoneScoped
 		return UniquePtr<T>(GlobalAllocator<T>::New(std::forward<Args>(args)...));
 	}
 }

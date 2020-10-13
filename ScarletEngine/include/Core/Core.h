@@ -8,6 +8,8 @@
 #include "Event.h"
 #include "Delegate.h"
 #include "Archive.h"
+#include "Color.h"
+#include "Utils/StringUtils.h"
 
 // Core component types
 #include "Transform.h"

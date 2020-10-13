@@ -3,9 +3,6 @@
 #include "ECS/ECS.h"
 #include "World.h"
 #include "Renderer/Viewport.h"
-#include "Panels/SceneHierarchy/SceneHierarchy.h"
-#include "Panels/PropertyEditor.h"
-#include "Panels/OutputLog.h"
 #include "AssetManager/AssetHandle.h"
 #include "RAL/RALResources.h"
 #include "Core/Camera.h"
@@ -21,7 +18,7 @@ namespace ScarletEngine
 		Editor();
 		virtual ~Editor() {}
 
-		virtual void Initialize() override;
+		void Initialize();
 		virtual void Tick(double DeltaTime) override;
 
 	public:
@@ -40,44 +37,17 @@ namespace ScarletEngine
 
 		const Set<Entity*>& GetSelection() const { return SelectedEntities; }
 
+		SharedPtr<World>& GetActiveWorld() { return EditorWorld; }
+
 		const OnSelectionChangedEvent& GetOnSelectionChanged() const { return OnSelectionChanged; }
 		const OnSelectionClearedEvent& GetOnSelectionCleared() const { return OnSelectionCleared; }
-
 	private:
-		void DrawUI();
-	private:
-		struct EditorViewport
-		{
-			EditorViewport(Viewport* InView)
-				: View(InView)
-				, bViewportIsFocused(false)
-				, bViewportIsHovered(false)
-				, ViewportSize({ 0, 0 })
-			{}
-
-			UniquePtr<Viewport> View;
-			bool bViewportIsFocused;
-			bool bViewportIsHovered;
-			glm::vec2 ViewportSize;
-		};
-		Array<EditorViewport> Viewports;
-
-		uint32_t CurrentFrameTimeIndex = 0;
-		static const uint32_t MaxFrameTimes = 200;
-		float FrameTimes[MaxFrameTimes];
-
 		SharedPtr<World> EditorWorld;
-		
-		SharedPtr<SceneHierarchyPanel> SceneHierarchy;
-		SharedPtr<PropertyEditorPanel> PropertyEditor;
-		SharedPtr<OutputLogPanel> OutputLog;
 
 		Set<Entity*> SelectedEntities;
 
 		OnSelectionChangedEvent OnSelectionChanged;
 		OnSelectionClearedEvent OnSelectionCleared;
-
-		SharedPtr<Camera> EditorCam;
 	};
 
 	extern UniquePtr<Editor> GEditor;

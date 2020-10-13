@@ -1,27 +1,29 @@
 #include "Panels/PropertyEditor.h"
 
-#include <imgui.h>
 #include "Editor.h"
+#include "ECS/ECS.h"
 
 namespace ScarletEngine
 {
 	PropertyEditorPanel::PropertyEditorPanel()
-		: FocusedEntity()
+		: UIWindow("Property Editor")
+		, FocusedEntity()
+	{
+	}
+
+	void PropertyEditorPanel::Construct()
 	{
 		ZoneScoped
 		GEditor->GetOnSelectionChanged().Bind(this, &PropertyEditorPanel::OnSelectionChanged);
 		GEditor->GetOnSelectionCleared().Bind(this, &PropertyEditorPanel::OnSelectionCleared);
 	}
 
-	void PropertyEditorPanel::Draw()
+	void PropertyEditorPanel::DrawWindowContent()
 	{
 		ZoneScoped
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 10, ImGui::GetStyle().FramePadding.y });
-
-		ImGui::Begin("Property Editor");
-
 		if (FocusedEntity)
 		{
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 10, ImGui::GetStyle().FramePadding.y });
 			ImGui::Text("Name");
 			ImGui::SameLine();
 			ImGui::InputText("###Name", (char*)FocusedEntity->Name.c_str(), FocusedEntity->Name.capacity());
@@ -35,22 +37,18 @@ namespace ScarletEngine
 			ImGui::Separator();
 			
 			ImGui::Button("Add Component");
+			ImGui::PopStyleVar(1);
 		}
-
-		ImGui::End();
-
-		ImGui::PopStyleVar(1);
 	}
 
 	void PropertyEditorPanel::DrawTransformEditor()
 	{
 		ZoneScoped
-		static bool bOpen = true;
 		if (FocusedEntity != nullptr)
 		{
 			Transform* TransformComponent = FocusedEntity->OwningWorld->GetComponent<Transform>(*FocusedEntity);
 			
-			if (ImGui::CollapsingHeader("Transform Component", &bOpen, ImGuiTreeNodeFlags_DefaultOpen))
+			if (ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				static bool bFirstColumnOffsetSet = false;
 				float FirstColumnOffset = ImGui::CalcTextSize("Position").x + 2 * ImGui::GetStyle().ItemSpacing.x;
