@@ -1,4 +1,4 @@
-#include "Panels/Stats.h"
+#include "Stats.h"
 
 #include "Memory/MemoryTracker.h"
 

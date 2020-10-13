@@ -1,9 +1,9 @@
 set(Gameplay_PrivateDeps
-	"Core"
-	"RenderModule")
+	"Core")
 
 set(Gameplay_PublicDeps
-	"ECS")
+	"ECS"
+	"RenderModule")
 
 DECLARE_MODULE(
 	MODULE_NAME "Gameplay" 

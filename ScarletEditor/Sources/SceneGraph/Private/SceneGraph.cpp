@@ -1,4 +1,4 @@
-#include "Panels/SceneHierarchy/SceneHierarchy.h"
+#include "SceneGraph.h"
 
 #include "Core.h"
 #include "World.h"
