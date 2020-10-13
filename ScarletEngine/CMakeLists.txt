@@ -6,9 +6,6 @@ find_package(OpenGL REQUIRED)
 
 add_subdirectory("thirdparty/glad")
 add_subdirectory("thirdparty/glfw")
-
-set(GLM_TEST_ENABLE OFF CACHE BOOL "Compile GLM tests")
-set(GLM_TEST_ENABLE_CXX_17 ON CACHE BOOL "")
 add_subdirectory("thirdparty/glm")
 add_subdirectory("thirdparty/imgui")
 add_subdirectory("thirdparty/tracy")
