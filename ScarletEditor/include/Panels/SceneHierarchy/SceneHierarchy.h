@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/Core.h"
-#include "UI/UIWindow.h"
-#include "ECS/ECS.h"
-#include "RAL/RALResources.h"
+#include "Core.h"
+#include "UIWindow.h"
+#include "ECS.h"
+#include "RALResources.h"
 
 #include "SceneHierarchyItem.h"
 

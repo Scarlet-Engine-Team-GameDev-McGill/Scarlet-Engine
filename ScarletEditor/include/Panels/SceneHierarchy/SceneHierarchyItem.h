@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Core.h"
-#include "ECS/ECS.h"
+#include "Core.h"
+#include "ECS.h"
 
 namespace ScarletEngine
 {

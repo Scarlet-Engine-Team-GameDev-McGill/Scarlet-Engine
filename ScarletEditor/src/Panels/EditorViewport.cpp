@@ -1,6 +1,6 @@
 #include "Panels/EditorViewport.h"
 
-#include "Renderer/Renderer.h"
+#include "RenderModule.h"
 
 namespace ScarletEngine
 {
@@ -24,7 +24,9 @@ namespace ScarletEngine
 	void EditorViewportPanel::Construct()
 	{
 		ZoneScoped
-		View = UniquePtr<Viewport>(Renderer::Get().CreateViewport((uint32_t)PanelSize.x, (uint32_t)PanelSize.y));
+
+		RenderModule* Renderer = ModuleManager::GetModuleChecked<RenderModule>("RenderModule");
+		View = UniquePtr<Viewport>(Renderer->CreateViewport((uint32_t)PanelSize.x, (uint32_t)PanelSize.y));
 		ViewportCam = MakeShared<Camera>();
 
 		ViewportCam->SetPosition({ 0, -2, 0 });
@@ -52,7 +54,8 @@ namespace ScarletEngine
 
 		{
 			ZoneScopedN("Render world");
-			Renderer::Get().DrawScene(RepresentingWorld->GetRenderSceneProxy(), View.get());
+			RenderModule* Renderer = ModuleManager::GetModuleChecked<RenderModule>("RenderModule");
+			Renderer->DrawScene(RepresentingWorld->GetRenderSceneProxy(), View.get());
 		}
 	}
 

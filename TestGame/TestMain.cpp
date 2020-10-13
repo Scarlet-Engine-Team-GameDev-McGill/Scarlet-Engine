@@ -1,6 +1,6 @@
-#include "Core/Core.h"
+#include "Core.h"
 #include "World.h"
-#include "ECS/ECS.h"
+#include "ECS.h"
 
 struct Position
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Core.h"
-#include "UI/UIWindow.h"
+#include "Core.h"
+#include "UIWindow.h"
 
 namespace ScarletEngine
 {

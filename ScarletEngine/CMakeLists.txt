@@ -1,35 +1,17 @@
-file(GLOB_RECURSE ScarletEngine_SRC "src/*.cpp")
-
 find_package(Vulkan REQUIRED)
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 
-add_subdirectory("thirdparty/glad")
-add_subdirectory("thirdparty/glfw")
-add_subdirectory("thirdparty/glm")
-add_subdirectory("thirdparty/imgui")
-add_subdirectory("thirdparty/tracy")
-add_subdirectory("thirdparty/stb_image")
-add_subdirectory("thirdparty/IconFontCppHeaders")
+add_subdirectory("Thirdparty/glad")
+add_subdirectory("Thirdparty/glfw")
+add_subdirectory("Thirdparty/glm")
+add_subdirectory("Thirdparty/imgui")
+add_subdirectory("Thirdparty/tracy")
+add_subdirectory("Thirdparty/stb_image")
+add_subdirectory("Thirdparty/IconFontCppHeaders")
 
-add_library(ScarletEngine STATIC ${ScarletEngine_SRC})
-target_compile_features(ScarletEngine PUBLIC cxx_std_17)
-
-target_include_directories(ScarletEngine PUBLIC "include/"
-										 PRIVATE "src/")
-
-target_link_libraries(ScarletEngine	PUBLIC TracyProfiler ImGUI glm IconFontCppHeaders
-									PRIVATE Vulkan::Vulkan OpenGL::GL ${CMAKE_DL_LIBS} Glad STBImage glfw)
-
-if(${CMAKE_VERSION} VERSION_LESS "3.16.0") 
-    message(STATUS "Please consider switching to CMake 3.16 or higher for PCH support!")
-else()
-	message(STATUS "Using Precompiled Headers")
-	target_precompile_headers(ScarletEngine PUBLIC "include/Core/CorePCH.h")
-endif()
-
-configure_files("${CMAKE_CURRENT_SOURCE_DIR}/content" "${CMAKE_CURRENT_BINARY_DIR}/content")
-configure_files("${CMAKE_CURRENT_SOURCE_DIR}/shaders" "${CMAKE_CURRENT_BINARY_DIR}/shaders")
+configure_files("${CMAKE_CURRENT_SOURCE_DIR}/Content" "${CMAKE_CURRENT_BINARY_DIR}/Content")
+configure_files("${CMAKE_CURRENT_SOURCE_DIR}/Shaders" "${CMAKE_CURRENT_BINARY_DIR}/Shaders")
 
 set(GRAPHICS_API "OpenGL" CACHE STRING "Which Graphics API to use")
 if (GRAPHICS_API STREQUAL "OpenGL")
@@ -37,3 +19,49 @@ if (GRAPHICS_API STREQUAL "OpenGL")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Vulkan")
 	add_definitions(-DRAL_USE_VULKAN)
 endif()
+
+define_property(GLOBAL PROPERTY ScarletEngineModulesProperty
+    BRIEF_DOCS "Global list of ScarletEngine modules"
+    FULL_DOCS "Global list of ScarletEngine modules")
+set_property(GLOBAL PROPERTY ScarletEngineModulesProperty "")
+# Macro for add values into the list
+macro(register_module moduleName)
+    set_property(GLOBAL APPEND PROPERTY ScarletEngineModulesProperty "${moduleName}")
+endmacro(register_module)
+
+
+include(CMakeParseArguments)
+macro(declare_module)
+	set(oneValueArgs MODULE_NAME)
+	set(multiValueArgs PRIVATE_DEPS PUBLIC_DEPS)
+	cmake_parse_arguments(
+		DECLARE_MODULE 
+		"${options}"
+		"${oneValueArgs}"
+		"${multiValueArgs}"
+		${ARGN})
+
+		
+	if(NOT DECLARE_MODULE_MODULE_NAME)
+		message(FATAL_ERROR "Missing module name!")
+	endif()
+
+	file(GLOB_RECURSE MODULE_SRC "*.cpp")
+	add_library(${DECLARE_MODULE_MODULE_NAME} STATIC ${MODULE_SRC})
+	target_include_directories(${DECLARE_MODULE_MODULE_NAME} PUBLIC "Public" PRIVATE "Private")
+	target_link_libraries(${DECLARE_MODULE_MODULE_NAME} PUBLIC ${DECLARE_MODULE_PUBLIC_DEPS} PRIVATE ${DECLARE_MODULE_PRIVATE_DEPS})
+
+	target_compile_features(${DECLARE_MODULE_MODULE_NAME} PUBLIC cxx_std_20)
+
+	# for now make a list of all modules which external things should link to if they want everything
+	register_module(${DECLARE_MODULE_MODULE_NAME})
+endmacro(declare_module)
+
+add_subdirectory("Sources/Core")
+add_subdirectory("Sources/AssetManager")
+add_subdirectory("Sources/UI")
+add_subdirectory("Sources/ECS")
+add_subdirectory("Sources/OpenGLRAL")
+add_subdirectory("Sources/Renderer")
+add_subdirectory("Sources/RAL")
+add_subdirectory("Sources/Gameplay")

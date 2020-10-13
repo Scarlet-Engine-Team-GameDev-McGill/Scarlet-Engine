@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/Core.h"
-#include "UI/UIWindow.h"
+#include "Core.h"
+#include "UIWindow.h"
 #include "World.h"
-#include "Renderer/Viewport.h"
+#include "Viewport.h"
 
 namespace ScarletEngine
 {

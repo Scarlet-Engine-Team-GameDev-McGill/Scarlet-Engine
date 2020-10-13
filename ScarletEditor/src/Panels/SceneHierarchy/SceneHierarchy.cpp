@@ -1,14 +1,13 @@
 #include "Panels/SceneHierarchy/SceneHierarchy.h"
 
-#include "Core/Core.h"
+#include "Core.h"
 #include "World.h"
-#include "ECS/ECS.h"
+#include "ECS.h"
 
 #include "Editor.h"
 
-#include "AssetManager/AssetManager.h"
-#include "Renderer/Renderer.h"
-#include "RAL/RAL.h"
+#include "AssetManager.h"
+#include "RAL.h"
 
 namespace ScarletEngine
 {
