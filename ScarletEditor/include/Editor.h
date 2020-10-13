@@ -1,11 +1,11 @@
 #pragma once
-#include "Core/Core.h"
-#include "ECS/ECS.h"
+#include "Core.h"
+#include "ECS.h"
 #include "World.h"
-#include "Renderer/Viewport.h"
-#include "AssetManager/AssetHandle.h"
-#include "RAL/RALResources.h"
-#include "Core/Camera.h"
+#include "Viewport.h"
+#include "AssetHandle.h"
+#include "RALResources.h"
+#include "Camera.h"
 
 namespace ScarletEngine
 {

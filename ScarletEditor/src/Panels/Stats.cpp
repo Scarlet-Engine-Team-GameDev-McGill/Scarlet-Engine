@@ -1,6 +1,6 @@
 #include "Panels/Stats.h"
 
-#include "Core/Memory/MemoryTracker.h"
+#include "Memory/MemoryTracker.h"
 
 namespace ScarletEngine
 {

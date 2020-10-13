@@ -1,7 +1,7 @@
 #include "Panels/PropertyEditor.h"
 
 #include "Editor.h"
-#include "ECS/ECS.h"
+#include "ECS.h"
 
 namespace ScarletEngine
 {

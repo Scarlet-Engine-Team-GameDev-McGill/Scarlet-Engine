@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.10)
 message(STATUS "CMake Version: ${CMAKE_VERSION}")
 project("ScarletEngine" VERSION 1.0 LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # --- Set compiler warnings and disable RTTI/Exceptions
 # https://github.com/izenecloud/cmake/blob/master/SetCompilerWarningAll.cmake
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -43,6 +46,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	if(NOT CMAKE_CXX_FLAGS MATCHES "-fsanitize")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 	endif(NOT CMAKE_CXX_FLAGS MATCHES "-fsanitize")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-volatile")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	message("Detected GNU-GCC")
 	# Use -Wall for clang and gcc.
@@ -63,6 +67,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	# Disable RTTI.
 	string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=volatile")
 endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
 # Add a helper macro to move files to the build directory

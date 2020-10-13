@@ -1,9 +1,8 @@
-#include "Core/Core.h"
+#include "Core.h"
 #include "Editor.h"
-#include "Renderer/Renderer.h"
-#include "RAL/RAL.h"
-#include "Renderer/StaticMeshComponent.h"
-#include "AssetManager/AssetManager.h"
+#include "RAL.h"
+#include "StaticMeshComponent.h"
+#include "AssetManager.h"
 
 int main()
 {

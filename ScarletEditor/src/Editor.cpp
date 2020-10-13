@@ -1,6 +1,6 @@
 #include "Editor.h"
 
-#include "UI/UISystem.h"
+#include "UIModule.h"
 #include "EditorUILayer.h"
 
 namespace ScarletEngine
@@ -20,7 +20,7 @@ namespace ScarletEngine
 		// #todo_core: this should be handled by the engine
 		EditorWorld->Initialize();
 
-		UISystem::Get().SetActiveLayer(MakeShared<EditorUILayer>());
+		ModuleManager::GetModuleChecked<UIModule>("UIModule")->SetActiveLayer(MakeShared<EditorUILayer>());
 	}
 
 	void Editor::Tick(double)
