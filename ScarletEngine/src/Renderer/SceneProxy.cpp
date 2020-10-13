@@ -2,7 +2,7 @@
 
 namespace ScarletEngine
 {
-	void SceneProxy::DrawSMC(const Transform& Trans, const StaticMeshComponent& SMC)
+	void SceneProxy::AddSMC(const Transform& Trans, const StaticMeshComponent& SMC)
 	{
 		SMCs.push_back(std::make_pair(&Trans, &SMC));
 	}

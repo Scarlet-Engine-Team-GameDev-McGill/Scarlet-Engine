@@ -19,7 +19,7 @@ namespace ScarletEngine
 		AddSystem<const Transform, const StaticMeshComponent>("Draw Static Meshes")
 			.Each([ProxyPtr](const EID Ent, const Transform& Trans, const StaticMeshComponent& SMC)
 				{
-					ProxyPtr->DrawSMC(Trans, SMC);
+					ProxyPtr->AddSMC(Trans, SMC);
 				});
 	}
 

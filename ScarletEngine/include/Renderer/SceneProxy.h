@@ -8,7 +8,7 @@ namespace ScarletEngine
 	class SceneProxy
 	{
 	public:
-		void DrawSMC(const Transform& Trans, const StaticMeshComponent& SMC);
+		void AddSMC(const Transform& Trans, const StaticMeshComponent& SMC);
 		void Reset();
 	private:
 		friend class Renderer;
