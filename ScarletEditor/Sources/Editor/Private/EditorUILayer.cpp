@@ -1,11 +1,11 @@
 #include "EditorUILayer.h"
 
 #include "Editor.h"
-#include "Panels/SceneHierarchy/SceneHierarchy.h"
-#include "Panels/EditorViewport.h"
-#include "Panels/PropertyEditor.h"
-#include "Panels/OutputLog.h"
-#include "Panels/Stats.h"
+#include "SceneGraph.h"
+#include "EditorViewport.h"
+#include "PropertyEditor.h"
+#include "OutputLog.h"
+#include "Stats.h"
 
 namespace ScarletEngine
 {

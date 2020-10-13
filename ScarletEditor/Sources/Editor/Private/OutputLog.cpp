@@ -1,4 +1,4 @@
-#include "Panels/OutputLog.h"
+#include "OutputLog.h"
 
 namespace ScarletEngine
 {

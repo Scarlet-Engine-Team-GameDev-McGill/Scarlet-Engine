@@ -1,4 +1,4 @@
-#include "Panels/PropertyEditor.h"
+#include "PropertyEditor.h"
 
 #include "Editor.h"
 #include "ECS.h"

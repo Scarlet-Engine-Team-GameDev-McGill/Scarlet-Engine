@@ -3,9 +3,8 @@
 #include "Core.h"
 #include "UIWindow.h"
 #include "ECS.h"
-#include "RALResources.h"
 
-#include "SceneHierarchyItem.h"
+#include "SceneGraphItem.h"
 
 namespace ScarletEngine
 {

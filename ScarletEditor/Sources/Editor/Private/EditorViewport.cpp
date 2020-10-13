@@ -1,4 +1,4 @@
-#include "Panels/EditorViewport.h"
+#include "EditorViewport.h"
 
 #include "RenderModule.h"
 
