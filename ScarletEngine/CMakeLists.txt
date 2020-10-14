@@ -55,6 +55,16 @@ macro(declare_module)
 
 	# for now make a list of all modules which external things should link to if they want everything
 	register_module(${DECLARE_MODULE_MODULE_NAME})
+
+	if(PRINT_MODULE_DEPS)
+		foreach(PrivateDep ${DECLARE_MODULE_PRIVATE_DEPS})
+		message(STATUS "\"${DECLARE_MODULE_MODULE_NAME}\" -> \"${PrivateDep}\"")
+		endforeach()
+
+		foreach(PublicDep ${DECLARE_MODULE_PUBLIC_DEPS})
+		message(STATUS "\"${DECLARE_MODULE_MODULE_NAME}\" -> \"${PublicDep}\"")
+		endforeach()
+	endif(PRINT_MODULE_DEPS)
 endmacro(declare_module)
 
 add_subdirectory("Sources/Core")
