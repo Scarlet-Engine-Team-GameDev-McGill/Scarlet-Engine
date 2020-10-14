@@ -96,6 +96,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	add_definitions(-DDEBUG)
 endif()
 
+option(PRINT_MODULE_DEPS "Should print graphviz of module dependencies" OFF)
+
 # Define TRACY_ENABLE when compiling with profiler
 option (PROFILER "Should compile with profiler" OFF)
 option (PROFILER_COLLECT_CALLSTACK "Should collect callstacks" OFF)
