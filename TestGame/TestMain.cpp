@@ -1,53 +1,114 @@
-#include "Renderer/Renderer.h"
-#include "Core/Core.h"
+#include "Core.h"
+#include "World.h"
+#include "ECS.h"
 
-class TestTickable : public ScarletEngine::ITickable
+struct Position
 {
-public:
-	virtual void Tick(double) override
+	float X = 0.f;
+	float Y = 0.f;
+	float Z = 0.f;
+
+	void Serialize(ScarletEngine::Archive& Arc) const
 	{
-		if (Count >= 5)
-		{
-			ScarletEngine::Engine::Get().SignalQuit();
-		}
-		SCAR_LOG(LogVerbose, "Tick #%d", Count++);
+		Arc << X
+			<< Y
+			<< Z;
 	}
 
-	int Count = 0;
+	void Deserialize(ScarletEngine::Archive& Arc)
+	{
+		Arc >> X
+			>> Y
+			>> Z;
+	}
+};
+
+struct Velocity
+{
+	float X = 0.f;
+	float Y = 0.f;
+	float Z = 0.f;
 };
 
 int main()
 {
 	using namespace ScarletEngine;
-	TestLibraries();
+	{
+		Archive Arch;
 
-	Event<int, int, int> TestEvent;
-	TestEvent.Bind([](int a, int b, int c)
+		for (int i = 0; i < 20; ++i)
 		{
-			SCAR_LOG(LogVerbose, "Event %d %d %d", a, b, c);
-		});
-	TestEvent.Bind([](int a, int b, int c)
+			Position Pos{ (float)i, (float)(i + 1), (float)(i + 2) };
+			Arch << Pos;
+		}
+
+		Arch.SaveToFile("TestFile.data");
+
+		Array<Position> Values;
+
+		Archive InArch("TestFile.data");
+
+		for (int i = 0; i < 20; ++i)
 		{
-			SCAR_LOG(LogVerbose, "Event %d %d %d", a * 2, b * 2, c * 2);
-		});
+			Position Pos;
+			InArch >> Pos;
+			Values.push_back(Pos);
+		}
 
-	TestEvent.Broadcast(10, 10, 10);
+		Values.clear();
+	}
+	{
+		Array<Position> SerializedArray;
+		for (int i = 0; i < 20; ++i)
+		{
+			SerializedArray.push_back({ (float)(i / 1.f), (float)(i / 2.f), (float)(i / 3.f) });
+		}
+		Archive ArrayArch;
+		ArrayArch << SerializedArray;
+		ArrayArch.SaveToFile("ArrayFile.data");
 
-	Delegate<int(int)> Add;
-	Add.Bind([](int a) { return a * 2; });
-	SCAR_LOG(LogVerbose, "Delegate %d", Add(10));
+		Archive InArrayArch("ArrayFile.data");
+		Array<Position> InArray;
+		InArrayArch >> InArray;
+	}
+	{
+		Array<String> SerializedStringArray;
+		for (int i = 0; i < 20; ++i)
+		{
+			char Buff[32];
+			snprintf(Buff, 32, "Hello world %d", i);
+			SerializedStringArray.emplace_back(Buff);
+		}
+		Archive StringArch;
+		StringArch << SerializedStringArray;
+		StringArch.SaveToFile("StringFile.data");
 
-	Delegate<void(int)> Nothing;
-	Nothing.Bind([](int) {});
-	Nothing(10);
+		Archive InStringArch("StringFile.data");
+		Array<String> InStringArray;
+		InStringArch >> InStringArray;
+	}
+	{
+		Archive NestedArrayArch;
+		Array<Array<int>> NestedArray(10);
+		for (int i = 0; i < 10; ++i)
+		{
+			for (int j = 0; j < 10; ++j)
+			{
+				NestedArray[i].emplace_back(j + i);
+			}
+		}
+		NestedArrayArch << NestedArray;
+		NestedArrayArch.SaveToFile("NestedArray.data");
 
-	Engine& GEngine = Engine::Get();
-	GEngine.Initialize();
 
-	TestTickable Tickable;
+		Array<Array<int>> InNestedArray;
+		Archive InNestedArrayArch("NestedArray.data");
+		InNestedArrayArch >> InNestedArray;
+		
+		InNestedArray.clear();
+	}
 
-	GEngine.Run();
+	
 
-	Event<void(int)> a;
 	return 0;
 }
