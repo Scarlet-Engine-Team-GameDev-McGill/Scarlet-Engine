@@ -4,7 +4,7 @@
 
 namespace ScarletEngine
 {
-	/** Allows binding multiple function callbacks to a single event */
+	/** Bind multiple function callbacks to a single event */
 	template <typename... Args>
 	class Event
 	{
@@ -23,7 +23,7 @@ namespace ScarletEngine
 		void Bind(const FunctionType& Callback, void* OwnerPtr = nullptr) const
 		{
 			ZoneScoped
-			Callbacks.push_back({ OwnerPtr, Callback });
+			Callbacks.push_back({ (void*)OwnerPtr, Callback });
 		}
 
 		/**
@@ -31,7 +31,7 @@ namespace ScarletEngine
 		 * note: this function is not actually const. Marking it as such is just so that we can prevent const refs from broadcasting
 		 */
 		template <typename CallerType, typename MemberFuncType>
-		void Bind(CallerType Ptr, MemberFuncType Func) const
+		void BindMember(CallerType Ptr, MemberFuncType Func) const
 		{
 			ZoneScoped
 			if constexpr (sizeof...(Args) == 0)

@@ -5,6 +5,7 @@
 
 namespace ScarletEngine
 {
+	/** Manages asset loading and caching */
 	class AssetManager
 	{
 	public:

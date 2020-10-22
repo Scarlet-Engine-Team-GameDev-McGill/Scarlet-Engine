@@ -16,7 +16,7 @@ namespace ScarletEngine
 		MessageBuffer.resize(MaxBufferLength);
 		FilterText.reserve(32);
 
-		Logger::Get().GetOnMessageLogged().Bind(this, &OutputLogPanel::OnMessageLogged);
+		Logger::Get().GetOnMessageLogged().BindMember(this, &OutputLogPanel::OnMessageLogged);
 	}
 
 	void OutputLogPanel::Destroy()

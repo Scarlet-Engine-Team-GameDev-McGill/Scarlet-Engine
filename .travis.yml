@@ -42,8 +42,9 @@ install:
 script:
     - mkdir build
     - cd build
-    - cmake ../
+    - cmake ../ -DCOMPILE_UNIT_TESTS=ON
     - make
+    - EngineTests/EngineTests
     
 notifications:
   email:

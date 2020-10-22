@@ -22,8 +22,8 @@ namespace ScarletEngine
 	void SceneHierarchyPanel::Construct()
 	{
 		ZoneScoped
-		RepresentingWorld.lock()->GetOnEntityAddedToWorldEvent().Bind(this, &SceneHierarchyPanel::OnEntityAddedToWorld);
-		GEditor->GetOnSelectionChanged().Bind(this, &SceneHierarchyPanel::OnWorldSelectionChanged);
+		RepresentingWorld.lock()->GetOnEntityAddedToWorldEvent().BindMember(this, &SceneHierarchyPanel::OnEntityAddedToWorld);
+		GEditor->GetOnSelectionChanged().BindMember(this, &SceneHierarchyPanel::OnWorldSelectionChanged);
 		RepopulateItems();
 	}
 
