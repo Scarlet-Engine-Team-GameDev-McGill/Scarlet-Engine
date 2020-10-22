@@ -29,7 +29,7 @@ TEST(StringUtils, BytesString)
 	String TestSizeString = StringUtils::CreateBytesString(TestSize);
 	EXPECT_STREQ(TestSizeString.c_str(), "1.50 MB"); // 1.50 = 1 + 1/2
 
-	TestSize = 1179648; // 2^20 + (2^20)/8
+	TestSize = 1310720; // 2^20 + (2^20)/4
 	TestSizeString = StringUtils::CreateBytesString(TestSize);
-	EXPECT_STREQ(TestSizeString.c_str(), "1.13 MB"); // 1.13 = 1 + 1/8 (rounded to two decimal)
+	EXPECT_STREQ(TestSizeString.c_str(), "1.25 MB"); // 1.13 = 1 + 1/4 (rounded to two decimal)
 }
