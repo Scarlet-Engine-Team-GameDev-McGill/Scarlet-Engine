@@ -6,6 +6,7 @@
 
 namespace ScarletEngine
 {
+	/** Manages entity-component relationships */
 	class Registry
 	{
 		struct IComponentContainer
@@ -156,10 +157,10 @@ namespace ScarletEngine
 		}
 
 		template <typename T>
-		T* AttachComponent(EID EntityID, const T& Component) const
+		T* AttachComponent(EID EntityID, const T& Component)
 		{
 			ZoneScoped
-			if (auto Container = GetComponentContainer<T>())
+			if (auto Container = GetOrCreateComponentContainer<T>())
 			{
 				return Container->Attach(EntityID, Component);
 			}

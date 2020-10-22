@@ -20,7 +20,7 @@ install:
     Expand-Archive -LiteralPath .\glfw-3.3.2.bin.WIN64.zip -DestinationPath .\glfw
 build_script:
 - ps: >-
-    cmake -G "Visual Studio 16 2019" .
+    cmake -G "Visual Studio 16 2019" -DCOMPILE_UNIT_TESTS=ON .
 
 
     msbuild "C:\projects\scarlet-engine\ScarletEngine.sln" /verbosity:normal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"

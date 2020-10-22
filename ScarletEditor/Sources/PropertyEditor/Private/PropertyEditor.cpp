@@ -14,8 +14,8 @@ namespace ScarletEngine
 	void PropertyEditorPanel::Construct()
 	{
 		ZoneScoped
-		GEditor->GetOnSelectionChanged().Bind(this, &PropertyEditorPanel::OnSelectionChanged);
-		GEditor->GetOnSelectionCleared().Bind(this, &PropertyEditorPanel::OnSelectionCleared);
+		GEditor->GetOnSelectionChanged().BindMember(this, &PropertyEditorPanel::OnSelectionChanged);
+		GEditor->GetOnSelectionCleared().BindMember(this, &PropertyEditorPanel::OnSelectionCleared);
 	}
 
 	void PropertyEditorPanel::DrawWindowContent()

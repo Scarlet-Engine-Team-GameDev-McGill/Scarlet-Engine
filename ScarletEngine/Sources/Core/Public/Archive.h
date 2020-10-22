@@ -10,19 +10,25 @@ namespace ScarletEngine
 		Write
 	};
 
+	/**
+	 * Handles binary data serialization and deserialization.
+	 */
 	class Archive
 	{
 	public:
 		Archive();
 		Archive(const Archive&) = default;
 		Archive(Archive&&) = default;
+		/**  Construct the Archive and immedately load data from the file. */
 		Archive(const String& Filename, ArchiveMode Mode = ArchiveMode::Read);
 		~Archive() { Close(); }
 
 		void Close();
+		/** Dump the binary contents of the Archive to a file */
 		bool SaveToFile(const char* OverrideFile = nullptr);
+		/** Set the archive to Read Mode and reset the position to the start */
 		void SetReadModeandResetPos() { Pos = 0; Mode = ArchiveMode::Read; }
-
+		/** Return the mode of the archive */
 		ArchiveMode GetMode() { return Mode; }
 
 		/* Write operations */

@@ -4,6 +4,12 @@
 
 namespace ScarletEngine
 {
+	/**
+	 * Base class for all Engine Modules.
+	 * Modules are Engine subunits which each have their own dependencies.
+	 * The Engine ensures that each dependency is properly initialized before initializing a given module.
+	 * They also allow global access to each module through the ModuleManager class.
+	 */
 	class IModule
 	{
 	public:
