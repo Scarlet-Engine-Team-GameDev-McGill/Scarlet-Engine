@@ -33,3 +33,30 @@ TEST(StringUtils, BytesString)
 	TestSizeString = StringUtils::CreateBytesString(TestSize);
 	EXPECT_STREQ(TestSizeString.c_str(), "1.25 MB"); // 1.13 = 1 + 1/4 (rounded to two decimal)
 }
+
+TEST(StringUtils, PathConcat)
+{
+	String FirstPath = "/Assets/";
+	String SecondPath = "Scarlet.png";
+	StringUtils::PathConcat(OUT FirstPath, SecondPath);
+
+	EXPECT_STREQ(FirstPath.c_str(), "/Assets/Scarlet.png");
+	
+	FirstPath = "/Assets/";
+	SecondPath = "/Scarlet.png";
+	StringUtils::PathConcat(OUT FirstPath, SecondPath);
+
+	EXPECT_STREQ(FirstPath.c_str(), "/Assets/Scarlet.png");
+
+	FirstPath = "/Assets";
+	SecondPath = "Scarlet.png";
+	StringUtils::PathConcat(OUT FirstPath, SecondPath);
+
+	EXPECT_STREQ(FirstPath.c_str(), "/Assets/Scarlet.png");
+
+	FirstPath = "/This/Is/A/Very/Long/FileSystem/Path/";
+	SecondPath = "/ThisIsAReallyLongFileName.png";
+	StringUtils::PathConcat(OUT FirstPath, SecondPath);
+
+	EXPECT_STREQ(FirstPath.c_str(), "/This/Is/A/Very/Long/FileSystem/Path/ThisIsAReallyLongFileName.png");
+}
