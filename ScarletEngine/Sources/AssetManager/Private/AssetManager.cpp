@@ -4,11 +4,11 @@
 namespace ScarletEngine
 {
 	UnorderedMap<String, WeakPtr<IAssetHandle>> AssetManager::CachedAssets;
-	String AssetManager::AssetsSource;
+	String AssetManager::AssetRoot;
 
-	void AssetManager::SetAssetsSource(const String& InAssetsSource)
+	void AssetManager::SetAssetRoot(const String& InAssetRoot)
 	{
-		AssetsSource = InAssetsSource;
+		AssetRoot = InAssetRoot;
 	}
 
 	SharedPtr<TextureHandle> AssetManager::LoadTextureFile(const String& FilePath)
@@ -26,8 +26,7 @@ namespace ScarletEngine
 	SharedPtr<IAssetHandle> AssetManager::LoadAsset_Impl(const String& FilePath, AssetType Type)
 	{
 		ZoneScoped
-		String FullPath = AssetsSource;
-		StringUtils::PathConcat(OUT FullPath, FilePath);
+		String FullPath = ToFullPath(FilePath);
 
 		// Check that we are loading a file which exists
 		check(std::filesystem::exists(FullPath));
@@ -90,7 +89,7 @@ namespace ScarletEngine
 
 	String AssetManager::ToFullPath(const String& AssetPath)
 	{
-		String Result = AssetsSource;
+		String Result = AssetRoot;
 		StringUtils::PathConcat(OUT Result, AssetPath);
 		return Result;
 	}

@@ -9,7 +9,7 @@ namespace ScarletEngine
 	class AssetManager
 	{
 	public:
-		static void SetAssetsSource(const String& InAssetsSource);
+		static void SetAssetRoot(const String& InAssetsSource);
 
 		static SharedPtr<TextureHandle> LoadTextureFile(const String& FilePath);
 
@@ -29,6 +29,6 @@ namespace ScarletEngine
 	private:
 		static UnorderedMap<String, WeakPtr<IAssetHandle>> CachedAssets;
 
-		static String AssetsSource;
+		static String AssetRoot;
 	};
 }

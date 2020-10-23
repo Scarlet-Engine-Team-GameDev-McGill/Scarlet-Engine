@@ -9,7 +9,7 @@ int main()
 	using namespace ScarletEngine;
 	
 	// #todo_Core: this should be loaded by a config file or something, for now default it to this.
-	AssetManager::SetAssetsSource("../");
+	AssetManager::SetAssetRoot("../");
 
 	GEngine = MakeUnique<Engine>();
 	GEngine->Initialize();
