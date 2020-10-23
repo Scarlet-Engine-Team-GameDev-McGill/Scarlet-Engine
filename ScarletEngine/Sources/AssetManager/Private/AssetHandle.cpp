@@ -36,7 +36,7 @@ namespace ScarletEngine
 		int ImageHeight;
 		int NumChannels;
 
-		PixelDataBuffer = stbi_load(InFilePath.c_str(), &ImageWidth, &ImageHeight, &NumChannels, STBI_rgb_alpha);
+		PixelDataBuffer = stbi_load(AssetManager::ToFullPath(InFilePath).c_str(), &ImageWidth, &ImageHeight, &NumChannels, STBI_rgb_alpha);
 		check(PixelDataBuffer != nullptr);
 
 		Width = ImageWidth;
@@ -58,7 +58,7 @@ namespace ScarletEngine
 		std::vector<glm::vec2> TempUVs;
 		std::vector<glm::vec3> TempNormals;
 
-		FILE* File = fopen(FilePath.c_str(), "r");
+		FILE* File = fopen(AssetManager::ToFullPath(FilePath).c_str(), "r");
 		if (File == nullptr)
 		{
 			SCAR_LOG(LogError, "Failed to load obj file from %s", FilePath.c_str());
