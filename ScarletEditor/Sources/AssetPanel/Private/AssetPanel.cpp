@@ -46,9 +46,10 @@ namespace ScarletEngine
 
 		const float AvailWidth = ImGui::GetContentRegionAvailWidth();
 		const float CellSize = 128.f * ImGui::GetWindowDpiScale();
+		// ImGui requires the number of columns in a table to be in [1, 64]
 		const uint32_t NumColumns = std::min(std::max((uint32_t)(AvailWidth / CellSize), (uint32_t)1), (uint32_t)64);
 
-		uint32_t TableFlags = 0;
+		uint32_t TableFlags = ImGuiTableFlags_Borders;
 		if (ImGui::BeginTable("##AssetViewContent", NumColumns, TableFlags))
 		{
 			uint32_t Index = 0;

@@ -22,14 +22,25 @@ namespace ScarletEngine
 		RALTexture2D* AssetIcon = GetAssetIconImage();
 		if (AssetIcon != nullptr)
 		{
-			ImGui::Image(reinterpret_cast<void*>(AssetIcon->GetTextureResource()), { 128.f, 128.f });
+			ImGui::Image(reinterpret_cast<void*>(AssetIcon->GetTextureResource()), { CellWidth, CellWidth });
 		}
-		
+
 		// Center the text label
 		const float CellTextPadding = CellWidth / 8.f;
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + CellTextPadding);
-		ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + CellWidth - 2.f * CellTextPadding);
-		ImGui::TextWrapped(Name.c_str());
-		ImGui::PopTextWrapPos();
+		const float SingleLineTextWidth = CellWidth - 2.f * CellTextPadding;
+		const float TextWidth = ImGui::CalcTextSize(Name.c_str()).x;
+
+		if (TextWidth > SingleLineTextWidth)
+		{
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + CellTextPadding);
+			ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + SingleLineTextWidth);
+			ImGui::TextWrapped(Name.c_str());
+			ImGui::PopTextWrapPos();
+		}
+		else
+		{
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 0.5 * CellWidth - 0.5 * TextWidth);
+			ImGui::Text("%s", Name.c_str());
+		}
 	}
 }
