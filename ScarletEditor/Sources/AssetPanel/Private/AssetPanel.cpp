@@ -39,8 +39,22 @@ namespace ScarletEngine
 
 	void AssetPanel::DrawWindowContent()
 	{
-		ImGui::Separator();
-		ImGui::Button(ICON_MD_KEYBOARD_BACKSPACE);
+		if (ImGui::Button(ICON_MD_KEYBOARD_BACKSPACE))
+		{
+			if (CurrentDirectory.size() > 1)
+			{
+				const uint32_t Index = CurrentDirectory.find_last_of('/');
+				if (Index != 0)
+				{
+					CurrentDirectory = CurrentDirectory.substr(0, Index);
+				}
+				else
+				{
+					CurrentDirectory = "/";
+				}
+				Refresh();
+			}
+		}
 		ImGui::SameLine();
 		ImGui::Text("%s", CurrentDirectory.c_str());
 
@@ -49,7 +63,7 @@ namespace ScarletEngine
 		// ImGui requires the number of columns in a table to be in [1, 64]
 		const uint32_t NumColumns = std::min(std::max((uint32_t)(AvailWidth / CellSize), (uint32_t)1), (uint32_t)64);
 
-		uint32_t TableFlags = ImGuiTableFlags_Borders;
+		uint32_t TableFlags = 0;
 		if (ImGui::BeginTable("##AssetViewContent", NumColumns, TableFlags))
 		{
 			uint32_t Index = 0;
