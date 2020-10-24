@@ -40,7 +40,7 @@ namespace ScarletEngine
 		{
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + CellTextPadding);
 			ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + SingleLineTextWidth);
-			ImGui::TextWrapped(Name.c_str());
+			ImGui::TextWrapped("%s", Name.c_str());
 			ImGui::PopTextWrapPos();
 		}
 		else
