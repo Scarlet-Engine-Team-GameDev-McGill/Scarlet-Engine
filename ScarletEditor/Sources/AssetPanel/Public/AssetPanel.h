@@ -4,7 +4,7 @@
 
 namespace ScarletEngine
 {
-	using AssetPanelViewItemPtr = SharedPtr<struct IAssetPanelViewItem>;
+	using AssetPanelViewItemPtr = SharedPtr<class IAssetPanelViewItem>;
 
 	class AssetPanel : public UIWindow
 	{
@@ -17,8 +17,15 @@ namespace ScarletEngine
 
 		/** Refreshes view */
 		void Refresh();
+		
+		/** Get the current directory */
+		const String& GetCurrentDirectory() const { return CurrentDirectory; }
+		/** Sets the current directory */
+		void SetCurrentDirectory(const String& NewCurrentDirectory);
 	private:
 		String CurrentDirectory;
 		Array<AssetPanelViewItemPtr> ViewItems;
+
+		bool bNeedsRefresh;
 	};
 }

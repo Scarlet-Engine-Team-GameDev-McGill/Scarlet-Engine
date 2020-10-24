@@ -6,20 +6,24 @@
 namespace ScarletEngine
 {
 	class RALTexture2D;
+	class AssetPanel;
 
-	struct IAssetPanelViewItem
+	class IAssetPanelViewItem
 	{
 	public:
+		IAssetPanelViewItem(const String& InName, AssetPanel* InAssetView);
 		virtual ~IAssetPanelViewItem() {}
 
-		IAssetPanelViewItem(const String& InName);
-
 		void Draw();
-
+		const String& GetName() const { return Name; }
+	protected:
+		virtual RALTexture2D* GetAssetIconImage() = 0;
+		virtual void OnDoubleClick() {}
+	protected:
 		String Name;
 		WeakPtr<class IAssetHandle> AssetHandle;
-	private:
-		virtual RALTexture2D* GetAssetIconImage() = 0;
+		AssetPanel* AssetView;
+
 		bool bSelected = false;
 	};
 }

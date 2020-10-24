@@ -7,9 +7,10 @@
 
 namespace ScarletEngine
 {
-	IAssetPanelViewItem::IAssetPanelViewItem(const String& InName)
+	IAssetPanelViewItem::IAssetPanelViewItem(const String& InName, AssetPanel* InAssetView)
 		: Name(InName)
 		, AssetHandle()
+		, AssetView(InAssetView)
 	{}
 
 	void IAssetPanelViewItem::Draw()
@@ -17,6 +18,11 @@ namespace ScarletEngine
 		const float CellWidth = ImGui::TableGetCellBgRect().GetWidth();
 		const auto CursorPos = ImGui::GetCursorPos();
 		ImGui::Selectable("", &bSelected, 0, { CellWidth, CellWidth });
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+		{
+			OnDoubleClick();
+		}
+
 		ImGui::SetCursorPos(CursorPos);
 
 		RALTexture2D* AssetIcon = GetAssetIconImage();
@@ -39,7 +45,7 @@ namespace ScarletEngine
 		}
 		else
 		{
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 0.5 * CellWidth - 0.5 * TextWidth);
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 0.5f * CellWidth - 0.5f * TextWidth);
 			ImGui::Text("%s", Name.c_str());
 		}
 	}

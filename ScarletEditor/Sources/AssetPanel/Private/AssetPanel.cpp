@@ -15,7 +15,7 @@ namespace ScarletEngine
 
 	void AssetPanel::Construct()
 	{
-		Refresh();
+		bNeedsRefresh = true;
 	}
 
 	void AssetPanel::Refresh()
@@ -28,13 +28,21 @@ namespace ScarletEngine
 			if (File.is_regular_file())
 			{
 				// #todo_AssetView: Support other file types
-				ViewItems.push_back(MakeShared<FileAssetViewItem>(Path.filename().string().c_str()));
+				ViewItems.push_back(MakeShared<FileAssetViewItem>(Path.filename().string().c_str(), this));
 			}
 			else if (File.is_directory())
 			{
-				ViewItems.push_back(MakeShared<DirectoryAssetViewItem>(Path.filename().string().c_str()));
+				ViewItems.push_back(MakeShared<DirectoryAssetViewItem>(Path.filename().string().c_str(), this));
 			}
 		}
+
+		bNeedsRefresh = false;
+	}
+
+	void AssetPanel::SetCurrentDirectory(const String& NewCurrentDirectory)
+	{
+		CurrentDirectory = NewCurrentDirectory;
+		bNeedsRefresh = true;
 	}
 
 	void AssetPanel::DrawWindowContent()
@@ -43,7 +51,7 @@ namespace ScarletEngine
 		{
 			if (CurrentDirectory.size() > 1)
 			{
-				const uint32_t Index = CurrentDirectory.find_last_of('/');
+				const size_t Index = CurrentDirectory.find_last_of('/');
 				if (Index != 0)
 				{
 					CurrentDirectory = CurrentDirectory.substr(0, Index);
@@ -52,9 +60,15 @@ namespace ScarletEngine
 				{
 					CurrentDirectory = "/";
 				}
-				Refresh();
+				bNeedsRefresh = true;
 			}
 		}
+
+		if (bNeedsRefresh)
+		{
+			Refresh();
+		}
+
 		ImGui::SameLine();
 		ImGui::Text("%s", CurrentDirectory.c_str());
 
@@ -63,24 +77,33 @@ namespace ScarletEngine
 		// ImGui requires the number of columns in a table to be in [1, 64]
 		const uint32_t NumColumns = std::min(std::max((uint32_t)(AvailWidth / CellSize), (uint32_t)1), (uint32_t)64);
 
-		uint32_t TableFlags = 0;
-		if (ImGui::BeginTable("##AssetViewContent", NumColumns, TableFlags))
+		uint32_t TableFlags = ImGuiTableColumnFlags_WidthFixed;
+		if (ImGui::BeginChild("##TableView"))
 		{
-			uint32_t Index = 0;
-			for (const auto& ViewItem : ViewItems)
+			if (ImGui::BeginTable("##AssetViewContent", NumColumns, TableFlags))
 			{
-				ImGui::PushID(ViewItem.get());
-
-				if (Index++ % NumColumns == 0)
+				uint32_t Index = 0;
+				for (uint32_t i = 0; i < NumColumns; ++i)
 				{
-					ImGui::TableNextRow(ImGuiTableRowFlags_None, CellSize);
+					ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, CellSize);
 				}
-				ImGui::TableNextColumn();
-				ViewItem->Draw();
+				for (const auto& ViewItem : ViewItems)
+				{
+					ImGui::PushID(ViewItem.get());
 
-				ImGui::PopID();
+					if (Index++ % NumColumns == 0)
+					{
+						ImGui::TableNextRow(ImGuiTableRowFlags_None, CellSize);
+					}
+					ImGui::TableNextColumn();
+					ViewItem->Draw();
+
+					ImGui::PopID();
+				}
+				ImGui::EndTable();
 			}
-			ImGui::EndTable();
 		}
+		ImGui::EndChild();
+		
 	}
 }

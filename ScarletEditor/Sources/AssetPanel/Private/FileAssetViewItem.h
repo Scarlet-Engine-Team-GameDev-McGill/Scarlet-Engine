@@ -5,10 +5,10 @@
 
 namespace ScarletEngine
 {
-	struct FileAssetViewItem : public IAssetPanelViewItem
+	class FileAssetViewItem : public IAssetPanelViewItem
 	{
 	public:
-		FileAssetViewItem(const String& InName);
+		FileAssetViewItem(const String& InName, AssetPanel* InAssetView);
 
 	private:
 		virtual RALTexture2D* GetAssetIconImage() override;
