@@ -11,7 +11,7 @@ namespace ScarletEngine
 	{
 		if (FileIcon == nullptr)
 		{
-			FileIcon = RAL::Get().CreateTexture2D(AssetManager::LoadTextureFile("/ScarletEngine/Content/GenericAsset.png"));
+			FileIcon = RAL::Get().CreateTexture2D(AssetManager::LoadTextureFile("/ScarletEngine/Content/GenericAsset.tga"));
 		}
 	}
 
