@@ -4,12 +4,12 @@
 
 namespace ScarletEngine
 {
-	using AssetPanelViewItemPtr = SharedPtr<class IAssetPanelViewItem>;
+	using AssetViewItemPtr = SharedPtr<class IAssetViewItem>;
 
-	class AssetPanel : public UIWindow
+	class AssetView : public UIWindow
 	{
 	public:
-		AssetPanel();
+		AssetView();
 
 		/** Generates a list of available assets on construction. */
 		virtual void Construct() override;
@@ -24,7 +24,7 @@ namespace ScarletEngine
 		void SetCurrentDirectory(const String& NewCurrentDirectory);
 	private:
 		String CurrentDirectory;
-		Array<AssetPanelViewItemPtr> ViewItems;
+		Array<AssetViewItemPtr> ViewItems;
 
 		bool bNeedsRefresh;
 	};

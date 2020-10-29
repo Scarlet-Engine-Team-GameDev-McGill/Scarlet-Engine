@@ -6,7 +6,7 @@
 #include "PropertyEditor.h"
 #include "OutputLog.h"
 #include "Stats.h"
-#include "AssetPanel.h"
+#include "AssetView.h"
 
 namespace ScarletEngine
 {
@@ -16,7 +16,7 @@ namespace ScarletEngine
 		AddWidget(MakeShared<PropertyEditorPanel>());
 		AddWidget(MakeShared<OutputLogPanel>());
 		AddWidget(MakeShared<StatsPanel>());
-		AddWidget(MakeShared<AssetPanel>());
+		AddWidget(MakeShared<AssetView>());
 
 		// Create an initial viewport
 		AddWidget(MakeShared<EditorViewportPanel>(GEditor->GetActiveWorld()));

@@ -4,7 +4,7 @@ set(Editor_PrivateDeps
 	"SceneGraph"
 	"OutputLog"
 	"PropertyEditor"
-	"AssetPanel")
+	"AssetView")
 
 set(Editor_PublicDeps
 	"Gameplay"

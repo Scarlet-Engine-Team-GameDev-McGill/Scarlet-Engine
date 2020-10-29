@@ -6,13 +6,13 @@
 namespace ScarletEngine
 {
 	class RALTexture2D;
-	class AssetPanel;
+	class AssetView;
 
-	class IAssetPanelViewItem
+	class IAssetViewItem
 	{
 	public:
-		IAssetPanelViewItem(const String& InName, AssetPanel* InAssetView);
-		virtual ~IAssetPanelViewItem() {}
+		IAssetViewItem(const String& InName, AssetView* InAssetView);
+		virtual ~IAssetViewItem() {}
 
 		void Draw();
 		const String& GetName() const { return Name; }
@@ -22,7 +22,7 @@ namespace ScarletEngine
 	protected:
 		String Name;
 		WeakPtr<class IAssetHandle> AssetHandle;
-		AssetPanel* AssetView;
+		AssetView* AssetViewPtr;
 
 		bool bSelected = false;
 	};

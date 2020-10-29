@@ -6,8 +6,8 @@ namespace ScarletEngine
 {
 	RALTexture2D* FileAssetViewItem::FileIcon = nullptr;
 
-	FileAssetViewItem::FileAssetViewItem(const String& InName, AssetPanel* InAssetView)
-		: IAssetPanelViewItem(InName, InAssetView)
+	FileAssetViewItem::FileAssetViewItem(const String& InName, AssetView* InAssetView)
+		: IAssetViewItem(InName, InAssetView)
 	{
 		if (FileIcon == nullptr)
 		{

@@ -1,14 +1,14 @@
 #include "DirectoryAssetViewItem.h"
 #include "RAL.h"
 #include "AssetManager.h"
-#include "AssetPanel.h"
+#include "AssetView.h"
 
 namespace ScarletEngine
 {
 	RALTexture2D* DirectoryAssetViewItem::DirectoryIcon = nullptr;
 
-	DirectoryAssetViewItem::DirectoryAssetViewItem(const String& InName, AssetPanel* InAssetView)
-		: IAssetPanelViewItem(InName, InAssetView)
+	DirectoryAssetViewItem::DirectoryAssetViewItem(const String& InName, AssetView* InAssetView)
+		: IAssetViewItem(InName, InAssetView)
 	{
 		if (DirectoryIcon == nullptr)
 		{
@@ -23,8 +23,8 @@ namespace ScarletEngine
 
 	void DirectoryAssetViewItem::OnDoubleClick()
 	{
-		String NewDirectory = AssetView->GetCurrentDirectory();
+		String NewDirectory = AssetViewPtr->GetCurrentDirectory();
 		StringUtils::PathConcat(NewDirectory, GetName());
-		AssetView->SetCurrentDirectory(NewDirectory);
+		AssetViewPtr->SetCurrentDirectory(NewDirectory);
 	}
 }

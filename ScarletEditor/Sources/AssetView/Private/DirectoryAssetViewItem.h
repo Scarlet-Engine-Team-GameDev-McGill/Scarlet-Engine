@@ -1,15 +1,15 @@
 #pragma once
 
-#include "AssetPanelViewItem.h"
+#include "AssetViewItem.h"
 
 namespace ScarletEngine
 {
 	class RALTexture2D;
 
-	class DirectoryAssetViewItem : public IAssetPanelViewItem
+	class DirectoryAssetViewItem : public IAssetViewItem
 	{
 	public:
-		DirectoryAssetViewItem(const String& InName, AssetPanel* InAssetView);
+		DirectoryAssetViewItem(const String& InName, AssetView* InAssetView);
 
 	private:
 		virtual RALTexture2D* GetAssetIconImage() override;

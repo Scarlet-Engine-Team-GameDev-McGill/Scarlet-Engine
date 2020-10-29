@@ -1,5 +1,5 @@
-#include "AssetPanel.h"
-#include "AssetPanelViewItem.h"
+#include "AssetView.h"
+#include "AssetViewItem.h"
 #include "AssetManager.h"
 
 #include "DirectoryAssetViewItem.h"
@@ -7,18 +7,18 @@
 
 namespace ScarletEngine
 {
-	AssetPanel::AssetPanel()
-		: UIWindow("Assets")
+	AssetView::AssetView()
+		: UIWindow("Asset View")
 		, CurrentDirectory("/ScarletEngine/Content")
 		, ViewItems()
 	{}
 
-	void AssetPanel::Construct()
+	void AssetView::Construct()
 	{
 		bNeedsRefresh = true;
 	}
 
-	void AssetPanel::Refresh()
+	void AssetView::Refresh()
 	{
 		ViewItems.clear();
 
@@ -39,13 +39,13 @@ namespace ScarletEngine
 		bNeedsRefresh = false;
 	}
 
-	void AssetPanel::SetCurrentDirectory(const String& NewCurrentDirectory)
+	void AssetView::SetCurrentDirectory(const String& NewCurrentDirectory)
 	{
 		CurrentDirectory = NewCurrentDirectory;
 		bNeedsRefresh = true;
 	}
 
-	void AssetPanel::DrawWindowContent()
+	void AssetView::DrawWindowContent()
 	{
 		if (ImGui::Button(ICON_MD_KEYBOARD_BACKSPACE))
 		{

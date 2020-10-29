@@ -1,4 +1,4 @@
-#include "AssetPanelViewItem.h"
+#include "AssetViewItem.h"
 #include "AssetHandle.h"
 #include "UIWidget.h"
 #include <imgui_internal.h>
@@ -7,19 +7,20 @@
 
 namespace ScarletEngine
 {
-	IAssetPanelViewItem::IAssetPanelViewItem(const String& InName, AssetPanel* InAssetView)
+	IAssetViewItem::IAssetViewItem(const String& InName, AssetView* InAssetView)
 		: Name(InName)
 		, AssetHandle()
-		, AssetView(InAssetView)
+		, AssetViewPtr(InAssetView)
 	{}
 
-	void IAssetPanelViewItem::Draw()
+	void IAssetViewItem::Draw()
 	{
 		const float CellWidth = ImGui::TableGetCellBgRect().GetWidth();
 		const auto CursorPos = ImGui::GetCursorPos();
 		ImGui::Selectable("", &bSelected, 0, { CellWidth, CellWidth });
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
 		{
+			// #todo_AssetView: double click should open an asset editor or preview for that asset type 
 			OnDoubleClick();
 		}
 
