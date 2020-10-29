@@ -16,7 +16,7 @@ namespace ScarletEngine
 		}
 	}
 
-	RALTexture2D* DirectoryAssetViewItem::GetAssetIconImage()
+	RALTexture2D* DirectoryAssetViewItem::GetAssetIconImage() const
 	{
 		return DirectoryIcon;
 	}

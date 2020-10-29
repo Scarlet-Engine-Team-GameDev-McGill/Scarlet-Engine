@@ -17,7 +17,7 @@ namespace ScarletEngine
 		void Draw();
 		const String& GetName() const { return Name; }
 	protected:
-		virtual RALTexture2D* GetAssetIconImage() = 0;
+		virtual RALTexture2D* GetAssetIconImage() const = 0;
 		virtual void OnDoubleClick() {}
 	protected:
 		String Name;

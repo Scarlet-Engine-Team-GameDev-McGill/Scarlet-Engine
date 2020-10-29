@@ -10,7 +10,7 @@ namespace ScarletEngine
 		FileAssetViewItem(const String& InName, AssetView* InAssetView);
 
 	private:
-		virtual RALTexture2D* GetAssetIconImage() override;
+		virtual RALTexture2D* GetAssetIconImage() const override;
 
 		static RALTexture2D* FileIcon;
 	};

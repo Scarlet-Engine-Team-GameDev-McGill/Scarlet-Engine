@@ -24,7 +24,7 @@ namespace ScarletEngine
 
 		for (const auto& File : std::filesystem::directory_iterator(AssetManager::ToFullPath(CurrentDirectory)))
 		{
-			std::filesystem::path Path = File.path();
+			const std::filesystem::path Path = File.path();
 			if (File.is_regular_file())
 			{
 				// #todo_AssetView: Support other file types
@@ -73,11 +73,11 @@ namespace ScarletEngine
 		ImGui::Text("%s", CurrentDirectory.c_str());
 
 		const float AvailWidth = ImGui::GetContentRegionAvailWidth();
-		const float CellSize = 128.f * ImGui::GetWindowDpiScale();
+		const float CellSize = 128.f;
 		// ImGui requires the number of columns in a table to be in [1, 64]
 		const uint32_t NumColumns = std::min(std::max((uint32_t)(AvailWidth / CellSize), (uint32_t)1), (uint32_t)64);
 
-		uint32_t TableFlags = ImGuiTableColumnFlags_WidthFixed;
+		const uint32_t TableFlags = ImGuiTableColumnFlags_WidthFixed;
 		if (ImGui::BeginChild("##TableView"))
 		{
 			if (ImGui::BeginTable("##AssetViewContent", NumColumns, TableFlags))
@@ -104,6 +104,5 @@ namespace ScarletEngine
 			}
 		}
 		ImGui::EndChild();
-		
 	}
 }

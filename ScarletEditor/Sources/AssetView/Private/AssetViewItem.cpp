@@ -26,7 +26,7 @@ namespace ScarletEngine
 
 		ImGui::SetCursorPos(CursorPos);
 
-		RALTexture2D* AssetIcon = GetAssetIconImage();
+		const RALTexture2D* AssetIcon = GetAssetIconImage();
 		if (AssetIcon != nullptr)
 		{
 			ImGui::Image(reinterpret_cast<void*>(AssetIcon->GetTextureResource()), { CellWidth, CellWidth });
