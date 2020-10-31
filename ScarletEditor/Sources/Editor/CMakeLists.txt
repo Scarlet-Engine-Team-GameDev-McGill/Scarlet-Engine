@@ -3,7 +3,8 @@ set(Editor_PrivateDeps
 	"UI"
 	"SceneGraph"
 	"OutputLog"
-	"PropertyEditor")
+	"PropertyEditor"
+	"AssetView")
 
 set(Editor_PublicDeps
 	"Gameplay"

@@ -23,5 +23,21 @@ namespace ScarletEngine
 			snprintf(Buffer, 9, "%.2f %s", (Size / std::pow(1024, Units)), UnitsArr[Units].c_str());
 			return String(Buffer);
 		}
+
+		void PathConcat(String& OutResult, const String& Other)
+		{
+			if (OutResult.back() == '/' && Other.front() == '/')
+			{
+				OutResult.replace(OutResult.size() - 1, Other.size(), Other);
+			}
+			else if (OutResult.back() != '/' && Other.front() != '/')
+			{
+				OutResult.append("/").append(Other);
+			}
+			else
+			{
+				OutResult.append(Other);
+			}
+		}
 	}
 }

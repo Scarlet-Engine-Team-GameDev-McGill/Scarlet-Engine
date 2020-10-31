@@ -67,9 +67,9 @@ namespace ScarletEngine
 
 				ImGui::NextColumn();
 
-				ImGui::InputFloat3("###Position", glm::value_ptr(TransformComponent->Position), 3);
-				ImGui::InputFloat3("###Rotation", glm::value_ptr(TransformComponent->Rotation), 3);
-				ImGui::InputFloat3("###Scale", glm::value_ptr(TransformComponent->Scale), 3);
+				ImGui::InputFloat3("###Position", glm::value_ptr(TransformComponent->Position), "%.3f");
+				ImGui::InputFloat3("###Rotation", glm::value_ptr(TransformComponent->Rotation), "%.3f");
+				ImGui::InputFloat3("###Scale", glm::value_ptr(TransformComponent->Scale), "%.3f");
 
 				// Restore default columns
 				ImGui::Columns(1);

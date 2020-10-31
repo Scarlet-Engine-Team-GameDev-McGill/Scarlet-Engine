@@ -97,7 +97,7 @@ namespace ScarletEngine
 		}
 
 		// Set the window icon;
-		SharedPtr<TextureHandle> LogoTex = AssetManager::LoadTextureFile("../ScarletEngine/content/scarlet_logo.png");
+		SharedPtr<TextureHandle> LogoTex = AssetManager::LoadTextureFile("/ScarletEngine/Content/scarlet_logo.png");
 		GLFWimage Image;
 		Image.pixels = LogoTex->PixelDataBuffer;
 		Image.width = LogoTex->Width;

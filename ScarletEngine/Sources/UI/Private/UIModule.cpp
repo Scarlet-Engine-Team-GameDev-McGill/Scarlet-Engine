@@ -45,12 +45,12 @@ namespace ScarletEngine
 		Config.OversampleH = 4;
 		Config.OversampleV = 4;
 		Config.GlyphOffset.y -= 1.0f;
-		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/content/OpenSans-Regular.ttf", 18.0f, &Config);
+		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/Content/OpenSans-Regular.ttf", 18.0f, &Config);
 
 		Config.MergeMode = true;
 		Config.GlyphOffset.y -= -4.f;
 		const ImWchar MDIconRanges[] = { ICON_MIN_MD, ICON_MAX_MD, 0 };
-		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/content/MaterialIcons-Regular.ttf", 18.0f, &Config, MDIconRanges);
+		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/Content/MaterialIcons-Regular.ttf", 18.0f, &Config, MDIconRanges);
 		IO.Fonts->Build();
 
 		IUIStyle* CoreStyle = UIStyleRegistry::Get().GetStyle("Core");

@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "AssetManager.h"
+
 namespace ScarletEngine
 {
 	OpenGLFramebuffer::OpenGLFramebuffer(uint32_t InWidth, uint32_t InHeight, uint32_t InSamples)
@@ -207,7 +209,7 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 		String ShaderCode;
-		std::ifstream ShaderFile(ShaderFilePath.c_str());
+		std::ifstream ShaderFile(AssetManager::ToFullPath(ShaderFilePath).c_str());
 		if (!ShaderFile.is_open())
 		{
 			SCAR_LOG(LogError, "Could not open shader file: %s", ShaderFilePath.c_str());
