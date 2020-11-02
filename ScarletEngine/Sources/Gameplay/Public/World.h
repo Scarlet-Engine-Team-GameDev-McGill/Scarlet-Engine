@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.h"
+#include "ITickable.h"
 #include "ECS.h"
 #include "SceneProxy.h"
 

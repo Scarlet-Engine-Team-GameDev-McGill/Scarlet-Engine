@@ -1,4 +1,5 @@
 #include "Core.h"
+#include "Engine.h"
 #include "Editor.h"
 #include "RAL.h"
 #include "StaticMeshComponent.h"

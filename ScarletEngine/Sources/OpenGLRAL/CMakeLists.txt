@@ -6,7 +6,7 @@ set(OpenGLRAL_PrivateDeps
 	"glad")
 
 set(OpenGLRAL_PublicDeps
-	"")
+	"Engine")
 
 DECLARE_MODULE(
 	MODULE_NAME "OpenGLRAL" 

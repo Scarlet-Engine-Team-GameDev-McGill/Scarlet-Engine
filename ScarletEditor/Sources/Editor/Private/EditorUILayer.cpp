@@ -1,5 +1,6 @@
 #include "EditorUILayer.h"
 
+#include "Engine.h"
 #include "Editor.h"
 #include "SceneGraph.h"
 #include "EditorViewport.h"
