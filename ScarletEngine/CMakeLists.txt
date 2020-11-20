@@ -68,6 +68,7 @@ macro(declare_module)
 endmacro(declare_module)
 
 add_subdirectory("Sources/Core")
+add_subdirectory("Sources/Engine")
 add_subdirectory("Sources/AssetManager")
 add_subdirectory("Sources/UI")
 add_subdirectory("Sources/ECS")

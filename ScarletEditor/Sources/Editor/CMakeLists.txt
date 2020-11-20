@@ -1,5 +1,6 @@
 set(Editor_PrivateDeps
 	"Core"
+	"Engine"
 	"UI"
 	"SceneGraph"
 	"OutputLog"

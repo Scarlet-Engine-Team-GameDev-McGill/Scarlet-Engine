@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.h"
+#include "ITickable.h"
 #include "UIWindow.h"
 
 namespace ScarletEngine

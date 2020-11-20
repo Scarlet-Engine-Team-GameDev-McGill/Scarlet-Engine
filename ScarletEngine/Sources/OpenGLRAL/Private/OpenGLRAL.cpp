@@ -1,6 +1,7 @@
 #include "OpenGLRAL.h"
 
 #include "Core.h"
+#include "Engine.h"
 #include "OpenGLResources.h"
 #include "AssetManager.h"
 

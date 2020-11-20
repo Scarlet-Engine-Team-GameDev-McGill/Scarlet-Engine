@@ -41,10 +41,6 @@ namespace ScarletEngine
 		static void FillDependencyMap();
 		static void InitializeModuleAndDependencies(IModule* Module);
 	private:
-		/** List of modules to add. 
-			Since we cannot call virtual functions from constructor, 
-			we must store them here until we are ready to initialize */
-		static Array<IModule*> ModulesToAdd;
 		static UnorderedMap<String, IModule*> Modules;
 		// In theory this doesn't need to be a class member but we will keep in here for debugging purposes
 		static UnorderedMap<IModule*, Set<IModule*>> ModuleDepMap;
