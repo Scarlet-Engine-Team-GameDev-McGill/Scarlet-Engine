@@ -19,6 +19,8 @@ namespace ScarletEngine
 
 		virtual const char* GetBackendName() const override { return "OpenGL"; }
 
+		virtual GPUInfo GetGPUInfo() const override;
+
 		virtual void* GetWindowPtr() const override { return Window; }
 		virtual void SetWindowCtx(void* WindowPtr) override;
 

@@ -12,6 +12,13 @@ namespace ScarletEngine
 		Invalid
 	};
 
+	struct GPUInfo
+	{
+		const char* Vendor;
+		const char* Renderer;
+		const char* Version;
+	};
+
 	class RAL
 	{
 	public:
@@ -25,6 +32,8 @@ namespace ScarletEngine
 
 		virtual void* GetWindowPtr() const = 0;
 		virtual void SetWindowCtx(void* WindowPtr) = 0;
+
+		virtual GPUInfo GetGPUInfo() const = 0;
 
 		// #todo: move window functions out of RAL
 		virtual void SwapWindowBuffers() const = 0;
