@@ -19,9 +19,6 @@ namespace ScarletEngine
 		virtual void PostUpdate() override;
 		// End IModule interface
 
-		void* GetWindowPtr() { return RAL::Get().GetWindowPtr(); }
-		void SetWindowCtx(void* WindowPtr);
-
 		Viewport* CreateViewport(uint32_t Width, uint32_t Height);
 		void DrawScene(SceneProxy* Scene, Viewport* ActiveViewport);
 	};

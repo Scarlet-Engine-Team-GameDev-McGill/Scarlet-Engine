@@ -111,7 +111,7 @@ namespace ScarletEngine
 		Style.FramePadding.x = 8.f;
 
 #ifdef RAL_USE_OPENGL
-		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)RAL::Get().GetWindowPtr(), true);
+		ImGui_ImplGlfw_InitForOpenGL(nullptr, true);
 		ImGui_ImplOpenGL3_Init("#version 450");
 #elif RAL_USE_VULKAN
 		// #todo: implement vulkan setup for UI
@@ -163,16 +163,6 @@ namespace ScarletEngine
 #ifdef RAL_USE_OPENGL
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #endif
-
-		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			ZoneScopedN("Render ImGUI::Viewports")
-			RenderModule* Renderer = ModuleManager::GetModuleChecked<RenderModule>("RenderModule");
-			void* BackupCurrentContext = Renderer->GetWindowPtr();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			Renderer->SetWindowCtx(BackupCurrentContext);
-		}
 	}
 
 	void UIModule::SetActiveLayer(const SharedPtr<UILayer>& InLayer)

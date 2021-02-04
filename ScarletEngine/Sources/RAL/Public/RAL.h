@@ -5,6 +5,8 @@
 
 namespace ScarletEngine
 {
+	class Window;
+
 	enum class RenderAPI
 	{
 		OpenGL,
@@ -24,20 +26,13 @@ namespace ScarletEngine
 	public:
 		virtual ~RAL() {}
 
-		virtual void Initialize() = 0;
+		virtual void Initialize(Window* InWindow) = 0;
 
 		virtual void Terminate() = 0;
 
 		virtual const char* GetBackendName() const = 0;
 
-		virtual void* GetWindowPtr() const = 0;
-		virtual void SetWindowCtx(void* WindowPtr) = 0;
-
 		virtual GPUInfo GetGPUInfo() const = 0;
-
-		// #todo: move window functions out of RAL
-		virtual void SwapWindowBuffers() const = 0;
-		virtual void PollWindowEvents() const = 0;
 
 		// Functions which correspond to rendering commands
 		virtual void SetClearColorCommand(const glm::vec4& ClearColor) const = 0;

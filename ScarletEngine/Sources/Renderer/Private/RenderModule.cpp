@@ -23,7 +23,7 @@ namespace ScarletEngine
 		check(RAL::Instance != nullptr);
 		check(RAL::API != RenderAPI::Invalid);
 
-		RAL::Get().Initialize();
+		RAL::Get().Initialize(nullptr);
 	}
 
 	void RenderModule::Shutdown()
@@ -35,16 +35,8 @@ namespace ScarletEngine
 	void RenderModule::PostUpdate()
 	{
 		ZoneScoped
-		RAL::Get().SwapWindowBuffers();
-		RAL::Get().PollWindowEvents();
 	}
 	
-	void RenderModule::SetWindowCtx(void* WindowPtr)
-	{
-		ZoneScoped
-		RAL::Get().SetWindowCtx(WindowPtr);
-	}
-
 	Viewport* RenderModule::CreateViewport(uint32_t Width, uint32_t Height)
 	{
 		ZoneScoped

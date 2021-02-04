@@ -1,5 +1,6 @@
 set(RAL_PrivateDeps
-	"Core")
+	"Core"
+	"Window")
 
 set(RAL_PublicDeps
 	"AssetManager")

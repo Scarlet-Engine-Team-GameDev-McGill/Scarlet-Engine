@@ -4,6 +4,7 @@
 #include "Engine.h"
 #include "OpenGLResources.h"
 #include "AssetManager.h"
+#include "Window.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -77,42 +78,17 @@ namespace ScarletEngine
 		GEngine->SignalQuit();
 	}
 
-	void OpenGLRAL::Initialize()
+	void OpenGLRAL::Initialize(Window* InWindow)
 	{
 		ZoneScoped
-		glfwInit();
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_SAMPLES, 4);
-#ifdef DEBUG
-		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-#endif
-
-		// #todo: remove hard coded window title
-		Window = glfwCreateWindow(800, 600, "Scarlet Editor", nullptr, nullptr);
-		if (Window == nullptr)
-		{
-			glfwTerminate();
-			check(false);
-		}
-
-		// Set the window icon;
-		SharedPtr<TextureHandle> LogoTex = AssetManager::LoadTextureFile("/ScarletEngine/Content/scarlet_logo.png");
-		GLFWimage Image;
-		Image.pixels = LogoTex->PixelDataBuffer;
-		Image.width = LogoTex->Width;
-		Image.height = LogoTex->Height;
-
-		glfwSetWindowIcon(Window, 1, &Image);
-
-		glfwMakeContextCurrent(Window);
+		
+		glfwMakeContextCurrent((GLFWwindow*)InWindow);
 		glfwSwapInterval(0);
 
 		check(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress));
 		glViewport(0, 0, 800, 600);
-		glfwSetFramebufferSizeCallback(Window, FramebufferResizeCallback);
-		glfwSetWindowCloseCallback(Window, WindowCloseCallback);
+		glfwSetFramebufferSizeCallback((GLFWwindow*)InWindow, FramebufferResizeCallback);
+		glfwSetWindowCloseCallback((GLFWwindow*)InWindow, WindowCloseCallback);
 
 #ifdef DEBUG
 		int Flags;
@@ -132,29 +108,10 @@ namespace ScarletEngine
 		glEnable(GL_MULTISAMPLE);
 	}
 
-	void OpenGLRAL::SetWindowCtx(void* WindowPtr)
-	{
-		ZoneScoped
-		glfwMakeContextCurrent((GLFWwindow*)WindowPtr);
-	}
-
 	void OpenGLRAL::Terminate()
 	{
 		ZoneScoped
 		glfwTerminate();
-	}
-
-	void OpenGLRAL::SwapWindowBuffers() const
-	{
-		ZoneScoped
-		glfwSwapBuffers(Window);
-		//TracyGpuCollect
-	}
-
-	void OpenGLRAL::PollWindowEvents() const
-	{
-		ZoneScoped
-		glfwPollEvents();
 	}
 
 	GPUInfo OpenGLRAL::GetGPUInfo() const
