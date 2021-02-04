@@ -66,29 +66,25 @@ namespace ScarletEngine
 	}
 #endif
 
-	void FramebufferResizeCallback(GLFWwindow*, int Width, int Height)
+	static void FramebufferResizeCallback(uint32_t NewWidth, uint32_t NewHeight)
 	{
-		ZoneScoped
-		glViewport(0, 0, Width, Height);
+		glViewport(0, 0, NewWidth, NewHeight);
 	}
 
-	void WindowCloseCallback(GLFWwindow*)
+	void OpenGLRAL::Initialize()
 	{
 		ZoneScoped
-		GEngine->SignalQuit();
-	}
 
-	void OpenGLRAL::Initialize(Window* InWindow)
-	{
-		ZoneScoped
-		
-		glfwMakeContextCurrent((GLFWwindow*)InWindow);
+		Window* AppWindow = GEngine->GetApplicationWindow();
+		GLFWwindow* WindowHandle = (GLFWwindow*)AppWindow->GetWindowHandle();
+
+		glfwMakeContextCurrent(WindowHandle);
 		glfwSwapInterval(0);
 
 		check(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress));
-		glViewport(0, 0, 800, 600);
-		glfwSetFramebufferSizeCallback((GLFWwindow*)InWindow, FramebufferResizeCallback);
-		glfwSetWindowCloseCallback((GLFWwindow*)InWindow, WindowCloseCallback);
+		glViewport(0, 0, AppWindow->GetWidth(), AppWindow->GetHeight());
+
+		AppWindow->OnWindowResizeEvent().Bind(FramebufferResizeCallback);
 
 #ifdef DEBUG
 		int Flags;

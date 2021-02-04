@@ -6,6 +6,7 @@
 #include <chrono>
 #include <common/TracySystem.hpp>
 #include "ModuleManager.h"
+#include "Window.h"
 
 #define FIXED_UPDATE_MS 20.0
 
@@ -29,6 +30,11 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 		Logger::Get().SetLogFile("Log.txt");
+
+		ApplicationWindow = GlobalAllocator<Window>::New(800, 600, "Scarlet Engine");
+		check(ApplicationWindow);
+
+		ApplicationWindow->OnWindowCloseEvent().Bind([this]() { SignalQuit(); });
 
 		ModuleManager::Startup();
 
@@ -80,18 +86,24 @@ namespace ScarletEngine
 		ZoneScoped
 		AddQueuedTickables();
 		ModuleManager::PreUpdate();
+
+		ApplicationWindow->PollEvents();
 	}
 
 	void Engine::PostUpdate()
 	{
 		ZoneScoped
 		ModuleManager::PostUpdate();
+
+		ApplicationWindow->SwapBuffer();
 	}
 
 	void Engine::Terminate()
 	{
 		ZoneScoped
 		ModuleManager::Shutdown();
+
+		GlobalAllocator<Window>::Free(ApplicationWindow);
 
 		bIsInitialized = false;
 		VariableUpdateTickables.clear();

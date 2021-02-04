@@ -6,6 +6,20 @@
 
 namespace ScarletEngine
 {
+	static void WindowCloseCallback(GLFWwindow* WindowHandle)
+	{
+		Window* AppWindow = (Window*)glfwGetWindowUserPointer(WindowHandle);
+		
+		AppWindow->OnWindowCloseEvent().Broadcast();
+	}
+
+	static void WindowResizeCallback(GLFWwindow* WindowHandle, int Width, int Height)
+	{
+		Window* AppWindow = (Window*)glfwGetWindowUserPointer(WindowHandle);
+
+		AppWindow->OnWindowResizeEvent().Broadcast(Width, Height);
+	}
+
 	Window::Window(uint32_t Width, uint32_t Height, const String& WindowTitle)
 	{
 		check(Width != 0 && Height != 0);
@@ -31,6 +45,7 @@ namespace ScarletEngine
 			check(false);
 		}
 
+		glfwSetWindowUserPointer((GLFWwindow*)WindowHandle, this);
 
 		// Set the window icon;
 		SharedPtr<TextureHandle> LogoTex = AssetManager::LoadTextureFile("/ScarletEngine/Content/scarlet_logo.png");
@@ -40,16 +55,19 @@ namespace ScarletEngine
 		Image.height = LogoTex->Height;
 
 		glfwSetWindowIcon((GLFWwindow*)WindowHandle, 1, &Image);
+
+		glfwSetWindowCloseCallback((GLFWwindow*)WindowHandle, WindowCloseCallback);
+		glfwSetFramebufferSizeCallback((GLFWwindow*)WindowHandle, WindowResizeCallback);
 	}
 
 
 	void Window::SwapBuffer()
 	{
-
+		glfwSwapBuffers((GLFWwindow*)WindowHandle);
 	}
 
 	void Window::PollEvents()
 	{
-
+		glfwPollEvents();
 	}
 }

@@ -3,6 +3,8 @@
 #include "CoreUIStyle.h"
 #include "UIStyle.h"
 #include "RAL.h"
+#include "Engine.h"
+#include "Window.h"
 #include "RenderModule.h"
 
 #include <imgui.h>
@@ -111,7 +113,9 @@ namespace ScarletEngine
 		Style.FramePadding.x = 8.f;
 
 #ifdef RAL_USE_OPENGL
-		ImGui_ImplGlfw_InitForOpenGL(nullptr, true);
+		Window* AppWindow = GEngine->GetApplicationWindow();
+		check(AppWindow);
+		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)(AppWindow->GetWindowHandle()), true);
 		ImGui_ImplOpenGL3_Init("#version 450");
 #elif RAL_USE_VULKAN
 		// #todo: implement vulkan setup for UI
