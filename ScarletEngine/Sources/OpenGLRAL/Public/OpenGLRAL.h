@@ -8,7 +8,7 @@ namespace ScarletEngine
 	class OpenGLRAL : public RAL
 	{
 	public:
-		virtual void Initialize() override;
+		virtual void Initialize(Window* InWindow) override;
 		virtual void Terminate() override;
 
 		virtual const char* GetBackendName() const override { return "OpenGL"; }

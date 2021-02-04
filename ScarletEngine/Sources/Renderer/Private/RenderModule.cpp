@@ -23,7 +23,7 @@ namespace ScarletEngine
 		check(RAL::Instance != nullptr);
 		check(RAL::API != RenderAPI::Invalid);
 
-		RAL::Get().Initialize();
+		RAL::Get().Initialize(nullptr);
 	}
 
 	void RenderModule::Shutdown()

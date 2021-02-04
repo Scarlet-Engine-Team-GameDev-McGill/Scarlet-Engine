@@ -119,15 +119,6 @@ namespace ScarletEngine
 		return Info;
 	}
 
-	GPUInfo OpenGLRAL::GetGPUInfo() const
-	{
-		GPUInfo Info{};
-		Info.Vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-		Info.Renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-		Info.Version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-		return Info;
-	}
-
 	void OpenGLRAL::SetClearColorCommand(const glm::vec4& ClearColor) const
 	{
 		ZoneScoped
