@@ -26,7 +26,7 @@ namespace ScarletEngine
 	public:
 		virtual ~RAL() {}
 
-		virtual void Initialize(Window* InWindow) = 0;
+		virtual void Initialize() = 0;
 
 		virtual void Terminate() = 0;
 
