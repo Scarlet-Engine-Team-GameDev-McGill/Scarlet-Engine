@@ -6,6 +6,7 @@
 #include "SceneProxy.h"
 #include "SystemScheduler.h"
 
+
 namespace ScarletEngine
 {
 	using OnEntityAddedToWorldEvent = Event<const SharedPtr<EntityHandle>&>;
