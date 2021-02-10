@@ -22,13 +22,15 @@ int main()
 
 	{
 		// Test entity
-		auto [Ent, Trans, Mesh] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent>("Monkey");
+		auto [Ent, Mesh, Trans, Rb] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, Ac_RigidBodyComponent>("Cube");
 
 		Trans->Position = glm::vec3(0.f);
-		Trans->Rotation = glm::vec3(90.f, 0.f, 0.f);
-		Trans->Scale = glm::vec3(0.5f);
+		Trans->Rotation = glm::vec3(-45.f, 45.f, 0.f);
+		Trans->Scale = glm::vec3(0.1f);
 
-		Mesh->MeshHandle = AssetManager::LoadStaticMesh("/ScarletEngine/Content/Monkey.obj");
+		Rb->SetMass(1.f);
+
+		Mesh->MeshHandle = AssetManager::LoadStaticMesh("/ScarletEngine/Content/Cube.obj");
 		Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
 		Mesh->VertexBuff->UploadData(Mesh->MeshHandle->Vertices.data(), Mesh->MeshHandle->Vertices.size() * sizeof(Vertex));
 		Mesh->IndexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Indices.size() * sizeof(uint32_t), RALBufferUsage::STATIC_DRAW);

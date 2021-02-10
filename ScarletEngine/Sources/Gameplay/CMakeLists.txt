@@ -4,7 +4,8 @@ set(Gameplay_PrivateDeps
 set(Gameplay_PublicDeps
 	"ECS"
 	"Engine"
-	"RenderModule")
+	"RenderModule"
+	"Ac_Physics")
 
 DECLARE_MODULE(
 	MODULE_NAME "Gameplay" 
