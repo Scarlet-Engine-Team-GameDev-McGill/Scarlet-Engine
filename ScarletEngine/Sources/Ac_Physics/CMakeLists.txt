@@ -1,9 +1,9 @@
 set(Ac_Physics_PrivateDeps
-	"Core"
-	"Ac_Physics")
+	"")
 
 set(Ac_Physics_PublicDeps
-	"")
+	"ECS"
+	"Core")
 
 DECLARE_MODULE(
 	MODULE_NAME "Ac_Physics" 
