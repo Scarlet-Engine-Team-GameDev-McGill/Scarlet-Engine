@@ -16,7 +16,15 @@ namespace ScarletEngine
 			, Name(InName) 
 		{}
 
-		virtual void Run(EID EntityID) const = 0;
+		virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		{
+			for (const SharedPtr<Entity>& Ent : Entities)
+			{
+				UpdateEntity(Ent->ID, DeltaTime);
+			}
+		}
+
+		virtual void UpdateEntity(EID EntityID, double DeltaTime) const = 0;
 		virtual ~ISystem() {}
 
 		Registry* Reg;
@@ -34,7 +42,7 @@ namespace ScarletEngine
 			, ForEach()
 		{}
 
-		virtual void Run(EID EntityID) const override
+		virtual void UpdateEntity(EID EntityID, double DeltaTime) const override
 		{
 			ZoneScoped
 			// If our entity has the specified components

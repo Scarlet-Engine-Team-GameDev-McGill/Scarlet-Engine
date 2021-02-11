@@ -1,11 +1,9 @@
 #pragma once
 
-class Ac_RigidBodyComponent {
-
-	// Fields
-	float mass;
-	bool uses_gravity;
-
-	inline
-	public void SetMass(const& float aMass){ this->mass = aMass }
+struct Ac_RigidBodyComponent 
+{
+	float Mass;
+	 
+	glm::vec3 Force = glm::vec3(0.f, 0.f, 0.f);
+	glm::vec3 Velocity = glm::vec3(0.f, 0.f, 0.f);
 };

@@ -4,7 +4,6 @@
 #include "ITickable.h"
 #include "ECS.h"
 #include "SceneProxy.h"
-#include "Ac_Physics.h"
 
 namespace ScarletEngine
 {
@@ -46,6 +45,11 @@ namespace ScarletEngine
 			return *static_cast<System<SystemSig...>*>(Systems.emplace_back(GlobalAllocator<System<SystemSig...>>::New(&Reg, Name)).get());
 		}
 
+		void AddSystem(ISystem* System)
+		{
+			Systems.emplace_back(System);
+		}
+
 		auto GetEntities()
 		{
 			ZoneScoped
@@ -64,10 +68,7 @@ namespace ScarletEngine
 			ZoneScoped
 			for (const auto& Sys : Systems)
 			{
-				for (const SharedPtr<Entity>& Ent : Entities)
-				{
-					Sys->Run(Ent->ID);
-				}
+				Sys->Update(Entities, GetDeltaTime());
 			}
 		}
 	private:
