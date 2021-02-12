@@ -7,7 +7,7 @@ namespace ScarletEngine
 	class Window
 	{
 	public:
-		Window(uint32_t Width, uint32_t Height, const String& WindowTitle);
+		Window(uint32_t InWidth, uint32_t InHeight, const String& WindowTitle);
 
 		void* GetWindowHandle() const { return WindowHandle; }
 		void SwapBuffer();
@@ -22,6 +22,7 @@ namespace ScarletEngine
 		void* WindowHandle = nullptr;
 		uint32_t Width;
 		uint32_t Height;
+		String WindowTitle;
 
 		Event<> OnWindowClose;
 		Event<uint32_t, uint32_t> OnWindowResize;

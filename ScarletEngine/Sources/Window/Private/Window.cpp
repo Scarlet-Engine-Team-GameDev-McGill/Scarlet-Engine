@@ -20,7 +20,10 @@ namespace ScarletEngine
 		AppWindow->OnWindowResizeEvent().Broadcast(Width, Height);
 	}
 
-	Window::Window(uint32_t Width, uint32_t Height, const String& WindowTitle)
+	Window::Window(uint32_t InWidth, uint32_t InHeight, const String& InWindowTitle)
+		: Width(InWidth)
+		, Height(InHeight)
+		, WindowTitle(InWindowTitle)
 	{
 		check(Width != 0 && Height != 0);
 
