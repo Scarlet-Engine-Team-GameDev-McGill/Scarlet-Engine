@@ -8,7 +8,7 @@
 
 using namespace ScarletEngine;
 
-void makeCube(glm::vec3 Pos)
+void makeCube(glm::vec3 Pos, float Mass, glm::vec3 V0)
 {
 	auto [Ent, Trans, Mesh, Rb] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, Ac_RigidBodyComponent>("Cube");
 
@@ -16,7 +16,8 @@ void makeCube(glm::vec3 Pos)
 	Trans->Rotation = glm::vec3(45.f, 45.f, 0.f);
 	Trans->Scale = glm::vec3(0.05f);
 
-	Rb->Mass = 1.f;
+	Rb->Mass = Mass;
+	Rb->Velocity = V0;
 
 	Mesh->MeshHandle = AssetManager::LoadStaticMesh("/ScarletEngine/Content/Cube.obj");
 	Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
@@ -48,8 +49,8 @@ int main()
 
 	{
 		// Test entity
-		makeCube(glm::vec3(-10.f, 0.f, 0.f));
-		makeCube(glm::vec3(10.f, 0.f, 0.f));
+		makeCube(glm::vec3(0.f, 0.f, 0.f), 597200.f, glm::vec3(0.f, 0.f, .2f));
+		makeCube(glm::vec3(14.96f, 0.f, 0.f), 1.989f * pow(10, 10), glm::vec3(0.f, 0.f, 0.f));
 	}
 
 	GEngine->Run();
