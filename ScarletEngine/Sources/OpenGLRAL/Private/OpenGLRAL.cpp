@@ -84,7 +84,7 @@ namespace ScarletEngine
 		check(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress));
 		glViewport(0, 0, AppWindow->GetWidth(), AppWindow->GetHeight());
 
-		AppWindow->OnWindowResizeEvent().Bind(FramebufferResizeCallback);
+		AppWindow->OnWindowResize.Bind(FramebufferResizeCallback);
 
 #ifdef DEBUG
 		int Flags;

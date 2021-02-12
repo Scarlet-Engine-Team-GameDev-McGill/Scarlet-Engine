@@ -10,20 +10,67 @@ namespace ScarletEngine
 	{
 		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
 		
-		AppWindow->OnWindowCloseEvent().Broadcast();
+		AppWindow->OnWindowClose.Broadcast();
 	}
 
 	static void WindowResizeCallback(GLFWwindow* WindowHandle, int Width, int Height)
 	{
 		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
 
-		AppWindow->OnWindowResizeEvent().Broadcast(Width, Height);
+		AppWindow->OnWindowResize.Broadcast(Width, Height);
+	}
+
+	static void KeyCallback(GLFWwindow* WindowHandle, int Key, int, int Action, int Mods)
+	{
+		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
+
+		KeyInputEvent InputEvent{ (uint32_t)Key, (uint32_t)Mods };
+
+		if (Action == GLFW_KEY_DOWN)
+		{
+			AppWindow->OnKeyDown.Broadcast(InputEvent);
+		}
+		else if (Action == GLFW_KEY_UP)
+		{
+			AppWindow->OnKeyUp.Broadcast(InputEvent);
+		}
+	}
+
+	static void CursorPosCallback(GLFWwindow* WindowHandle, double Xpos, double Ypos)
+	{
+		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
+
+		const double DeltaXPos = Xpos - AppWindow->GetLastCursorXPos();
+		const double DeltaYPos = Ypos - AppWindow->GetLastCursorYPos();
+
+		CursorMoveEvent MoveEvent{ DeltaXPos, DeltaYPos };
+
+		AppWindow->OnCursorMove.Broadcast(MoveEvent);
+	}
+
+	static void MouseButtonCallback(GLFWwindow* WindowHandle, int Button, int Action, int Mods)
+	{
+		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
+
+		MouseInputEvent MouseEvent{ (uint32_t)Button, (uint32_t)Mods };
+
+		if (Action == GLFW_PRESS)
+		{
+			AppWindow->OnMouseDown.Broadcast(MouseEvent);
+		}
+		else if (Action == GLFW_RELEASE)
+		{
+			AppWindow->OnMouseUp.Broadcast(MouseEvent);
+		}
 	}
 
 	ApplicationWindow::ApplicationWindow(uint32_t InWidth, uint32_t InHeight, const String& InWindowTitle)
-		: Width(InWidth)
+		: WindowHandle(nullptr)
+		, Width(InWidth)
 		, Height(InHeight)
 		, WindowTitle(InWindowTitle)
+		, LastCursorXPos(0)
+		, LastCursorYPos(0)
 	{
 		check(Width != 0 && Height != 0);
 
@@ -61,6 +108,11 @@ namespace ScarletEngine
 
 		glfwSetWindowCloseCallback((GLFWwindow*)WindowHandle, WindowCloseCallback);
 		glfwSetFramebufferSizeCallback((GLFWwindow*)WindowHandle, WindowResizeCallback);
+		glfwSetKeyCallback((GLFWwindow*)WindowHandle, KeyCallback);
+		glfwSetCursorPosCallback((GLFWwindow*)WindowHandle, CursorPosCallback);
+		glfwSetMouseButtonCallback((GLFWwindow*)WindowHandle, MouseButtonCallback);
+
+		OnCursorMove.Bind([this](CursorMoveEvent CursorEvent) { LastCursorXPos += CursorEvent.DeltaX; LastCursorYPos += CursorEvent.DeltaY; });
 	}
 
 

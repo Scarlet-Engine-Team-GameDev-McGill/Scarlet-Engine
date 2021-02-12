@@ -34,7 +34,7 @@ namespace ScarletEngine
 		AppWindow = GlobalAllocator<ApplicationWindow>::New(800, 600, "Scarlet Engine");
 		check(AppWindow);
 
-		AppWindow->OnWindowCloseEvent().Bind([this]() { SignalQuit(); });
+		AppWindow->OnWindowClose.BindMember(this, &Engine::SignalQuit);
 
 		ModuleManager::Startup();
 
