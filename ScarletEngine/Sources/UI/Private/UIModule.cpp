@@ -113,7 +113,7 @@ namespace ScarletEngine
 		Style.FramePadding.x = 8.f;
 
 #ifdef RAL_USE_OPENGL
-		Window* AppWindow = GEngine->GetApplicationWindow();
+		ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
 		check(AppWindow);
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)(AppWindow->GetWindowHandle()), true);
 		ImGui_ImplOpenGL3_Init("#version 450");

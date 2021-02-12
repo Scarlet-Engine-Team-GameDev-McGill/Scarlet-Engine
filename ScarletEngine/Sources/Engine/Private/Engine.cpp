@@ -31,10 +31,10 @@ namespace ScarletEngine
 		ZoneScoped
 		Logger::Get().SetLogFile("Log.txt");
 
-		ApplicationWindow = GlobalAllocator<Window>::New(800, 600, "Scarlet Engine");
-		check(ApplicationWindow);
+		AppWindow = GlobalAllocator<ApplicationWindow>::New(800, 600, "Scarlet Engine");
+		check(AppWindow);
 
-		ApplicationWindow->OnWindowCloseEvent().Bind([this]() { SignalQuit(); });
+		AppWindow->OnWindowCloseEvent().Bind([this]() { SignalQuit(); });
 
 		ModuleManager::Startup();
 
@@ -87,7 +87,7 @@ namespace ScarletEngine
 		AddQueuedTickables();
 		ModuleManager::PreUpdate();
 
-		ApplicationWindow->PollEvents();
+		AppWindow->PollEvents();
 	}
 
 	void Engine::PostUpdate()
@@ -95,7 +95,7 @@ namespace ScarletEngine
 		ZoneScoped
 		ModuleManager::PostUpdate();
 
-		ApplicationWindow->SwapBuffer();
+		AppWindow->SwapBuffer();
 	}
 
 	void Engine::Terminate()
@@ -103,7 +103,7 @@ namespace ScarletEngine
 		ZoneScoped
 		ModuleManager::Shutdown();
 
-		GlobalAllocator<Window>::Free(ApplicationWindow);
+		GlobalAllocator<ApplicationWindow>::Free(AppWindow);
 
 		bIsInitialized = false;
 		VariableUpdateTickables.clear();

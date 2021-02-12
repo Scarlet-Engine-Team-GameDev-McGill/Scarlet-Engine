@@ -8,19 +8,19 @@ namespace ScarletEngine
 {
 	static void WindowCloseCallback(GLFWwindow* WindowHandle)
 	{
-		Window* AppWindow = (Window*)glfwGetWindowUserPointer(WindowHandle);
+		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
 		
 		AppWindow->OnWindowCloseEvent().Broadcast();
 	}
 
 	static void WindowResizeCallback(GLFWwindow* WindowHandle, int Width, int Height)
 	{
-		Window* AppWindow = (Window*)glfwGetWindowUserPointer(WindowHandle);
+		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
 
 		AppWindow->OnWindowResizeEvent().Broadcast(Width, Height);
 	}
 
-	Window::Window(uint32_t InWidth, uint32_t InHeight, const String& InWindowTitle)
+	ApplicationWindow::ApplicationWindow(uint32_t InWidth, uint32_t InHeight, const String& InWindowTitle)
 		: Width(InWidth)
 		, Height(InHeight)
 		, WindowTitle(InWindowTitle)
@@ -64,12 +64,12 @@ namespace ScarletEngine
 	}
 
 
-	void Window::SwapBuffer()
+	void ApplicationWindow::SwapBuffer()
 	{
 		glfwSwapBuffers((GLFWwindow*)WindowHandle);
 	}
 
-	void Window::PollEvents()
+	void ApplicationWindow::PollEvents()
 	{
 		glfwPollEvents();
 	}

@@ -4,10 +4,10 @@
 
 namespace ScarletEngine
 {
-	class Window
+	class ApplicationWindow
 	{
 	public:
-		Window(uint32_t InWidth, uint32_t InHeight, const String& WindowTitle);
+		ApplicationWindow(uint32_t InWidth, uint32_t InHeight, const String& WindowTitle);
 
 		void* GetWindowHandle() const { return WindowHandle; }
 		void SwapBuffer();

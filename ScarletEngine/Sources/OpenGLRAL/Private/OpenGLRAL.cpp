@@ -75,7 +75,7 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 
-		Window* AppWindow = GEngine->GetApplicationWindow();
+		ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
 		GLFWwindow* WindowHandle = (GLFWwindow*)AppWindow->GetWindowHandle();
 
 		glfwMakeContextCurrent(WindowHandle);
