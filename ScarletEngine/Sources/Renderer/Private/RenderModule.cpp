@@ -1,8 +1,6 @@
 #include "RenderModule.h"
-
 #include "CoreUtils.h"
 #include "OpenGLRAL.h"
-
 #include "Transform.h"
 #include "SceneProxy.h"
 #include "Viewport.h"
@@ -37,16 +35,8 @@ namespace ScarletEngine
 	void RenderModule::PostUpdate()
 	{
 		ZoneScoped
-		RAL::Get().SwapWindowBuffers();
-		RAL::Get().PollWindowEvents();
 	}
 	
-	void RenderModule::SetWindowCtx(void* WindowPtr)
-	{
-		ZoneScoped
-		RAL::Get().SetWindowCtx(WindowPtr);
-	}
-
 	Viewport* RenderModule::CreateViewport(uint32_t Width, uint32_t Height)
 	{
 		ZoneScoped

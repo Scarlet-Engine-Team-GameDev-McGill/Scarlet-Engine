@@ -1,5 +1,5 @@
 #include "Stats.h"
-
+#include "RAL.h"
 #include "Memory/MemoryTracker.h"
 
 namespace ScarletEngine
@@ -38,13 +38,16 @@ namespace ScarletEngine
 		}
 		ImGui::Text("FPS: %.1f", (double)(1.f / FrameTimeMean) * 1000.f);
 
-		ImGui::Separator();
+		ImGui::Text(" ");
 		ImGui::Text("Memory");
 		ImGui::Text("Number of allocations: %lu", MemoryTracker::Get().GetNumAllocs());
 		ImGui::Text("Memory used: %s", StringUtils::CreateBytesString(MemoryTracker::Get().GetMemUsed()).c_str());
 
 		ImGui::Text("GPU");
 		ImGui::Separator();
-		// No gpu stats available yet
+		static GPUInfo GpuInfo = RAL::Get().GetGPUInfo();
+		ImGui::Text("Vendor: %s", GpuInfo.Vendor);
+		ImGui::Text("Renderer: %s", GpuInfo.Renderer);
+		ImGui::Text("Version: %s", GpuInfo.Version);
 	}
 }

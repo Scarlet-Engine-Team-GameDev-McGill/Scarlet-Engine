@@ -5,11 +5,20 @@
 
 namespace ScarletEngine
 {
+	class Window;
+
 	enum class RenderAPI
 	{
 		OpenGL,
 		Vulkan,
 		Invalid
+	};
+
+	struct GPUInfo
+	{
+		const char* Vendor;
+		const char* Renderer;
+		const char* Version;
 	};
 
 	class RAL
@@ -23,12 +32,7 @@ namespace ScarletEngine
 
 		virtual const char* GetBackendName() const = 0;
 
-		virtual void* GetWindowPtr() const = 0;
-		virtual void SetWindowCtx(void* WindowPtr) = 0;
-
-		// #todo: move window functions out of RAL
-		virtual void SwapWindowBuffers() const = 0;
-		virtual void PollWindowEvents() const = 0;
+		virtual GPUInfo GetGPUInfo() const = 0;
 
 		// Functions which correspond to rendering commands
 		virtual void SetClearColorCommand(const glm::vec4& ClearColor) const = 0;

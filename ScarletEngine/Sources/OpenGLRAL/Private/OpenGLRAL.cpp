@@ -4,6 +4,7 @@
 #include "Engine.h"
 #include "OpenGLResources.h"
 #include "AssetManager.h"
+#include "Window.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -65,54 +66,25 @@ namespace ScarletEngine
 	}
 #endif
 
-	void FramebufferResizeCallback(GLFWwindow*, int Width, int Height)
+	static void FramebufferResizeCallback(uint32_t NewWidth, uint32_t NewHeight)
 	{
-		ZoneScoped
-		glViewport(0, 0, Width, Height);
-	}
-
-	void WindowCloseCallback(GLFWwindow*)
-	{
-		ZoneScoped
-		GEngine->SignalQuit();
+		glViewport(0, 0, NewWidth, NewHeight);
 	}
 
 	void OpenGLRAL::Initialize()
 	{
 		ZoneScoped
-		glfwInit();
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_SAMPLES, 4);
-#ifdef DEBUG
-		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-#endif
 
-		// #todo: remove hard coded window title
-		Window = glfwCreateWindow(800, 600, "Scarlet Editor", nullptr, nullptr);
-		if (Window == nullptr)
-		{
-			glfwTerminate();
-			check(false);
-		}
+		ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
+		GLFWwindow* WindowHandle = (GLFWwindow*)AppWindow->GetWindowHandle();
 
-		// Set the window icon;
-		SharedPtr<TextureHandle> LogoTex = AssetManager::LoadTextureFile("/ScarletEngine/Content/scarlet_logo.png");
-		GLFWimage Image;
-		Image.pixels = LogoTex->PixelDataBuffer;
-		Image.width = LogoTex->Width;
-		Image.height = LogoTex->Height;
-
-		glfwSetWindowIcon(Window, 1, &Image);
-
-		glfwMakeContextCurrent(Window);
+		glfwMakeContextCurrent(WindowHandle);
 		glfwSwapInterval(0);
 
 		check(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress));
-		glViewport(0, 0, 800, 600);
-		glfwSetFramebufferSizeCallback(Window, FramebufferResizeCallback);
-		glfwSetWindowCloseCallback(Window, WindowCloseCallback);
+		glViewport(0, 0, AppWindow->GetWidth(), AppWindow->GetHeight());
+
+		AppWindow->OnWindowResizeEvent().Bind(FramebufferResizeCallback);
 
 #ifdef DEBUG
 		int Flags;
@@ -132,29 +104,19 @@ namespace ScarletEngine
 		glEnable(GL_MULTISAMPLE);
 	}
 
-	void OpenGLRAL::SetWindowCtx(void* WindowPtr)
-	{
-		ZoneScoped
-		glfwMakeContextCurrent((GLFWwindow*)WindowPtr);
-	}
-
 	void OpenGLRAL::Terminate()
 	{
 		ZoneScoped
 		glfwTerminate();
 	}
 
-	void OpenGLRAL::SwapWindowBuffers() const
+	GPUInfo OpenGLRAL::GetGPUInfo() const
 	{
-		ZoneScoped
-		glfwSwapBuffers(Window);
-		//TracyGpuCollect
-	}
-
-	void OpenGLRAL::PollWindowEvents() const
-	{
-		ZoneScoped
-		glfwPollEvents();
+		GPUInfo Info{};
+		Info.Vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+		Info.Renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+		Info.Version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+		return Info;
 	}
 
 	void OpenGLRAL::SetClearColorCommand(const glm::vec4& ClearColor) const

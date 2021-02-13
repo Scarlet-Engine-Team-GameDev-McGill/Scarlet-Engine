@@ -5,6 +5,7 @@
 namespace ScarletEngine
 {
 	class ITickable;
+	class ApplicationWindow;
 
 	class Engine
 	{
@@ -12,6 +13,7 @@ namespace ScarletEngine
 		Engine();
 
 		void Initialize();
+		void Terminate();
 		void Run();
 
 		void SignalQuit() { bIsRunning = false; }
@@ -26,7 +28,7 @@ namespace ScarletEngine
 		/** Remove a tickable object. This must be immediate as it will only be called on destruction of an ITickable */
 		void RemoveTickable(ITickable* TickableObject);
 
-		void Terminate();
+		ApplicationWindow* GetApplicationWindow() const { return AppWindow; }
 	private:
 
 		/** Called before objects are ticked each frame */
@@ -50,6 +52,9 @@ namespace ScarletEngine
 		Array<ITickable*> TickableQueue;
 		/** Used to lock the TickableQueue */
 		std::mutex TickableQueueMutex;
+
+		/** Main engine application window */
+		ApplicationWindow* AppWindow = nullptr;
 
 		/** True when the engine is initialized */
 		uint32_t bIsInitialized : 1;
