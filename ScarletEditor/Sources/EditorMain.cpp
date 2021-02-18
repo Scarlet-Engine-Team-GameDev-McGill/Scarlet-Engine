@@ -3,7 +3,7 @@
 #include "Editor.h"
 #include "RAL.h"
 #include "StaticMeshComponent.h"
-#include "Ac_RigidBodyComponent.h"
+#include "RigidBodyComponent.h"
 #include "AssetManager.h"
 #include "RenderModule.h"
 #include "UIModule.h"
@@ -13,7 +13,7 @@ using namespace ScarletEngine;
 
 void makeCube(glm::vec3 Pos, float Mass, glm::vec3 V0)
 {
-	auto [Ent, Trans, Mesh, Rb] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, Ac_RigidBodyComponent>("Cube");
+	auto [Ent, Trans, Mesh, Rb] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, Achilles::RigidBodyComponent>("Cube");
 
 	Trans->Position = Pos;
 	Trans->Rotation = glm::vec3(45.f, 45.f, 0.f);
