@@ -10,6 +10,7 @@
 
 using namespace ScarletEngine;
 
+
 void makeCube(glm::vec3 Pos, float Mass, glm::vec3 V0)
 {
 	auto [Ent, Trans, Mesh, Rb] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, Ac_RigidBodyComponent>("Cube");
