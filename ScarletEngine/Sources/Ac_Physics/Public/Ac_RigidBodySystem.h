@@ -8,7 +8,6 @@ namespace ScarletEngine
 {
 	class Ac_RigidBodySystem : public System<Ac_RigidBodyComponent, Transform>
 	{
-
 	public:
 		Ac_RigidBodySystem(Registry* InReg, const String& InName);
 		static void AddForce(const glm::vec3 aForce, Ac_RigidBodyComponent* aComponent);

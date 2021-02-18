@@ -37,22 +37,3 @@ namespace ScarletEngine
 		}
 	}
 }
-
-/*
-Ac_RigidBodyComponent RbA = std::get<Ac_RigidBodyComponent>(allComp[i]);
-Ac_RigidBodyComponent RbB = std::get<Ac_RigidBodyComponent>(allComp[j]);
-
-glm::vec3 posA = std::get<Transform>(allComp[i]).Position;
-glm::vec3 posB = std::get<Transform>(allComp[j]).Position;
-
-float d = glm::distance(posA, posB);
-glm::vec3 u = posA / glm::length(posA);
-
-float mA = RbA.Mass;
-float mB = RbB.Mass;
-
-glm::vec3 G = u * 6.14f * pow(10.f, 11.f) * mA * mB / d;
-
-AddForce(G, RbA);
-AddForce(-G, RbB);
-*/

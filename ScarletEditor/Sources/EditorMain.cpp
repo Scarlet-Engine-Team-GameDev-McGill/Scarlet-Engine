@@ -8,7 +8,7 @@
 
 using namespace ScarletEngine;
 
-void makeCube(glm::vec3 Pos)
+void MakeCube(glm::vec3 Pos)
 {
 	auto [Ent, Trans, Mesh, Rb] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, Ac_RigidBodyComponent>("Cube");
 
@@ -48,8 +48,8 @@ int main()
 
 	{
 		// Test entity
-		makeCube(glm::vec3(-10.f, 0.f, 0.f));
-		makeCube(glm::vec3(10.f, 0.f, 0.f));
+		MakeCube(glm::vec3(-10.f, 0.f, 0.f));
+		MakeCube(glm::vec3(10.f, 0.f, 0.f));
 	}
 
 	GEngine->Run();
