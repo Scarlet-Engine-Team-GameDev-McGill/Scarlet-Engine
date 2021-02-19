@@ -11,20 +11,13 @@ namespace ScarletEngine
 {
 	namespace Achilles
 	{
-		struct IntersectionData
-		{
-			float Distance;
-			glm::vec3 Normal;
-		};
-
 		class AABBvsAABBColliderSystem : public System<BoxColliderComponent, RigidBodyComponent, Transform>
 		{
 		public:
 			AABBvsAABBColliderSystem(Registry* InReg, const String& InName);
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
-			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
-			glm::vec3 GetIntersection(BoxColliderComponent* BoxA, BoxColliderComponent* BoxB) const;
+			float GetIntersection(BoxColliderComponent* BoxA, BoxColliderComponent* BoxB) const;
 		};
 
 		class SphereVsSphereColliderSystem : public System<SphereColliderComponent, RigidBodyComponent, Transform>
@@ -32,9 +25,8 @@ namespace ScarletEngine
 		public:
 			SphereVsSphereColliderSystem(Registry* InReg, const String& InName);
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
-			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
-			std::pair<glm::vec3, float> GetIntersection(SphereColliderComponent* SphereA, SphereColliderComponent* SphereB) const;
+			float GetIntersection(SphereColliderComponent* SphereA, SphereColliderComponent* SphereB) const;
 		};
 
 		class PlaneVsSphereColliderSystem : public System<SphereColliderComponent, PlaneColliderComponent, RigidBodyComponent, Transform>
@@ -42,9 +34,8 @@ namespace ScarletEngine
 		public:
 			PlaneVsSphereColliderSystem(Registry* InReg, const String& InName);
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
-			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
-			std::pair<glm::vec3, float> GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const;
+			float GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const;
 		};
 	};
 };

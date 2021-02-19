@@ -14,7 +14,7 @@ namespace ScarletEngine
 			RigidBodyComponent* Rb = Reg->GetComponent<RigidBodyComponent>(Entity);
 			Transform* Trans = Reg->GetComponent<Transform>(Entity);
 
-			Rb->Velocity += Rb->Force / Rb->Mass * (float)Dt;
+			Rb->Velocity += Rb->Force / Rb->Mass * (float)Dt * 70.f;
 			Trans->Position += Rb->Velocity * (float)Dt;
 
 			ResetForce(Rb);
