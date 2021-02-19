@@ -47,6 +47,7 @@ namespace ScarletEngine
 
 		void AddSystem(ISystem* System)
 		{
+			check(System != nullptr);
 			Systems.emplace_back(System);
 		}
 
@@ -66,9 +67,10 @@ namespace ScarletEngine
 		void RunSystems()
 		{
 			ZoneScoped
+			const double Dt = GetDeltaTime();
 			for (const auto& Sys : Systems)
 			{
-				Sys->Update(Entities, GetDeltaTime());
+				Sys->Update(Entities, Dt);
 			}
 		}
 	private:

@@ -1,6 +1,6 @@
 #include "World.h"
 #include "StaticMeshComponent.h"
-#include "Ac_RigidBodySystem.h"
+#include "RigidBodySystem.h"
 
 namespace ScarletEngine
 {
@@ -21,7 +21,7 @@ namespace ScarletEngine
 					ProxyPtr->DrawSMC(Trans, SMC);
 				});
 
-		AddSystem(GlobalAllocator<Ac_RigidBodySystem>::New(&Reg, "RigidBody System"));
+		AddSystem(GlobalAllocator<Achilles::RigidBodySystem>::New(&Reg, "RigidBody System"));
 	}
 
 	void World::Tick(double DeltaTime)

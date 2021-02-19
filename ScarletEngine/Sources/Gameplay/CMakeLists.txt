@@ -5,7 +5,7 @@ set(Gameplay_PublicDeps
 	"ECS"
 	"Engine"
 	"RenderModule"
-	"Ac_Physics")
+	"AchillesPhysics")
 
 DECLARE_MODULE(
 	MODULE_NAME "Gameplay" 
