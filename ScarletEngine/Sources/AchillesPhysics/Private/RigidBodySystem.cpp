@@ -57,30 +57,38 @@ namespace ScarletEngine
 
 				if ((Reg->HasComponent<RigidBodyComponent>(EntityA)) && (Reg->HasComponent<Transform>(EntityA)))
 				{
-					for (int j = i + 1; j < size; j++)
+
+					RigidBodyComponent* RbA = Reg->GetComponent<RigidBodyComponent>(EntityA);
+					glm::vec3 posA = Reg->GetComponent<Transform>(EntityA)->Position;
+
+					if (RbA->UsesGravity)
 					{
-						EID EntityB = Entities[j]->ID;
-						if ((Reg->HasComponent<RigidBodyComponent>(EntityB)) && (Reg->HasComponent<Transform>(EntityB)))
+						for (int j = i + 1; j < size; j++)
 						{
-							RigidBodyComponent* RbA = Reg->GetComponent<RigidBodyComponent>(EntityA);
-							RigidBodyComponent* RbB = Reg->GetComponent<RigidBodyComponent>(EntityB);
+							EID EntityB = Entities[j]->ID;
 
-							glm::vec3 posA = Reg->GetComponent<Transform>(EntityA)->Position;
-							glm::vec3 posB = Reg->GetComponent<Transform>(EntityB)->Position;
-
-							float d = abs(glm::distance(posA, posB));
-
-							if (d != 0)
+							if ((Reg->HasComponent<RigidBodyComponent>(EntityB)) && (Reg->HasComponent<Transform>(EntityB)))
 							{
-								glm::vec3 u = (posB - posA) / d;
+								RigidBodyComponent* RbB = Reg->GetComponent<RigidBodyComponent>(EntityB);
+								glm::vec3 posB = Reg->GetComponent<Transform>(EntityB)->Position;
 
-								float mA = RbA->Mass;
-								float mB = RbB->Mass;
+								if (RbB->UsesGravity)
+								{
+									float d = abs(glm::distance(posA, posB));
 
-								glm::vec3 G = 6.14f * pow(10.f, -11.f) * mA * mB * u / pow(d, 2.f);
+									if (d != 0)
+									{
+										glm::vec3 u = (posB - posA) / d;
 
-								AddForce(G, RbA);
-								AddForce(-G, RbB);
+										float mA = RbA->Mass;
+										float mB = RbB->Mass;
+
+										glm::vec3 G = 6.14f * pow(10.f, -11.f) * mA * mB * u / pow(d, 2.f);
+
+										AddForce(G, RbA);
+										AddForce(-G, RbB);
+									}
+								}
 							}
 						}
 					}

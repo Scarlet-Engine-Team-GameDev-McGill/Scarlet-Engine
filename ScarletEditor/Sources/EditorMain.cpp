@@ -4,15 +4,17 @@
 #include "RAL.h"
 #include "StaticMeshComponent.h"
 #include "RigidBodyComponent.h"
+#include "ColliderComponent.h"
 #include "AssetManager.h"
 #include "RenderModule.h"
 #include "UIModule.h"
 
 using namespace ScarletEngine;
+using namespace Achilles;
 
 void makeCube(glm::vec3 Pos, float Mass, glm::vec3 V0)
 {
-	auto [Ent, Trans, Mesh, Rb] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, Achilles::RigidBodyComponent>("Cube");
+	auto [Ent, Trans, Mesh, Rb, Box] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, RigidBodyComponent, BoxColliderComponent>("Cube");
 
 	Trans->Position = Pos;
 	Trans->Rotation = glm::vec3(45.f, 45.f, 0.f);
@@ -20,6 +22,10 @@ void makeCube(glm::vec3 Pos, float Mass, glm::vec3 V0)
 
 	Rb->Mass = Mass;
 	Rb->Velocity = V0;
+	Rb->UsesGravity = false;
+
+	Box->Min = Pos - glm::vec3(0.025f, 0.025f, 0.025f);
+	Box->Max = Pos + glm::vec3(0.025f, 0.025f, 0.025f);
 
 	Mesh->MeshHandle = AssetManager::LoadStaticMesh("/ScarletEngine/Content/Cube.obj");
 	Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
@@ -54,8 +60,8 @@ int main()
 
 	{
 		// Test entity
-		makeCube(glm::vec3(0.f, 0.f, 0.f), 597200.f, glm::vec3(0.f, 0.f, .2f));
-		makeCube(glm::vec3(14.96f, 0.f, 0.f), 1.989f * pow(10, 10), glm::vec3(0.f, 0.f, 0.f));
+		MakeCube(glm::vec3(-5.f, -2.5f, 0.f), 1.f, glm::vec3(1.f, 0.5f, 0.f));
+		MakeCube(glm::vec3(2.5f, 5.f, 0.f), 1.f, glm::vec3(-.5f, -1.f, 0.f));
 	}
 
 	GEngine->Run();
