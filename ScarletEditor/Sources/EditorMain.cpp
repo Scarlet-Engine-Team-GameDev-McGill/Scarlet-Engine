@@ -14,7 +14,7 @@ using namespace Achilles;
 
 void makeCube(glm::vec3 Pos, float Mass, glm::vec3 V0)
 {
-	auto [Ent, Trans, Mesh, Rb, Box] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, RigidBodyComponent, BoxColliderComponent>("Cube");
+	auto [Ent, Trans, Mesh, Rb, Sphere] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, RigidBodyComponent, SphereColliderComponent>("Cube");
 
 	Trans->Position = Pos;
 	Trans->Rotation = glm::vec3(45.f, 45.f, 0.f);
@@ -22,10 +22,10 @@ void makeCube(glm::vec3 Pos, float Mass, glm::vec3 V0)
 
 	Rb->Mass = Mass;
 	Rb->Velocity = V0;
-	Rb->UsesGravity = false;
+	Rb->UsesGravity = true;
 
-	Box->Min = Pos - glm::vec3(0.025f, 0.025f, 0.025f);
-	Box->Max = Pos + glm::vec3(0.025f, 0.025f, 0.025f);
+	Sphere->Pos = Pos;
+	Sphere->Radius = 0.05f;
 
 	Mesh->MeshHandle = AssetManager::LoadStaticMesh("/ScarletEngine/Content/Cube.obj");
 	Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
@@ -58,10 +58,16 @@ int main()
 	// #todo_core: this should be handled automatically by the engine
 	GEditor->Initialize();
 
+	
+
 	{
 		// Test entity
-		MakeCube(glm::vec3(-5.f, -2.5f, 0.f), 1.f, glm::vec3(1.f, 0.5f, 0.f));
-		MakeCube(glm::vec3(2.5f, 5.f, 0.f), 1.f, glm::vec3(-.5f, -1.f, 0.f));
+		MakeCube(glm::vec3(0.f, 20.f, 0.f), 1.f, glm::vec3(0.f, 0.f, 0.f));
+
+		auto [Ent, Plane] = GEditor->GetActiveWorld()->CreateEntity<PlaneColliderComponent>("Plane");
+		Plane->Normal = glm::vec3(0.f, 1.f, 0.f);
+		Plane->Distance = 10.f;
+		Plane->FrictionCoefficient = 0.3f;
 	}
 
 	GEngine->Run();

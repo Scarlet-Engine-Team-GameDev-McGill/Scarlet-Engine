@@ -148,7 +148,7 @@ namespace ScarletEngine
 
 			if (glm::length(Rb->Velocity) > 0)
 			{
-				SCAR_LOG(LogWarning, "Plane should be static");
+				//SCAR_LOG(LogWarning, "Plane should be static");
 			}
 		}
 
@@ -179,33 +179,58 @@ namespace ScarletEngine
 
 					SphereColliderComponent* Sphere = nullptr;
 					PlaneColliderComponent* Plane = nullptr;
+					RigidBodyComponent* RbSphere = nullptr;
+					Transform* TransSphere = nullptr;
 
 					if (Reg->HasComponent<PlaneColliderComponent>(EntityA) && Reg->HasComponent<SphereColliderComponent>(EntityB))
 					{
-						PlaneColliderComponent* Plane = Reg->GetComponent<PlaneColliderComponent>(EntityA);
-						SphereColliderComponent* Sphere = Reg->GetComponent<SphereColliderComponent>(EntityB);
+						Plane = Reg->GetComponent<PlaneColliderComponent>(EntityA);
+						Sphere = Reg->GetComponent<SphereColliderComponent>(EntityB);
+						RbSphere = Reg->GetComponent<RigidBodyComponent>(EntityB);
+						TransSphere = Reg->GetComponent<Transform>(EntityB);
 					}
 					else if (Reg->HasComponent<PlaneColliderComponent>(EntityB) && Reg->HasComponent<SphereColliderComponent>(EntityA))
 					{
-						PlaneColliderComponent* Plane = Reg->GetComponent<PlaneColliderComponent>(EntityB);
-						SphereColliderComponent* Sphere = Reg->GetComponent<SphereColliderComponent>(EntityA);
+						Plane = Reg->GetComponent<PlaneColliderComponent>(EntityB);
+						Sphere = Reg->GetComponent<SphereColliderComponent>(EntityA);
+						RbSphere = Reg->GetComponent<RigidBodyComponent>(EntityA);
+						TransSphere = Reg->GetComponent<Transform>(EntityA);
 					}
 					else
 					{
 						break;
 					}
 
-					glm::vec3 IntersectionDepth = GetIntersection(Plane, Sphere);
+					IntersectionData* IntersectionDepth = GetIntersection(Plane, Sphere);
 
-					// if dynamic : bounce
-					Bounce(EntityA, EntityB, GetIntersection(Plane, Sphere), Reg);
+					if (IntersectionDepth->Distance <= 0.f && RbSphere)
+					{
+						glm::vec3 NewVel = glm::length(RbSphere->Velocity) == 0 ? glm::vec3(0.f, 0.f, 0.f) : 
+																				  glm::reflect(RbSphere->Velocity, glm::reflect(glm::normalize(IntersectionDepth->Normal), glm::normalize(RbSphere->Velocity)));
+						glm::vec3 NewPos = Plane->Normal * -IntersectionDepth->Distance;
+
+						RbSphere->Velocity =  (1-Plane->FrictionCoefficient) * NewVel;
+						TransSphere->Position += NewPos;
+						Sphere->Pos += NewPos;
+
+						if (RbSphere->UsesGravity)
+						{
+							RbSphere->Force -= RbSphere->GravityEarth * RbSphere->Mass;
+						}
+					}
+
+					delete IntersectionDepth;
 				}
 			}
 		}
 
-		glm::vec3 PlaneVsSphereColliderSystem::GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const
+		IntersectionData* PlaneVsSphereColliderSystem::GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const
 		{
-			return Plane->Normal * abs(glm::dot(Plane->Normal, Sphere->Pos) + Plane->Distance) - Sphere->Radius; // Intersects if negative
+			float Dist = (abs(glm::dot(Plane->Normal, Sphere->Pos) + Plane->Distance) - Sphere->Radius);
+			IntersectionData* Data = new IntersectionData();
+			Data->Distance = Dist;
+			Data->Normal = Plane->Normal * Dist;
+			return Data; // Intersects if negative
 		}
 
 #pragma endregion
