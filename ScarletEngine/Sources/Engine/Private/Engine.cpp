@@ -153,7 +153,7 @@ namespace ScarletEngine
 				FixedUpdateTickables.erase(It, FixedUpdateTickables.end());
 			}
 		}
-		else
+		if (TickableObject->WantsVariableTimestep())
 		{
 			auto It = std::remove(VariableUpdateTickables.begin(), VariableUpdateTickables.end(), TickableObject);
 			if (It != VariableUpdateTickables.end())
@@ -184,7 +184,8 @@ namespace ScarletEngine
 		{
 			FixedUpdateTickables.push_back(TickableObject);
 		}
-		else
+
+		if (TickableObject->WantsVariableTimestep())
 		{
 			VariableUpdateTickables.push_back(TickableObject);
 		}

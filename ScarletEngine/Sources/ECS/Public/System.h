@@ -13,11 +13,13 @@ namespace ScarletEngine
 	public:
 		ISystem(Registry* InReg, const String& InName)
 			: Reg(InReg)
-			, Name(InName) 
+			, Name(InName)
 		{}
 
-		virtual void Run(EID EntityID) const = 0;
 		virtual ~ISystem() {}
+
+		virtual void Update(double DeltaTime, EID EntityID) const {}
+		virtual void FixedUpdate(double DeltaTime, EID EntityID) const {}
 
 		Registry* Reg;
 		String Name;
@@ -27,20 +29,29 @@ namespace ScarletEngine
 	class System : public ISystem
 	{
 	public:
-		using ForEachFunctionType = std::function<void(EID EntityID, std::add_lvalue_reference_t<ComponentTypes>...)>;
+		using ForEachFunctionType = std::function<void(double DeltaTime, EID EntityID, std::add_lvalue_reference_t<ComponentTypes>...)>;
 
 		System(Registry* InReg, const String& InName)
 			: ISystem(InReg, InName)
 			, ForEach()
 		{}
 
-		virtual void Run(EID EntityID) const override
+		virtual void Update(double DeltaTime, EID EntityID) const override
 		{
-			ZoneScoped
 			// If our entity has the specified components
 			if((Reg->HasComponent<std::remove_cv_t<ComponentTypes>>(EntityID) && ...))
 			{
-				ForEach(EntityID, *Reg->GetComponent<std::remove_cv_t<ComponentTypes>>(EntityID)...);
+				ForEach(DeltaTime, EntityID, *Reg->GetComponent<std::remove_cv_t<ComponentTypes>>(EntityID)...);
+			}
+		}
+
+		virtual void FixedUpdate(double DeltaTime, EID EntityID) const override
+		{
+			ZoneScoped
+			// If our entity has the specified components
+			if ((Reg->HasComponent<std::remove_cv_t<ComponentTypes>>(EntityID) && ...))
+			{
+				ForEach(DeltaTime, EntityID, *Reg->GetComponent<std::remove_cv_t<ComponentTypes>>(EntityID)...);
 			}
 		}
 
@@ -50,5 +61,6 @@ namespace ScarletEngine
 		}
 	
 		ForEachFunctionType ForEach;
+
 	};
 }
