@@ -19,5 +19,6 @@ namespace Achilles
 	{
 		glm::vec3 Normal;
 		float Distance;
+		float FrictionCoefficient;
 	};
 }

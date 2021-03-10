@@ -11,6 +11,12 @@ namespace ScarletEngine
 {
 	namespace Achilles
 	{
+		struct IntersectionData
+		{
+			float Distance;
+			glm::vec3 Normal;
+		};
+
 		class AABBvsAABBColliderSystem : public System<BoxColliderComponent, RigidBodyComponent, Transform>
 		{
 		public:
@@ -35,7 +41,7 @@ namespace ScarletEngine
 			PlaneVsSphereColliderSystem(Registry* InReg, const String& InName);
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
-			glm::vec3 GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const;
+			IntersectionData* GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const;
 		};
 	};
 };
