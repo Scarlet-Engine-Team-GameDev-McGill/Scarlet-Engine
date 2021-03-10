@@ -12,9 +12,10 @@
 using namespace ScarletEngine;
 using namespace Achilles;
 
+
 void makeCube(glm::vec3 Pos, float Mass, glm::vec3 V0)
 {
-	auto [Ent, Trans, Mesh, Rb, Sphere] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, RigidBodyComponent, SphereColliderComponent>("Cube");
+	auto [Ent, Trans, Mesh, Rb, Sphere] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, RigidBodyComponent, SphereColliderComponent>("Sphere");
 
 	Trans->Position = Pos;
 	Trans->Rotation = glm::vec3(45.f, 45.f, 0.f);
@@ -25,9 +26,9 @@ void makeCube(glm::vec3 Pos, float Mass, glm::vec3 V0)
 	Rb->UsesGravity = true;
 
 	Sphere->Pos = Pos;
-	Sphere->Radius = 0.05f;
+	Sphere->Radius = 2.f;
 
-	Mesh->MeshHandle = AssetManager::LoadStaticMesh("/ScarletEngine/Content/Cube.obj");
+	Mesh->MeshHandle = AssetManager::LoadStaticMesh("/ScarletEngine/Content/Sphere.obj");
 	Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
 	Mesh->VertexBuff->UploadData(Mesh->MeshHandle->Vertices.data(), Mesh->MeshHandle->Vertices.size() * sizeof(Vertex));
 	Mesh->IndexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Indices.size() * sizeof(uint32_t), RALBufferUsage::STATIC_DRAW);
@@ -62,7 +63,8 @@ int main()
 
 	{
 		// Test entity
-		MakeCube(glm::vec3(0.f, 20.f, 0.f), 1.f, glm::vec3(0.f, 0.f, 0.f));
+		MakeSphere(glm::vec3(0.f, 10.f, 0.f), 1.f, glm::vec3(0.f, 10.f, 0.f));
+		MakeSphere(glm::vec3(0.f, -2.f, 0.f), 1.f, glm::vec3(0.f, 12.f, 0.f));
 
 		auto [Ent, Plane] = GEditor->GetActiveWorld()->CreateEntity<PlaneColliderComponent>("Plane");
 		Plane->Normal = glm::vec3(0.f, 1.f, 0.f);
