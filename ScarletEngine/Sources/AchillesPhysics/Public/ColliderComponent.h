@@ -13,6 +13,7 @@ namespace Achilles
 	{
 		glm::vec3 Pos;
 		float Radius;
+		float FrictionCoefficient;
 	};
 
 	struct PlaneColliderComponent

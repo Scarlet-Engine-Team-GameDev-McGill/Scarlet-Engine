@@ -115,21 +115,45 @@ namespace ScarletEngine
 						SphereColliderComponent* SphereA = Reg->GetComponent<SphereColliderComponent>(EntityA);
 						SphereColliderComponent* SphereB = Reg->GetComponent<SphereColliderComponent>(EntityB);
 
-						glm::vec3 IntersectionDepth = GetIntersection(SphereA, SphereB);
+						IntersectionData* IntersectionDepth = GetIntersection(SphereA, SphereB);
 
 						// if dynamic : bounce
-						Bounce(EntityA, EntityB, GetIntersection(SphereA, SphereB), Reg);
+						if (IntersectionDepth->Distance <= 0.f && Reg->HasComponent<RigidBodyComponent>(EntityB) && Reg->HasComponent<RigidBodyComponent>(EntityA))
+						{
+							RigidBodyComponent* RbA = Reg->GetComponent<RigidBodyComponent>(EntityA);
+							RigidBodyComponent* RbB = Reg->GetComponent<RigidBodyComponent>(EntityB);
+
+							Transform* TransA = Reg->GetComponent<Transform>(EntityA);
+							Transform* TransB = Reg->GetComponent<Transform>(EntityB);
+
+							glm::vec3 RelativeVel = glm::length(RbA->Velocity - RbB->Velocity) * IntersectionDepth->Normal;
+
+							glm::vec3 Fi = -RelativeVel / ((float)DeltaTime * (1/RbA->Mass + 1/RbB->Mass));
+
+							RbA->Force += Fi * (2.f - SphereB->FrictionCoefficient);
+							RbB->Force -= Fi * (2.f - SphereA->FrictionCoefficient);
+
+							TransA->Position += IntersectionDepth->Normal * IntersectionDepth->Distance;
+							SphereA->Pos = TransA->Position;
+
+							TransA->Position -= IntersectionDepth->Normal * IntersectionDepth->Distance;
+							SphereA->Pos = TransA->Position;
+						}
+
+						delete IntersectionDepth;
 					}
 				}
 			}
 		}
 
-		glm::vec3 SphereVsSphereColliderSystem::GetIntersection(SphereColliderComponent* SphereA, SphereColliderComponent* SphereB) const
+		IntersectionData* SphereVsSphereColliderSystem::GetIntersection(SphereColliderComponent* SphereA, SphereColliderComponent* SphereB) const
 		{
 			glm::vec3 centDist = SphereB->Pos - SphereA->Pos;
 			float radDist = SphereB->Radius + SphereB->Radius;
-
-			return glm::normalize(centDist) * ( glm::length(centDist) - radDist );	// intersects if negative
+			IntersectionData* Data = new IntersectionData();
+			Data->Normal = glm::normalize(centDist);
+			Data->Distance = glm::length(centDist) - radDist; // intersects if negative
+			return Data;	
 		}
 
 #pragma endregion
