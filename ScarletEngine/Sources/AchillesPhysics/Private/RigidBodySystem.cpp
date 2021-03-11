@@ -9,6 +9,10 @@ namespace ScarletEngine
 		{
 		}
 
+		void RigidBodySystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		{
+		}
+
 		void RigidBodySystem::UpdateEntity(const EID Entity, double Dt) const
 		{
 			RigidBodyComponent* Rb = Reg->GetComponent<RigidBodyComponent>(Entity);
@@ -25,7 +29,7 @@ namespace ScarletEngine
 			Rb->Force = glm::vec3(0.f, 0.f, 0.f);
 		}	
 
-		void RigidBodySystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		void RigidBodySystem::FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
 		{
 			for (const SharedPtr<Entity>& Ent : Entities)
 			{

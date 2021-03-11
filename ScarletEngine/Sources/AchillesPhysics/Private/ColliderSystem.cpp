@@ -26,6 +26,10 @@ namespace ScarletEngine
 		{
 		}
 
+		void AABBvsAABBColliderSystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		{
+		}
+
 		void AABBvsAABBColliderSystem::UpdateEntity(const EID Entity, double Dt) const
 		{
 			RigidBodyComponent* Rb = Reg->GetComponent<RigidBodyComponent>(Entity);
@@ -35,7 +39,7 @@ namespace ScarletEngine
 			Box->Min += Rb->Velocity * (float)Dt;
 		}
 
-		void AABBvsAABBColliderSystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		void AABBvsAABBColliderSystem::FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
 		{
 			// Move collider
 			for (int i = 0; i < Entities.size(); i++)
@@ -81,6 +85,10 @@ namespace ScarletEngine
 		{
 		}
 
+		void SphereVsSphereColliderSystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		{
+		}
+
 		void SphereVsSphereColliderSystem::UpdateEntity(const EID Entity, double Dt) const
 		{
 			RigidBodyComponent* Rb = Reg->GetComponent<RigidBodyComponent>(Entity);
@@ -89,7 +97,7 @@ namespace ScarletEngine
 			Sphere->Pos += Rb->Velocity * (float)Dt;
 		}
 
-		void SphereVsSphereColliderSystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		void SphereVsSphereColliderSystem::FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
 		{
 			// Move collider
 			for (int i = 0; i < Entities.size(); i++)
@@ -165,6 +173,10 @@ namespace ScarletEngine
 		{
 		}
 
+		void PlaneVsSphereColliderSystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		{
+		}
+
 		void PlaneVsSphereColliderSystem::UpdateEntity(const EID Entity, double Dt) const
 		{
 			RigidBodyComponent* Rb = Reg->GetComponent<RigidBodyComponent>(Entity);
@@ -176,7 +188,7 @@ namespace ScarletEngine
 			}
 		}
 
-		void PlaneVsSphereColliderSystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		void PlaneVsSphereColliderSystem::FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
 		{
 			// Move collider
 			for (int i = 0; i < Entities.size(); i++)

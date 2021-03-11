@@ -15,6 +15,7 @@ namespace ScarletEngine
 		public:
 			RigidBodySystem(Registry* InReg, const String& InName);
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
+			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 		};
 	}
