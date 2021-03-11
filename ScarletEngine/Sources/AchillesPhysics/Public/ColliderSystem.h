@@ -22,6 +22,7 @@ namespace ScarletEngine
 		public:
 			AABBvsAABBColliderSystem(Registry* InReg, const String& InName);
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
+			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			glm::vec3 GetIntersection(BoxColliderComponent* BoxA, BoxColliderComponent* BoxB) const;
 		};
@@ -31,6 +32,7 @@ namespace ScarletEngine
 		public:
 			SphereVsSphereColliderSystem(Registry* InReg, const String& InName);
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
+			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			IntersectionData* GetIntersection(SphereColliderComponent* SphereA, SphereColliderComponent* SphereB) const;
 		};
@@ -40,6 +42,7 @@ namespace ScarletEngine
 		public:
 			PlaneVsSphereColliderSystem(Registry* InReg, const String& InName);
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
+			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			IntersectionData* GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const;
 		};
