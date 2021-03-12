@@ -18,7 +18,14 @@ namespace ScarletEngine
 		return Ptr;
 	}
 
-	void _ScarDelete(void* Ptr);
+	template <typename T>
+	inline void _ScarDelete(T* Ptr)
+	{
+		check(Ptr != nullptr);
+		MemoryTracker::Get().RemoveAlloc(Ptr);
+		TracyFree(Ptr);
+		delete Ptr;
+	}
 }
 
 #define ScarNew(TypeName, ...) ScarletEngine::_ScarNew<TypeName>(__VA_ARGS__)
