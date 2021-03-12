@@ -18,8 +18,8 @@ namespace ScarletEngine
 
 		virtual ~ISystem() {}
 
-		virtual void Update(double DeltaTime, EID EntityID) const {}
-		virtual void FixedUpdate(double DeltaTime, EID EntityID) const {}
+		virtual void Update(double /* DeltaTime */, EID /* EntityID */) const {}
+		virtual void FixedUpdate(double /* DeltaTime */, EID /* EntityID */) const {}
 
 		Registry* Reg;
 		String Name;
