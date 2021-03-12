@@ -34,9 +34,9 @@ namespace ScarletEngine
 		snprintf(Buff, 32, "Frame time: %.2f ms", FrameTimeMean);
 		{
 			ZoneScopedN("Plot Frametimes")
-			ImGui::PlotLines("", FrameTimes, IM_ARRAYSIZE(FrameTimes), CurrentFrameTimeIndex, Buff, 0.f, 20.f, ImVec2(ContentRegion.x, 80.0f));
+			ImGui::PlotLines("", FrameTimes, IM_ARRAYSIZE(FrameTimes), CurrentFrameTimeIndex, Buff, 0.0f, 0.02f, ImVec2(ContentRegion.x, 80.0f));
 		}
-		ImGui::Text("FPS: %.1f", (double)(1.f / FrameTimeMean) * 1000.f);
+		ImGui::Text("FPS: %.1f", (double)(1.f / FrameTimeMean));
 
 		ImGui::Text(" ");
 		ImGui::Text("Memory");

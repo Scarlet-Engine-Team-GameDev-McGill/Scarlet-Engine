@@ -52,7 +52,7 @@ namespace ScarletEngine
 		Array<ITickable*> TickableQueue;
 		/** Used to lock the TickableQueue */
 		std::mutex TickableQueueMutex;
-
+		
 		/** Main engine application window */
 		ApplicationWindow* AppWindow = nullptr;
 
