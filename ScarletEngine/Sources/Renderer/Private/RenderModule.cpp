@@ -11,7 +11,7 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 #ifdef RAL_USE_OPENGL
-		RAL::Instance = UniquePtr<RAL>(GlobalAllocator<OpenGLRAL>::New());
+		RAL::Instance = UniquePtr<RAL>(ScarNew(OpenGLRAL));
 		RAL::API = RenderAPI::OpenGL;
 #elif defined RAL_USE_VULKAN
 		// initialize a vulkan RAL
@@ -40,7 +40,7 @@ namespace ScarletEngine
 	Viewport* RenderModule::CreateViewport(uint32_t Width, uint32_t Height)
 	{
 		ZoneScoped
-		return GlobalAllocator<Viewport>::New(Width, Height);
+		return ScarNew(Viewport, Width, Height);
 	}
 
 	void RenderModule::DrawScene(SceneProxy* Scene, Viewport* ActiveViewport)

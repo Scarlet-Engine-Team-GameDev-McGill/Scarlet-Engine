@@ -17,4 +17,13 @@ namespace ScarletEngine
 		TracyFree(Ptr);
 		std::free(Ptr);
 	}
+
+	void _ScarDelete(void* Ptr)
+	{
+		check(Ptr != nullptr);
+		MemoryTracker::Get().RemoveAlloc(Ptr);
+		TracyFree(Ptr);
+		delete Ptr;
+	}
+
 }

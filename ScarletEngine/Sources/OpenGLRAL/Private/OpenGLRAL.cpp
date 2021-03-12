@@ -150,36 +150,36 @@ namespace ScarletEngine
 	RALFramebuffer* OpenGLRAL::CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples) const
 	{
 		ZoneScoped
-		return GlobalAllocator<OpenGLFramebuffer>::New(Width, Height, Samples);
+		return ScarNew(OpenGLFramebuffer, Width, Height, Samples);
 	}
 
 	ScarletEngine::RALTexture2D* OpenGLRAL::CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle) const
 	{
 		ZoneScoped
-		return GlobalAllocator<OpenGLTexture2D>::New(AssetHandle);
+		return ScarNew(OpenGLTexture2D, AssetHandle);
 	}
 
 	RALGpuBuffer* OpenGLRAL::CreateBuffer(uint32_t Size, RALBufferUsage Usage) const
 	{
 		ZoneScoped
-		return GlobalAllocator<OpenGLGpuBuffer>::New(Size, Usage);
+		return ScarNew(OpenGLGpuBuffer, Size, Usage);
 	}
 
 	RALVertexArray* OpenGLRAL::CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB) const
 	{
 		ZoneScoped
-		return GlobalAllocator<OpenGLVertexArray>::New(VB, IB);
+		return ScarNew(OpenGLVertexArray, VB, IB);
 	}
 
 	RALShader* OpenGLRAL::CreateShader(RALShaderStage Stage, const String& ShaderPath) const
 	{
 		ZoneScoped
-		return GlobalAllocator<OpenGLShader>::New(Stage, ShaderPath);
+		return ScarNew(OpenGLShader, Stage, ShaderPath);
 	}
 
 	RALShaderProgram* OpenGLRAL::CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) const
 	{
 		ZoneScoped
-		return GlobalAllocator<OpenGLShaderProgram>::New(InVertexShader, InPixelShader, InGeometryShader, InComputeShader);
+		return ScarNew(OpenGLShaderProgram, InVertexShader, InPixelShader, InGeometryShader, InComputeShader);
 	}
 }

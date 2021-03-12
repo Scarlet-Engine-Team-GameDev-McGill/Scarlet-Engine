@@ -10,7 +10,7 @@ namespace ScarletEngine
 
 	Viewport::~Viewport()
 	{
-		GlobalAllocator<RALFramebuffer>::Free(Framebuffer);
+		ScarDelete(Framebuffer);
 	}
 
 	void Viewport::Bind() const

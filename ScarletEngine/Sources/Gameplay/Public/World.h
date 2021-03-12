@@ -42,7 +42,7 @@ namespace ScarletEngine
 		System<SystemSig...>& AddSystem(const String& Name)
 		{
 			ZoneScoped
-			return *static_cast<System<SystemSig...>*>(Systems.emplace_back(GlobalAllocator<System<SystemSig...>>::New(&Reg, Name)).get());
+			return *static_cast<System<SystemSig...>*>(Systems.emplace_back(ScarNew(System<SystemSig...>, &Reg, Name)).get());
 		}
 
 		auto GetEntities()

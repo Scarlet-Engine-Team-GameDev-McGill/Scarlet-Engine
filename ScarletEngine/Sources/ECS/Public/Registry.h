@@ -219,7 +219,7 @@ namespace ScarletEngine
 			ComponentContainer<T>* Container = GetComponentContainer<T>();
 			if (!Container)
 			{
-				Container = GlobalAllocator<ComponentContainer<T>>::New();
+				Container = ScarNew(ComponentContainer<T>);
 				ComponentContainers[ComponentTypeID<T>::Value()] = UniquePtr<IComponentContainer>(Container);
 			}
 			return Container;

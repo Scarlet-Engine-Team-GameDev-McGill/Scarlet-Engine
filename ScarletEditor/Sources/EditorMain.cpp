@@ -38,8 +38,8 @@ int main()
 		auto VertShader = RAL::Get().CreateShader(RALShaderStage::Vertex, "/ScarletEngine/Shaders/test_shader.vert");
 		auto FragShader = RAL::Get().CreateShader(RALShaderStage::Pixel, "/ScarletEngine/Shaders/test_shader.frag");
 		Mesh->Shader = RAL::Get().CreateShaderProgram(VertShader, FragShader, nullptr, nullptr);
-		GlobalAllocator<RALShader>::Free(VertShader);
-		GlobalAllocator<RALShader>::Free(FragShader);
+		ScarDelete(VertShader);
+		ScarDelete(FragShader);
 	}
 
 	GEngine->Run();
