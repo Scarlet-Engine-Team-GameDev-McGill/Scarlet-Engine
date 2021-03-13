@@ -2,8 +2,8 @@
 
 #include "RenderModule.h"
 #include "Editor.h"
-#include "ImGui.h"
-#include "ImGuizmo.h"
+#include <imgui.h>
+#include <ImGuizmo.h>
 #include <glm/gtx/matrix_decompose.hpp>
 
 namespace ScarletEngine
@@ -20,6 +20,7 @@ namespace ScarletEngine
 		, bViewportIsHovered(false)
 		, bShowGrid(true)
 		, bShowCube(true)
+		, bShowViewOptions(false)
 	{
 		ZoneScoped
 		char Buffer[32];
