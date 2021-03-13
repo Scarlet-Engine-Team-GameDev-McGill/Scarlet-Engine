@@ -17,7 +17,12 @@ namespace ScarletEngine
 		~ITickable();
 
 		/** Called each frame by the Engine with the delta time since the last Tick. */
-		virtual void Tick(double DeltaTime) = 0;
+		virtual void Tick(double /* DeltaTime */) {}
+
+		/** Called at a fixed-interval with a fixed timestep. */
+		virtual void FixedTick(double /* DeltaTime */) {}
+
+		virtual bool WantsVariableTimestep() const { return true; }
 
 		/** Override if object wants a fixed timestep rather than variable */
 		virtual bool WantsFixedTimestep() const { return false; }

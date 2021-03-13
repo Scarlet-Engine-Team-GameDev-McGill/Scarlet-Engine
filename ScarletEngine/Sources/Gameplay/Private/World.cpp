@@ -15,7 +15,7 @@ namespace ScarletEngine
 
 		SceneProxy* ProxyPtr = &RenderSceneProxy;
 		AddSystem<const Transform, const StaticMeshComponent>("Draw Static Meshes")
-			.Each([ProxyPtr](const EID, const Transform& Trans, const StaticMeshComponent& SMC)
+			.Each([ProxyPtr](double, const EID, const Transform& Trans, const StaticMeshComponent& SMC)
 				{
 					ProxyPtr->DrawSMC(Trans, SMC);
 				});
@@ -26,7 +26,12 @@ namespace ScarletEngine
 		ZoneScoped
 		LastDeltaTime = DeltaTime;
 		RenderSceneProxy.Reset();
-		RunSystems();
+		RunSystems(DeltaTime);
+	}
+
+	void World::FixedTick(double DeltaTime)
+	{
+		RunFixedSystem(DeltaTime);
 	}
 
 }

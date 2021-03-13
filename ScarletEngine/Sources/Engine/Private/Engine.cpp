@@ -8,7 +8,7 @@
 #include "ModuleManager.h"
 #include "Window.h"
 
-#define FIXED_UPDATE_MS 20.0
+#define FIXED_UPDATE_S 0.020
 
 namespace ScarletEngine
 {
@@ -48,7 +48,7 @@ namespace ScarletEngine
 
 		std::chrono::high_resolution_clock Clock;
 
-		using ms = std::chrono::duration<double, std::milli>;
+		using seconds = std::chrono::duration<double, std::ratio<1>>;
 		auto LastTime = Clock.now();
 		double Lag = 0.0;
 
@@ -56,7 +56,7 @@ namespace ScarletEngine
 		while (bIsRunning)
 		{
 			FrameMark
-			const double DeltaTime = std::chrono::duration_cast<ms>(Clock.now() - LastTime).count();
+			const double DeltaTime = std::chrono::duration_cast<seconds>(Clock.now() - LastTime).count();
 			LastTime = Clock.now();
 			Lag += DeltaTime;
 
@@ -64,12 +64,12 @@ namespace ScarletEngine
 			// In this scope we are ticking objects
 			{
 				bTickingObjects = true;
-				// If it has been more than FIXED_UPDATE_MS since our last fixed timestep update,
+				// If it has been more than FIXED_UPDATE_S since our last fixed timestep update,
 				// we should run a fixed update before running a regular update
-				while (Lag >= FIXED_UPDATE_MS)
+				while (Lag >= FIXED_UPDATE_S)
 				{
-					Lag -= FIXED_UPDATE_MS;
-					FixedUpdate(FIXED_UPDATE_MS);
+					Lag -= FIXED_UPDATE_S;
+					FixedUpdate(FIXED_UPDATE_S);
 				}
 
 				Update(DeltaTime);
@@ -127,7 +127,7 @@ namespace ScarletEngine
 		ZoneScoped
 		for (const auto Tickable : FixedUpdateTickables)
 		{
-			Tickable->Tick(DeltaTime);
+			Tickable->FixedTick(DeltaTime);
 		}
 	}
 
@@ -153,7 +153,7 @@ namespace ScarletEngine
 				FixedUpdateTickables.erase(It, FixedUpdateTickables.end());
 			}
 		}
-		else
+		if (TickableObject->WantsVariableTimestep())
 		{
 			auto It = std::remove(VariableUpdateTickables.begin(), VariableUpdateTickables.end(), TickableObject);
 			if (It != VariableUpdateTickables.end())
@@ -184,7 +184,8 @@ namespace ScarletEngine
 		{
 			FixedUpdateTickables.push_back(TickableObject);
 		}
-		else
+
+		if (TickableObject->WantsVariableTimestep())
 		{
 			VariableUpdateTickables.push_back(TickableObject);
 		}

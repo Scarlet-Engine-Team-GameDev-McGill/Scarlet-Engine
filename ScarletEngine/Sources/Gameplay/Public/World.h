@@ -17,6 +17,9 @@ namespace ScarletEngine
 		void Initialize();
 
 		virtual void Tick(double DeltaTime) override;
+		virtual void FixedTick(double DeltaTime) override;
+
+		virtual bool WantsFixedTimestep() const override { return true; }
 
 		inline double GetDeltaTime() const { return LastDeltaTime; }
 
@@ -58,14 +61,25 @@ namespace ScarletEngine
 			return Reg.GetComponent<ComponentType>(Ent.ID);
 		}
 	private:
-		void RunSystems()
+		void RunSystems(double DeltaTime)
 		{
 			ZoneScoped
 			for (const auto& Sys : Systems)
 			{
 				for (const SharedPtr<Entity>& Ent : Entities)
 				{
-					Sys->Run(Ent->ID);
+					Sys->Update(DeltaTime, Ent->ID);
+				}
+			}
+		}
+
+		void RunFixedSystem(double DeltaTime)
+		{
+			for (const auto& Sys : Systems)
+			{
+				for (const SharedPtr<Entity>& Ent : Entities)
+				{
+					Sys->FixedUpdate(DeltaTime, Ent->ID);
 				}
 			}
 		}
