@@ -19,21 +19,6 @@ namespace ScarletEngine
 			MemUsed += Size;
 		}
 
-		void RemoveAlloc(void* Ptr, size_t Size)
-		{
-			ZoneScoped
-			if (Allocs.find(Ptr) != Allocs.end())
-			{
-				Allocs.erase(Ptr);
-				MemUsed -= Size;
-			}
-			else
-			{
-				// Attempting to delete a pointer which is not tracked by the application
-				check(false);
-			}
-		}
-
 		void RemoveAlloc(void* Ptr)
 		{
 			if (auto It = Allocs.find(Ptr); It != Allocs.end())
@@ -55,6 +40,6 @@ namespace ScarletEngine
 	private:
 		// Using a regular std::unordered map to prevent tracking memory used by this
 		std::unordered_map<void*, AllocationInfo> Allocs;
-		size_t MemUsed;
+		size_t MemUsed = 0;
 	};
 }

@@ -82,7 +82,7 @@ namespace ScarletEngine
 		{
 			if (Items.find(Ent->ID) == Items.end())
 			{
-				Items.emplace(Ent->ID, GlobalAllocator<SceneHierarchyItem>::New(Ent));
+				Items.emplace(Ent->ID, ScarNew(SceneHierarchyItem, Ent));
 			}
 		}
 	}
@@ -93,7 +93,7 @@ namespace ScarletEngine
 		// If the item is not in the map, emplace it
 		if (Items.find(AddedEntity->ID) == Items.end())
 		{
-			Items.emplace(AddedEntity->ID, GlobalAllocator<SceneHierarchyItem>::New(AddedEntity));
+			Items.emplace(AddedEntity->ID, ScarNew(SceneHierarchyItem, AddedEntity));
 		}
 	}
 

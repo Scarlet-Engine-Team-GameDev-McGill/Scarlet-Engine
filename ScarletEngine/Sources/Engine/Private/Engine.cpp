@@ -31,7 +31,7 @@ namespace ScarletEngine
 		ZoneScoped
 		Logger::Get().SetLogFile("Log.txt");
 
-		AppWindow = GlobalAllocator<ApplicationWindow>::New(800, 600, "Scarlet Engine");
+		AppWindow = ScarNew(ApplicationWindow, 800, 600, "Scarlet Engine");
 		check(AppWindow);
 
 		AppWindow->OnWindowCloseEvent().Bind([this]() { SignalQuit(); });
@@ -103,7 +103,7 @@ namespace ScarletEngine
 		ZoneScoped
 		ModuleManager::Shutdown();
 
-		GlobalAllocator<ApplicationWindow>::Free(AppWindow);
+		ScarDelete(AppWindow);
 
 		bIsInitialized = false;
 		VariableUpdateTickables.clear();
