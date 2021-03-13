@@ -136,15 +136,19 @@ namespace ScarletEngine
 
 			glm::mat4 TransformMatrix = TransformComponent->GetTransformMatrix();
 			ImGuizmo::Manipulate(glm::value_ptr(ViewportCamera.GetView()), glm::value_ptr(ViewportCamera.GetProj()), ImGuizmo::TRANSLATE, ImGuizmo::WORLD, glm::value_ptr(TransformMatrix));
-			glm::vec3 Position{};
-			glm::quat Rotation{};
-			glm::vec3 Scale{};
-			glm::vec3 Skew{};
-			glm::vec4 Perspective{};
-			glm::decompose(TransformMatrix, Scale, Rotation, Position, Skew, Perspective);
-			TransformComponent->Position = Position;
-			TransformComponent->Rotation = glm::degrees(glm::eulerAngles(Rotation));
-			TransformComponent->Scale = Scale;
+			
+			if (ImGui::IsWindowFocused())
+			{
+				glm::vec3 Position{};
+				glm::quat Rotation{};
+				glm::vec3 Scale{};
+				glm::vec3 Skew{};
+				glm::vec4 Perspective{};
+				glm::decompose(TransformMatrix, Scale, Rotation, Position, Skew, Perspective);
+				TransformComponent->Position = Position;
+				TransformComponent->Rotation = glm::degrees(glm::eulerAngles(Rotation));
+				TransformComponent->Scale = Scale;
+			}
 		}
 	}
 }
