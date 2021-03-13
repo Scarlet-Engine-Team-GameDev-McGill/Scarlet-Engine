@@ -24,8 +24,8 @@ int main()
 		// Test entity
 		auto [Ent, Trans, Mesh] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent>("Monkey");
 
-		Trans->Position = glm::vec3(0.f);
-		Trans->Rotation = glm::vec3(90.f, 0.f, 0.f);
+		Trans->Position = glm::vec3(0.f, 1.f, 0.f);
+		Trans->Rotation = glm::vec3(0.f, 0.f, 0.f);
 		Trans->Scale = glm::vec3(0.5f);
 
 		Mesh->MeshHandle = AssetManager::LoadStaticMesh("/ScarletEngine/Content/Monkey.obj");

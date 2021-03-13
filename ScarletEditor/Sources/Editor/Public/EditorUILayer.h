@@ -8,6 +8,8 @@ namespace ScarletEngine
 	{
 	public:
 		virtual void Initialize() override;
+		
+		virtual void BeginFrame() override;
 		virtual void Draw() override;
 	private:
 		void AddViewport();

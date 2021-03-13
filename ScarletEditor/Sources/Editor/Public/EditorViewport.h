@@ -29,5 +29,8 @@ namespace ScarletEngine
 		glm::vec2 PanelSize;
 		bool bViewportIsFocused;
 		bool bViewportIsHovered;
+		bool bShowViewOptions;
+		bool bShowGrid;
+		bool bShowCube;
 	};
 }

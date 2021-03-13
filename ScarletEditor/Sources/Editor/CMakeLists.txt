@@ -5,7 +5,8 @@ set(Editor_PrivateDeps
 	"SceneGraph"
 	"OutputLog"
 	"PropertyEditor"
-	"AssetView")
+	"AssetView"
+	"ImGuizmo")
 
 set(Editor_PublicDeps
 	"Gameplay"
