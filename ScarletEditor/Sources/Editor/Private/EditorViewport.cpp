@@ -90,12 +90,15 @@ namespace ScarletEngine
 		const ImVec2 WindowPos = ImGui::GetWindowPos();
 		ImGui::SetNextWindowPos(ImVec2(WindowPos.x + 16.f, WindowPos.y + 16.f));
 		ImGui::SetNextWindowBgAlpha(0.8f);
-		if (ImGui::Begin("View Options", 0, ImGuiWindowFlags_NoMove))
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 12.f);
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 12.f);
+		if (ImGui::Begin("View Options", 0, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
 		{
 			ImGui::Checkbox("Show Grid", &bShowGrid);
 			ImGui::Checkbox("Show Cube", &bShowCube);
 		}
 		ImGui::End();
+		ImGui::PopStyleVar(2);
 
 		PanelSize = ImGui::GetContentRegionAvail();
 

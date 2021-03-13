@@ -14,13 +14,13 @@ namespace ScarletEngine
 		// #todo: cache this
 		glm::mat4 GetTransformMatrix() const
 		{
-			glm::mat4 Trans(1.f);
-			Trans = glm::scale(Trans, Scale);
-			Trans = glm::rotate(Trans, glm::radians(Rotation.x), { 1, 0, 0 });
-			Trans = glm::rotate(Trans, glm::radians(Rotation.y), { 0, 1, 0 });
-			Trans = glm::rotate(Trans, glm::radians(Rotation.z), { 0, 0, 1 });
-			Trans = glm::translate(Trans, Position);
-			return Trans;
+			glm::mat4 Identity(1.f);
+			glm::mat4 ScaleMatrix = glm::scale(Identity, Scale);
+			glm::mat4 RotationMatrix = glm::rotate(Identity, glm::radians(Rotation.x), { 1, 0, 0 });
+			RotationMatrix = glm::rotate(RotationMatrix, glm::radians(Rotation.y), { 0, 1, 0 });
+			RotationMatrix = glm::rotate(RotationMatrix, glm::radians(Rotation.z), { 0, 0, 1 });
+			glm::mat4 TranslationMatrix = glm::translate(Identity, Position);
+			return TranslationMatrix * RotationMatrix * ScaleMatrix;
 		}
 	};
 }

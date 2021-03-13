@@ -24,9 +24,11 @@ int main()
 		// Test entity
 		auto [Ent, Trans, Mesh] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent>("Monkey");
 
-		Trans->Position = glm::vec3(0.f, 1.f, 0.f);
+		Trans->Position = glm::vec3(0.f, 0.5f, 0.f);
 		Trans->Rotation = glm::vec3(0.f, 0.f, 0.f);
 		Trans->Scale = glm::vec3(0.5f);
+
+		glm::mat4 transform = Trans->GetTransformMatrix();
 
 		Mesh->MeshHandle = AssetManager::LoadStaticMesh("/ScarletEngine/Content/Monkey.obj");
 		Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
