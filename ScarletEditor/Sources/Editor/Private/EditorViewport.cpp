@@ -20,7 +20,6 @@ namespace ScarletEngine
 		, bViewportIsHovered(false)
 		, bShowGrid(true)
 		, bShowCube(true)
-		, bShowViewOptions(false)
 	{
 		ZoneScoped
 		char Buffer[32];

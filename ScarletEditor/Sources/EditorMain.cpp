@@ -28,8 +28,6 @@ int main()
 		Trans->Rotation = glm::vec3(0.f, 0.f, 0.f);
 		Trans->Scale = glm::vec3(0.5f);
 
-		glm::mat4 transform = Trans->GetTransformMatrix();
-
 		Mesh->MeshHandle = AssetManager::LoadStaticMesh("/ScarletEngine/Content/Monkey.obj");
 		Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
 		Mesh->VertexBuff->UploadData(Mesh->MeshHandle->Vertices.data(), Mesh->MeshHandle->Vertices.size() * sizeof(Vertex));
