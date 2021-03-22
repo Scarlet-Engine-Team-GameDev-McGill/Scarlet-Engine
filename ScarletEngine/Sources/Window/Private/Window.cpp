@@ -84,6 +84,7 @@ namespace ScarletEngine
 #endif
 #elif defined RAL_USE_VULKAN
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // for now prevent resizing the window until swapchain recreation is supported
 #endif
 
 		glfwWindowHint(GLFW_SAMPLES, 4);

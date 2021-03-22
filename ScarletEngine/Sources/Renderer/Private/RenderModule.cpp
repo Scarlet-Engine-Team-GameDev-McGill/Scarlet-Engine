@@ -1,6 +1,7 @@
 #include "RenderModule.h"
 #include "CoreUtils.h"
 #include "OpenGLRAL.h"
+#include "VulkanRAL.h"
 #include "Transform.h"
 #include "SceneProxy.h"
 #include "Viewport.h"
@@ -17,7 +18,8 @@ namespace ScarletEngine
 		RAL::API = RenderAPI::OpenGL;
 #elif defined RAL_USE_VULKAN
 		// initialize a vulkan RAL
-
+		RAL::Instance = UniquePtr<RAL>(ScarNew(VulkanRAL));
+		RAL::API = RenderAPI::Vulkan;
 #else
 		RAL::API = RenderAPI::Invalid;
 #endif

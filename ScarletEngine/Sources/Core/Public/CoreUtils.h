@@ -11,7 +11,12 @@
 #define PLATFORM_BREAK() raise(SIGTRAP);
 #endif
 
+// todo (core): untie DO_CHECK from debug mode
 #ifdef DEBUG
+#define DO_CHECK
+#endif
+
+#ifdef DO_CHECK
 #define check(pred)	\
 {					\
 	if (!(pred))	\

@@ -15,10 +15,15 @@ configure_files("${CMAKE_CURRENT_SOURCE_DIR}/Content" "${CMAKE_CURRENT_BINARY_DI
 configure_files("${CMAKE_CURRENT_SOURCE_DIR}/Shaders" "${CMAKE_CURRENT_BINARY_DIR}/Shaders")
 
 set(GRAPHICS_API "OpenGL" CACHE STRING "Which Graphics API to use")
+
 if (GRAPHICS_API STREQUAL "OpenGL")
+	message(STATUS "Using OpenGL")
 	add_definitions(-DRAL_USE_OPENGL)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Vulkan")
+elseif(GRAPHICS_API STREQUAL "Vulkan")
+	message(STATUS "Using Vulkan")
 	add_definitions(-DRAL_USE_VULKAN)
+else()
+	message(STATUS "Error: Invalid Graphics API Selected! (${GRAPHICS_API})")
 endif()
 
 define_property(GLOBAL PROPERTY ScarletEngineModulesProperty
@@ -78,6 +83,7 @@ add_subdirectory("Sources/AssetManager")
 add_subdirectory("Sources/UI")
 add_subdirectory("Sources/ECS")
 add_subdirectory("Sources/OpenGLRAL")
+add_subdirectory("Sources/VulkanRAL")
 add_subdirectory("Sources/Renderer")
 add_subdirectory("Sources/RAL")
 add_subdirectory("Sources/Gameplay")

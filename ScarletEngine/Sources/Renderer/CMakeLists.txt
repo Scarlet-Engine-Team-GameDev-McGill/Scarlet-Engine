@@ -1,7 +1,8 @@
 set(RenderModule_PrivateDeps
 	"Core"
 	"OpenGLRAL"
-	"ECS")
+	"VulkanRAL"
+    "ECS")
 
 set(RenderModule_PublicDeps
 	"RAL")
