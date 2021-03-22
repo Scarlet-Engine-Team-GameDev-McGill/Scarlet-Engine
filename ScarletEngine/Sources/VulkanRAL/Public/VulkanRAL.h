@@ -65,6 +65,16 @@ namespace ScarletEngine
 		static VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& Capabilities);
 		void CreateSwapchain();
 		void CreateSwapchainImageViews();
+
+		static Array<char> ReadShaderFile(const String& Filename);
+		VkShaderModule CreateShaderModule(const Array<char>& Code) const;
+		void CreateRenderPass();
+		void CreateGraphicsPipeline();
+
+		void CreateFramebuffers();
+
+		void CreateCommandPool();
+		void CreateCommandBuffers();
 	private:
 		VkInstance Instance = VK_NULL_HANDLE;
 		VkDebugUtilsMessengerEXT DebugMessenger = VK_NULL_HANDLE;
@@ -80,7 +90,15 @@ namespace ScarletEngine
 		VkExtent2D SwapchainImageExtent;
 		Array<VkImage> SwapchainImages;
 		Array<VkImageView> SwapchainImageViews;
+		Array<VkFramebuffer> SwapchainFramebuffers;
 
+		VkRenderPass RenderPass = VK_NULL_HANDLE;
+		VkPipelineLayout PipelineLayout = VK_NULL_HANDLE;
+		VkPipeline GraphicsPipeline = VK_NULL_HANDLE;
+
+		VkCommandPool CommandPool = VK_NULL_HANDLE;
+		Array<VkCommandBuffer> CommandBuffers;
+		
 		Array<const char*> RequiredInstanceLayers;
 		Array<const char*> RequiredInstanceExtensions;
 		Array<const char*> RequiredDeviceExtensions;

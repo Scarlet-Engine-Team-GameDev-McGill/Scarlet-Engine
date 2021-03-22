@@ -5,6 +5,7 @@
 #include "Window.h"
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
+#include <fstream>
 
 #define CHECK_RESULT(Res) check(Res == VK_SUCCESS) 
 
@@ -477,6 +478,274 @@ namespace ScarletEngine
 		}
 	}
 
+	Array<char> VulkanRAL::ReadShaderFile(const String& Filename)
+	{
+		std::ifstream ShaderFile(Filename, std::ios::ate | std::ios::binary);
+
+		if (!ShaderFile.is_open())
+		{
+			SCAR_LOG(LogError, "Unable to open shader file (%s)", Filename.c_str());
+			return Array<char>();
+		}
+
+		const size_t FileSize = static_cast<size_t>(ShaderFile.tellg());
+		Array<char> Buffer(FileSize);
+
+		ShaderFile.seekg(0);
+		ShaderFile.read(Buffer.data(), FileSize);
+		ShaderFile.close();
+		return Buffer;
+	}
+
+	VkShaderModule VulkanRAL::CreateShaderModule(const Array<char>& Code) const
+	{
+		VkShaderModuleCreateInfo CreateInfo{};
+		CreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		CreateInfo.codeSize = Code.size();
+		CreateInfo.pCode = reinterpret_cast<const uint32_t*>(Code.data());
+
+		VkShaderModule ShaderModule;
+		CHECK_RESULT(vkCreateShaderModule(LogicalDevice, &CreateInfo, nullptr, &ShaderModule));
+		return ShaderModule;
+	}
+
+	void VulkanRAL::CreateRenderPass()
+	{
+		VkAttachmentDescription ColorAttachment{};
+		ColorAttachment.format = SwapchainImageFormat;
+		ColorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		ColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		ColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		ColorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		ColorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		ColorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		ColorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+		VkAttachmentReference ColorAttachmentRef{};
+		ColorAttachmentRef.attachment = 0;
+		ColorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkSubpassDescription Subpass{};
+		Subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		Subpass.colorAttachmentCount = 1;
+		Subpass.pColorAttachments = &ColorAttachmentRef;
+
+		VkRenderPassCreateInfo RenderPassInfo{};
+		RenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		RenderPassInfo.attachmentCount = 1;
+		RenderPassInfo.pAttachments = &ColorAttachment;
+		RenderPassInfo.subpassCount = 1;
+		RenderPassInfo.pSubpasses = &Subpass;
+
+		CHECK_RESULT(vkCreateRenderPass(LogicalDevice, &RenderPassInfo, nullptr, &RenderPass));
+	}
+	
+	void VulkanRAL::CreateGraphicsPipeline()
+	{
+		const Array<char> VertexShaderCode = ReadShaderFile("../Shaders/vert.spv");
+		const Array<char> FragmentShaderCode = ReadShaderFile("../Shaders/frag.spv");
+
+		const VkShaderModule VertexShaderModule = CreateShaderModule(VertexShaderCode);
+		const VkShaderModule FragmentShaderModule = CreateShaderModule(FragmentShaderCode);
+
+		VkPipelineShaderStageCreateInfo VertexShaderStageInfo{};
+		VertexShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		VertexShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		VertexShaderStageInfo.module = VertexShaderModule;
+		VertexShaderStageInfo.pName = "main";
+
+		VkPipelineShaderStageCreateInfo FragmentShaderStageInfo{};
+		FragmentShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		FragmentShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		FragmentShaderStageInfo.module = FragmentShaderModule;
+		FragmentShaderStageInfo.pName = "main";
+
+		VkPipelineShaderStageCreateInfo ShaderStages[] = { VertexShaderStageInfo, FragmentShaderStageInfo };
+
+		VkPipelineVertexInputStateCreateInfo VertexInputInfo{};
+		VertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		VertexInputInfo.vertexBindingDescriptionCount = 0;
+		VertexInputInfo.pVertexBindingDescriptions = nullptr;
+		VertexInputInfo.vertexAttributeDescriptionCount = 0;
+		VertexInputInfo.pVertexAttributeDescriptions = nullptr;
+
+		VkPipelineInputAssemblyStateCreateInfo InputAssembly{};
+		InputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		InputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		InputAssembly.primitiveRestartEnable = VK_TRUE;
+
+		VkViewport Viewport{};
+		Viewport.x = 0.f;
+		Viewport.y = 0.f;
+		Viewport.width = static_cast<float>(SwapchainImageExtent.width);
+		Viewport.height = static_cast<float>(SwapchainImageExtent.height);
+		Viewport.minDepth = 0.f;
+		Viewport.maxDepth = 1.f;
+
+		VkRect2D Scissor{};
+		Scissor.offset = { 0.f, 0.f };
+		Scissor.extent = SwapchainImageExtent;
+
+		VkPipelineViewportStateCreateInfo ViewportState{};
+		ViewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+		ViewportState.viewportCount = 1;
+		ViewportState.pViewports = &Viewport;
+		ViewportState.scissorCount = 1;
+		ViewportState.pScissors = &Scissor;
+
+		VkPipelineRasterizationStateCreateInfo Rasterizer{};
+		Rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+		Rasterizer.depthClampEnable = VK_FALSE;
+		Rasterizer.rasterizerDiscardEnable = VK_FALSE;
+		Rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+		Rasterizer.lineWidth = 1.f;
+		Rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+		Rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		Rasterizer.depthBiasEnable = VK_FALSE;
+		Rasterizer.depthBiasConstantFactor = 0.f;
+		Rasterizer.depthBiasClamp = 0.f;
+		Rasterizer.depthBiasSlopeFactor = 0.f;
+
+		VkPipelineMultisampleStateCreateInfo MultisampleState{};
+		MultisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		MultisampleState.sampleShadingEnable = VK_FALSE;
+		MultisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+		MultisampleState.minSampleShading = 1.f;
+		MultisampleState.pSampleMask = nullptr;
+		MultisampleState.alphaToCoverageEnable = VK_FALSE;
+		MultisampleState.alphaToOneEnable = VK_FALSE;
+
+		VkPipelineColorBlendAttachmentState ColorBlendAttachmentState{};
+		ColorBlendAttachmentState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		ColorBlendAttachmentState.blendEnable = VK_FALSE;
+		ColorBlendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		ColorBlendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		ColorBlendAttachmentState.colorBlendOp = VK_BLEND_OP_ADD;
+		ColorBlendAttachmentState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+		ColorBlendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+		ColorBlendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD;
+
+		VkPipelineColorBlendStateCreateInfo  ColorBlending{};
+		ColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+		ColorBlending.logicOpEnable = VK_FALSE;
+		ColorBlending.logicOp = VK_LOGIC_OP_COPY;
+		ColorBlending.attachmentCount = 1;
+		ColorBlending.pAttachments = &ColorBlendAttachmentState;
+		ColorBlending.blendConstants[0] = 0.f;
+		ColorBlending.blendConstants[1] = 0.f;
+		ColorBlending.blendConstants[2] = 0.f;
+		ColorBlending.blendConstants[3] = 0.f;
+
+		VkPipelineLayoutCreateInfo PipelineLayoutInfo{};
+		PipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		PipelineLayoutInfo.setLayoutCount = 0;
+		PipelineLayoutInfo.pSetLayouts = nullptr;
+		PipelineLayoutInfo.pushConstantRangeCount = 0;
+		PipelineLayoutInfo.pPushConstantRanges = nullptr;
+
+		CHECK_RESULT(vkCreatePipelineLayout(LogicalDevice, &PipelineLayoutInfo, nullptr, &PipelineLayout));
+
+		VkGraphicsPipelineCreateInfo PipelineInfo{};
+		PipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		PipelineInfo.stageCount = 2;
+		PipelineInfo.pStages = ShaderStages;
+		PipelineInfo.pVertexInputState = &VertexInputInfo;
+		PipelineInfo.pInputAssemblyState = &InputAssembly;
+		PipelineInfo.pViewportState = &ViewportState;
+		PipelineInfo.pRasterizationState = &Rasterizer;
+		PipelineInfo.pMultisampleState = &MultisampleState;
+		PipelineInfo.pDepthStencilState = nullptr;
+		PipelineInfo.pColorBlendState = &ColorBlending;
+		PipelineInfo.pDynamicState = nullptr;
+		PipelineInfo.layout = PipelineLayout;
+		PipelineInfo.renderPass = RenderPass;
+		PipelineInfo.subpass = 0;
+		PipelineInfo.basePipelineHandle = nullptr;
+		PipelineInfo.basePipelineIndex = -1;
+
+		CHECK_RESULT(vkCreateGraphicsPipelines(LogicalDevice, VK_NULL_HANDLE,  1, &PipelineInfo, nullptr, &GraphicsPipeline));
+		
+		vkDestroyShaderModule(LogicalDevice, FragmentShaderModule, nullptr);
+		vkDestroyShaderModule(LogicalDevice, VertexShaderModule, nullptr);
+	}
+
+	void VulkanRAL::CreateFramebuffers()
+	{
+		SwapchainFramebuffers.resize(SwapchainImageViews.size());
+
+		for (size_t i = 0; i < SwapchainImageViews.size(); ++i)
+		{
+			VkImageView Attachments[] = { SwapchainImageViews[i] };
+
+			VkFramebufferCreateInfo FramebufferInfo{};
+			FramebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			FramebufferInfo.renderPass = RenderPass;
+			FramebufferInfo.attachmentCount = 1;
+			FramebufferInfo.pAttachments = Attachments;
+			FramebufferInfo.width = SwapchainImageExtent.width;
+			FramebufferInfo.height = SwapchainImageExtent.height;
+			FramebufferInfo.layers = 1;
+
+			CHECK_RESULT(vkCreateFramebuffer(LogicalDevice, &FramebufferInfo, nullptr, &SwapchainFramebuffers[i]));
+		}
+	}
+
+	void VulkanRAL::CreateCommandPool()
+	{
+		const QueueFamilyIndices QueueFamilies = FindQueueFamilies(PhysicalDevice);
+
+		VkCommandPoolCreateInfo PoolInfo{};
+		PoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		PoolInfo.queueFamilyIndex = QueueFamilies.GraphicsFamily.value();
+		PoolInfo.flags = 0;
+
+		CHECK_RESULT(vkCreateCommandPool(LogicalDevice, &PoolInfo, nullptr, &CommandPool));
+	}
+
+	void VulkanRAL::CreateCommandBuffers()
+	{
+		CommandBuffers.resize(SwapchainFramebuffers.size());
+
+		VkCommandBufferAllocateInfo AllocInfo{};
+		AllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		AllocInfo.commandPool = CommandPool;
+		AllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		AllocInfo.commandBufferCount = static_cast<uint32_t>(CommandBuffers.size());
+
+		CHECK_RESULT(vkAllocateCommandBuffers(LogicalDevice, &AllocInfo, CommandBuffers.data()));
+
+		for (size_t i = 0; i < CommandBuffers.size(); ++i)
+		{
+			VkCommandBufferBeginInfo BeginInfo{};
+			BeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			BeginInfo.flags = 0;
+			BeginInfo.pInheritanceInfo = nullptr;
+
+			CHECK_RESULT(vkBeginCommandBuffer(CommandBuffers[i], &BeginInfo));
+
+			VkRenderPassBeginInfo RenderPassBeginInfo{};
+			RenderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			RenderPassBeginInfo.renderPass = RenderPass;
+			RenderPassBeginInfo.framebuffer = SwapchainFramebuffers[i];
+			RenderPassBeginInfo.renderArea.offset = { 0, 0 };
+			RenderPassBeginInfo.renderArea.extent = SwapchainImageExtent;
+
+			VkClearValue ClearColor = {0.f, 0.f, 0.f, 1.f};
+			RenderPassBeginInfo.clearValueCount = 1;
+			RenderPassBeginInfo.pClearValues = &ClearColor;
+
+			vkCmdBeginRenderPass(CommandBuffers[i], &RenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+			vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
+
+			vkCmdDraw(CommandBuffers[i], 3, 1, 0, 0);
+
+			vkCmdEndRenderPass(CommandBuffers[i]);
+
+			CHECK_RESULT(vkEndCommandBuffer(CommandBuffers[i]));
+		}
+	}
+	
 	void VulkanRAL::Initialize()
 	{
 		CreateInstance();
@@ -486,10 +755,28 @@ namespace ScarletEngine
 		CreateLogicalDevice();
 		CreateSwapchain();
 		CreateSwapchainImageViews();
+		CreateRenderPass();
+		CreateGraphicsPipeline();
+		CreateFramebuffers();
+		CreateCommandPool();
+		CreateCommandBuffers();
 	}
 
 	void VulkanRAL::Terminate()
 	{
+		vkDestroyCommandPool(LogicalDevice, CommandPool, nullptr);
+		
+		for (VkFramebuffer& Framebuffer : SwapchainFramebuffers)
+		{
+			vkDestroyFramebuffer(LogicalDevice, Framebuffer, nullptr);
+		}
+		
+		vkDestroyPipeline(LogicalDevice, GraphicsPipeline, nullptr);
+		
+		vkDestroyPipelineLayout(LogicalDevice, PipelineLayout, nullptr);
+
+		vkDestroyRenderPass(LogicalDevice, RenderPass, nullptr);
+		
 		for (VkImageView& ImageView : SwapchainImageViews)
 		{
 			vkDestroyImageView(LogicalDevice, ImageView, nullptr);
