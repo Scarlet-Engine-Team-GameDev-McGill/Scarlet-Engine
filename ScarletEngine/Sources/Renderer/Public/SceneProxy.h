@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "StaticMeshComponent.h"
+#include "RenderModule.h"
 
 namespace ScarletEngine
 {

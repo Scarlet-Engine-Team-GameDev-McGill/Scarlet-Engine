@@ -29,6 +29,8 @@ namespace ScarletEngine
 	void RenderModule::Shutdown()
 	{
 		RAL::Get().Terminate();
+		RAL::Instance.reset();
+		RAL::API = RenderAPI::Invalid;
 	}
 
 
@@ -65,6 +67,4 @@ namespace ScarletEngine
 		
 		ActiveViewport->Unbind();
 	}
-
-	DECLARE_MODULE(RenderModule);
 }

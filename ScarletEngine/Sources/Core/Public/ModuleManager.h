@@ -1,54 +1,66 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IModule.h"
 
 namespace ScarletEngine
 {
-	class IModule;
-
 	class ModuleManager
 	{
 	public:
-		static void RegisterModule(IModule* Module);
+		template <typename ModuleType>
+		static void RegisterModule()
+		{
+			ModuleManager& Instance = GetInstance();
+			check(!Instance.bStarted);
+
+			SharedPtr<IModule> Module((IModule*)ScarNew(ModuleType));
+			Instance.ModulesToAdd.push_back(Module);
+		}
 
 		template <typename ModuleType>
 		NODISCARD static ModuleType* GetModule(const String& ModuleName)
 		{
-			return (Modules.find(ModuleName) != Modules.end()) ? static_cast<ModuleType*>(Modules.at(ModuleName)) : nullptr;
+			ModuleManager& Instance = GetInstance();
+			return (Instance.Modules.find(ModuleName) != Instance.Modules.end()) ? static_cast<ModuleType*>(Instance.Modules.at(ModuleName).get()) : nullptr;
 		}
 
 		template <typename ModuleType>
 		NODISCARD static ModuleType* GetModuleChecked(const String& ModuleName)
 		{
-			ModuleType* Ptr = GetModule<ModuleType>(ModuleName);
+			ModuleManager& Instance = GetInstance();
+			ModuleType* Ptr = Instance.GetModule<ModuleType>(ModuleName);
 			check(Ptr != nullptr);
 			return Ptr;
 		}
 
 		/** Startup all modules */
-		static void Startup(); 
+		void Startup(); 
 		/** Shutdown all modules */
-		static void Shutdown();
+		void Shutdown();
 
 		/** Update all modules */
-		static void PreUpdate();
-		static void Update();
-		static void PostUpdate();
+		void PreUpdate();
+		void Update();
+		void PostUpdate();
 
-		static String GetDependencyGraphViz();
+		String GetDependencyGraphViz();
+
+		static ModuleManager& GetInstance() { static ModuleManager Instance; return Instance; }
 	private:
 		/** Extract pointers to module dependencies based on module dependency names */
-		static void FillDependencyMap();
-		static void InitializeModuleAndDependencies(IModule* Module);
+		void FillDependencyMap();
+		/** Load a module and all it's dependencies */
+		void LoadModule_Impl(const SharedPtr<IModule>& Module);
 	private:
-		static UnorderedMap<String, IModule*> Modules;
+		UnorderedMap<String, SharedPtr<IModule>> Modules;
 		// In theory this doesn't need to be a class member but we will keep in here for debugging purposes
-		static UnorderedMap<IModule*, Set<IModule*>> ModuleDepMap;
-		static bool bStarted;
+		UnorderedMap<IModule*, Set<SharedPtr<IModule>>> ModuleDepMap;
+
+		Array<SharedPtr<IModule>> ModulesToAdd;
+		bool bStarted;
 	};
 }
-
-#define DECLARE_MODULE(ModuleType) ModuleType _##ModuleType
 
 #define IMPLEMENT_MODULE(ModuleType, ...) \
 	virtual Array<const char*> GetDependencies() const override { return {#__VA_ARGS__};} \
