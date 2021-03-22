@@ -494,11 +494,6 @@ namespace ScarletEngine
 		{
 			vkDestroyImageView(LogicalDevice, ImageView, nullptr);
 		}
-
-		for (VkImage& Image: SwapchainImages)
-		{
-			vkDestroyImage(LogicalDevice, Image, nullptr);
-		}
 		
 		vkDestroySwapchainKHR(LogicalDevice, Swapchain, nullptr);
 		
