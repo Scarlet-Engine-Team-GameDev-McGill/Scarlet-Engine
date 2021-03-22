@@ -49,7 +49,7 @@ namespace ScarletEngine
 
 	static void DestroyDebugUtilsMessengerEXT(const VkInstance Instance, VkDebugUtilsMessengerEXT DebugMessenger, const VkAllocationCallbacks* Allocator)
 	{
-		if (const auto Func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(Instance, "vkDestroyDebugUtilsMEssengerEXT")))
+		if (const auto Func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(Instance, "vkDestroyDebugUtilsMessengerEXT")))
 		{
 			Func(Instance, DebugMessenger, Allocator);
 		}
