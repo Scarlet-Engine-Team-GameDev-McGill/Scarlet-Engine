@@ -31,6 +31,8 @@ namespace ScarletEngine
 		virtual RALShader* CreateShader(RALShaderStage Stage, const String& ShaderPath) const override;
 		virtual RALShaderProgram* CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) const override;
 		// End RAL Interface
+
+		void SubmitFrame();
 	private:
 		bool CheckForLayerSupport(String* OutError = nullptr) const;
 		void CreateInstance();
@@ -75,6 +77,8 @@ namespace ScarletEngine
 
 		void CreateCommandPool();
 		void CreateCommandBuffers();
+
+		void CreateSemaphores();
 	private:
 		VkInstance Instance = VK_NULL_HANDLE;
 		VkDebugUtilsMessengerEXT DebugMessenger = VK_NULL_HANDLE;
@@ -98,6 +102,9 @@ namespace ScarletEngine
 
 		VkCommandPool CommandPool = VK_NULL_HANDLE;
 		Array<VkCommandBuffer> CommandBuffers;
+
+		VkSemaphore ImageAvailableSemaphore = VK_NULL_HANDLE;
+		VkSemaphore RenderFinishedSemaphore = VK_NULL_HANDLE;
 		
 		Array<const char*> RequiredInstanceLayers;
 		Array<const char*> RequiredInstanceExtensions;

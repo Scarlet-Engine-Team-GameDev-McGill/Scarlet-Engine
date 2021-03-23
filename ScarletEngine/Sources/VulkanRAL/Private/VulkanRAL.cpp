@@ -20,7 +20,7 @@ namespace ScarletEngine
 		switch (MessageSeverity)
 		{
 			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-				SCAR_LOG(LogVerbose, "Validation Layer: %s", CallbackData->pMessage);
+				//SCAR_LOG(LogVerbose, "Validation Layer: %s", CallbackData->pMessage);
 				break;
 			case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
 				SCAR_LOG(LogInfo, "Validation Layer: %s", CallbackData->pMessage);
@@ -481,7 +481,7 @@ namespace ScarletEngine
 	Array<char> VulkanRAL::ReadShaderFile(const String& Filename)
 	{
 		std::ifstream ShaderFile(Filename, std::ios::ate | std::ios::binary);
-
+		
 		if (!ShaderFile.is_open())
 		{
 			SCAR_LOG(LogError, "Unable to open shader file (%s)", Filename.c_str());
@@ -530,20 +530,30 @@ namespace ScarletEngine
 		Subpass.colorAttachmentCount = 1;
 		Subpass.pColorAttachments = &ColorAttachmentRef;
 
+		VkSubpassDependency Dependency{};
+		Dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		Dependency.dstSubpass = 0;
+		Dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		Dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		Dependency.srcAccessMask = 0;
+		Dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		
 		VkRenderPassCreateInfo RenderPassInfo{};
 		RenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		RenderPassInfo.attachmentCount = 1;
 		RenderPassInfo.pAttachments = &ColorAttachment;
 		RenderPassInfo.subpassCount = 1;
 		RenderPassInfo.pSubpasses = &Subpass;
+		RenderPassInfo.dependencyCount = 1;
+		RenderPassInfo.pDependencies = &Dependency;
 
 		CHECK_RESULT(vkCreateRenderPass(LogicalDevice, &RenderPassInfo, nullptr, &RenderPass));
 	}
 	
 	void VulkanRAL::CreateGraphicsPipeline()
 	{
-		const Array<char> VertexShaderCode = ReadShaderFile("../Shaders/vert.spv");
-		const Array<char> FragmentShaderCode = ReadShaderFile("../Shaders/frag.spv");
+		const Array<char> VertexShaderCode = ReadShaderFile("../ScarletEngine/Shaders/vert.spv");
+		const Array<char> FragmentShaderCode = ReadShaderFile("../ScarletEngine/Shaders/frag.spv");
 
 		const VkShaderModule VertexShaderModule = CreateShaderModule(VertexShaderCode);
 		const VkShaderModule FragmentShaderModule = CreateShaderModule(FragmentShaderCode);
@@ -572,7 +582,7 @@ namespace ScarletEngine
 		VkPipelineInputAssemblyStateCreateInfo InputAssembly{};
 		InputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		InputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-		InputAssembly.primitiveRestartEnable = VK_TRUE;
+		InputAssembly.primitiveRestartEnable = VK_FALSE;
 
 		VkViewport Viewport{};
 		Viewport.x = 0.f;
@@ -583,7 +593,7 @@ namespace ScarletEngine
 		Viewport.maxDepth = 1.f;
 
 		VkRect2D Scissor{};
-		Scissor.offset = { 0.f, 0.f };
+		Scissor.offset = { 0, 0 };
 		Scissor.extent = SwapchainImageExtent;
 
 		VkPipelineViewportStateCreateInfo ViewportState{};
@@ -745,6 +755,15 @@ namespace ScarletEngine
 			CHECK_RESULT(vkEndCommandBuffer(CommandBuffers[i]));
 		}
 	}
+
+	void VulkanRAL::CreateSemaphores()
+	{
+		VkSemaphoreCreateInfo SemaphoreCreateInfo{};
+		SemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+		CHECK_RESULT(vkCreateSemaphore(LogicalDevice, &SemaphoreCreateInfo, nullptr, &ImageAvailableSemaphore));
+		CHECK_RESULT(vkCreateSemaphore(LogicalDevice, &SemaphoreCreateInfo, nullptr, &RenderFinishedSemaphore));
+	}
 	
 	void VulkanRAL::Initialize()
 	{
@@ -760,10 +779,51 @@ namespace ScarletEngine
 		CreateFramebuffers();
 		CreateCommandPool();
 		CreateCommandBuffers();
+		CreateSemaphores();
 	}
 
+	void VulkanRAL::SubmitFrame()
+	{
+		uint32_t ImageIndex = -1;
+		vkAcquireNextImageKHR(LogicalDevice, Swapchain, UINT64_MAX, ImageAvailableSemaphore, nullptr, &ImageIndex);
+
+		VkSubmitInfo SubmitInfo{};
+		SubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+		VkSemaphore WaitSemaphores[] = { ImageAvailableSemaphore };
+		VkPipelineStageFlags WaitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		SubmitInfo.waitSemaphoreCount = 1;
+		SubmitInfo.pWaitSemaphores = WaitSemaphores;
+		SubmitInfo.pWaitDstStageMask = WaitStages;
+		SubmitInfo.commandBufferCount = 1;
+		SubmitInfo.pCommandBuffers = &CommandBuffers[ImageIndex];
+
+		VkSemaphore SignalSemaphores[] = { RenderFinishedSemaphore };
+		SubmitInfo.signalSemaphoreCount = 1;
+		SubmitInfo.pSignalSemaphores = SignalSemaphores;
+
+		CHECK_RESULT(vkQueueSubmit(GraphicsQueue, 1, &SubmitInfo, VK_NULL_HANDLE));
+
+		VkPresentInfoKHR PresentInfo{};
+		PresentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		PresentInfo.waitSemaphoreCount = 1;
+		PresentInfo.pWaitSemaphores = SignalSemaphores;
+
+		VkSwapchainKHR Swapchains[] = { Swapchain };
+		PresentInfo.swapchainCount = 1;
+		PresentInfo.pSwapchains = Swapchains;
+		PresentInfo.pImageIndices = &ImageIndex;
+		PresentInfo.pResults = nullptr;
+
+		vkQueuePresentKHR(PresentQueue, &PresentInfo);
+	}
+
+	
 	void VulkanRAL::Terminate()
 	{
+		vkDestroySemaphore(LogicalDevice, RenderFinishedSemaphore, nullptr);
+		vkDestroySemaphore(LogicalDevice, ImageAvailableSemaphore, nullptr);
+		
 		vkDestroyCommandPool(LogicalDevice, CommandPool, nullptr);
 		
 		for (VkFramebuffer& Framebuffer : SwapchainFramebuffers)
