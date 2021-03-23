@@ -26,7 +26,6 @@ int main()
 	GEditor->Initialize();
 
 	{
-		/*
 		// Test entity
         auto [Ent, Trans, Mesh] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent>("Monkey");
 
@@ -46,7 +45,6 @@ int main()
 		Mesh->Shader = RAL::Get().CreateShaderProgram(VertShader, FragShader, nullptr, nullptr);
 		ScarDelete(VertShader);
 		ScarDelete(FragShader);
-		*/
 	}
 
 	GEngine->Run();
