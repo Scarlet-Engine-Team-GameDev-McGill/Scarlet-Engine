@@ -325,15 +325,15 @@ namespace ScarletEngine
 
 		VkDeviceCreateInfo CreateInfo{};
 		CreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		CreateInfo.queueCreateInfoCount = QueueCreateInfos.size();
+		CreateInfo.queueCreateInfoCount = static_cast<uint32_t>(QueueCreateInfos.size());
 		CreateInfo.pQueueCreateInfos = QueueCreateInfos.data();
 		CreateInfo.pEnabledFeatures = &DeviceFeatures;
-		CreateInfo.enabledExtensionCount = RequiredDeviceExtensions.size();
+		CreateInfo.enabledExtensionCount = static_cast<uint32_t>(RequiredDeviceExtensions.size());
 		CreateInfo.ppEnabledExtensionNames = RequiredDeviceExtensions.data();
 		
 		if (bEnableValidationLayers)
 		{
-			CreateInfo.enabledLayerCount = RequiredInstanceLayers.size();
+			CreateInfo.enabledLayerCount = static_cast<uint32_t>(RequiredInstanceLayers.size());
 			CreateInfo.ppEnabledLayerNames = RequiredInstanceLayers.data();
 		}
 		else
@@ -756,13 +756,26 @@ namespace ScarletEngine
 		}
 	}
 
-	void VulkanRAL::CreateSemaphores()
+	void VulkanRAL::CreateSyncObjects()
 	{
+		ImageAvailableSemaphores.resize(MaxFramesInFlight);
+		RenderFinishedSemaphores.resize(MaxFramesInFlight);
+		InFlightFences.resize(MaxFramesInFlight);
+		InFlightImages.resize(SwapchainImages.size(), nullptr);
+		
 		VkSemaphoreCreateInfo SemaphoreCreateInfo{};
 		SemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-		CHECK_RESULT(vkCreateSemaphore(LogicalDevice, &SemaphoreCreateInfo, nullptr, &ImageAvailableSemaphore));
-		CHECK_RESULT(vkCreateSemaphore(LogicalDevice, &SemaphoreCreateInfo, nullptr, &RenderFinishedSemaphore));
+		VkFenceCreateInfo FenceCreateInfo{};
+		FenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		FenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		for (size_t i = 0; i < MaxFramesInFlight; ++i)
+		{
+			CHECK_RESULT(vkCreateSemaphore(LogicalDevice, &SemaphoreCreateInfo, nullptr, &ImageAvailableSemaphores[i]));
+			CHECK_RESULT(vkCreateSemaphore(LogicalDevice, &SemaphoreCreateInfo, nullptr, &RenderFinishedSemaphores[i]));
+			CHECK_RESULT(vkCreateFence(LogicalDevice, &FenceCreateInfo, nullptr, &InFlightFences[i]));
+		}
 	}
 	
 	void VulkanRAL::Initialize()
@@ -779,18 +792,27 @@ namespace ScarletEngine
 		CreateFramebuffers();
 		CreateCommandPool();
 		CreateCommandBuffers();
-		CreateSemaphores();
+		CreateSyncObjects();
 	}
 
 	void VulkanRAL::SubmitFrame()
 	{
+		vkWaitForFences(LogicalDevice, 1, &InFlightFences[CurrentFrameIndex], VK_TRUE, UINT64_MAX);
+		
 		uint32_t ImageIndex = -1;
-		vkAcquireNextImageKHR(LogicalDevice, Swapchain, UINT64_MAX, ImageAvailableSemaphore, nullptr, &ImageIndex);
+		vkAcquireNextImageKHR(LogicalDevice, Swapchain, UINT64_MAX, ImageAvailableSemaphores[CurrentFrameIndex], nullptr, &ImageIndex);
+
+		if (InFlightImages[ImageIndex] != nullptr)
+		{
+			vkWaitForFences(LogicalDevice, 1, &InFlightImages[ImageIndex], VK_TRUE, UINT64_MAX);
+		}
+
+		InFlightImages[ImageIndex] = InFlightFences[CurrentFrameIndex];
 
 		VkSubmitInfo SubmitInfo{};
 		SubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-		VkSemaphore WaitSemaphores[] = { ImageAvailableSemaphore };
+		VkSemaphore WaitSemaphores[] = { ImageAvailableSemaphores[CurrentFrameIndex] };
 		VkPipelineStageFlags WaitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		SubmitInfo.waitSemaphoreCount = 1;
 		SubmitInfo.pWaitSemaphores = WaitSemaphores;
@@ -798,11 +820,13 @@ namespace ScarletEngine
 		SubmitInfo.commandBufferCount = 1;
 		SubmitInfo.pCommandBuffers = &CommandBuffers[ImageIndex];
 
-		VkSemaphore SignalSemaphores[] = { RenderFinishedSemaphore };
+		VkSemaphore SignalSemaphores[] = { RenderFinishedSemaphores[CurrentFrameIndex] };
 		SubmitInfo.signalSemaphoreCount = 1;
 		SubmitInfo.pSignalSemaphores = SignalSemaphores;
 
-		CHECK_RESULT(vkQueueSubmit(GraphicsQueue, 1, &SubmitInfo, VK_NULL_HANDLE));
+		vkResetFences(LogicalDevice, 1, &InFlightFences[CurrentFrameIndex]);
+		
+		CHECK_RESULT(vkQueueSubmit(GraphicsQueue, 1, &SubmitInfo, InFlightFences[CurrentFrameIndex]));
 
 		VkPresentInfoKHR PresentInfo{};
 		PresentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -816,13 +840,19 @@ namespace ScarletEngine
 		PresentInfo.pResults = nullptr;
 
 		vkQueuePresentKHR(PresentQueue, &PresentInfo);
+
+		CurrentFrameIndex = (CurrentFrameIndex + 1) % MaxFramesInFlight;
 	}
 
 	
 	void VulkanRAL::Terminate()
 	{
-		vkDestroySemaphore(LogicalDevice, RenderFinishedSemaphore, nullptr);
-		vkDestroySemaphore(LogicalDevice, ImageAvailableSemaphore, nullptr);
+		for (size_t i = 0; i < MaxFramesInFlight; ++i)
+		{
+			vkDestroySemaphore(LogicalDevice, RenderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(LogicalDevice, ImageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(LogicalDevice, InFlightFences[i], nullptr);
+		}
 		
 		vkDestroyCommandPool(LogicalDevice, CommandPool, nullptr);
 		

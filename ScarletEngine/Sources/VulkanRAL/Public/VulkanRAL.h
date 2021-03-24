@@ -78,7 +78,7 @@ namespace ScarletEngine
 		void CreateCommandPool();
 		void CreateCommandBuffers();
 
-		void CreateSemaphores();
+		void CreateSyncObjects();
 	private:
 		VkInstance Instance = VK_NULL_HANDLE;
 		VkDebugUtilsMessengerEXT DebugMessenger = VK_NULL_HANDLE;
@@ -103,8 +103,12 @@ namespace ScarletEngine
 		VkCommandPool CommandPool = VK_NULL_HANDLE;
 		Array<VkCommandBuffer> CommandBuffers;
 
-		VkSemaphore ImageAvailableSemaphore = VK_NULL_HANDLE;
-		VkSemaphore RenderFinishedSemaphore = VK_NULL_HANDLE;
+		Array<VkSemaphore> ImageAvailableSemaphores;
+		Array<VkSemaphore> RenderFinishedSemaphores;
+		Array<VkFence> InFlightFences;
+		Array<VkFence> InFlightImages;
+		const uint32_t MaxFramesInFlight = 2;
+		uint32_t CurrentFrameIndex = 0;
 		
 		Array<const char*> RequiredInstanceLayers;
 		Array<const char*> RequiredInstanceExtensions;
