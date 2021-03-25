@@ -14,7 +14,7 @@ namespace ScarletEngine
 		ITickable();
 
 		/** Removes the object from the engine tickable list */
-		~ITickable();
+		virtual ~ITickable();
 
 		/** Called each frame by the Engine with the delta time since the last Tick. */
 		virtual void Tick(double /* DeltaTime */) {}
