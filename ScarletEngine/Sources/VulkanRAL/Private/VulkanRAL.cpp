@@ -777,9 +777,67 @@ namespace ScarletEngine
 			CHECK_RESULT(vkCreateFence(LogicalDevice, &FenceCreateInfo, nullptr, &InFlightFences[i]));
 		}
 	}
+
+	void VulkanRAL::CleanupSwapchain()
+	{
+		vkDeviceWaitIdle(LogicalDevice);
+		
+		for (VkFramebuffer& Framebuffer : SwapchainFramebuffers)
+		{
+			vkDestroyFramebuffer(LogicalDevice, Framebuffer, nullptr);
+		}
+		
+		vkFreeCommandBuffers(LogicalDevice, CommandPool, static_cast<uint32_t>(CommandBuffers.size()), CommandBuffers.data());
+
+		vkDestroyPipeline(LogicalDevice, GraphicsPipeline, nullptr);
+		
+		vkDestroyPipelineLayout(LogicalDevice, PipelineLayout, nullptr);
+
+		vkDestroyRenderPass(LogicalDevice, RenderPass, nullptr);
+		
+		for (VkImageView& ImageView : SwapchainImageViews)
+		{
+			vkDestroyImageView(LogicalDevice, ImageView, nullptr);
+		}
+		
+		vkDestroySwapchainKHR(LogicalDevice, Swapchain, nullptr);
+	}
+
+	void VulkanRAL::RebuildSwapchain()
+	{
+		// We don't need to recruit the swapchain for a minimized window.
+		int Width = 0, Height = 0;
+		const ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
+		glfwGetFramebufferSize((GLFWwindow*)AppWindow->GetWindowHandle(), &Width, &Height);
+		if (Width == 0 || Height == 0)
+		{
+			bShouldSubmitFrame = false;
+			return;
+		}
+
+		CleanupSwapchain();
+		
+		CreateSwapchain();
+		CreateSwapchainImageViews();
+		CreateRenderPass();
+		CreateGraphicsPipeline();
+		CreateFramebuffers();
+		CreateCommandBuffers();
+
+		bFramebufferResized = false;
+		bShouldSubmitFrame = true;
+	}
 	
 	void VulkanRAL::Initialize()
 	{
+		// Hook into the window framebuffer resize callback
+		if (GEngine)
+		{
+			const ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
+			check(AppWindow != nullptr);
+			AppWindow->OnWindowResize.Bind([this](uint32_t, uint32_t) { bFramebufferResized = true; }, this);
+		}
+		
 		CreateInstance();
 		SetupDebugMessenger();
 		CreateSurface();
@@ -797,10 +855,26 @@ namespace ScarletEngine
 
 	void VulkanRAL::SubmitFrame()
 	{
+		if (!bShouldSubmitFrame)
+		{
+			RebuildSwapchain();
+			return;
+		}
+		
 		vkWaitForFences(LogicalDevice, 1, &InFlightFences[CurrentFrameIndex], VK_TRUE, UINT64_MAX);
 		
 		uint32_t ImageIndex = -1;
-		vkAcquireNextImageKHR(LogicalDevice, Swapchain, UINT64_MAX, ImageAvailableSemaphores[CurrentFrameIndex], nullptr, &ImageIndex);
+		const VkResult Result = vkAcquireNextImageKHR(LogicalDevice, Swapchain, UINT64_MAX, ImageAvailableSemaphores[CurrentFrameIndex], nullptr, &ImageIndex);
+		if (Result == VK_ERROR_OUT_OF_DATE_KHR || Result == VK_SUBOPTIMAL_KHR || bFramebufferResized)
+		{
+			RebuildSwapchain();
+			return;
+		}
+
+		if (Result != VK_SUCCESS)
+		{
+			SCAR_LOG(LogError, "Failed to acquire swapchain image!");
+		}
 
 		if (InFlightImages[ImageIndex] != nullptr)
 		{
@@ -844,9 +918,14 @@ namespace ScarletEngine
 		CurrentFrameIndex = (CurrentFrameIndex + 1) % MaxFramesInFlight;
 	}
 
-	
 	void VulkanRAL::Terminate()
 	{
+		vkDeviceWaitIdle(LogicalDevice);
+		
+		GEngine->GetApplicationWindow()->OnWindowResize.Unbind(this);
+		
+		CleanupSwapchain();
+		
 		for (size_t i = 0; i < MaxFramesInFlight; ++i)
 		{
 			vkDestroySemaphore(LogicalDevice, RenderFinishedSemaphores[i], nullptr);
@@ -855,24 +934,6 @@ namespace ScarletEngine
 		}
 		
 		vkDestroyCommandPool(LogicalDevice, CommandPool, nullptr);
-		
-		for (VkFramebuffer& Framebuffer : SwapchainFramebuffers)
-		{
-			vkDestroyFramebuffer(LogicalDevice, Framebuffer, nullptr);
-		}
-		
-		vkDestroyPipeline(LogicalDevice, GraphicsPipeline, nullptr);
-		
-		vkDestroyPipelineLayout(LogicalDevice, PipelineLayout, nullptr);
-
-		vkDestroyRenderPass(LogicalDevice, RenderPass, nullptr);
-		
-		for (VkImageView& ImageView : SwapchainImageViews)
-		{
-			vkDestroyImageView(LogicalDevice, ImageView, nullptr);
-		}
-		
-		vkDestroySwapchainKHR(LogicalDevice, Swapchain, nullptr);
 		
 		vkDestroyDevice(LogicalDevice, nullptr);
 		

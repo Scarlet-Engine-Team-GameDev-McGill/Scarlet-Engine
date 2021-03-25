@@ -79,6 +79,9 @@ namespace ScarletEngine
 		void CreateCommandBuffers();
 
 		void CreateSyncObjects();
+
+		void CleanupSwapchain();
+		void RebuildSwapchain();
 	private:
 		VkInstance Instance = VK_NULL_HANDLE;
 		VkDebugUtilsMessengerEXT DebugMessenger = VK_NULL_HANDLE;
@@ -109,6 +112,8 @@ namespace ScarletEngine
 		Array<VkFence> InFlightImages;
 		const uint32_t MaxFramesInFlight = 2;
 		uint32_t CurrentFrameIndex = 0;
+		bool bFramebufferResized = false;
+		bool bShouldSubmitFrame = true;
 		
 		Array<const char*> RequiredInstanceLayers;
 		Array<const char*> RequiredInstanceExtensions;
