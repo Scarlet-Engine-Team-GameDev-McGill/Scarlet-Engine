@@ -47,6 +47,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 	endif(NOT CMAKE_CXX_FLAGS MATCHES "-fsanitize")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-volatile")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	message("Detected GNU-GCC")
 	# Use -Wall for clang and gcc.
@@ -68,6 +69,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=volatile")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
 endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
 # Add a helper macro to move files to the build directory

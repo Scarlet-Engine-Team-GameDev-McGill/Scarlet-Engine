@@ -15,6 +15,15 @@ namespace ScarletEngine
 		RecalculateViewMatrix();
 	}
 
+	void Camera::LookAtPoint(const glm::vec3 Point)
+	{
+		ForwardVector = glm::normalize(Point - Position);
+		glm::vec3 GlobalUp = glm::vec3(0.f, 1.f, 0.f);
+		glm::vec3 RightVector = glm::normalize(glm::cross(GlobalUp, ForwardVector));
+		UpVector = glm::cross(ForwardVector, RightVector);
+		RecalculateViewMatrix();
+	}
+
 	void Camera::RecalculateProjection()
 	{
 		Projection = glm::perspective(glm::radians(FoV), Aspect, NearPlane, FarPlane);

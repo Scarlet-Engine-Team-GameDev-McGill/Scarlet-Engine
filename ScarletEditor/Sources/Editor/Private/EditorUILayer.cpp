@@ -8,6 +8,7 @@
 #include "OutputLog.h"
 #include "Stats.h"
 #include "AssetView.h"
+#include "ImGuizmo.h"
 
 namespace ScarletEngine
 {
@@ -21,6 +22,13 @@ namespace ScarletEngine
 
 		// Create an initial viewport
 		AddWidget(MakeShared<EditorViewportPanel>(GEditor->GetActiveWorld()));
+
+		ImGuizmo::SetImGuiContext(ImGui::GetCurrentContext());
+	}
+
+	void EditorUILayer::BeginFrame()
+	{
+		ImGuizmo::BeginFrame();
 	}
 
 	void EditorUILayer::Draw()
