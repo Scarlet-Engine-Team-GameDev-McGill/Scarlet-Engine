@@ -174,6 +174,4 @@ namespace ScarletEngine
 		ActiveLayer = InLayer;
 		ActiveLayer->Initialize();
 	}
-
-	DECLARE_MODULE(UIModule);
 }

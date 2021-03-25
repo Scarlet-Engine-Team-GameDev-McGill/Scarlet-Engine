@@ -4,6 +4,8 @@
 #include "RAL.h"
 #include "StaticMeshComponent.h"
 #include "AssetManager.h"
+#include "RenderModule.h"
+#include "UIModule.h"
 
 int main()
 {
@@ -11,6 +13,9 @@ int main()
 	
 	// #todo_Core: this should be loaded by a config file or something, for now default it to this.
 	AssetManager::SetAssetRoot("../");
+
+	ModuleManager::GetInstance().RegisterModule<RenderModule>();
+	ModuleManager::GetInstance().RegisterModule<UIModule>();
 
 	GEngine = MakeUnique<Engine>();
 	GEngine->Initialize();

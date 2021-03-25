@@ -36,7 +36,7 @@ namespace ScarletEngine
 
 		AppWindow->OnWindowClose.BindMember(this, &Engine::SignalQuit);
 
-		ModuleManager::Startup();
+		ModuleManager::GetInstance().Startup();
 
 		bIsInitialized = true;
 	}
@@ -85,7 +85,7 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 		AddQueuedTickables();
-		ModuleManager::PreUpdate();
+		ModuleManager::GetInstance().PreUpdate();
 
 		AppWindow->PollEvents();
 	}
@@ -93,7 +93,7 @@ namespace ScarletEngine
 	void Engine::PostUpdate()
 	{
 		ZoneScoped
-		ModuleManager::PostUpdate();
+		ModuleManager::GetInstance().PostUpdate();
 
 		AppWindow->SwapBuffer();
 	}
@@ -101,7 +101,7 @@ namespace ScarletEngine
 	void Engine::Terminate()
 	{
 		ZoneScoped
-		ModuleManager::Shutdown();
+		ModuleManager::GetInstance().Shutdown();
 
 		ScarDelete(AppWindow);
 
@@ -115,7 +115,7 @@ namespace ScarletEngine
 	void Engine::Update(double DeltaTime)
 	{
 		ZoneScoped
-		ModuleManager::Update();
+		ModuleManager::GetInstance().Update();
 		for (const auto Tickable : VariableUpdateTickables)
 		{
 			Tickable->Tick(DeltaTime);

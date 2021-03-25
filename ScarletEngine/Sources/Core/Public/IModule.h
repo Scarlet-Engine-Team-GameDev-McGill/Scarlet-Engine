@@ -13,7 +13,7 @@ namespace ScarletEngine
 	class IModule
 	{
 	public:
-		IModule();
+		virtual ~IModule() {}
 
 		virtual void Startup() = 0;
 		virtual void Shutdown() = 0;

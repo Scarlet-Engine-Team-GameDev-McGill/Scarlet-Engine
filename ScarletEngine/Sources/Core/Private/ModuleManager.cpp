@@ -3,93 +3,63 @@
 
 namespace ScarletEngine
 {
-	UnorderedMap<String, IModule*> ModuleManager::Modules;
-	UnorderedMap<IModule*, Set<IModule*>> ModuleManager::ModuleDepMap;
-
-	bool ModuleManager::bStarted = false;
-
-	/** 
-	 * List of modules to add.
-	 * Since we cannot call virtual functions from constructor,
-	 * we must store them here until we are ready to initialize.
-	 * This is a pointer to an array to prevent static reinitialization 
-	 * due to linking to multiple copies of the same library
-	 */
-	Array<IModule*>* ModulesToAdd = nullptr;
-
-	void ModuleManager::RegisterModule(IModule* Module)
-	{
-		check(!bStarted);
-		if (ModulesToAdd == nullptr)
-		{
-			ModulesToAdd = new Array<IModule*>;
-		}
-		ModulesToAdd->push_back(Module);
-	}
-
 	void ModuleManager::Startup()
 	{
 		FillDependencyMap();
 
-		if (ModulesToAdd == nullptr)
+		if (ModulesToAdd.size() == 0)
 		{
 			SCAR_LOG(LogWarning, "No modules detected. This is probably an error!");
 			return;
 		}
 
-		for (const auto& Module : *ModulesToAdd)
+		for (const SharedPtr<IModule>& Module : ModulesToAdd)
 		{
-			InitializeModuleAndDependencies(Module);
+			LoadModule_Impl(Module);
 		}
 
 #ifdef DEBUG
 		SCAR_LOG(LogVerbose, "Module dependency graph: \ndigraph ModuleDependencies {\n%s\n}", GetDependencyGraphViz().c_str());
 #endif
-
-		delete ModulesToAdd;
+		ModulesToAdd.clear();
 		bStarted = true;
 	}
 	
 	void ModuleManager::FillDependencyMap()
 	{
-		if (ModulesToAdd == nullptr)
+		for (const SharedPtr<IModule>& Module : ModulesToAdd)
 		{
-			return;
-		}
-
-		for (const auto& Module : *ModulesToAdd)
-		{
-			ModuleDepMap[Module] = Set<IModule*>();
+			ModuleDepMap[Module.get()] = Set<SharedPtr<IModule>>();
 			for (const auto& DependencyName : Module->GetDependencies())
 			{
 				String DependencyNameString(DependencyName);
-				auto It = std::find_if(ModulesToAdd->begin(), ModulesToAdd->end(), [&DependencyNameString](IModule* PotentialDep)
+				auto It = std::find_if(ModulesToAdd.begin(), ModulesToAdd.end(), [&DependencyNameString](const SharedPtr<IModule>& PotentialDep)
 					{
 						return DependencyNameString == PotentialDep->GetModuleName();
 					});
 
-				if (It != ModulesToAdd->end())
+				if (It != ModulesToAdd.end())
 				{
-					ModuleDepMap[Module].insert(*It);
+					ModuleDepMap[Module.get()].insert(*It);
 				}
 			}
 		}
 	}
 
-	void ModuleManager::InitializeModuleAndDependencies(IModule* Module)
+	void ModuleManager::LoadModule_Impl(const SharedPtr<IModule>& Module)
 	{
 		if (Module->IsInitialized())
 		{
 			return;
 		}
 
-		check(ModuleDepMap.find(Module) != ModuleDepMap.end());
+		check(ModuleDepMap.find(Module.get()) != ModuleDepMap.end());
 
-		for (const auto& Dependency : ModuleDepMap[Module])
+		for (const SharedPtr<IModule>& Dependency : ModuleDepMap[Module.get()])
 		{
 			if (!Dependency->IsInitialized())
 			{
-				InitializeModuleAndDependencies(Dependency);
+				LoadModule_Impl(Dependency);
 			}
 		}
 
@@ -118,6 +88,9 @@ namespace ScarletEngine
 		{
 			Module->Shutdown();
 		}
+
+		Modules.clear();
+		ModuleDepMap.clear();
 	}
 
 	void ModuleManager::PreUpdate()
