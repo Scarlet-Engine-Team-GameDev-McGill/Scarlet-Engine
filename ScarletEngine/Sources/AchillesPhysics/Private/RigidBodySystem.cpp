@@ -18,6 +18,8 @@ namespace ScarletEngine
 			RigidBodyComponent* Rb = Reg->GetComponent<RigidBodyComponent>(Entity);
 			Transform* Trans = Reg->GetComponent<Transform>(Entity);
 
+			// translational
+
 			if (Rb->UsesGravity)
 			{
 				Rb->Force += Rb->GravityEarth * Rb->Mass;
@@ -27,6 +29,17 @@ namespace ScarletEngine
 			Trans->Position += Rb->Velocity * (float)Dt;
 
 			Rb->Force = glm::vec3(0.f, 0.f, 0.f);
+
+			// rotational
+			/*
+			
+			Rb->AngularVelocity += glm::inverse(Rb->Inertia) * (Rb->Moment - glm::cross(Rb->AngularVelocity, (Rb->Inertia * Rb->AngularVelocity)) * (float)Dt);
+
+			glm::quat QOrientation = glm::quat(glm::radians(Trans->Rotation)); // pitch yaw roll
+			glm::quat DQ = QOrientation * Rb->AngularVelocity * 0.5f * (float)Dt;
+			QOrientation += DQ;
+
+			Trans->Rotation = glm::degrees(glm::eulerAngles(QOrientation)); // returns XYZ (PYR) */
 		}	
 
 		void RigidBodySystem::FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
