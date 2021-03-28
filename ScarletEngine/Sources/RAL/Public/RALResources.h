@@ -62,6 +62,8 @@ namespace ScarletEngine
 			, Usage(InUsage)
 		{}
 
+		virtual ~RALGpuBuffer() {}
+
 		virtual void UploadData(void* DataPtr, size_t Size) const = 0;
 		virtual void Release() = 0;
 
@@ -77,6 +79,8 @@ namespace ScarletEngine
 			, IB(InIB)
 			, VertexCount(IB->Size / sizeof(uint32_t)) // index buffer is always uint32_t, so count = buff_size / elem_size
 		{}
+
+		virtual ~RALVertexArray() {}
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
@@ -118,6 +122,8 @@ namespace ScarletEngine
 			, ComputeShader(InComputeShader)
 		{}
 
+		virtual ~RALShaderProgram() {}
+		
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 

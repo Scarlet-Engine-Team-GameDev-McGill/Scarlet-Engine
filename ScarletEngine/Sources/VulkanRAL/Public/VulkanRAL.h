@@ -7,7 +7,7 @@
 #include <vulkan/vulkan.h>
 
 namespace ScarletEngine
-{	
+{
 	class VulkanRAL : public RAL
 	{
 	public:

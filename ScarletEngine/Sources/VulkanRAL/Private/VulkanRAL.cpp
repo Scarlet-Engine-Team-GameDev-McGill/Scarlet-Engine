@@ -6,6 +6,7 @@
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 #include <fstream>
+#include <VulkanResources.h>
 
 #define CHECK_RESULT(Res) check(Res == VK_SUCCESS) 
 
@@ -572,12 +573,15 @@ namespace ScarletEngine
 
 		VkPipelineShaderStageCreateInfo ShaderStages[] = { VertexShaderStageInfo, FragmentShaderStageInfo };
 
+		const VkVertexInputBindingDescription BindingDescription = VulkanVertexArray::GetBindingDescription();
+		const Array<VkVertexInputAttributeDescription> AttributeDescriptions = VulkanVertexArray::GetAttributeDescription();
+		
 		VkPipelineVertexInputStateCreateInfo VertexInputInfo{};
 		VertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		VertexInputInfo.vertexBindingDescriptionCount = 0;
-		VertexInputInfo.pVertexBindingDescriptions = nullptr;
-		VertexInputInfo.vertexAttributeDescriptionCount = 0;
-		VertexInputInfo.pVertexAttributeDescriptions = nullptr;
+		VertexInputInfo.vertexBindingDescriptionCount = 1;
+		VertexInputInfo.pVertexBindingDescriptions = &BindingDescription;
+		VertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(AttributeDescriptions.size());
+		VertexInputInfo.pVertexAttributeDescriptions = AttributeDescriptions.data();
 
 		VkPipelineInputAssemblyStateCreateInfo InputAssembly{};
 		InputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -967,7 +971,8 @@ namespace ScarletEngine
 
 	void VulkanRAL::DrawVertexArray(const RALVertexArray* VA) const
 	{
-
+		VkDeviceSize Offsets[] = { 0 };
+		vkCmdBindVertexBuffers(CommandBuffers[])
 	}
 
 	RALFramebuffer* VulkanRAL::CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples) const
@@ -982,7 +987,7 @@ namespace ScarletEngine
 
 	RALGpuBuffer* VulkanRAL::CreateBuffer(uint32_t Size, RALBufferUsage Usage) const
 	{
-		return nullptr;
+		return ScarNew(VulkanGpuBuffer, Size, Usage);
 	}
 
 	RALVertexArray* VulkanRAL::CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB) const
