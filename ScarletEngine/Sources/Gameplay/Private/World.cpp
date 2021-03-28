@@ -14,11 +14,13 @@ namespace ScarletEngine
 		ZoneScoped
 
 		SceneProxy* ProxyPtr = &RenderSceneProxy;
+		/*
 		AddSystem<const Transform, const StaticMeshComponent>("Draw Static Meshes")
-			.Each([ProxyPtr](double, const EID, const Transform& Trans, const StaticMeshComponent& SMC)
-				{
-					ProxyPtr->DrawSMC(Trans, SMC);
-				});
+		.Each([ProxyPtr](double, const EID, const Transform& Trans, const StaticMeshComponent& SMC)
+		{
+		ProxyPtr->DrawSMC(Trans, SMC);
+		});
+		*/
 	}
 
 	void World::Tick(double DeltaTime)

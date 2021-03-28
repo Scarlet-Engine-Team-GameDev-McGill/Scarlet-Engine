@@ -125,11 +125,16 @@ namespace ScarletEngine
 		/* Entity Interface */
 
 		template <typename ...Ts>
-		std::tuple<std::add_pointer_t<Ts>...> CreateEntity(Entity& Ent)
+		std::tuple<SharedPtr<Entity>, std::add_pointer_t<Ts>...> CreateEntity(const char* Name)
 		{
 			ZoneScoped
-			Ent.ID = NextAvailableEID++;
-			return std::make_tuple(AddComponent<Ts>(Ent.ID)...);
+			check(Name != nullptr);
+			
+			Entities.push_back(MakeShared<Entity>(Name));
+			SharedPtr<Entity>& Ent = Entities.back();
+			Ent->ID = NextAvailableEID++;
+			
+			return std::make_tuple(Ent, AddComponent<Ts>(Ent->ID)...);
 		}
 	public:
 		/* Component Interface */
@@ -200,6 +205,15 @@ namespace ScarletEngine
 				Container.second->Sort();
 			}
 		}
+
+		template <typename T>
+		T* GetSingleton() const
+		{
+			static T Instance;
+			return &Instance;
+		}
+
+		const Array<SharedPtr<Entity>>& GetEntities() const { return Entities; }
 	private:
 		template <typename T>
 		ComponentContainer<T>* GetComponentContainer() const
@@ -227,5 +241,6 @@ namespace ScarletEngine
 	private:
 		EID NextAvailableEID = 1;
 		UnorderedMap<CTID, UniquePtr<IComponentContainer>> ComponentContainers;
+		Array<SharedPtr<Entity>> Entities;
 	};
 }
