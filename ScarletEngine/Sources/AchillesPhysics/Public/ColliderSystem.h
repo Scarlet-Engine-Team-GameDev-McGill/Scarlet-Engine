@@ -34,7 +34,7 @@ namespace ScarletEngine
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
 			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
-			IntersectionData* GetIntersection(SphereColliderComponent* SphereA, SphereColliderComponent* SphereB) const;
+			std::pair<glm::vec3, float> GetIntersection(SphereColliderComponent* SphereA, SphereColliderComponent* SphereB) const;
 		};
 
 		class PlaneVsSphereColliderSystem : public System<SphereColliderComponent, PlaneColliderComponent, RigidBodyComponent, Transform>
@@ -44,7 +44,7 @@ namespace ScarletEngine
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
 			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
-			IntersectionData* GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const;
+			std::pair<glm::vec3, float> GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const;
 		};
 	};
 };
