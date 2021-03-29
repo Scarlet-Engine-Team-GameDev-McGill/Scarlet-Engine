@@ -16,34 +16,26 @@ namespace ScarletEngine
 	class ISystem
 	{
 	public:
-		ISystem(Registry* InReg, const String& InName)
-			: Reg(InReg)
-			, Name(InName)
-		{}
-
 		virtual ~ISystem() {}
 
 		virtual void Update() const {}
 		virtual void FixedUpdate() const {}
 
 		Registry* Reg;
-		String Name;
+		const String Name;
 	};
 
 	template <typename... ComponentTypes>
 	class System : public ISystem
 	{
 	public:
-		System(Registry* InReg, const String& InName)
-			: ISystem(InReg, InName)
-		{}
-
 		template <typename ...Components>
 		using ProxyType = std::tuple<EID, std::add_pointer_t<Components>...>;
 		
 		template <typename ...Components>
 		Array<ProxyType<Components...>> GetEntities() const
 		{
+			ZoneScoped
 			static_assert(std::conjunction_v<Contains<Components, ComponentTypes...>...>,
 				"Trying to get components which are not marked in the system's signature!");
 
@@ -69,6 +61,5 @@ namespace ScarletEngine
 				"Trying to get singleton which is not marked in the system's signature!");
 			return Reg->GetSingleton<SingletonType>();
 		}
-		
 	};
 }

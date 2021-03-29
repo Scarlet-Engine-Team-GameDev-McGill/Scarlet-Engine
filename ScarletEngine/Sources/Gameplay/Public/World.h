@@ -4,6 +4,7 @@
 #include "ITickable.h"
 #include "ECS.h"
 #include "SceneProxy.h"
+#include "SystemScheduler.h"
 
 namespace ScarletEngine
 {
@@ -50,7 +51,7 @@ namespace ScarletEngine
 		auto GetEntities()
 		{
 			ZoneScoped
-			return Entities;
+			return Reg.GetEntities();
 		}
 
 		template <typename ComponentType>
@@ -60,22 +61,9 @@ namespace ScarletEngine
 			return Reg.GetComponent<ComponentType>(Ent.ID);
 		}
 	private:
-		void RunSystems(double DeltaTime)
-		{
-			ZoneScoped
-			// todo: run the scheduler for the world
-		}
-
-		void RunFixedSystem(double DeltaTime)
-		{
-			ZoneScoped
-			// todo: run the scheduler for the world
-		}
-	private:
 		double LastDeltaTime;
 		Registry Reg;
-
-		Array<SharedPtr<Entity>> Entities;
+		SystemScheduler WorldSystems;
 
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
 

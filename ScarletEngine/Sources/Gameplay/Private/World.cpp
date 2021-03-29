@@ -12,28 +12,18 @@ namespace ScarletEngine
 	void World::Initialize()
 	{
 		ZoneScoped
-
-		SceneProxy* ProxyPtr = &RenderSceneProxy;
-		/*
-		AddSystem<const Transform, const StaticMeshComponent>("Draw Static Meshes")
-		.Each([ProxyPtr](double, const EID, const Transform& Trans, const StaticMeshComponent& SMC)
-		{
-		ProxyPtr->DrawSMC(Trans, SMC);
-		});
-		*/
 	}
 
 	void World::Tick(double DeltaTime)
 	{
 		ZoneScoped
-		LastDeltaTime = DeltaTime;
-		RenderSceneProxy.Reset();
-		RunSystems(DeltaTime);
+		WorldSystems.RunUpdate(&Reg);
 	}
 
 	void World::FixedTick(double DeltaTime)
 	{
-		RunFixedSystem(DeltaTime);
+		ZoneScoped
+		WorldSystems.RunFixedUpdate(&Reg);
 	}
 
 }

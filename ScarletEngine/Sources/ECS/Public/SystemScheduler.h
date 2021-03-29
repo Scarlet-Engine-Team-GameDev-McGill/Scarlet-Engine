@@ -12,21 +12,17 @@ namespace ScarletEngine
     
     class SystemScheduler
     {
-    public:
-        SystemScheduler(Registry* InReg) : Reg(InReg) {}
-        
+    public:        
         template <ECSSystem SystemType>
         void RegisterSystem()
         {
-            Systems.push_back(UniquePtr<ISystem>(ScarNew(SystemType, Reg)));
+            Systems.push_back(UniquePtr<ISystem>(ScarNew(SystemType)));
         }
 
-        void RunUpdate() const;
+        void RunUpdate(Registry* Reg) const;
 
-        void RunFixedUpdate() const;
-
+        void RunFixedUpdate(Registry* Reg) const;
     private:
         Array<UniquePtr<ISystem>> Systems;
-        Registry* Reg;
     };
 }

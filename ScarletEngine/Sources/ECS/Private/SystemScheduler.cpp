@@ -2,19 +2,23 @@
 
 namespace ScarletEngine
 {
-    void SystemScheduler::RunUpdate() const
+    void SystemScheduler::RunUpdate(Registry* Reg) const
     {
         for (const UniquePtr<ISystem>& System : Systems)
         {
+            System->Reg = Reg;
             System->Update();
+            System->Reg = nullptr;
         }
     }
 
-    void SystemScheduler::RunFixedUpdate() const
+    void SystemScheduler::RunFixedUpdate(Registry* Reg) const
     {
         for (const UniquePtr<ISystem>& System : Systems)
         {
+            System->Reg = Reg;
             System->FixedUpdate();
+            System->Reg = nullptr;
         }
     }
 }

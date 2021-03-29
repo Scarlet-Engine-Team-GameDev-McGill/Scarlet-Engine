@@ -154,8 +154,6 @@ TEST(ECS, System)
 	class TestSystem : public ScarletEngine::System<Component>
 	{
 	public:
-		TestSystem(Registry* Reg) : ScarletEngine::System<Component>(Reg, "TestSystem") {}
-		
 		virtual void Update() const override
 		{
 			for (auto& [Ent, TC] : GetEntities<Component>())
@@ -166,14 +164,14 @@ TEST(ECS, System)
 	};
 
 	Registry Reg;
-	SystemScheduler Scheduler(&Reg);
+	SystemScheduler Scheduler;
 	Scheduler.RegisterSystem<TestSystem>();
 	auto [Entity, TC] = Reg.CreateEntity<Component>("TestComponent");
 
 	ASSERT_NE(TC, nullptr);
 	EXPECT_EQ(TC->X, static_cast<uint32_t>(11));
 
-	Scheduler.RunUpdate();
+	Scheduler.RunUpdate(&Reg);
 
 	EXPECT_EQ(TC->X, static_cast<uint32_t>(50));
 }
@@ -188,8 +186,6 @@ TEST(ECS, ConstSystem)
 	class TestSystem : public ScarletEngine::System<const Component>
 	{
 	public:
-		TestSystem(Registry* Reg) : ScarletEngine::System<const Component>(Reg, "TestSystem") {}
-		
 		virtual void Update() const override
 		{
 			for (auto& [Ent, TC] : GetEntities<const Component>())
@@ -200,14 +196,14 @@ TEST(ECS, ConstSystem)
 	};
 
 	Registry Reg;
-	SystemScheduler Scheduler(&Reg);
+	SystemScheduler Scheduler;
 	Scheduler.RegisterSystem<TestSystem>();
 	auto [Entity, TC] = Reg.CreateEntity<Component>("TestComponent");
 
 	ASSERT_NE(TC, nullptr);
 	EXPECT_EQ(TC->X, static_cast<uint32_t>(11));
 
-	Scheduler.RunUpdate();
+	Scheduler.RunUpdate(&Reg);
 
 	EXPECT_EQ(TC->X, static_cast<uint32_t>(11));
 }
@@ -238,8 +234,6 @@ TEST(ECS, Singleton)
 	class TestSystem : public ScarletEngine::System<SingletonComponent>
 	{
 	public:
-		TestSystem(Registry* Reg) : ScarletEngine::System<SingletonComponent>(Reg, "TestSystem") {}
-		
 		virtual void Update() const override
 		{
 			SingletonComponent* SC = GetSingleton<SingletonComponent>();
@@ -247,12 +241,12 @@ TEST(ECS, Singleton)
 		}
 	};
 
-	SystemScheduler Scheduler(&Reg);
+	SystemScheduler Scheduler;
 	Scheduler.RegisterSystem<TestSystem>();
 
-	Scheduler.RunUpdate();
+	Scheduler.RunUpdate(&Reg);
 
-	EXPECT_EQ(SC->X, 100);
+	EXPECT_EQ(SC->X, static_cast<uint32_t>(100));
 }
 
 TEST(ECS, ConstSingleton)
@@ -271,19 +265,18 @@ TEST(ECS, ConstSingleton)
 	class TestSystem : public ScarletEngine::System<const SingletonComponent>
 	{
 	public:
-		TestSystem(Registry* Reg) : ScarletEngine::System<const SingletonComponent>(Reg, "TestSystem") {}
-	
 		virtual void Update() const override
 		{
 			const SingletonComponent* SC = GetSingleton<const SingletonComponent>();
 			//SC->X = 100;
+			(void)SC;
 		}
 	};
 
-	SystemScheduler Scheduler(&Reg);
+	SystemScheduler Scheduler;
 	Scheduler.RegisterSystem<TestSystem>();
 
-	Scheduler.RunUpdate();
+	Scheduler.RunUpdate(&Reg);
 
 	EXPECT_EQ(SC->X, 10);
 }
