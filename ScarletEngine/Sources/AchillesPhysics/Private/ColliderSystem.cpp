@@ -52,12 +52,13 @@ namespace ScarletEngine
 						BoxColliderComponent* BoxA = Reg->GetComponent<BoxColliderComponent>(EntityA);
 						BoxColliderComponent* BoxB = Reg->GetComponent<BoxColliderComponent>(EntityB);
 
-						// if dynamic : bounce
+						// TODO if dynamic : bounce
 					}
 				}
 			}
 		}
 
+		// TODO : adapt with IntersectData
 		glm::vec3 AABBvsAABBColliderSystem::GetIntersection(BoxColliderComponent* BoxA, BoxColliderComponent* BoxB) const
 		{
 			return glm::max(BoxB->Max - BoxA->Min, BoxB->Min - BoxA->Max);
@@ -161,13 +162,6 @@ namespace ScarletEngine
 
 		void PlaneVsSphereColliderSystem::UpdateEntity(const EID Entity, double Dt) const
 		{
-			RigidBodyComponent* Rb = Reg->GetComponent<RigidBodyComponent>(Entity);
-			PlaneColliderComponent* Plane = Reg->GetComponent<PlaneColliderComponent>(Entity);
-
-			if (glm::length(Rb->Velocity) > 0)
-			{
-				//SCAR_LOG(LogWarning, "Plane should be static");
-			}
 		}
 
 		void PlaneVsSphereColliderSystem::FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
@@ -223,8 +217,9 @@ namespace ScarletEngine
 
 					if (IntersectionDepth.second <= 0.f && RbSphere)
 					{
-						glm::vec3 NewVel = glm::length(RbSphere->Velocity) == 0 ? glm::vec3(0.f, 0.f, 0.f) : 
-																				  glm::reflect(RbSphere->Velocity, glm::reflect(glm::normalize(IntersectionDepth.first), glm::normalize(RbSphere->Velocity)));
+						glm::vec3 Reflect = glm::reflect(RbSphere->Velocity, glm::reflect(glm::normalize(IntersectionDepth.first), glm::normalize(RbSphere->Velocity)));
+						glm::vec3 NewVel = glm::length(RbSphere->Velocity) == 0 ? glm::vec3(0.f, 0.f, 0.f) : Reflect;
+																				 ;
 						glm::vec3 NewPos = Plane->Normal * -IntersectionDepth.second;
 
 						RbSphere->Velocity =  (1-Plane->FrictionCoefficient) * NewVel;
@@ -245,7 +240,6 @@ namespace ScarletEngine
 			float Dist = (abs(glm::dot(Plane->Normal, Sphere->Pos) + Plane->Distance) - Sphere->Radius);
 			return std::pair<glm::vec3, float>(Plane->Normal * Dist, Dist); // Intersects if negative
 		}
-
 #pragma endregion
 	};
 };

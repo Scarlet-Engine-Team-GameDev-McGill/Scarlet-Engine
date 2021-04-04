@@ -94,6 +94,7 @@ namespace ScarletEngine
 			glfwTerminate();
 			check(false);
 		}
+		glfwMaximizeWindow((GLFWwindow*)WindowHandle);
 
 		glfwSetWindowUserPointer((GLFWwindow*)WindowHandle, this);
 

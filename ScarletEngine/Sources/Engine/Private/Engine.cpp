@@ -48,7 +48,7 @@ namespace ScarletEngine
 
 		std::chrono::high_resolution_clock Clock;
 
-		using seconds = std::chrono::duration<double, std::ratio<1>>;
+		using ms = std::chrono::duration<double, std::ratio<1>>;
 		auto LastTime = Clock.now();
 		double Lag = 0.0;
 
@@ -57,7 +57,7 @@ namespace ScarletEngine
 		{
 			FrameMark
 
-			const double DeltaTime = std::chrono::duration_cast<ms>(Clock.now() - LastTime).count() * 0.001;
+			const double DeltaTime = std::chrono::duration_cast<ms>(Clock.now() - LastTime).count();
 			LastTime = Clock.now();
 			Lag += DeltaTime;
 
