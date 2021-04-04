@@ -29,6 +29,8 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 if (CMAKE_VERSION VERSION_LESS 2.8.11)
   include_directories("${gtest_SOURCE_DIR}/include")
 endif()
+set_target_properties(gtest PROPERTIES FOLDER "Thirdparty")
+set_target_properties(gtest_main PROPERTIES FOLDER "Thirdparty")
 
 file(GLOB_RECURSE EngineTest_SRC "*.cpp")
 

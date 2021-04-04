@@ -28,6 +28,8 @@ macro(declare_editor_module)
 	target_link_libraries(${DECLARE_MODULE_MODULE_NAME} PUBLIC ${DECLARE_MODULE_PUBLIC_DEPS} PRIVATE ${DECLARE_MODULE_PRIVATE_DEPS})
 
 	target_compile_features(${DECLARE_MODULE_MODULE_NAME} PUBLIC cxx_std_20)
+	
+	set_target_properties(${DECLARE_MODULE_MODULE_NAME} PROPERTIES FOLDER "ScarletEditor")
 
 	# for now make a list of all modules which external things should link to if they want everything
 	register_editor_module(${DECLARE_MODULE_MODULE_NAME})
@@ -58,6 +60,7 @@ target_link_libraries(ScarletEditor PRIVATE Engine UI ${ScarletEditorModules})
 
 target_include_directories(ScarletEditor PUBLIC "include")
 target_compile_features(ScarletEditor PUBLIC cxx_std_20)
+set_target_properties(ScarletEditor PROPERTIES FOLDER "ScarletEditor")
 
 if (NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/imgui.ini")
 	message(STATUS "Configuring file imgui.ini")
