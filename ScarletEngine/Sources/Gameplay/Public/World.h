@@ -24,7 +24,7 @@ namespace ScarletEngine
 
 		inline double GetDeltaTime() const { return LastDeltaTime; }
 
-		SceneProxy* GetRenderSceneProxy() { return &RenderSceneProxy; }
+		SceneProxy* GetRenderSceneProxy() { return Reg.GetSingleton<SceneProxy>(); }
 
 		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
 	public:
@@ -65,7 +65,5 @@ namespace ScarletEngine
 		Registry Reg;
 
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
-
-		SceneProxy RenderSceneProxy;
 	};
 }
