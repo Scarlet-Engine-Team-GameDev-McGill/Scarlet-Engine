@@ -1146,7 +1146,7 @@ struct ImGuiColumns
 #ifdef IMGUI_HAS_DOCK
 
 // Extend ImGuiDockNodeFlags_
-enum ImGuiDockNodeFlagsPrivate_
+enum ImGuiDockNodeFlagsPrivate_ : int
 {
     // [Internal]
     ImGuiDockNodeFlags_DockSpace                = 1 << 10,  // Local, Saved  // A dockspace is a node that occupy space within an existing user window. Otherwise the node is floating and create its own window.

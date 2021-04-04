@@ -23,7 +23,8 @@ macro(declare_editor_module)
 	endif()
 
 	file(GLOB_RECURSE MODULE_SRC "*.cpp")
-	add_library(${DECLARE_MODULE_MODULE_NAME} STATIC ${MODULE_SRC})
+	file(GLOB_RECURSE MODULE_HDRS "*.h")
+	add_library(${DECLARE_MODULE_MODULE_NAME} STATIC ${MODULE_SRC} ${MODULE_HDRS})
 	target_include_directories(${DECLARE_MODULE_MODULE_NAME} PUBLIC "Public" PRIVATE "Private")
 	target_link_libraries(${DECLARE_MODULE_MODULE_NAME} PUBLIC ${DECLARE_MODULE_PUBLIC_DEPS} PRIVATE ${DECLARE_MODULE_PRIVATE_DEPS})
 

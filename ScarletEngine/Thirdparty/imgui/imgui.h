@@ -1209,7 +1209,7 @@ enum ImGuiHoveredFlags_
 // Flags for ImGui::DockSpace(), shared/inherited by child nodes.
 // (Some flags can be applied to individual nodes directly)
 // FIXME-DOCK: Also see ImGuiDockNodeFlagsPrivate_ which may involve using the WIP and internal DockBuilder api.
-enum ImGuiDockNodeFlags_
+enum ImGuiDockNodeFlags_ : int
 {
     ImGuiDockNodeFlags_None                         = 0,
     ImGuiDockNodeFlags_KeepAliveOnly                = 1 << 0,   // Shared       // Don't display the dockspace node but keep it alive. Windows docked into this dockspace node won't be undocked.
