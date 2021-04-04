@@ -87,4 +87,8 @@ namespace ScarletEngine
 			return ISystem::GetSingleton<SingletonType>();
 		}
 	};
+
+	template <typename Type>
+	concept ECSSystem = std::derived_from<Type, ISystem>;
+
 }
