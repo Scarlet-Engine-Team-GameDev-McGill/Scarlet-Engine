@@ -148,7 +148,7 @@ TEST(ECS, System)
 {
 	struct Component
 	{
-		uint32_t X = 11;	
+		uint32_t X = 11;
 	};
 	
 	class TestSystem : public ScarletEngine::System<Component>
@@ -190,6 +190,7 @@ TEST(ECS, ConstSystem)
 		{
 			for (auto& [Ent, TC] : GetEntities<const Component>())
 			{
+				(void)TC;
 				//TC->X = 50;
 			}
 		}
