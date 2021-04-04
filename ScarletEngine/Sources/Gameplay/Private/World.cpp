@@ -1,5 +1,4 @@
 #include "World.h"
-#include "StaticMeshComponent.h"
 
 namespace ScarletEngine
 {
@@ -14,16 +13,15 @@ namespace ScarletEngine
 		ZoneScoped
 	}
 
-	void World::Tick(double DeltaTime)
+	void World::Tick(double)
 	{
 		ZoneScoped
-		WorldSystems.RunUpdate(&Reg);
+		SystemScheduler::Get().RunUpdate(&Reg);
 	}
 
-	void World::FixedTick(double DeltaTime)
+	void World::FixedTick(double)
 	{
 		ZoneScoped
-		WorldSystems.RunFixedUpdate(&Reg);
+		SystemScheduler::Get().RunFixedUpdate(&Reg);
 	}
-
 }

@@ -7,21 +7,20 @@ namespace ScarletEngine
 {
     class Registry;
     
-    template <typename Type>
-    concept ECSSystem = std::derived_from<Type, ISystem>;
-    
     class SystemScheduler
     {
     public:        
         template <ECSSystem SystemType>
         void RegisterSystem()
         {
-            Systems.push_back(UniquePtr<ISystem>(ScarNew(SystemType)));
+            Systems.emplace_back(ScarNew(SystemType));
         }
 
         void RunUpdate(Registry* Reg) const;
 
         void RunFixedUpdate(Registry* Reg) const;
+        
+        static SystemScheduler& Get() { static SystemScheduler Instance; return Instance; }
     private:
         Array<UniquePtr<ISystem>> Systems;
     };

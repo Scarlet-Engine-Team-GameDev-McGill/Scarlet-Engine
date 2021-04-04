@@ -278,5 +278,5 @@ TEST(ECS, ConstSingleton)
 
 	Scheduler.RunUpdate(&Reg);
 
-	EXPECT_EQ(SC->X, 10);
+	EXPECT_EQ(SC->X, static_cast<uint32_t>(10));
 }

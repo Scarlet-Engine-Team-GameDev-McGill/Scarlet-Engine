@@ -63,7 +63,6 @@ namespace ScarletEngine
 	private:
 		double LastDeltaTime;
 		Registry Reg;
-		SystemScheduler WorldSystems;
 
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
 

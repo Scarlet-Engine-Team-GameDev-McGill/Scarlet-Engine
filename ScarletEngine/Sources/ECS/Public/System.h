@@ -47,7 +47,7 @@ namespace ScarletEngine
 			{
 				if ((Reg->HasComponent<std::remove_cv_t<Components>>(Entity->ID) && ...))
 				{
-					EntityProxies.push_back(std::make_tuple(Entity->ID, Reg->GetComponent<std::remove_cv_t<ComponentTypes>>(Entity->ID)...));
+					EntityProxies.push_back(std::make_tuple(Entity->ID, Reg->GetComponent<std::remove_cv_t<Components>>(Entity->ID)...));
 				}
 			}
 
@@ -62,4 +62,8 @@ namespace ScarletEngine
 			return Reg->GetSingleton<SingletonType>();
 		}
 	};
+
+	template <typename Type>
+	concept ECSSystem = std::derived_from<Type, ISystem>;
+
 }
