@@ -11,12 +11,6 @@ namespace ScarletEngine
 {
 	namespace Achilles
 	{
-		struct IntersectionData
-		{
-			float Distance;
-			glm::vec3 Normal;
-		};
-
 		class AABBvsAABBColliderSystem : public System<BoxColliderComponent, RigidBodyComponent, Transform>
 		{
 		public:

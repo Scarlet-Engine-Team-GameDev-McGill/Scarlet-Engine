@@ -8,6 +8,7 @@ namespace Achilles
 		glm::vec3 GravityEarth = glm::vec3(0.f, -9.81f, 0.f);
 
 		bool UsesGravity = true;
+		bool UsesKeplerGravity = false;
 
 		float Mass = 1.f;
 		glm::vec3 Force = glm::vec3(0.f);

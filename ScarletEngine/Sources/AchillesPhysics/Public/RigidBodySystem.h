@@ -17,6 +17,7 @@ namespace ScarletEngine
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
 			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
+			void ComputeGravities(const Array<SharedPtr<Entity>>& Entities) const;
 		};
 	}
 };

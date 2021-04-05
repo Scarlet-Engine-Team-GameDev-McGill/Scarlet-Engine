@@ -18,6 +18,7 @@ namespace ScarletEngine
 			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
 			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
 			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
+			void UpdateSpring(const EID Entity, double Dt, SpringComponent* Spring) const;
 		};
 	}
 };
