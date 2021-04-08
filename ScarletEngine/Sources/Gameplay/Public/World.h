@@ -39,15 +39,6 @@ namespace ScarletEngine
 			return EntityProxy;
 		}
 
-		/** Register a new system with the world */
-		template <typename... SystemSig>
-		void RegisterSystem(const String& Name)
-		{
-			ZoneScoped
-			//return *static_cast<System<SystemSig...>*>(Systems.emplace_back(ScarNew(System<SystemSig...>, &Reg, Name)).get());
-			
-		}
-
 		const Array<SharedPtr<Entity>>& GetEntities() const
 		{
 			ZoneScoped
