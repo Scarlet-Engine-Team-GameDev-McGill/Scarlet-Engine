@@ -97,6 +97,14 @@ namespace ScarletEngine
 			return &Instance;
 		}
 
+		void Clear()
+		{
+			// Note: this does NOT clear any values for singletons.
+			ComponentContainers.clear();
+			Entities.clear();
+			NextAvailableEID = 1;
+		}
+
 		const Array<EID>& GetEntities() const { return Entities; }
 	private:
 		template <typename T>
