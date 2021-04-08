@@ -107,20 +107,31 @@ namespace ScarletEngine
 			Entities.clear();
 			NextAvailableEID = 1;
 		}
-		
+
 		template <typename ...Components>
-		Array<ProxyType<Components...>> GetProxies() const
+        Array<ProxyType<Components...>> GetProxies()
 		{
 			ZoneScoped
+            static_assert(sizeof...(Components) > 0, "Missing template argument list");
+
+			// Cache pointers to all component containers in a tuple to access later
+			const auto Containers = std::make_tuple(GetOrCreateComponentContainer<std::remove_cv_t<Components>>()...);
+			
 			// Create an array of std::tuples of references to components
 			// could probably cache some of this work
 			Array<ProxyType<Components...>> EntityProxies;
-
-			for (const EID Entity : Entities)
+			const size_t Count = std::min({ std::get<ComponentContainer<std::remove_cv_t<Components>>*>(Containers)->Count()... });
+			EntityProxies.reserve(Count);
+			
+			if (Count > 0)
 			{
-				if ((HasComponent<std::remove_cv_t<Components>>(Entity) && ...))
+				for (const EID Entity : Entities)
 				{
-					EntityProxies.emplace_back(std::make_tuple(Entity, GetComponent<std::remove_cv_t<Components>>(Entity)...));
+					const auto Proxy = std::make_tuple(Entity, std::get<ComponentContainer<std::remove_cv_t<Components>>*>(Containers)->Get(Entity)...);
+					if ((std::get<std::remove_cv_t<Components>*>(Proxy) && ...))
+					{
+						EntityProxies.emplace_back(Proxy);
+					}
 				}
 			}
 

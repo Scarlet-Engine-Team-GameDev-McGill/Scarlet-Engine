@@ -35,12 +35,14 @@ namespace ScarletEngine
 			return nullptr;
 		}
 
-		virtual bool Has(EID EntityID) const override
+		inline virtual bool Has(EID EntityID) const override
 		{
 			ZoneScoped
 			return EntityMap.find(EntityID) != EntityMap.end();
 		}
 
+		inline size_t Count() const { return Components.size(); }
+		
 		inline virtual bool Remove(EID EntityID) override
 		{
 			ZoneScoped
