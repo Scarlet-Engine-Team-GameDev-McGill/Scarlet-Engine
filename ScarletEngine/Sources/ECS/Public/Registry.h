@@ -6,7 +6,7 @@
 
 namespace ScarletEngine
 {
-	/** Manages entity-component relationships */
+	/** Manages entity-component relationships at a low level. */
 	class Registry
 	{
 	public:
@@ -16,8 +16,8 @@ namespace ScarletEngine
 		std::tuple<EID, std::add_pointer_t<Ts>...> CreateEntity()
 		{
 			ZoneScoped
-			EID& EntityID = Entities.emplace_back();
-			EntityID = NextAvailableEID++;
+			EID EntityID = NextAvailableEID++;
+			Entities.push_back(EntityID);
 			
 			return std::make_tuple(EntityID, AddComponent<Ts>(EntityID)...);
 		}

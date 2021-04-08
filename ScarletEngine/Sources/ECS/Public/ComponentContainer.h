@@ -22,15 +22,15 @@ namespace ScarletEngine
 			ZoneScoped
 			const size_t Index = Components.size();
 			EntityMap[EntityID] = Index;
-			return &Components.emplace_back(T());
+			return &Components.emplace_back();
 		}
 
 		inline T* Get(EID EntityID)
 		{
 			ZoneScoped
-			if (Has(EntityID))
+			if (auto Index = Find(EntityID))
 			{
-				return &Components[EntityMap.at(EntityID)];
+				return &Components[Index.value()];
 			}
 			return nullptr;
 		}
@@ -64,16 +64,16 @@ namespace ScarletEngine
 		inline T* Attach(EID EntityID, const T& Component)
 		{
 			ZoneScoped
-			if (!Has(EntityID))
+			if (auto Index = Find(EntityID))
 			{
-				const size_t Index = Components.size();
-				EntityMap[EntityID] = Index;
-				return &Components.emplace_back(Component);
+				const size_t IndexVal = Index.value();
+				Components[IndexVal] = Component;
+				return &Components.at(IndexVal);
 			}
-
-			const size_t Index = EntityMap.at(EntityID);
-			Components[Index] = Component;
-			return &Components.at(Index);
+			
+			const size_t Index = Components.size();
+			EntityMap[EntityID] = Index;
+			return &Components.emplace_back(Component);
 		}
 
 		inline virtual void Sort() override
@@ -100,6 +100,12 @@ namespace ScarletEngine
 			}
 		}
 	private:
+		inline std::optional<size_t> Find(EID EntityID) const
+		{
+			const auto It = EntityMap.find(EntityID);
+			return It != EntityMap.end() ? It->second : std::optional<size_t>{};
+		}
+		
 		/** Warning: Potentially slow! */
 		EID FindOwner(const T* Component) const
 		{
