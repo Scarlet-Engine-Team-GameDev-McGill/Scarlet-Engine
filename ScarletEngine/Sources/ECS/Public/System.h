@@ -30,9 +30,6 @@ namespace ScarletEngine
 	{
 	public:
 		template <typename ...Components>
-		using ProxyType = std::tuple<EID, std::add_pointer_t<Components>...>;
-		
-		template <typename ...Components>
 		Array<ProxyType<Components...>> GetEntities() const
 		{
 			ZoneScoped
@@ -41,17 +38,7 @@ namespace ScarletEngine
 
 			// Create an array of std::tuples of references to components
 			// could probably cache some of this work
-			Array<ProxyType<Components...>> EntityProxies;
-
-			for (const EID Entity : Reg->GetEntities())
-			{
-				if ((Reg->HasComponent<std::remove_cv_t<Components>>(Entity) && ...))
-				{
-					EntityProxies.push_back(std::make_tuple(Entity, Reg->GetComponent<std::remove_cv_t<Components>>(Entity)...));
-				}
-			}
-
-			return EntityProxies;
+			return Reg->GetProxies<Components...>();
 		}
 
 		template <typename SingletonType>

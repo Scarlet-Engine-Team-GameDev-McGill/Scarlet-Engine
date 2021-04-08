@@ -6,6 +6,9 @@
 
 namespace ScarletEngine
 {
+	template <typename ...Components>
+	using ProxyType = std::tuple<EID, std::add_pointer_t<Components>...>;
+	
 	/** Manages entity-component relationships at a low level. */
 	class Registry
 	{
@@ -13,10 +16,10 @@ namespace ScarletEngine
 		/* Entity Interface */
 
 		template <typename ...Ts>
-		std::tuple<EID, std::add_pointer_t<Ts>...> CreateEntity()
+		ProxyType<Ts...> CreateEntity()
 		{
 			ZoneScoped
-			EID EntityID = NextAvailableEID++;
+			const EID EntityID = NextAvailableEID++;
 			Entities.push_back(EntityID);
 			
 			return std::make_tuple(EntityID, AddComponent<Ts>(EntityID)...);
@@ -103,6 +106,25 @@ namespace ScarletEngine
 			ComponentContainers.clear();
 			Entities.clear();
 			NextAvailableEID = 1;
+		}
+		
+		template <typename ...Components>
+		Array<ProxyType<Components...>> GetProxies() const
+		{
+			ZoneScoped
+			// Create an array of std::tuples of references to components
+			// could probably cache some of this work
+			Array<ProxyType<Components...>> EntityProxies;
+
+			for (const EID Entity : Entities)
+			{
+				if ((HasComponent<std::remove_cv_t<Components>>(Entity) && ...))
+				{
+					EntityProxies.emplace_back(std::make_tuple(Entity, GetComponent<std::remove_cv_t<Components>>(Entity)...));
+				}
+			}
+
+			return EntityProxies;
 		}
 
 		const Array<EID>& GetEntities() const { return Entities; }
