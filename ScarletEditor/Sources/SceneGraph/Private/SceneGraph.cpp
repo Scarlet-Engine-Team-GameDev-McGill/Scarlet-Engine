@@ -133,7 +133,7 @@ namespace ScarletEngine
 		else if (IO.KeyShift)
 		{
 			// Select items from the current selection index until the newly selected item
-			Array<Entity*> EntitiesToSelect;
+			Array<EntityHandle*> EntitiesToSelect;
 			EID ClickedIndex = Item.Ent.lock()->ID;
 
 			// Determine the iterator direction

@@ -5,7 +5,7 @@
 
 namespace ScarletEngine
 {
-	struct Entity;
+	struct EntityHandle;
 
 	class PropertyEditorPanel : public UIWindow
 	{
@@ -21,6 +21,6 @@ namespace ScarletEngine
 	private:
 		void DrawTransformEditor();
 	private:
-		Entity* FocusedEntity;
+		EntityHandle* FocusedEntity;
 	};
 }

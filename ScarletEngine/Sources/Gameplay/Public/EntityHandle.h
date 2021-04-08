@@ -1,16 +1,16 @@
 #pragma once
 
+#include "Core.h"
 #include "TypeInfo.h"
-#include <string>
 
 namespace ScarletEngine
 {
 	class World;
 
-	struct Entity
+	struct EntityHandle
 	{
 	public:
-		Entity(const String& InName, EID InID, World* InOwningWorld)
+		EntityHandle(const String& InName, EID InID, World* InOwningWorld)
 			: Name(InName)
 			, ID(InID)
 			, OwningWorld(InOwningWorld)

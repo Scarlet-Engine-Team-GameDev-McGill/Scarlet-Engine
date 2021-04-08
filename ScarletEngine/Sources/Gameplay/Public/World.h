@@ -8,7 +8,7 @@
 
 namespace ScarletEngine
 {
-	using OnEntityAddedToWorldEvent = Event<const SharedPtr<Entity>&>;
+	using OnEntityAddedToWorldEvent = Event<const SharedPtr<EntityHandle>&>;
 
 	class World final : public ITickable
 	{
@@ -33,20 +33,20 @@ namespace ScarletEngine
 		{
 			ZoneScoped
 			const auto EntityProxy = Reg.CreateEntity<ComponentTypes...>();
-			SharedPtr<Entity>& Ent = Entities.emplace_back(ScarNew(Entity, Name, std::get<EID>(EntityProxy), this));
+			SharedPtr<EntityHandle>& Ent = Entities.emplace_back(ScarNew(EntityHandle, Name, std::get<EID>(EntityProxy), this));
 			
 			OnEntityAddedToWorld.Broadcast(Ent);
 			return EntityProxy;
 		}
 
-		const Array<SharedPtr<Entity>>& GetEntities() const
+		const Array<SharedPtr<EntityHandle>>& GetEntities() const
 		{
 			ZoneScoped
 			return Entities;
 		}
 
 		template <typename ComponentType>
-		auto GetComponent(const Entity& Ent)
+		auto GetComponent(const EntityHandle& Ent)
 		{
 			ZoneScoped
 			return Reg.GetComponent<ComponentType>(Ent.ID);
@@ -54,7 +54,7 @@ namespace ScarletEngine
 	private:
 		double LastDeltaTime;
 		Registry Reg;
-		Array<SharedPtr<Entity>> Entities;
+		Array<SharedPtr<EntityHandle>> Entities;
 
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
 	};

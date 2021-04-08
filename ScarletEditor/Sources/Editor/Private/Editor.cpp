@@ -28,18 +28,18 @@ namespace ScarletEngine
 		ZoneScoped
 	}
 
-	void Editor::SetSelection(const Array<Entity*>& NewSelection)
+	void Editor::SetSelection(const Array<EntityHandle*>& NewSelection)
 	{
 		ZoneScoped
 		SelectedEntities.clear();
-		for (Entity* Ent : NewSelection)
+		for (EntityHandle* Ent : NewSelection)
 		{
 			SelectedEntities.insert(Ent);
 		}
 		OnSelectionChanged.Broadcast();
 	}
 	
-	void Editor::SetSelection(Entity* SelectedItem)
+	void Editor::SetSelection(EntityHandle* SelectedItem)
 	{
 		ZoneScoped
 		SelectedEntities.clear();
@@ -47,17 +47,17 @@ namespace ScarletEngine
 		OnSelectionChanged.Broadcast();
 	}
 
-	void Editor::AddToSelection(const Array<Entity*>& EntitiesToAdd)
+	void Editor::AddToSelection(const Array<EntityHandle*>& EntitiesToAdd)
 	{
 		ZoneScoped
-		for (Entity* Ent : EntitiesToAdd)
+		for (EntityHandle* Ent : EntitiesToAdd)
 		{
 			SelectedEntities.insert(Ent);
 		}
 		OnSelectionChanged.Broadcast();
 	}
 
-	void Editor::AddToSelection(Entity* EntityToAdd)
+	void Editor::AddToSelection(EntityHandle* EntityToAdd)
 	{
 		ZoneScoped
 		SelectedEntities.insert(EntityToAdd);
@@ -71,14 +71,14 @@ namespace ScarletEngine
 		OnSelectionCleared.Broadcast();
 	}
 
-	void Editor::RemoveFromSelection(Entity* EntityToRemove)
+	void Editor::RemoveFromSelection(EntityHandle* EntityToRemove)
 	{
 		ZoneScoped
 		SelectedEntities.erase(EntityToRemove);
 		OnSelectionChanged.Broadcast();
 	}
 
-	bool Editor::IsEntitySelected(Entity* Ent) const
+	bool Editor::IsEntitySelected(EntityHandle* Ent) const
 	{
 		ZoneScoped
 		return SelectedEntities.find(Ent) != SelectedEntities.end();
