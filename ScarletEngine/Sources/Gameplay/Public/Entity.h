@@ -10,16 +10,16 @@ namespace ScarletEngine
 	struct Entity
 	{
 	public:
-		Entity(const String& InName)
+		Entity(const String& InName, EID InID, World* InOwningWorld)
 			: Name(InName)
-			, ID(INVALID_EID)
-			, OwningWorld(nullptr)
+			, ID(InID)
+			, OwningWorld(InOwningWorld)
 		{
 			Name.reserve(64);
 		}
 
 		String Name;
-		EID ID;
-		World* OwningWorld;
+		const EID ID;
+		World* const OwningWorld;
 	};
 }

@@ -2,139 +2,24 @@
 
 #include "CoreMinimal.h"
 #include "TypeInfo.h"
-#include "Entity.h"
+#include "ComponentContainer.h"
 
 namespace ScarletEngine
 {
 	/** Manages entity-component relationships */
 	class Registry
 	{
-		struct IComponentContainer
-		{
-			virtual ~IComponentContainer() {}
-
-			virtual bool Has(EID EntityID) const = 0;
-			virtual bool Remove(EID EntityID) = 0;
-			virtual void Sort() = 0;
-		};
-
-		template <typename T>
-		struct ComponentContainer : public IComponentContainer
-		{
-		public:
-			T* Add(EID EntityID)
-			{
-				ZoneScoped
-				const size_t Index = Components.size();
-				EntityMap[EntityID] = Index;
-				return &Components.emplace_back(T());
-			}
-
-			T* Get(EID EntityID)
-			{
-				ZoneScoped
-				if (Has(EntityID))
-				{
-					return &Components[EntityMap.at(EntityID)];
-				}
-				return nullptr;
-			}
-
-			virtual bool Has(EID EntityID) const override
-			{
-				ZoneScoped
-				return EntityMap.find(EntityID) != EntityMap.end();
-			}
-
-			virtual bool Remove(EID EntityID) override
-			{
-				ZoneScoped
-				const size_t IndexToRemove = EntityMap.at(EntityID);
-				const T* BackElement = &Components.back();
-				const EID BackOwner = FindOwner(BackElement);
-
-				if (BackOwner == INVALID_EID)
-				{
-					return false;
-				}
-
-				Components[IndexToRemove] = *BackElement;
-				EntityMap[BackOwner] = IndexToRemove;
-				Components.pop_back();
-				EntityMap.erase(EntityID);
-
-				return true;
-			}
-
-			T* Attach(EID EntityID, const T& Component)
-			{
-				ZoneScoped
-				if (!Has(EntityID))
-				{
-					const size_t Index = Components.size();
-					EntityMap[EntityID] = Index;
-					return &Components.emplace_back(Component);
-				}
-
-				const size_t Index = EntityMap.at(EntityID);
-				Components[Index] = Component;
-				return &Components.at(Index);
-			}
-
-			virtual void Sort() override
-			{
-				ZoneScoped
-				Array<size_t> Ids(EntityMap.size());
-
-				size_t NextIndex = 0;
-				for (auto& Pair : EntityMap)
-				{
-					Ids[Pair.second] = NextIndex;
-					Pair.second = NextIndex;
-					NextIndex++;
-				}
-
-				for (size_t i = 0; i < Ids.size(); ++i)
-				{
-					while (Ids[i] != i)
-					{
-						const size_t IndexToSwap = Ids[i];
-						std::swap(Components[i], Components[IndexToSwap]);
-						std::swap(Ids[i], Ids[IndexToSwap]);
-					}
-				}
-			}
-		private:
-			/** Warning: Potentially slow! */
-			EID FindOwner(const T* Component) const
-			{
-				ZoneScoped
-				for (const auto& Pair : EntityMap)
-				{
-					if (&Components[Pair.second] == Component) return Pair.first;
-				}
-				return INVALID_EID;
-			}
-		private:
-			/** Maps EID to index in component map */
-			Map<EID, size_t> EntityMap;
-			/** Stores components */
-			Array<T> Components;
-		};
 	public:
 		/* Entity Interface */
 
 		template <typename ...Ts>
-		std::tuple<SharedPtr<Entity>, std::add_pointer_t<Ts>...> CreateEntity(const char* Name)
+		std::tuple<EID, std::add_pointer_t<Ts>...> CreateEntity()
 		{
 			ZoneScoped
-			check(Name != nullptr);
+			EID& EntityID = Entities.emplace_back();
+			EntityID = NextAvailableEID++;
 			
-			Entities.push_back(MakeShared<Entity>(Name));
-			SharedPtr<Entity>& Ent = Entities.back();
-			Ent->ID = NextAvailableEID++;
-			
-			return std::make_tuple(Ent, AddComponent<Ts>(Ent->ID)...);
+			return std::make_tuple(EntityID, AddComponent<Ts>(EntityID)...);
 		}
 	public:
 		/* Component Interface */
@@ -143,9 +28,8 @@ namespace ScarletEngine
 		T* AddComponent(EID EntityID)
 		{
 			ZoneScoped
-			auto Container = GetOrCreateComponentContainer<T>();
+			const auto Container = GetOrCreateComponentContainer<T>();
 			check(Container);
-			check(!Container->Has(EntityID));
 
 			return Container->Add(EntityID);
 		}
@@ -154,29 +38,28 @@ namespace ScarletEngine
 		bool RemoveComponent(EID EntityID) const
 		{
 			ZoneScoped
-			if (auto Container = GetComponentContainer<T>())
+			if (const auto Container = GetComponentContainer<T>())
 			{
 				return Container->Remove(EntityID);
 			}
 			return false;
 		}
-
+		
 		template <typename T>
 		T* AttachComponent(EID EntityID, const T& Component)
 		{
 			ZoneScoped
-			if (auto Container = GetOrCreateComponentContainer<T>())
-			{
-				return Container->Attach(EntityID, Component);
-			}
-			return nullptr;
+			const auto Container = GetOrCreateComponentContainer<T>();
+			check(Container);
+			
+			return Container->Attach(EntityID, Component);
 		}
 
 		template <typename T>
 		T* GetComponent(EID EntityID) const
 		{
 			ZoneScoped
-			if (auto Container = GetComponentContainer<T>())
+			if (const auto Container = GetComponentContainer<T>())
 			{
 				return Container->Get(EntityID);
 			}
@@ -188,7 +71,7 @@ namespace ScarletEngine
 		bool HasComponent(EID EntityID) const
 		{
 			ZoneScoped
-			if (auto Container = GetComponentContainer<T>())
+			if (const auto Container = GetComponentContainer<T>())
 			{
 				return Container->Has(EntityID);
 			}
@@ -200,28 +83,29 @@ namespace ScarletEngine
 		void SortAll()
 		{
 			ZoneScoped
-			for (auto& Container : ComponentContainers)
+			for (const auto& [_, Container] : ComponentContainers)
 			{
-				Container.second->Sort();
+				Container->Sort();
 			}
 		}
 
 		template <typename T>
 		T* GetSingleton() const
 		{
+			// HACK: Sort of a hacky way to implement singleton components but very performant since it doesn't use any hashmaps
 			static T Instance;
 			return &Instance;
 		}
 
-		const Array<SharedPtr<Entity>>& GetEntities() const { return Entities; }
+		const Array<EID>& GetEntities() const { return Entities; }
 	private:
 		template <typename T>
 		ComponentContainer<T>* GetComponentContainer() const
 		{
 			ZoneScoped
-			if (ComponentContainers.find(ComponentTypeID<T>::Value()) != ComponentContainers.end())
+			if (const auto It = ComponentContainers.find(ComponentTypeID<T>::Value()); It != ComponentContainers.end())
 			{
-				return static_cast<ComponentContainer<T>*>(ComponentContainers.at(ComponentTypeID<T>::Value()).get());
+				return static_cast<ComponentContainer<T>*>(It->second.get());
 			}
 			return nullptr;
 		}
@@ -230,17 +114,16 @@ namespace ScarletEngine
 		ComponentContainer<T>* GetOrCreateComponentContainer()
 		{
 			ZoneScoped
-			ComponentContainer<T>* Container = GetComponentContainer<T>();
+			UniquePtr<IComponentContainer>& Container = ComponentContainers[ComponentTypeID<T>::Value()];
 			if (!Container)
 			{
-				Container = ScarNew(ComponentContainer<T>);
-				ComponentContainers[ComponentTypeID<T>::Value()] = UniquePtr<IComponentContainer>(Container);
+				Container = UniquePtr<IComponentContainer>(ScarNew(ComponentContainer<T>));
 			}
-			return Container;
+			return static_cast<ComponentContainer<T>*>(Container.get());
 		}
 	private:
 		EID NextAvailableEID = 1;
 		UnorderedMap<CTID, UniquePtr<IComponentContainer>> ComponentContainers;
-		Array<SharedPtr<Entity>> Entities;
+		Array<EID> Entities;
 	};
 }

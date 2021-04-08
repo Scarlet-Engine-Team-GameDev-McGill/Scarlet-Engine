@@ -43,11 +43,11 @@ namespace ScarletEngine
 			// could probably cache some of this work
 			Array<ProxyType<Components...>> EntityProxies;
 
-			for (const SharedPtr<Entity>& Entity : Reg->GetEntities())
+			for (const EID Entity : Reg->GetEntities())
 			{
-				if ((Reg->HasComponent<std::remove_cv_t<Components>>(Entity->ID) && ...))
+				if ((Reg->HasComponent<std::remove_cv_t<Components>>(Entity) && ...))
 				{
-					EntityProxies.push_back(std::make_tuple(Entity->ID, Reg->GetComponent<std::remove_cv_t<Components>>(Entity->ID)...));
+					EntityProxies.push_back(std::make_tuple(Entity, Reg->GetComponent<std::remove_cv_t<Components>>(Entity)...));
 				}
 			}
 

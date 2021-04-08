@@ -24,17 +24,17 @@ namespace ScarletEngine
 
 		inline double GetDeltaTime() const { return LastDeltaTime; }
 
-		SceneProxy* GetRenderSceneProxy() { return Reg.GetSingleton<SceneProxy>(); }
+		SceneProxy* GetRenderSceneProxy() const { return Reg.GetSingleton<SceneProxy>(); }
 
 		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
 	public:
 		template <typename... ComponentTypes>
-		std::tuple<SharedPtr<Entity>, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name)
+		std::tuple<EID, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name)
 		{
 			ZoneScoped
-			auto EntityProxy = Reg.CreateEntity<ComponentTypes...>(Name);
-			SharedPtr<Entity>& Ent = std::get<SharedPtr<Entity>>(EntityProxy);
-			Ent->OwningWorld = this;
+			const auto EntityProxy = Reg.CreateEntity<ComponentTypes...>();
+			SharedPtr<Entity>& Ent = Entities.emplace_back(ScarNew(Entity, Name, std::get<EID>(EntityProxy), this));
+			
 			OnEntityAddedToWorld.Broadcast(Ent);
 			return EntityProxy;
 		}
@@ -48,10 +48,10 @@ namespace ScarletEngine
 			
 		}
 
-		auto GetEntities()
+		const Array<SharedPtr<Entity>>& GetEntities() const
 		{
 			ZoneScoped
-			return Reg.GetEntities();
+			return Entities;
 		}
 
 		template <typename ComponentType>
@@ -63,6 +63,7 @@ namespace ScarletEngine
 	private:
 		double LastDeltaTime;
 		Registry Reg;
+		Array<SharedPtr<Entity>> Entities;
 
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
 	};
