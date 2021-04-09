@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ranges>
+
 #include "CoreMinimal.h"
 
 #define RAL_USING_COMMAND_LISTS 1
