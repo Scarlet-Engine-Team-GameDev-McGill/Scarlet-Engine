@@ -13,11 +13,11 @@ namespace ScarletEngine
 		virtual void Sort() = 0;
 	};
 
-	template <typename T>
+	template <typename ComponentType>
 	struct ComponentContainer : public IComponentContainer
 	{
 	public:
-		inline T* Add(EID EntityID)
+		inline ComponentType* Add(EID EntityID)
 		{
 			ZoneScoped
 			const size_t Index = Components.size();
@@ -25,7 +25,7 @@ namespace ScarletEngine
 			return &Components.emplace_back();
 		}
 
-		inline T* Get(EID EntityID)
+		inline ComponentType* Get(EID EntityID)
 		{
 			ZoneScoped
 			if (auto Index = Find(EntityID))
@@ -47,7 +47,7 @@ namespace ScarletEngine
 		{
 			ZoneScoped
 			const size_t IndexToRemove = EntityMap.at(EntityID);
-			const T* BackElement = &Components.back();
+			const ComponentType* BackElement = &Components.back();
 			const EID BackOwner = FindOwner(BackElement);
 
 			if (BackOwner == INVALID_EID)
@@ -63,7 +63,7 @@ namespace ScarletEngine
 			return true;
 		}
 
-		inline T* Attach(EID EntityID, const T& Component)
+		inline ComponentType* Attach(EID EntityID, const ComponentType& Component)
 		{
 			ZoneScoped
 			if (auto Index = Find(EntityID))
@@ -109,7 +109,7 @@ namespace ScarletEngine
 		}
 		
 		/** Warning: Potentially slow! */
-		EID FindOwner(const T* Component) const
+		EID FindOwner(const ComponentType* Component) const
 		{
 			ZoneScoped
 			for (const auto& Pair : EntityMap)
@@ -122,6 +122,6 @@ namespace ScarletEngine
 		/** Maps EID to index in component map */
 		Map<EID, size_t> EntityMap;
 		/** Stores components */
-		Array<T> Components;
+		Array<ComponentType> Components;
 	};
 }
