@@ -52,7 +52,7 @@ namespace ScarletEngine
 		virtual RALShader* CreateShader(RALShaderStage Stage, const String& ShaderPath) = 0;
 		virtual RALShaderProgram* CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) = 0;
 	
-		void QueueCommand(const Function<void(RALCommandList&)>& Cmd);
+		void QueueCommand(const Function<void(RALCommandList&)>& Cmd, const char* CommandLabel = "");
 		
 		static RAL& Get() { return *Instance; }
 		static RenderAPI GetAPI() { return API; }
@@ -64,3 +64,5 @@ namespace ScarletEngine
 		static RenderAPI API;
 	};
 }
+
+#define QUEUE_RENDER_COMMAND(CommandName) RAL::Get().QueueCommand

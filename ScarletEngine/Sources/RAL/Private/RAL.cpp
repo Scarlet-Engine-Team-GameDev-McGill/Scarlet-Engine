@@ -8,11 +8,10 @@ namespace ScarletEngine
 	void RAL::Initialize()
 	{
 		CommandListQueue.push(RALCommandList{});
-		SetClearColorCmd({ 0.1f, 0.1f, 0.1f, 1.f });
 	}
 
-	void RAL::QueueCommand(const Function<void(RALCommandList&)>& Cmd)
+	void RAL::QueueCommand(const Function<void(RALCommandList&)>& Cmd, const char* CommandLabel)
 	{
-		CommandListQueue.back().QueueRenderCommand(Cmd);
+		CommandListQueue.back().QueueRenderCommand(Cmd, CommandLabel);
 	}
 }

@@ -134,7 +134,7 @@ namespace ScarletEngine
 		QueueCommand([ClearColor](RALCommandList&)
 		{
 			glClearColor(ClearColor.r, ClearColor.g, ClearColor.b, ClearColor.a);
-		});
+		}, "SetClearColor");
 	}
 
 	void OpenGLRAL::ClearCmd(bool bColor, bool bDepth, bool bStencil)
@@ -148,15 +148,18 @@ namespace ScarletEngine
 			if (bStencil) ClearField |= GL_STENCIL_BUFFER_BIT;
 
 			glClear(ClearField);
-		});
+		}, "Clear");
 	}
 
 	void OpenGLRAL::DrawVertexArrayCmd(const RALVertexArray* VA)
 	{
 		ZoneScoped
-		VA->Bind();
-		glDrawElements(GL_TRIANGLES, VA->IB->Size / sizeof(uint32_t), GL_UNSIGNED_INT, 0);
-		VA->Unbind();
+		QueueCommand([VA](RALCommandList&)
+		{
+			VA->Bind();
+			glDrawElements(GL_TRIANGLES, VA->IB->Size / sizeof(uint32_t), GL_UNSIGNED_INT, 0);
+			VA->Unbind();
+		}, "DrawVertexArray");
 	}
 
 	RALFramebuffer* OpenGLRAL::CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples)
