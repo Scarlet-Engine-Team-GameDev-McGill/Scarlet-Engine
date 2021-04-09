@@ -2,6 +2,7 @@
 
 #include "Editor.h"
 #include "ECS.h"
+#include "Widgets.h"
 
 namespace ScarletEngine
 {
@@ -46,34 +47,11 @@ namespace ScarletEngine
 		ZoneScoped
 		if (FocusedEntity != nullptr)
 		{
-			Transform* TransformComponent = FocusedEntity->OwningWorld->GetComponent<Transform>(*FocusedEntity);
-			
-			if (ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_DefaultOpen))
+			if (Transform* TransformComponent = FocusedEntity->OwningWorld->GetComponent<Transform>(*FocusedEntity))
 			{
-				static bool bFirstColumnOffsetSet = false;
-				float FirstColumnOffset = ImGui::CalcTextSize("Position").x + 2 * ImGui::GetStyle().ItemSpacing.x;
-				
-				ImGui::Columns(2);
-
-				if (!bFirstColumnOffsetSet)
-				{
-					bFirstColumnOffsetSet = true;
-					ImGui::SetColumnWidth(-1, FirstColumnOffset);
-				}
-
-				ImGui::Text("Position");
-				ImGui::Text("Rotation");
-				ImGui::Text("Scale");
-
-				ImGui::NextColumn();
-
-				ImGui::InputFloat3("###Position", glm::value_ptr(TransformComponent->Position), "%.3f");
-				ImGui::InputFloat3("###Rotation", glm::value_ptr(TransformComponent->Rotation), "%.3f");
-				ImGui::InputFloat3("###Scale", glm::value_ptr(TransformComponent->Scale), "%.3f");
-
-				// Restore default columns
-				ImGui::Columns(1);
+				Widgets::DrawTransformInput("Transform Component", *TransformComponent);
 			}
+			
 		}
 	}
 
