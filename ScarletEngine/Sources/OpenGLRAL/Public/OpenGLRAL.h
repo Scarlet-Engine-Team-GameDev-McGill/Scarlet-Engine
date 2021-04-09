@@ -10,6 +10,7 @@ namespace ScarletEngine
 	public:
 		virtual void Initialize() override;
 		virtual void Terminate() override;
+		virtual void Submit() override;
 
 		virtual const char* GetBackendName() const override { return "OpenGL"; }
 
