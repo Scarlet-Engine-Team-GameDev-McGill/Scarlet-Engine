@@ -25,6 +25,12 @@ namespace ScarletEngine
 	template <typename Key, typename KeyCmp = std::equal_to<Key>, typename Alloc = GlobalAllocator<Key>>
 	using UnorderedSet = std::unordered_set<Key, KeyCmp, Alloc>;
 
+	template <typename T, typename Alloc = GlobalAllocator<T>>
+	using Deque = std::deque<T, Alloc>;
+
+	template <typename T, typename Container = Deque<T>>
+	using Queue = std::queue<T, Container>;
+
 	template <typename CharType, typename Traits = std::char_traits<CharType>, typename Alloc = GlobalAllocator<CharType>>
 	using BasicString = std::basic_string<CharType, Traits, Alloc>;
 

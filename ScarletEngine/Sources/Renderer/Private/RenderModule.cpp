@@ -40,6 +40,7 @@ namespace ScarletEngine
 	void RenderModule::PostUpdate()
 	{
 		ZoneScoped
+		RAL::Get().Submit();
 	}
 	
 	Viewport* RenderModule::CreateViewport(uint32_t Width, uint32_t Height)
@@ -54,7 +55,7 @@ namespace ScarletEngine
 		if (Scene && ActiveViewport)
 		{
 			ActiveViewport->Bind();
-			RAL::Get().ClearCommand(true, true, true);
+			RAL::Get().ClearCmd(true, true, true);
 
 			ActiveViewport->Bind();
 			for (const auto& [Trans, SMC] : Scene->SMCs)
@@ -64,7 +65,7 @@ namespace ScarletEngine
 				Shader->SetUniformMat4(Trans->GetTransformMatrix() , "model");
 				Shader->SetUniformMat4(ActiveViewport->GetCamera().GetViewProj(), "vp");
 				Shader->SetUniformVec3(ActiveViewport->GetCamera().GetPosition(), "CameraPos");
-				RAL::Get().DrawVertexArray(SMC->VertexArray);
+				RAL::Get().DrawVertexArrayCmd(SMC->VertexArray);
 				Shader->Unbind();
 			}
 		
