@@ -110,14 +110,6 @@ namespace ScarletEngine
 		glfwTerminate();
 	}
 
-	void OpenGLRAL::Submit()
-	{
-		CommandListQueue.front().ExecuteAll();
-		CommandListQueue.pop();
-
-		CommandListQueue.push(RALCommandList{});
-	}
-
 	GPUInfo OpenGLRAL::GetGPUInfo() const
 	{
 		GPUInfo Info{};
