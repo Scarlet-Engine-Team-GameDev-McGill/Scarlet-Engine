@@ -98,7 +98,7 @@ namespace ScarletEngine
 		}
 #endif
 
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 		glFrontFace(GL_CCW);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_MULTISAMPLE);

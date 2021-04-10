@@ -106,9 +106,6 @@ namespace ScarletEngine
 		ImGuizmo::SetDrawlist();
 		ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, PanelSize.x, PanelSize.y);
 
-		uint64_t TextureID = View->GetColorAttachmentID();
-		ImGui::Image(reinterpret_cast<void*>(TextureID), ImVec2{ PanelSize.x, PanelSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-
 		Camera& ViewportCamera = View->GetCamera();
 		glm::mat4 ViewMatrix = ViewportCamera.GetView();
 		glm::mat4 ProjMatrix = ViewportCamera.GetProj();
@@ -117,6 +114,9 @@ namespace ScarletEngine
 		{
 			ImGuizmo::DrawGrid(glm::value_ptr(ViewMatrix), glm::value_ptr(ProjMatrix), glm::value_ptr(glm::mat4(1.f)), 100.f);
 		}
+
+		const uint64_t TextureID = View->GetColorAttachmentID();
+		ImGui::Image(reinterpret_cast<void*>(TextureID), ImVec2{ PanelSize.x, PanelSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 		if (bShowCube)
 		{
