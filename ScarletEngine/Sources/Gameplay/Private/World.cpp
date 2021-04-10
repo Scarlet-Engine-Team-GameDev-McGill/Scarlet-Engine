@@ -1,5 +1,4 @@
 #include "World.h"
-#include "StaticMeshComponent.h"
 
 namespace ScarletEngine
 {
@@ -12,26 +11,17 @@ namespace ScarletEngine
 	void World::Initialize()
 	{
 		ZoneScoped
-
-		SceneProxy* ProxyPtr = &RenderSceneProxy;
-		AddSystem<const Transform, const StaticMeshComponent>("Draw Static Meshes")
-			.Each([ProxyPtr](double, const EID, const Transform& Trans, const StaticMeshComponent& SMC)
-				{
-					ProxyPtr->DrawSMC(Trans, SMC);
-				});
 	}
 
-	void World::Tick(double DeltaTime)
+	void World::Tick(double)
 	{
 		ZoneScoped
-		LastDeltaTime = DeltaTime;
-		RenderSceneProxy.Reset();
-		RunSystems(DeltaTime);
+		SystemScheduler::Get().RunUpdate(&Reg);
 	}
 
-	void World::FixedTick(double DeltaTime)
+	void World::FixedTick(double)
 	{
-		RunFixedSystem(DeltaTime);
+		ZoneScoped
+		SystemScheduler::Get().RunFixedUpdate(&Reg);
 	}
-
 }

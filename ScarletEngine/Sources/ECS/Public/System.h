@@ -4,6 +4,11 @@
 #include "TypeInfo.h"
 #include "Registry.h"
 
+template <class T, class... U>
+struct Contains : std::disjunction<std::is_same<T, U>...>{};
+template <class... Traits>
+constexpr bool Contains_V = Contains<Traits...>::value;
+
 namespace ScarletEngine
 {
 	class Registry;
@@ -11,56 +16,54 @@ namespace ScarletEngine
 	class ISystem
 	{
 	public:
-		ISystem(Registry* InReg, const String& InName)
-			: Reg(InReg)
-			, Name(InName)
-		{}
-
 		virtual ~ISystem() {}
 
-		virtual void Update(double /* DeltaTime */, EID /* EntityID */) const {}
-		virtual void FixedUpdate(double /* DeltaTime */, EID /* EntityID */) const {}
+		virtual void Update() const {}
+		virtual void FixedUpdate() const {}
 
 		Registry* Reg;
-		String Name;
+		const String Name;
 	};
 
 	template <typename... ComponentTypes>
 	class System : public ISystem
 	{
 	public:
-		using ForEachFunctionType = std::function<void(double DeltaTime, EID EntityID, std::add_lvalue_reference_t<ComponentTypes>...)>;
-
-		System(Registry* InReg, const String& InName)
-			: ISystem(InReg, InName)
-			, ForEach()
-		{}
-
-		virtual void Update(double DeltaTime, EID EntityID) const override
-		{
-			// If our entity has the specified components
-			if((Reg->HasComponent<std::remove_cv_t<ComponentTypes>>(EntityID) && ...))
-			{
-				ForEach(DeltaTime, EntityID, *Reg->GetComponent<std::remove_cv_t<ComponentTypes>>(EntityID)...);
-			}
-		}
-
-		virtual void FixedUpdate(double DeltaTime, EID EntityID) const override
+		template <typename ...Components>
+		using ProxyType = std::tuple<EID, std::add_pointer_t<Components>...>;
+		
+		template <typename ...Components>
+		Array<ProxyType<Components...>> GetEntities() const
 		{
 			ZoneScoped
-			// If our entity has the specified components
-			if ((Reg->HasComponent<std::remove_cv_t<ComponentTypes>>(EntityID) && ...))
+			static_assert(std::conjunction_v<Contains<Components, ComponentTypes...>...>,
+				"Trying to get components which are not marked in the system's signature!");
+
+			// Create an array of std::tuples of references to components
+			// could probably cache some of this work
+			Array<ProxyType<Components...>> EntityProxies;
+
+			for (const SharedPtr<Entity>& Entity : Reg->GetEntities())
 			{
-				ForEach(DeltaTime, EntityID, *Reg->GetComponent<std::remove_cv_t<ComponentTypes>>(EntityID)...);
+				if ((Reg->HasComponent<std::remove_cv_t<Components>>(Entity->ID) && ...))
+				{
+					EntityProxies.push_back(std::make_tuple(Entity->ID, Reg->GetComponent<std::remove_cv_t<Components>>(Entity->ID)...));
+				}
 			}
+
+			return EntityProxies;
 		}
 
-		inline void Each(const ForEachFunctionType& InForEach)
+		template <typename SingletonType>
+		SingletonType* GetSingleton() const
 		{
-			ForEach = InForEach;
+			static_assert(Contains_V<SingletonType, ComponentTypes...>,
+				"Trying to get singleton which is not marked in the system's signature!");
+			return Reg->GetSingleton<std::remove_cv_t<SingletonType>>();
 		}
-	
-		ForEachFunctionType ForEach;
-
 	};
+
+	template <typename Type>
+	concept ECSSystem = std::derived_from<Type, ISystem>;
+
 }

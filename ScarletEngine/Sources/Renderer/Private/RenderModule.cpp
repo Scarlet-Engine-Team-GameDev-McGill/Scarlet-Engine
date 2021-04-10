@@ -4,6 +4,8 @@
 #include "Transform.h"
 #include "SceneProxy.h"
 #include "Viewport.h"
+#include "SystemScheduler.h"
+#include "RenderSystem.h"
 
 namespace ScarletEngine
 {
@@ -24,6 +26,8 @@ namespace ScarletEngine
 		check(RAL::API != RenderAPI::Invalid);
 
 		RAL::Get().Initialize();
+
+		SystemScheduler::Get().RegisterSystem<SMCRenderSystem>();
 	}
 
 	void RenderModule::Shutdown()
@@ -32,7 +36,6 @@ namespace ScarletEngine
 		RAL::Instance.reset();
 		RAL::API = RenderAPI::Invalid;
 	}
-
 
 	void RenderModule::PostUpdate()
 	{
@@ -48,23 +51,26 @@ namespace ScarletEngine
 	void RenderModule::DrawScene(SceneProxy* Scene, Viewport* ActiveViewport)
 	{
 		ZoneScoped
-		ActiveViewport->Bind();
-		RAL::Get().SetClearColorCommand({ 0.1f, 0.1f, 0.1f, 1.f });
-		RAL::Get().ClearCommand(true, true, true);
-
-		ActiveViewport->Bind();
-		for (auto Pair : Scene->SMCs)
+		if (Scene && ActiveViewport)
 		{
-			RALShaderProgram* Shader = Pair.second->Shader;
-			Shader->Bind();
-			Shader->SetUniformMat4(Pair.first->GetTransformMatrix() , "model");
-			Shader->SetUniformMat4(ActiveViewport->GetCamera().GetViewProj(), "vp");
-			Shader->SetUniformVec3(ActiveViewport->GetCamera().GetPosition(), "CameraPos");
-			RAL::Get().DrawVertexArray(Pair.second->VertexArray);
-			Shader->Unbind();
+			ActiveViewport->Bind();
+			RAL::Get().SetClearColorCommand({ 0.1f, 0.1f, 0.1f, 1.f });
+			RAL::Get().ClearCommand(true, true, true);
+
+			ActiveViewport->Bind();
+			for (const auto& [Trans, SMC] : Scene->SMCs)
+			{
+				RALShaderProgram* Shader = SMC->Shader;
+				Shader->Bind();
+				Shader->SetUniformMat4(Trans->GetTransformMatrix() , "model");
+				Shader->SetUniformMat4(ActiveViewport->GetCamera().GetViewProj(), "vp");
+				Shader->SetUniformVec3(ActiveViewport->GetCamera().GetPosition(), "CameraPos");
+				RAL::Get().DrawVertexArray(SMC->VertexArray);
+				Shader->Unbind();
+			}
+		
+			ActiveViewport->Unbind();
 		}
 		
-		
-		ActiveViewport->Unbind();
 	}
 }

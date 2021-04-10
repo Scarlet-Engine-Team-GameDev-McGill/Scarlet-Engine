@@ -59,6 +59,7 @@ namespace ScarletEngine
 			SCAR_LOG(LogVerbose, "Framebuffer Resized");
 		}
 
+		// @todo: draw calls should be handled by the renderer not by the editor viewports
 		{
 			ZoneScopedN("Render world");
 			RenderModule* Renderer = ModuleManager::GetModuleChecked<RenderModule>("RenderModule");

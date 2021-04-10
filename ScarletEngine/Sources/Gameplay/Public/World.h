@@ -4,6 +4,7 @@
 #include "ITickable.h"
 #include "ECS.h"
 #include "SceneProxy.h"
+#include "SystemScheduler.h"
 
 namespace ScarletEngine
 {
@@ -23,35 +24,34 @@ namespace ScarletEngine
 
 		inline double GetDeltaTime() const { return LastDeltaTime; }
 
-		SceneProxy* GetRenderSceneProxy() { return &RenderSceneProxy; }
+		SceneProxy* GetRenderSceneProxy() { return Reg.GetSingleton<SceneProxy>(); }
 
 		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
 	public:
 		template <typename... ComponentTypes>
-		std::tuple<SharedPtr<Entity>, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name = "")
+		std::tuple<SharedPtr<Entity>, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name)
 		{
 			ZoneScoped
-			Entities.push_back(MakeShared<Entity>(Name));
-			SharedPtr<Entity>& Ent = Entities.back();
+			auto EntityProxy = Reg.CreateEntity<ComponentTypes...>(Name);
+			SharedPtr<Entity>& Ent = std::get<SharedPtr<Entity>>(EntityProxy);
 			Ent->OwningWorld = this;
-			
-			auto Ret = Reg.CreateEntity<ComponentTypes...>(*Ent);
 			OnEntityAddedToWorld.Broadcast(Ent);
-			return std::tuple_cat(std::make_tuple(Ent), Ret);
+			return EntityProxy;
 		}
 
 		/** Register a new system with the world */
 		template <typename... SystemSig>
-		System<SystemSig...>& AddSystem(const String& Name)
+		void RegisterSystem(const String& Name)
 		{
 			ZoneScoped
-			return *static_cast<System<SystemSig...>*>(Systems.emplace_back(ScarNew(System<SystemSig...>, &Reg, Name)).get());
+			//return *static_cast<System<SystemSig...>*>(Systems.emplace_back(ScarNew(System<SystemSig...>, &Reg, Name)).get());
+			
 		}
 
 		auto GetEntities()
 		{
 			ZoneScoped
-			return Entities;
+			return Reg.GetEntities();
 		}
 
 		template <typename ComponentType>
@@ -61,37 +61,9 @@ namespace ScarletEngine
 			return Reg.GetComponent<ComponentType>(Ent.ID);
 		}
 	private:
-		void RunSystems(double DeltaTime)
-		{
-			ZoneScoped
-			for (const auto& Sys : Systems)
-			{
-				for (const SharedPtr<Entity>& Ent : Entities)
-				{
-					Sys->Update(DeltaTime, Ent->ID);
-				}
-			}
-		}
-
-		void RunFixedSystem(double DeltaTime)
-		{
-			for (const auto& Sys : Systems)
-			{
-				for (const SharedPtr<Entity>& Ent : Entities)
-				{
-					Sys->FixedUpdate(DeltaTime, Ent->ID);
-				}
-			}
-		}
-	private:
 		double LastDeltaTime;
 		Registry Reg;
 
-		Array<SharedPtr<Entity>> Entities;
-		Array<UniquePtr<ISystem>> Systems;
-
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
-
-		SceneProxy RenderSceneProxy;
 	};
 }
