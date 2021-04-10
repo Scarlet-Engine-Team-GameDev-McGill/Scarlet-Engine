@@ -22,7 +22,7 @@ namespace ScarletEngine
 		NODISCARD static ModuleType* GetModule(StringView ModuleName)
 		{
 			ModuleManager& Instance = GetInstance();
-			auto It = std::ranges::find_if(Instance.Modules.begin(), Instance.Modules.end(), [ModuleName](const SharedPtr<IModule>& PotentialMatch)
+			auto It = std::find_if(Instance.Modules.begin(), Instance.Modules.end(), [ModuleName](const SharedPtr<IModule>& PotentialMatch)
 			{
 				return StringView(PotentialMatch->GetModuleName()) == ModuleName;
 			});

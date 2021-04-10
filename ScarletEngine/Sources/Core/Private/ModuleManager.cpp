@@ -9,19 +9,19 @@ namespace ScarletEngine
         Array<SharedPtr<IModule>> InitOrder;
         InitOrder.reserve(Modules.size());
 
-        auto FindModuleByString = [](StringView String, const Array<SharedPtr<IModule>>& Modules)
+        auto FindModuleByString = [](StringView String, const Array<SharedPtr<IModule>>& ModuleList)
         {
-            const auto It = std::ranges::find_if(Modules, [String](const SharedPtr<IModule>& PotentialDep)
+            const auto It = std::find_if(ModuleList.begin(), ModuleList.end(), [String](const SharedPtr<IModule>& PotentialDep)
             {
                 return String == StringView(PotentialDep->GetModuleName());
             });
-            return It != Modules.end() ? std::optional<SharedPtr<IModule>>(*It) : std::optional<SharedPtr<IModule>> {};
+            return It != ModuleList.end() ? std::optional<SharedPtr<IModule>>(*It) : std::optional<SharedPtr<IModule>> {};
         };
 
         Function<void(const SharedPtr<IModule>&)> AddModuleToInitOrder = [this, &InitOrder, &AddModuleToInitOrder, &
                 FindModuleByString](const SharedPtr<IModule>& ModuleToAdd)
         {
-            const bool bModuleToAddExists = std::ranges::find(InitOrder, ModuleToAdd) != InitOrder.end();
+            const bool bModuleToAddExists = std::find(InitOrder.begin(), InitOrder.end(), ModuleToAdd) != InitOrder.end();
             if (bModuleToAddExists) return;
             
             // Find this modules dependencies by name
@@ -68,11 +68,11 @@ namespace ScarletEngine
 
     void ModuleManager::Shutdown()
     {
-        for (const auto& Module : std::ranges::reverse_view(Modules))
+        for (auto It = Modules.rbegin(); It != Modules.rend(); ++It)
         {
-            Module->Shutdown();
+            (*It)->Shutdown();
 
-            SCAR_LOG(LogVerbose, "Shutdown module: %s", Module->GetModuleName());
+            SCAR_LOG(LogVerbose, "Shutdown module: %s", (*It)->GetModuleName());
         }
 
         Modules.clear();
@@ -102,9 +102,9 @@ namespace ScarletEngine
     {
         check(bStarted);
 
-        for (const auto& Module : std::ranges::reverse_view(Modules))
+        for (auto It = Modules.rbegin(); It != Modules.rend(); ++It)
         {
-            Module->PostUpdate();
+            (*It)->PostUpdate();
         }
     }
 }

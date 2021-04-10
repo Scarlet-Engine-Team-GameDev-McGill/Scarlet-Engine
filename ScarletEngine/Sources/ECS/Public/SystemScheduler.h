@@ -10,7 +10,7 @@ namespace ScarletEngine
     class SystemScheduler
     {
     public:        
-        template <ECSSystem SystemType>
+        template <typename SystemType>
         void RegisterSystem()
         {
             Systems.emplace_back(ScarNew(SystemType));

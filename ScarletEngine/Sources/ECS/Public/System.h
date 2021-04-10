@@ -62,8 +62,4 @@ namespace ScarletEngine
 			return Reg->GetSingleton<std::remove_cv_t<SingletonType>>();
 		}
 	};
-
-	template <typename Type>
-	concept ECSSystem = std::derived_from<Type, ISystem>;
-
 }

@@ -26,8 +26,6 @@
 #include <map>
 #include <compare>
 #include <filesystem>
-#include <concepts>
-#include <ranges>
 
 // thirdparty
 #include <glm/glm.hpp>
