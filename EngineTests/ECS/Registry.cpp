@@ -259,9 +259,11 @@ TEST(ECS, ConstSingleton)
 
 	Registry Reg;
 	SingletonComponent* SC = Reg.GetSingleton<SingletonComponent>();
-
+	
 	ASSERT_NE(SC, nullptr);
 	EXPECT_EQ(SC->X, static_cast<uint32_t>(10));
+
+	SC->X = 99;
 
 	class TestSystem : public ScarletEngine::System<const SingletonComponent>
 	{
@@ -269,8 +271,8 @@ TEST(ECS, ConstSingleton)
 		virtual void Update() const override
 		{
 			const SingletonComponent* SC = GetSingleton<const SingletonComponent>();
-			//SC->X = 100;
-			(void)SC;
+			EXPECT_NE(SC, nullptr);
+			EXPECT_EQ(SC->X, static_cast<uint32_t>(99));
 		}
 	};
 
@@ -279,5 +281,5 @@ TEST(ECS, ConstSingleton)
 
 	Scheduler.RunUpdate(&Reg);
 
-	EXPECT_EQ(SC->X, static_cast<uint32_t>(10));
+	EXPECT_EQ(SC->X, static_cast<uint32_t>(99));
 }

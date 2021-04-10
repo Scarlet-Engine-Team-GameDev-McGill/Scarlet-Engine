@@ -59,7 +59,7 @@ namespace ScarletEngine
 		{
 			static_assert(Contains_V<SingletonType, ComponentTypes...>,
 				"Trying to get singleton which is not marked in the system's signature!");
-			return Reg->GetSingleton<SingletonType>();
+			return Reg->GetSingleton<std::remove_cv_t<SingletonType>>();
 		}
 	};
 
