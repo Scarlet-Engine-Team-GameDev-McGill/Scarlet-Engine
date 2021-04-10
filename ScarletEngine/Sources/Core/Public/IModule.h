@@ -26,10 +26,5 @@ namespace ScarletEngine
 		virtual const char* GetModuleName() const = 0;
 
 		virtual Array<const char*> GetDependencies() const = 0;
-
-		void Initialize();
-		bool IsInitialized() const { return bInitialized; }
-	private:
-		bool bInitialized = false;
 	};
 }
