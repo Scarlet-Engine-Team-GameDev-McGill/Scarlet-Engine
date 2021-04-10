@@ -29,7 +29,7 @@ namespace ScarletEngine
 
 		virtual void Initialize();
 		virtual void Terminate() = 0;
-		virtual void Submit() = 0;
+		virtual void Submit();
 
 		virtual const char* GetBackendName() const = 0;
 
@@ -57,12 +57,12 @@ namespace ScarletEngine
 		static RAL& Get() { return *Instance; }
 		static RenderAPI GetAPI() { return API; }
 	protected:
-		Queue<RALCommandList> CommandListQueue;
+		virtual RALCommandList* CreateCommandList() const = 0;
+	protected:
+		Queue<UniquePtr<RALCommandList>> CommandListQueue;
 	private:
 		friend class RenderModule;
 		static UniquePtr<RAL> Instance;
 		static RenderAPI API;
 	};
 }
-
-#define QUEUE_RENDER_COMMAND(CommandName) RAL::Get().QueueCommand

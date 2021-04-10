@@ -3,13 +3,12 @@
 #include "Core.h"
 #include "Engine.h"
 #include "OpenGLResources.h"
+#include "OpenGLCommandList.h"
 #include "AssetManager.h"
 #include "Window.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <TracyOpenGL.hpp>
-#include <sstream>
 
 namespace ScarletEngine
 {
@@ -111,14 +110,6 @@ namespace ScarletEngine
 		glfwTerminate();
 	}
 
-	void OpenGLRAL::Submit()
-	{
-		CommandListQueue.front().ExecuteAll();
-		CommandListQueue.pop();
-
-		CommandListQueue.push(RALCommandList{});
-	}
-
 	GPUInfo OpenGLRAL::GetGPUInfo() const
 	{
 		GPUInfo Info{};
@@ -196,5 +187,11 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 		return ScarNew(OpenGLShaderProgram, InVertexShader, InPixelShader, InGeometryShader, InComputeShader);
+	}
+
+	RALCommandList* OpenGLRAL::CreateCommandList() const
+	{
+		ZoneScoped
+		return ScarNew(OpenGLCommandList);
 	}
 }

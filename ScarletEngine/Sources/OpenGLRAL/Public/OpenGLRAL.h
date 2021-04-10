@@ -10,7 +10,6 @@ namespace ScarletEngine
 	public:
 		virtual void Initialize() override;
 		virtual void Terminate() override;
-		virtual void Submit() override;
 
 		virtual const char* GetBackendName() const override { return "OpenGL"; }
 
@@ -27,5 +26,6 @@ namespace ScarletEngine
 		virtual RALShader* CreateShader(RALShaderStage Stage, const String& ShaderPath) override;
 		virtual RALShaderProgram* CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) override;
 	private:
+		virtual RALCommandList* CreateCommandList() const override;
 	};
 }

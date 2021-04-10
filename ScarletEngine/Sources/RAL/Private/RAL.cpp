@@ -7,11 +7,19 @@ namespace ScarletEngine
 
 	void RAL::Initialize()
 	{
-		CommandListQueue.push(RALCommandList{});
+		CommandListQueue.push(UniquePtr<RALCommandList>(CreateCommandList()));
+	}
+
+	void RAL::Submit()
+	{
+		CommandListQueue.front()->ExecuteAll();
+		CommandListQueue.pop();
+
+		CommandListQueue.push(UniquePtr<RALCommandList>(CreateCommandList()));
 	}
 
 	void RAL::QueueCommand(const Function<void(RALCommandList&)>& Cmd, const char* CommandLabel)
 	{
-		CommandListQueue.back().QueueRenderCommand(Cmd, CommandLabel);
+		CommandListQueue.back()->QueueRenderCommand(Cmd, CommandLabel);
 	}
 }
