@@ -141,6 +141,7 @@ namespace ScarletEngine
 
 	void UIModule::PreUpdate()
 	{
+		ZoneScoped
 #ifdef RAL_USE_OPENGL
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -163,10 +164,13 @@ namespace ScarletEngine
 			ActiveLayer->DrawWidgets();
 		}
 
-		ImGui::Render();
+		RAL::Get().QueueCommand([](RALCommandList&)
+		{
+			ImGui::Render();
 #ifdef RAL_USE_OPENGL
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #endif
+		},"ImGuiRender");
 	}
 
 	void UIModule::SetActiveLayer(const SharedPtr<UILayer>& InLayer)
