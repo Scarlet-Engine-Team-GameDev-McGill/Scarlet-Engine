@@ -85,7 +85,7 @@ set_target_properties(glfw PROPERTIES
                       VERSION ${GLFW_VERSION_MAJOR}.${GLFW_VERSION_MINOR}
                       SOVERSION ${GLFW_VERSION_MAJOR}
                       POSITION_INDEPENDENT_CODE ON
-                      FOLDER "GLFW3")
+                      FOLDER "Thirdparty/GLFW3")
 
 if (${CMAKE_VERSION} VERSION_EQUAL "3.1.0" OR
     ${CMAKE_VERSION} VERSION_GREATER "3.1.0")
