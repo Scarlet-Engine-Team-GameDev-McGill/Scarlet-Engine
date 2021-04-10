@@ -24,20 +24,26 @@ namespace ScarletEngine::Widgets
         ImGui::PopItemWidth();
         ImGui::PopStyleColor(3);
 
+        ImGui::SameLine();
+        ImGui::Dummy(ImVec2(GImGui->Style.FramePadding.x, 0.f));
+        ImGui::SameLine();
+
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4 { 0.2f, 0.7f, 0.2f, 1.0f });
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4 { 0.3f, 0.8f, 0.3f, 1.0f });
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4 { 0.2f, 0.7f, 0.2f, 1.0f });
-        ImGui::SameLine();
         ImGui::Button("Y", Size);
         ImGui::SameLine();
         ImGui::DragFloat("###Y", &Vec.y, -0.1f, 0.f, 0.f, "%.2f");
         ImGui::PopItemWidth();
         ImGui::PopStyleColor(3);
 
+        ImGui::SameLine();
+        ImGui::Dummy(ImVec2(GImGui->Style.FramePadding.x, 0.f));
+        ImGui::SameLine();
+
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4 { 0.1f, 0.25f, 0.8f, 1.0f });
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4 { 0.2f, 0.35f, 0.9f, 1.0f });
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4 { 0.1f, 0.25f, 0.8f, 1.0f });
-        ImGui::SameLine();
         ImGui::Button("Z", Size);
         ImGui::SameLine();
         ImGui::DragFloat("###Z", &Vec.z, -0.1f, 0.f, 0.f, "%.2f");
