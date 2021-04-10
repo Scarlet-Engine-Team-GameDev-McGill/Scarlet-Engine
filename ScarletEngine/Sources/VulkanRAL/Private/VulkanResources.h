@@ -42,7 +42,7 @@ namespace ScarletEngine
 		virtual void Release() override;
 
 		uint32_t FindMemoryType(uint32_t TypeFilter, VkMemoryPropertyFlags Properties) const;
-	private:
+
 		VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
 		VkDevice LogicalDevice = VK_NULL_HANDLE;
 		

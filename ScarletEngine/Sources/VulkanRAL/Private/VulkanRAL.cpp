@@ -8,6 +8,8 @@
 #include <fstream>
 #include <VulkanResources.h>
 
+#include "VulkanCommandList.h"
+
 #define CHECK_RESULT(Res) check(Res == VK_SUCCESS) 
 
 namespace ScarletEngine
@@ -711,53 +713,32 @@ namespace ScarletEngine
 		VkCommandPoolCreateInfo PoolInfo{};
 		PoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		PoolInfo.queueFamilyIndex = QueueFamilies.GraphicsFamily.value();
-		PoolInfo.flags = 0;
+		PoolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
 
 		CHECK_RESULT(vkCreateCommandPool(LogicalDevice, &PoolInfo, nullptr, &CommandPool));
 	}
 
-	void VulkanRAL::CreateCommandBuffers()
+	void VulkanRAL::BeginRenderPassCommandBuff(VkCommandBuffer& CmdBuff, uint32_t ImageIndex)
 	{
-		CommandBuffers.resize(SwapchainFramebuffers.size());
+		VkRenderPassBeginInfo RenderPassBeginInfo{};
+		RenderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		RenderPassBeginInfo.renderPass = RenderPass;
+		RenderPassBeginInfo.framebuffer = SwapchainFramebuffers[ImageIndex];
+		RenderPassBeginInfo.renderArea.offset = { 0, 0 };
+		RenderPassBeginInfo.renderArea.extent = SwapchainImageExtent;
 
-		VkCommandBufferAllocateInfo AllocInfo{};
-		AllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		AllocInfo.commandPool = CommandPool;
-		AllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		AllocInfo.commandBufferCount = static_cast<uint32_t>(CommandBuffers.size());
+		VkClearValue ClearColor = {0.f, 0.f, 0.f, 1.f};
+		RenderPassBeginInfo.clearValueCount = 1;
+		RenderPassBeginInfo.pClearValues = &ClearColor;
 
-		CHECK_RESULT(vkAllocateCommandBuffers(LogicalDevice, &AllocInfo, CommandBuffers.data()));
+		vkCmdBeginRenderPass(CmdBuff, &RenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		for (size_t i = 0; i < CommandBuffers.size(); ++i)
-		{
-			VkCommandBufferBeginInfo BeginInfo{};
-			BeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			BeginInfo.flags = 0;
-			BeginInfo.pInheritanceInfo = nullptr;
+		vkCmdBindPipeline(CmdBuff, VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
+	}
 
-			CHECK_RESULT(vkBeginCommandBuffer(CommandBuffers[i], &BeginInfo));
-
-			VkRenderPassBeginInfo RenderPassBeginInfo{};
-			RenderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			RenderPassBeginInfo.renderPass = RenderPass;
-			RenderPassBeginInfo.framebuffer = SwapchainFramebuffers[i];
-			RenderPassBeginInfo.renderArea.offset = { 0, 0 };
-			RenderPassBeginInfo.renderArea.extent = SwapchainImageExtent;
-
-			VkClearValue ClearColor = {0.f, 0.f, 0.f, 1.f};
-			RenderPassBeginInfo.clearValueCount = 1;
-			RenderPassBeginInfo.pClearValues = &ClearColor;
-
-			vkCmdBeginRenderPass(CommandBuffers[i], &RenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-			vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
-
-			vkCmdDraw(CommandBuffers[i], 3, 1, 0, 0);
-
-			vkCmdEndRenderPass(CommandBuffers[i]);
-
-			CHECK_RESULT(vkEndCommandBuffer(CommandBuffers[i]));
-		}
+	void VulkanRAL::EndRenderPassCommandBuff(VkCommandBuffer& CmdBuff)
+	{
+		vkCmdEndRenderPass(CmdBuff);
 	}
 
 	void VulkanRAL::CreateSyncObjects()
@@ -790,8 +771,6 @@ namespace ScarletEngine
 		{
 			vkDestroyFramebuffer(LogicalDevice, Framebuffer, nullptr);
 		}
-		
-		vkFreeCommandBuffers(LogicalDevice, CommandPool, static_cast<uint32_t>(CommandBuffers.size()), CommandBuffers.data());
 
 		vkDestroyPipeline(LogicalDevice, GraphicsPipeline, nullptr);
 		
@@ -826,7 +805,6 @@ namespace ScarletEngine
 		CreateRenderPass();
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
-		CreateCommandBuffers();
 
 		bFramebufferResized = false;
 		bShouldSubmitFrame = true;
@@ -853,12 +831,36 @@ namespace ScarletEngine
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
 		CreateCommandPool();
-		CreateCommandBuffers();
 		CreateSyncObjects();
+
+		RAL::Initialize();
 	}
 
-	void VulkanRAL::SubmitFrame()
+	void VulkanRAL::Submit()
 	{
+		struct OnScopeExit
+		{
+			OnScopeExit(const std::function<void()>& InFunc)
+				: Func(InFunc)
+			{
+			}
+			
+			~OnScopeExit()
+			{
+				Func();
+			}
+			std::function<void()> Func;
+		};
+
+		VulkanCommandList& CmdList = static_cast<VulkanCommandList&>(*CommandListQueue.front().get());
+
+		OnScopeExit Scoped([this, CmdList]()
+		{
+			vkFreeCommandBuffers(LogicalDevice, CommandPool, 1, &CmdList.CmdBuff);
+			CommandListQueue.pop();
+			CommandListQueue.push(UniquePtr<RALCommandList>(CreateCommandList()));
+		});
+		
 		if (!bShouldSubmitFrame)
 		{
 			RebuildSwapchain();
@@ -880,6 +882,24 @@ namespace ScarletEngine
 			SCAR_LOG(LogError, "Failed to acquire swapchain image!");
 		}
 
+		// Record all commands into the VkCommandBuffer
+		{
+			VkCommandBufferBeginInfo BeginInfo{};
+			BeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			BeginInfo.flags = 0;
+			BeginInfo.pInheritanceInfo = nullptr;
+
+			CHECK_RESULT(vkBeginCommandBuffer(CmdList.CmdBuff, &BeginInfo));
+
+			BeginRenderPassCommandBuff(CmdList.CmdBuff, ImageIndex);
+
+			CmdList.ExecuteAll();
+
+			EndRenderPassCommandBuff(CmdList.CmdBuff);
+
+			CHECK_RESULT(vkEndCommandBuffer(CmdList.CmdBuff));
+		}
+	
 		if (InFlightImages[ImageIndex] != nullptr)
 		{
 			vkWaitForFences(LogicalDevice, 1, &InFlightImages[ImageIndex], VK_TRUE, UINT64_MAX);
@@ -896,7 +916,7 @@ namespace ScarletEngine
 		SubmitInfo.pWaitSemaphores = WaitSemaphores;
 		SubmitInfo.pWaitDstStageMask = WaitStages;
 		SubmitInfo.commandBufferCount = 1;
-		SubmitInfo.pCommandBuffers = &CommandBuffers[ImageIndex];
+		SubmitInfo.pCommandBuffers = &CmdList.CmdBuff;
 
 		VkSemaphore SignalSemaphores[] = { RenderFinishedSemaphores[CurrentFrameIndex] };
 		SubmitInfo.signalSemaphoreCount = 1;
@@ -959,48 +979,74 @@ namespace ScarletEngine
 		return Result;
 	}
 
-	void VulkanRAL::SetClearColorCommand(const glm::vec4& ClearColor) const
+	RALCommandList* VulkanRAL::CreateCommandList() const
+	{
+		VkCommandBuffer Buff = VK_NULL_HANDLE;
+		
+		VkCommandBufferAllocateInfo AllocInfo{};
+		AllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		AllocInfo.commandPool = CommandPool;
+		AllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		AllocInfo.commandBufferCount = 1;
+
+		CHECK_RESULT(vkAllocateCommandBuffers(LogicalDevice, &AllocInfo, &Buff));
+		
+		return ScarNew(VulkanCommandList, Buff);
+	}
+
+	void VulkanRAL::SetClearColorCmd(const glm::vec4& ClearColor)
 	{
 
 	}
 
-	void VulkanRAL::ClearCommand(bool bColor, bool bDepth, bool bStencil) const
+	void VulkanRAL::ClearCmd(bool bColor, bool bDepth, bool bStencil)
 	{
 
 	}
 
-	void VulkanRAL::DrawVertexArray(const RALVertexArray* VA) const
+	void VulkanRAL::DrawVertexArrayCmd(const RALVertexArray* VA)
 	{
-		VkDeviceSize Offsets[] = { 0 };
-		vkCmdBindVertexBuffers(CommandBuffers[])
+		QueueCommand([VA](RALCommandList& CmdList)
+		{
+			VulkanCommandList& VkCmdList = static_cast<VulkanCommandList&>(CmdList);
+			VkDeviceSize Offsets[] = { 0 };
+
+			const VulkanGpuBuffer* VB = static_cast<const VulkanGpuBuffer*>(VA->VB);
+			
+			VkBuffer VertexBuffers[] = { VB->Buffer };
+			
+			vkCmdBindVertexBuffers(VkCmdList.CmdBuff, 0, 1, VertexBuffers, Offsets);
+
+			vkCmdDraw(VkCmdList.CmdBuff, static_cast<uint32_t>(VA->GetCount()), 1, 0, 0);
+		});
 	}
 
-	RALFramebuffer* VulkanRAL::CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples) const
+	RALFramebuffer* VulkanRAL::CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples)
 	{
 		return nullptr;
 	}
 
-	RALTexture2D* VulkanRAL::CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle) const
+	RALTexture2D* VulkanRAL::CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle)
 	{
 		return nullptr;
 	}
 
-	RALGpuBuffer* VulkanRAL::CreateBuffer(uint32_t Size, RALBufferUsage Usage) const
+	RALGpuBuffer* VulkanRAL::CreateBuffer(uint32_t Size, RALBufferUsage Usage)
 	{
-		return ScarNew(VulkanGpuBuffer, Size, Usage);
+		return ScarNew(VulkanGpuBuffer, PhysicalDevice, LogicalDevice, Size, Usage);
 	}
 
-	RALVertexArray* VulkanRAL::CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB) const
-	{
-		return nullptr;
-	}
-
-	RALShader* VulkanRAL::CreateShader(RALShaderStage Stage, const String& ShaderPath) const
+	RALVertexArray* VulkanRAL::CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB)
 	{
 		return nullptr;
 	}
 
-	RALShaderProgram* VulkanRAL::CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) const
+	RALShader* VulkanRAL::CreateShader(RALShaderStage Stage, const String& ShaderPath)
+	{
+		return nullptr;
+	}
+
+	RALShaderProgram* VulkanRAL::CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader)
 	{
 		return nullptr;
 	}

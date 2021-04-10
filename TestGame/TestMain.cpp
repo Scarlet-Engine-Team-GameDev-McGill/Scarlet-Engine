@@ -7,21 +7,6 @@
 
 #include "VulkanRAL.h" // temp for testing
 
-namespace ScarletEngine
-{
-	struct FrameSubmitter : public ITickable
-	{
-		virtual ~FrameSubmitter() {};
-
-		virtual void Tick(double) override
-		{
-			VulkanRAL& VkRAL = static_cast<VulkanRAL&>(RAL::Get());
-			VkRAL.SubmitFrame();
-		}
-	
-	};
-}
-
 int main()
 {
 	using namespace ScarletEngine;
@@ -37,8 +22,6 @@ int main()
 	{
 		SharedPtr<World> TestWorld = MakeShared<World>();
 		TestWorld->Initialize();
-
-		FrameSubmitter FS;
 
 		GEngine->Run();
 	}
