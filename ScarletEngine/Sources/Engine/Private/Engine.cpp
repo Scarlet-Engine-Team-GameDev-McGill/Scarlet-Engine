@@ -84,10 +84,10 @@ namespace ScarletEngine
 	void Engine::PreUpdate()
 	{
 		ZoneScoped
+		AppWindow->PollEvents();
+		
 		AddQueuedTickables();
 		ModuleManager::GetInstance().PreUpdate();
-
-		AppWindow->PollEvents();
 	}
 
 	void Engine::PostUpdate()
