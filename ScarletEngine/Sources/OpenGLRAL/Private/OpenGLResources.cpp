@@ -340,7 +340,7 @@ namespace ScarletEngine
 		const glm::vec3 VecVal = Vec;
 		RAL::Get().QueueCommand([this, Binding, VecVal](RALCommandList&)
         {
-            glUniformMatrix4fv(glGetUniformLocation(ProgramObject, Binding), 1, GL_FALSE, &VecVal.x);
+            glUniform3fv(glGetUniformLocation(ProgramObject, Binding), 1, &VecVal.x);
         }, "SetUniformVec3");
 	}
 }
