@@ -20,7 +20,7 @@
 	}				\
 }
 #else
-#define check(pred)
+#define check(pred) (void)(pred)
 #endif
 
 /** Define OUT as nothing, it is simply used to markup code to make it more readable */
