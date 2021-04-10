@@ -54,7 +54,6 @@ namespace ScarletEngine
 		if (Scene && ActiveViewport)
 		{
 			ActiveViewport->Bind();
-			RAL::Get().SetClearColorCommand({ 0.1f, 0.1f, 0.1f, 1.f });
 			RAL::Get().ClearCommand(true, true, true);
 
 			ActiveViewport->Bind();
