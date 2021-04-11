@@ -56,7 +56,7 @@ namespace ScarletEngine::Achilles
 					glm::vec3 posA = TransA->Position;
 					glm::vec3 posB = TransB->Position;
 
-					float d = abs(glm::distance(posA, posB));
+					float d = std::abs(glm::distance(posA, posB));
 
 					if (d != 0)
 					{
@@ -65,7 +65,7 @@ namespace ScarletEngine::Achilles
 						float mA = RbA->Mass;
 						float mB = RbB->Mass;
 
-						glm::vec3 G = 6.14f * pow(10.f, -11.f) * mA * mB * u / pow(d, 2.f);
+						glm::vec3 G = 6.14f * std::pow(10.f, -11.f) * mA * mB * u / pow(d, 2.f);
 
 						RbA->Force += G;
 						RbB->Force -= G;
