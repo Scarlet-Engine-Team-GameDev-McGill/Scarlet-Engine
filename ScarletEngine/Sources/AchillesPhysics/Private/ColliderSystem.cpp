@@ -65,7 +65,7 @@ namespace ScarletEngine::Achilles
 		Sphere->Pos = Trans->Position;
 		if (Rb->UsesGravity)
 		{
-			Rb->Force -= Rb->GravityEarth * Rb->Mass;
+			Rb->Force -= Rb->Gravity * Rb->Mass;
 		}
 	}
 

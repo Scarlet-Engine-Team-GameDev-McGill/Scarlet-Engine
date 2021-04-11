@@ -12,7 +12,7 @@ namespace ScarletEngine::Achilles
 		// translational
 		if (Rb->UsesGravity)
 		{
-			Rb->Force += Rb->GravityEarth * Rb->Mass;
+			Rb->Force += Rb->Gravity * Rb->Mass;
 		}
 
 		Rb->Velocity += Rb->Force / Rb->Mass * Dt;
