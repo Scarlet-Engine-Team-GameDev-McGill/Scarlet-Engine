@@ -1,131 +1,143 @@
 #pragma once
 
+#include "Core.h"
 #include "RAL.h"
-#include <optional>
 
 // #todo: Currently leaking this include, need to find a way to move this
 #include <vulkan/vulkan.h>
 
 namespace ScarletEngine
 {
-	class VulkanRAL : public RAL
-	{
-	public:
-		VulkanRAL();
-		virtual ~VulkanRAL() {}
+    class VulkanRAL : public RAL
+    {
+    public:
+        VulkanRAL();
 
-		// Begin RAL Interface
-		virtual void Initialize() override;
-		virtual void Terminate() override;
-		virtual void PreFrame() override;
-		virtual void Submit() override;
-		virtual const char* GetBackendName() const override { return "Vulkan"; }
-		virtual GPUInfo GetGPUInfo() const override;
+        virtual ~VulkanRAL()
+        {
+        }
 
-		virtual void SetClearColorCmd(const glm::vec4& ClearColor) override;
-		virtual void ClearCmd(bool bColor, bool bDepth, bool bStencil) override;
-		virtual void DrawVertexArrayCmd(const RALVertexArray* VA) override;
+        // Begin RAL Interface
+        virtual void Initialize() override;
+        virtual void Terminate() override;
+        virtual void PreFrame() override;
+        virtual void Submit() override;
 
-		virtual RALFramebuffer* CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples) override;
-		virtual RALTexture2D* CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle) override;
-		virtual RALGpuBuffer* CreateBuffer(uint32_t Size, RALBufferUsage Usage) override;
-		virtual RALVertexArray* CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB) override;
-		virtual RALShader* CreateShader(RALShaderStage Stage, const String& ShaderPath) override;
-		virtual RALShaderProgram* CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) override;
-	private:
-		virtual RALCommandList* CreateCommandList() const override;
-		// End RAL Interface
+        virtual const char* GetBackendName() const override
+        {
+            return "Vulkan";
+        }
 
-		bool CheckForLayerSupport(String* OutError = nullptr) const;
-		void CreateInstance();
-		void SetupDebugMessenger();
+        virtual GPUInfo GetGPUInfo() const override;
 
-		struct QueueFamilyIndices
-		{
-			std::optional<uint32_t> GraphicsFamily;
-			std::optional<uint32_t> PresentFamily;
+        virtual void SetClearColorCmd(const glm::vec4& ClearColor) override;
+        virtual void ClearCmd(bool bColor, bool bDepth, bool bStencil) override;
+        virtual void DrawVertexArrayCmd(const RALVertexArray* VA) override;
 
-			bool IsComplete() const { return GraphicsFamily.has_value() && PresentFamily.has_value(); }
-		};
+        virtual RALFramebuffer* CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples) override;
+        virtual RALTexture2D* CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle) override;
+        virtual RALGpuBuffer* CreateBuffer(uint32_t Size, RALBufferUsage Usage) override;
+        virtual RALVertexArray* CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB) override;
+        virtual RALShader* CreateShader(RALShaderStage Stage, const String& ShaderPath) override;
+        virtual RALShaderProgram* CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader,
+                                                      RALShader* InGeometryShader, RALShader* InComputeShader) override;
+    private:
+        virtual RALCommandList* CreateCommandList() const override;
+        // End RAL Interface
 
-		struct SwapchainSupportDetails
-		{
-			VkSurfaceCapabilitiesKHR Capabilities;
-			Array<VkSurfaceFormatKHR> Formats;
-			Array<VkPresentModeKHR> PresentModes;
-		};
-		
-		void CreateSurface();
-		
-		QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice Device) const;
-		SwapchainSupportDetails QuerySwapchainSupport(const VkPhysicalDevice Device) const;
-		bool CheckForDeviceExtensionSupport(const VkPhysicalDevice Device, String* OutError = nullptr) const;
-		bool IsPhysicalDeviceSuitable(const VkPhysicalDevice Device) const;
-		void PickPhysicalDevice();
-		void CreateLogicalDevice();
+        bool CheckForLayerSupport(String* OutError = nullptr) const;
+        void CreateInstance();
+        void SetupDebugMessenger();
 
-		static VkSurfaceFormatKHR ChooseSwapchainSurfaceFormat(const Array<VkSurfaceFormatKHR>& AvailableFormats);
-		static VkPresentModeKHR ChooseSwapchainPresentMode(const Array<VkPresentModeKHR>& AvailablePresentModes);
-		static VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& Capabilities);
-		void CreateSwapchain();
-		void CreateSwapchainImageViews();
+        struct QueueFamilyIndices
+        {
+            std::optional<uint32_t> GraphicsFamily;
+            std::optional<uint32_t> PresentFamily;
 
-		static Array<char> ReadShaderFile(const String& Filename);
-		VkShaderModule CreateShaderModule(const Array<char>& Code) const;
-		void CreateRenderPass();
-		void CreateGraphicsPipeline();
+            bool IsComplete() const
+            {
+                return GraphicsFamily.has_value() && PresentFamily.has_value();
+            }
+        };
 
-		void CreateFramebuffers();
+        struct SwapchainSupportDetails
+        {
+            VkSurfaceCapabilitiesKHR Capabilities;
+            Array<VkSurfaceFormatKHR> Formats;
+            Array<VkPresentModeKHR> PresentModes;
+        };
 
-		void CreateCommandPool();
-		void CreateCommandBuffers();
+        void CreateSurface();
 
-		void BeginRenderPassCommandBuff(VkCommandBuffer& CmdBuff); // @todo: remove when pipeline is properly abstracted
-		void EndRenderPassCommandBuff(VkCommandBuffer& CmdBuff); // @todo: remove when pipeline is properly abstracted
+        QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice Device) const;
+        SwapchainSupportDetails QuerySwapchainSupport(const VkPhysicalDevice Device) const;
+        bool CheckForDeviceExtensionSupport(const VkPhysicalDevice Device, String* OutError = nullptr) const;
+        bool IsPhysicalDeviceSuitable(const VkPhysicalDevice Device) const;
+        void PickPhysicalDevice();
+        void CreateLogicalDevice();
 
-		void CreateSyncObjects();
+        static VkSurfaceFormatKHR ChooseSwapchainSurfaceFormat(const Array<VkSurfaceFormatKHR>& AvailableFormats);
+        static VkPresentModeKHR ChooseSwapchainPresentMode(const Array<VkPresentModeKHR>& AvailablePresentModes);
+        static VkExtent2D ChooseSwapchainExtent(const VkSurfaceCapabilitiesKHR& Capabilities);
+        void CreateSwapchain();
+        void CreateSwapchainImageViews();
 
-		void CleanupSwapchain();
-		void RebuildSwapchain();
-	private:
-		VkInstance Instance = VK_NULL_HANDLE;
-		VkDebugUtilsMessengerEXT DebugMessenger = VK_NULL_HANDLE;
-		
-		VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
-		VkDevice LogicalDevice = VK_NULL_HANDLE;
-		VkQueue GraphicsQueue = VK_NULL_HANDLE;
-		VkQueue PresentQueue = VK_NULL_HANDLE;
+        static Array<char> ReadShaderFile(const String& Filename);
+        VkShaderModule CreateShaderModule(const Array<char>& Code) const;
+        void CreateRenderPass();
+        void CreateGraphicsPipeline();
 
-		VkSurfaceKHR Surface = VK_NULL_HANDLE;
-		VkSwapchainKHR Swapchain = VK_NULL_HANDLE;
-		VkFormat SwapchainImageFormat;
-		VkExtent2D SwapchainImageExtent;
-		Array<VkImage> SwapchainImages;
-		Array<VkImageView> SwapchainImageViews;
-		Array<VkFramebuffer> SwapchainFramebuffers;
+        void CreateFramebuffers();
 
-		VkRenderPass RenderPass = VK_NULL_HANDLE;
-		VkPipelineLayout PipelineLayout = VK_NULL_HANDLE;
-		VkPipeline GraphicsPipeline = VK_NULL_HANDLE;
+        void CreateCommandPool();
+        void CreateCommandBuffers();
 
-		VkCommandPool CommandPool = VK_NULL_HANDLE;
-		Array<VkCommandBuffer> CommandBuffers;
+        void BeginRenderPassCommandBuff(VkCommandBuffer& CmdBuff); // @todo: remove when pipeline is properly abstracted
+        void EndRenderPassCommandBuff(VkCommandBuffer& CmdBuff); // @todo: remove when pipeline is properly abstracted
 
-		Array<VkSemaphore> ImageAvailableSemaphores;
-		Array<VkSemaphore> RenderFinishedSemaphores;
-		Array<VkFence> InFlightFences;
-		Array<VkFence> InFlightImages;
-		const uint32_t MaxFramesInFlight = 2;
-		uint32_t CurrentFrameIndex = 0;
-		bool bFramebufferResized = false;
-		bool bShouldSubmitFrame = true;
-		
-		Array<const char*> RequiredInstanceLayers;
-		Array<const char*> RequiredInstanceExtensions;
-		Array<const char*> RequiredDeviceExtensions;
-		bool bEnableValidationLayers;
+        void CreateSyncObjects();
 
-		VkClearValue ClearColor;
-		uint32_t ImageIndex;
-	};
+        void CleanupSwapchain();
+        void RebuildSwapchain();
+    private:
+        VkInstance Instance = VK_NULL_HANDLE;
+        VkDebugUtilsMessengerEXT DebugMessenger = VK_NULL_HANDLE;
+
+        VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
+        VkDevice LogicalDevice = VK_NULL_HANDLE;
+        VkQueue GraphicsQueue = VK_NULL_HANDLE;
+        VkQueue PresentQueue = VK_NULL_HANDLE;
+
+        VkSurfaceKHR Surface = VK_NULL_HANDLE;
+        VkSwapchainKHR Swapchain = VK_NULL_HANDLE;
+        VkFormat SwapchainImageFormat;
+        VkExtent2D SwapchainImageExtent;
+        Array<VkImage> SwapchainImages;
+        Array<VkImageView> SwapchainImageViews;
+        Array<VkFramebuffer> SwapchainFramebuffers;
+
+        VkRenderPass RenderPass = VK_NULL_HANDLE;
+        VkPipelineLayout PipelineLayout = VK_NULL_HANDLE;
+        VkPipeline GraphicsPipeline = VK_NULL_HANDLE;
+
+        VkCommandPool CommandPool = VK_NULL_HANDLE;
+        Array<VkCommandBuffer> CommandBuffers;
+
+        Array<VkSemaphore> ImageAvailableSemaphores;
+        Array<VkSemaphore> RenderFinishedSemaphores;
+        Array<VkFence> InFlightFences;
+        Array<VkFence> InFlightImages;
+        const uint32_t MaxFramesInFlight = 2;
+        uint32_t CurrentFrameIndex = 0;
+        bool bFramebufferResized = false;
+        bool bShouldSubmitFrame = true;
+
+        Array<const char*> RequiredInstanceLayers;
+        Array<const char*> RequiredInstanceExtensions;
+        Array<const char*> RequiredDeviceExtensions;
+        bool bEnableValidationLayers;
+
+        VkClearValue ClearColor;
+        uint32_t ImageIndex;
+    };
 }

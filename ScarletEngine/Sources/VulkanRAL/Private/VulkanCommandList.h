@@ -12,7 +12,7 @@ namespace ScarletEngine
             : CmdBuff(InCmdBuff)
         {
         }
-        
+
         VkCommandBuffer CmdBuff;
     };
 }
