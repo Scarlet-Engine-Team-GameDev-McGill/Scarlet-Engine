@@ -21,8 +21,22 @@ namespace ScarletEngine
 		virtual void Update() const {}
 		virtual void FixedUpdate() const {}
 
-		Registry* Reg;
+		template <typename ...Components>
+		Array<ProxyType<Components...>> GetEntities() const
+		{
+			return Reg->GetProxies<Components...>();
+		}
+
+		template <typename SingletonType>
+        SingletonType* GetSingleton() const
+		{
+			return Reg->GetSingleton<std::remove_cv_t<SingletonType>>();
+		}
+
 		const String Name;
+	private:
+		friend class SystemScheduler;
+		Registry* Reg = nullptr;
 	};
 
 	template <typename... ComponentTypes>
@@ -38,7 +52,7 @@ namespace ScarletEngine
 
 			// Create an array of std::tuples of references to components
 			// could probably cache some of this work
-			return Reg->GetProxies<Components...>();
+			return ISystem::GetEntities<Components...>();
 		}
 
 		template <typename SingletonType>
@@ -46,7 +60,7 @@ namespace ScarletEngine
 		{
 			static_assert(Contains_V<SingletonType, ComponentTypes...>,
 				"Trying to get singleton which is not marked in the system's signature!");
-			return Reg->GetSingleton<std::remove_cv_t<SingletonType>>();
+			return ISystem::GetSingleton<SingletonType>();
 		}
 	};
 
