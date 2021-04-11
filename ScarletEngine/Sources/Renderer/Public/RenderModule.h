@@ -16,6 +16,7 @@ namespace ScarletEngine
 
 		virtual void Startup() override;
 		virtual void Shutdown() override;
+		virtual void PreUpdate() override;
 		virtual void PostUpdate() override;
 		// End IModule interface
 

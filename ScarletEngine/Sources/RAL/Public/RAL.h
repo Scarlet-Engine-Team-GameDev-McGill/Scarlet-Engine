@@ -28,7 +28,8 @@ namespace ScarletEngine
 		virtual ~RAL() {}
 
 		virtual void Initialize();
-		virtual void Terminate() = 0;
+		virtual void Terminate() {};
+		virtual void PreFrame() {}
 		virtual void Submit();
 
 		virtual const char* GetBackendName() const = 0;

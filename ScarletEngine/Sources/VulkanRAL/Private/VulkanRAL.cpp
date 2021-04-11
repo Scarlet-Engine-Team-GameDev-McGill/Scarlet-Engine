@@ -713,9 +713,21 @@ namespace ScarletEngine
 		VkCommandPoolCreateInfo PoolInfo{};
 		PoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		PoolInfo.queueFamilyIndex = QueueFamilies.GraphicsFamily.value();
-		PoolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+		PoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
 		CHECK_RESULT(vkCreateCommandPool(LogicalDevice, &PoolInfo, nullptr, &CommandPool));
+	}
+
+	void VulkanRAL::CreateCommandBuffers()
+	{
+		CommandBuffers.resize(SwapchainFramebuffers.size());
+		VkCommandBufferAllocateInfo AllocInfo{};
+		AllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		AllocInfo.commandPool = CommandPool;
+		AllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		AllocInfo.commandBufferCount = static_cast<uint32_t>(CommandBuffers.size());
+
+		CHECK_RESULT(vkAllocateCommandBuffers(LogicalDevice, &AllocInfo, CommandBuffers.data()));
 	}
 
 	void VulkanRAL::BeginRenderPassCommandBuff(VkCommandBuffer& CmdBuff, uint32_t ImageIndex)
@@ -831,45 +843,15 @@ namespace ScarletEngine
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
 		CreateCommandPool();
+		CreateCommandBuffers();
 		CreateSyncObjects();
-
-		RAL::Initialize();
 	}
 
-	void VulkanRAL::Submit()
+	void VulkanRAL::PreFrame()
 	{
-		struct OnScopeExit
-		{
-			OnScopeExit(const std::function<void()>& InFunc)
-				: Func(InFunc)
-			{
-			}
-			
-			~OnScopeExit()
-			{
-				Func();
-			}
-			std::function<void()> Func;
-		};
-
-		VulkanCommandList& CmdList = static_cast<VulkanCommandList&>(*CommandListQueue.front().get());
-
-		OnScopeExit Scoped([this, CmdList]()
-		{
-			vkFreeCommandBuffers(LogicalDevice, CommandPool, 1, &CmdList.CmdBuff);
-			CommandListQueue.pop();
-			CommandListQueue.push(UniquePtr<RALCommandList>(CreateCommandList()));
-		});
-		
-		if (!bShouldSubmitFrame)
-		{
-			RebuildSwapchain();
-			return;
-		}
-		
 		vkWaitForFences(LogicalDevice, 1, &InFlightFences[CurrentFrameIndex], VK_TRUE, UINT64_MAX);
-		
-		uint32_t ImageIndex = -1;
+
+		ImageIndex = -1;
 		const VkResult Result = vkAcquireNextImageKHR(LogicalDevice, Swapchain, UINT64_MAX, ImageAvailableSemaphores[CurrentFrameIndex], nullptr, &ImageIndex);
 		if (Result == VK_ERROR_OUT_OF_DATE_KHR || Result == VK_SUBOPTIMAL_KHR || bFramebufferResized)
 		{
@@ -881,6 +863,32 @@ namespace ScarletEngine
 		{
 			SCAR_LOG(LogError, "Failed to acquire swapchain image!");
 		}
+
+		if (!bShouldSubmitFrame)
+		{
+			RebuildSwapchain();
+			return;
+		}
+
+		CommandListQueue.push(UniquePtr<RALCommandList>(CreateCommandList()));
+	}
+
+	void VulkanRAL::Submit()
+	{
+		struct OnScopeExit
+		{
+			OnScopeExit(const std::function<void()>& InFunc) : Func(InFunc) {}
+			~OnScopeExit() { Func(); }
+			
+			std::function<void()> Func;
+		};
+
+		VulkanCommandList& CmdList = static_cast<VulkanCommandList&>(*CommandListQueue.front().get());
+
+		OnScopeExit Scoped([this]()
+		{
+			CommandListQueue.pop();
+		});
 
 		// Record all commands into the VkCommandBuffer
 		{
@@ -940,6 +948,7 @@ namespace ScarletEngine
 		vkQueuePresentKHR(PresentQueue, &PresentInfo);
 
 		CurrentFrameIndex = (CurrentFrameIndex + 1) % MaxFramesInFlight;
+		ImageIndex = -1;
 	}
 
 	void VulkanRAL::Terminate()
@@ -981,17 +990,8 @@ namespace ScarletEngine
 
 	RALCommandList* VulkanRAL::CreateCommandList() const
 	{
-		VkCommandBuffer Buff = VK_NULL_HANDLE;
-		
-		VkCommandBufferAllocateInfo AllocInfo{};
-		AllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		AllocInfo.commandPool = CommandPool;
-		AllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		AllocInfo.commandBufferCount = 1;
-
-		CHECK_RESULT(vkAllocateCommandBuffers(LogicalDevice, &AllocInfo, &Buff));
-		
-		return ScarNew(VulkanCommandList, Buff);
+		check(ImageIndex != -1);
+		return ScarNew(VulkanCommandList, CommandBuffers[ImageIndex]);
 	}
 
 	void VulkanRAL::SetClearColorCmd(const glm::vec4& ClearColor)

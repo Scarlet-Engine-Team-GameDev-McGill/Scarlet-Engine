@@ -39,6 +39,12 @@ namespace ScarletEngine
 		RAL::API = RenderAPI::Invalid;
 	}
 
+	void RenderModule::PreUpdate()
+	{
+		ZoneScoped
+		RAL::Get().PreFrame();
+	}
+
 	void RenderModule::PostUpdate()
 	{
 		ZoneScoped

@@ -17,6 +17,7 @@ namespace ScarletEngine
 		// Begin RAL Interface
 		virtual void Initialize() override;
 		virtual void Terminate() override;
+		virtual void PreFrame() override;
 		virtual void Submit() override;
 		virtual const char* GetBackendName() const override { return "Vulkan"; }
 		virtual GPUInfo GetGPUInfo() const override;
@@ -77,6 +78,7 @@ namespace ScarletEngine
 		void CreateFramebuffers();
 
 		void CreateCommandPool();
+		void CreateCommandBuffers();
 
 		void BeginRenderPassCommandBuff(VkCommandBuffer& CmdBuff, uint32_t ImageIndex); // @todo: remove when pipeline is properly abstracted
 		void EndRenderPassCommandBuff(VkCommandBuffer& CmdBuff); // @todo: remove when pipeline is properly abstracted
@@ -107,6 +109,7 @@ namespace ScarletEngine
 		VkPipeline GraphicsPipeline = VK_NULL_HANDLE;
 
 		VkCommandPool CommandPool = VK_NULL_HANDLE;
+		Array<VkCommandBuffer> CommandBuffers;
 
 		Array<VkSemaphore> ImageAvailableSemaphores;
 		Array<VkSemaphore> RenderFinishedSemaphores;
@@ -121,5 +124,7 @@ namespace ScarletEngine
 		Array<const char*> RequiredInstanceExtensions;
 		Array<const char*> RequiredDeviceExtensions;
 		bool bEnableValidationLayers;
+
+		uint32_t ImageIndex;
 	};
 }
