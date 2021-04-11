@@ -61,11 +61,7 @@ namespace ScarletEngine::Achilles
 					if (d != 0)
 					{
 						glm::vec3 u = (posB - posA) / d;
-
-						float mA = RbA->Mass;
-						float mB = RbB->Mass;
-
-						glm::vec3 G = 6.14f * std::pow(10.f, -11.f) * mA * mB * u / pow(d, 2.f);
+						glm::vec3 G = (6.14f * std::pow(10.f, -11.f) * RbA->Mass * RbB->Mass / (d * d)) * u;
 
 						RbA->Force += G;
 						RbB->Force -= G;
