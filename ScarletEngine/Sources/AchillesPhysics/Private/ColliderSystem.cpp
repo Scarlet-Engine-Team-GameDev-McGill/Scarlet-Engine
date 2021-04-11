@@ -11,8 +11,6 @@ namespace ScarletEngine::Achilles
 
 	void AABBvsAABBColliderSystem::FixedUpdate() const
 	{
-		const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
-
 		// Move collider
 		for (const auto& [Entity, Box, Rb] : GetEntities<BoxColliderComponent, RigidBodyComponent>())
 		{
@@ -91,8 +89,6 @@ namespace ScarletEngine::Achilles
 
 	void PlaneVsSphereColliderSystem::FixedUpdate() const
 	{
-		const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
-
 		// Get Intersection
 		for (const auto& [EntP, Plane] : GetEntities<PlaneColliderComponent>())
 		{
