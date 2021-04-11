@@ -850,6 +850,17 @@ namespace ScarletEngine
 
 	void VulkanRAL::PreFrame()
 	{
+		OnScopeExit Scoped([this]()
+		{
+			CommandListQueue.push(UniquePtr<RALCommandList>(CreateCommandList()));
+		});
+		
+		if (!bShouldSubmitFrame)
+		{
+			RebuildSwapchain();
+			return;
+		}
+
 		vkWaitForFences(LogicalDevice, 1, &InFlightFences[CurrentFrameIndex], VK_TRUE, UINT64_MAX);
 
 		ImageIndex = -1;
@@ -864,26 +875,10 @@ namespace ScarletEngine
 		{
 			SCAR_LOG(LogError, "Failed to acquire swapchain image!");
 		}
-
-		if (!bShouldSubmitFrame)
-		{
-			RebuildSwapchain();
-			return;
-		}
-
-		CommandListQueue.push(UniquePtr<RALCommandList>(CreateCommandList()));
 	}
 
 	void VulkanRAL::Submit()
 	{
-		struct OnScopeExit
-		{
-			OnScopeExit(const std::function<void()>& InFunc) : Func(InFunc) {}
-			~OnScopeExit() { Func(); }
-			
-			std::function<void()> Func;
-		};
-
 		VulkanCommandList& CmdList = static_cast<VulkanCommandList&>(*CommandListQueue.front().get());
 
 		OnScopeExit Scoped([this]()

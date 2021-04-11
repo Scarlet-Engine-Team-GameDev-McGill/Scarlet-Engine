@@ -13,3 +13,14 @@
 
 // Core component types
 #include "Transform.h"
+
+namespace ScarletEngine
+{
+    struct OnScopeExit
+    {
+        OnScopeExit(const std::function<void()>& InFunc) : Func(InFunc) {}
+        ~OnScopeExit() { Func(); }
+			
+        Function<void()> Func;
+    };
+}
