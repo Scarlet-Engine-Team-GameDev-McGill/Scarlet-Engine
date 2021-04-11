@@ -29,12 +29,12 @@ int main()
 	// #todo_core: this should be handled automatically by the engine
 	GEditor->Initialize();
 	{
-		ScarletEngine::Achilles::DemoKepler(GEditor->GetActiveWorld());
+		//ScarletEngine::Achilles::DemoKepler(GEditor->GetActiveWorld());
 		//ScarletEngine::Achilles::DemoSpherePlaneCollision(GEditor->GetActiveWorld());
 		//ScarletEngine::Achilles::DemoSphereSphereCollision(GEditor->GetActiveWorld());
 		//ScarletEngine::Achilles::DemoSpring(GEditor->GetActiveWorld());
 		//ScarletEngine::Achilles::DemoRope(GEditor->GetActiveWorld(), glm::vec3(0.25f, 0.f, 0.f));
-		//ScarletEngine::Achilles::DemoRopeCollision(GEditor->GetActiveWorld());
+		ScarletEngine::Achilles::DemoRopeCollision(GEditor->GetActiveWorld());
 		//ScarletEngine::Achilles::DemoFlag(GEditor->GetActiveWorld());
 		//ScarletEngine::Achilles::DemoSoftBodies(GEditor->GetActiveWorld());
 	}
