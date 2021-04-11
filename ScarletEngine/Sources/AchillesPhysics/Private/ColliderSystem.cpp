@@ -90,7 +90,7 @@ namespace ScarletEngine::Achilles
 
 					if (RbSphere->UsesGravity)
 					{
-						RbSphere->Force -= RbSphere->GravityEarth * RbSphere->Mass;
+						RbSphere->Force -= RbSphere->Gravity * RbSphere->Mass;
 					}
 				}
 			}

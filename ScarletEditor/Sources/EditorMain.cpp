@@ -29,7 +29,7 @@ int main()
 	// #todo_core: this should be handled automatically by the engine
 	GEditor->Initialize();
 	{
-		ScarletEngine::Achilles::DemoRope(GEditor->GetActiveWorld(), glm::vec3(0.25f, 0.f, 0.f));
+		ScarletEngine::Achilles::DemoRopeCollision(GEditor->GetActiveWorld());
 	}
 
 	GEngine->Run();
