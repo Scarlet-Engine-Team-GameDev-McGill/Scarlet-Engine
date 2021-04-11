@@ -6,8 +6,9 @@ namespace ScarletEngine::Achilles
 	{
 	}
 
-	void RigidBodySystem::UpdateEntity(const EID Entity, Transform* Trans, RigidBodyComponent* Rb, float Dt) const
+	void RigidBodySystem::UpdateEntity(Transform* Trans, RigidBodyComponent* Rb, const float Dt) const
 	{
+		ZoneScoped
 		// translational
 		if (Rb->UsesGravity)
 		{
@@ -23,7 +24,7 @@ namespace ScarletEngine::Achilles
 		Rb->AngularVelocity += glm::inverse(Rb->Inertia) * (Rb->Moment - glm::cross(Rb->AngularVelocity, (Rb->Inertia * Rb->AngularVelocity))) * Dt;
 
 		glm::quat QOrientation = glm::quat(glm::radians(Trans->Rotation)); // pitch yaw roll
-		glm::quat DQ = QOrientation * Rb->AngularVelocity * 0.5f * Dt;
+		const glm::quat DQ = QOrientation * Rb->AngularVelocity * 0.5f * Dt;
 		QOrientation += DQ;
 
 		Trans->Rotation = glm::degrees(glm::eulerAngles(glm::normalize(QOrientation))); // returns XYZ (PYR) 
@@ -33,38 +34,38 @@ namespace ScarletEngine::Achilles
 
 	void RigidBodySystem::FixedUpdate() const
 	{
+		ZoneScoped
 		const auto& Entities = GetEntities<Transform, RigidBodyComponent>();
 
 		// Dynamics
 		for (const auto& [EntityID, Trans, Rb] : Entities)
 		{
-			UpdateEntity(EntityID, Trans, Rb, FIXED_UPDATE_S);
+			UpdateEntity(Trans, Rb, static_cast<float>(FIXED_UPDATE_S));
 		}
 
 		// Compute Gravities for Kepler
-		int size = Entities.size();
-		for (int i = 0; i < size - 1; i++)
+		const size_t Size = Entities.size();
+		for (size_t i = 0; i < Size - 1; i++)
 		{
-			const auto& [EntityA, TransA, RbA] = Entities.at(i);
-			for (int j = i + 1; j < size; j++)
+			const auto& [EntityA, TransA, RbA] = Entities[i];
+			for (size_t j = i + 1; j < Size; j++)
 			{
-				const auto& [EntityB, TransB, RbB] = Entities.at(j);
-
+				const auto& [EntityB, TransB, RbB] = Entities[j];
 				if (RbA->UsesKeplerGravity && RbB->UsesKeplerGravity)
 				{
 
-					glm::vec3 posA = TransA->Position;
-					glm::vec3 posB = TransB->Position;
+					const glm::vec3 PosA = TransA->Position;
+					const glm::vec3 PosB = TransB->Position;
 
-					float d = std::abs(glm::distance(posA, posB));
+					const float Dist = std::abs(glm::distance(PosA, PosB));
 
-					if (d != 0)
+					if (Dist != 0)
 					{
-						glm::vec3 u = (posB - posA) / d;
-						glm::vec3 G = (6.14f * std::pow(10.f, -11.f) * RbA->Mass * RbB->Mass / (d * d)) * u;
+						const glm::vec3 UnitVec = (PosB - PosA) / Dist;
+						const glm::vec3 GravForce = (6.14f * std::pow(10.f, -11.f) * RbA->Mass * RbB->Mass / (Dist * Dist)) * UnitVec;
 
-						RbA->Force += G;
-						RbB->Force -= G;
+						RbA->Force += GravForce;
+						RbB->Force -= GravForce;
 					}
 				}
 			}

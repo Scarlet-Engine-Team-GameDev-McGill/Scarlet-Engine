@@ -298,9 +298,9 @@ namespace ScarletEngine::Achilles
 	{
 		MakePlanet(World, glm::vec3(4.3f, -1.f, 0.f), glm::vec3(0.f, 0.f, 2.f), 1., 1.2f, "Jupiter");
 		MakePlanet(World, glm::vec3(3.f, 0.6f, 0.f), glm::vec3(0.f, 0.f, 2.5f), 1.f, 0.5f, "Venus");
-		MakePlanet(World, glm::vec3(4.15f, -0.4f, 0.f), glm::vec3(0., 0.f, 2.5f), 1.f, .3f, "Moon");
-		MakePlanet(World, glm::vec3(4.f, -0.4f, 0.f), glm::vec3(0.f, 0.f, 2.f), 7 * glm::pow(10, 8), 0.6f, "Earth");
+		MakePlanet(World, glm::vec3(4.15f, -0.4f, 0.f), glm::vec3(0.f, 0.f, 2.5f), 1.f, .3f, "Moon");
+		MakePlanet(World, glm::vec3(4.f, -0.4f, 0.f), glm::vec3(0.f, 0.f, 2.f), 7.f * glm::pow(10.f, 8.f), 0.6f, "Earth");
 		MakePlanet(World, glm::vec3(2.f, 0.2f, 0.f), glm::vec3(0.f, 0.f, 2.5f), 1.f, 0.5f, "Mercury");
-		MakePlanet(World, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f), 3 * glm::pow(10, 11), 2.f, "Sun");
+		MakePlanet(World, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f), 3.f * glm::pow(10.f, 11.f), 2.f, "Sun");
 	}
 }
