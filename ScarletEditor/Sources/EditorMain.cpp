@@ -10,7 +10,7 @@
 #include "AchillesCore.h"
 
 using namespace ScarletEngine;
-
+using namespace ScarletEngine::Achilles;
 
 #pragma region Demos
 

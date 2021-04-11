@@ -38,11 +38,11 @@ namespace ScarletEngine::Achilles
 			else if (Reg->HasComponent<SpringCollection>(EntityID) && Reg->HasComponent<RigidBodyComponent>(EntityID) && Reg->HasComponent<Transform>(EntityID))
 			{
 				SpringCollection* Springs = Reg->GetComponent<SpringCollection>(EntityID);
-				for (int i = 0; i < Springs->size(); i++)
+				for (int i=0; i < Springs->size(); i++)
 				{
 					UpdateEntity(EntityID, FIXED_UPDATE_S, &(Springs->at(i)));
 				}
 			}
 		}
 	}
-};
+}

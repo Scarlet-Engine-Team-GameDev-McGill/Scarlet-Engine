@@ -15,4 +15,4 @@ namespace ScarletEngine::Achilles
 		virtual void Update() const override;
 		void ComputeGravities(const Array<SharedPtr<Entity>>& Entities) const;
 	};
-};
+}

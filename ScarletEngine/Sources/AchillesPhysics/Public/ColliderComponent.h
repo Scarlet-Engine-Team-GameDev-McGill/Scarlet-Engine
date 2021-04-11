@@ -22,4 +22,4 @@ namespace ScarletEngine::Achilles
 		float Distance;
 		float FrictionCoefficient = 0.3f;
 	};
-};
+}

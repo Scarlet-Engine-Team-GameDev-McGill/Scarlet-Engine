@@ -15,4 +15,4 @@ namespace ScarletEngine::Achilles
 		virtual void Update() const override;
 		void UpdateEntity(const EID Entity, double Dt, SpringComponent* Spring) const;
 	};
-};
+}

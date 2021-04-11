@@ -34,7 +34,7 @@ namespace ScarletEngine::Achilles
 		Trans->Rotation = glm::degrees(glm::eulerAngles(glm::normalize(QOrientation))); // returns XYZ (PYR) 
 
 		Rb->Moment = glm::vec3(0.f, 0.f, 0.f);
-	}
+	}	
 
 	void RigidBodySystem::FixedUpdate() const
 	{
@@ -97,4 +97,4 @@ namespace ScarletEngine::Achilles
 			}
 		}
 	}
-};
+}

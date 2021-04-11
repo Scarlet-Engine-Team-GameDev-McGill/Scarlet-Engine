@@ -233,4 +233,4 @@ namespace ScarletEngine::Achilles
 		return std::pair<glm::vec3, float>(Plane->Normal * Dist, Dist); // Intersects if negative
 	}
 #pragma endregion
-};
+}

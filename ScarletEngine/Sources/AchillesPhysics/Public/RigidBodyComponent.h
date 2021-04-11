@@ -18,4 +18,4 @@ namespace ScarletEngine::Achilles
 		glm::vec3 AngularVelocity = glm::vec3(0.f);
 		glm::mat3x3 Inertia = glm::mat3x3(glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
 	};
-};
+}

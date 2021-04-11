@@ -34,4 +34,4 @@ namespace ScarletEngine::Achilles
 		virtual void Update() const override;
 		std::pair<glm::vec3, float> GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const;
 	};
-};
+}
