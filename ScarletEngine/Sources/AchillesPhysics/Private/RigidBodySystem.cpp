@@ -33,10 +33,10 @@ namespace ScarletEngine::Achilles
 
 	void RigidBodySystem::FixedUpdate() const
 	{
-		const auto Entities = GetEntities<Transform, RigidBodyComponent>();
+		const auto& Entities = GetEntities<Transform, RigidBodyComponent>();
 
 		// Dynamics
-		for (const auto [EntityID, Trans, Rb] : Entities)
+		for (const auto& [EntityID, Trans, Rb] : Entities)
 		{
 			UpdateEntity(EntityID, Trans, Rb, FIXED_UPDATE_S);
 		}
@@ -45,10 +45,10 @@ namespace ScarletEngine::Achilles
 		int size = Entities.size();
 		for (int i = 0; i < size - 1; i++)
 		{
-			const auto [EntityA, TransA, RbA] = Entities.at(i);
+			const auto& [EntityA, TransA, RbA] = Entities.at(i);
 			for (int j = i + 1; j < size; j++)
 			{
-				const auto [EntityB, TransB, RbB] = Entities.at(j);
+				const auto& [EntityB, TransB, RbB] = Entities.at(j);
 
 				if (RbA->UsesKeplerGravity && RbB->UsesKeplerGravity)
 				{

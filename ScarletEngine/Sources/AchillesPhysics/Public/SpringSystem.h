@@ -8,11 +8,11 @@
 
 namespace ScarletEngine::Achilles
 {
-	class SpringSystem : public System<RigidBodyComponent, Transform, SpringComponent>
+	class SpringSystem : public System<RigidBodyComponent, Transform, SpringComponent, SpringCollection>
 	{
 	public:
 		virtual void FixedUpdate() const override;
 		virtual void Update() const override;
-		void UpdateEntity(const EID Entity, double Dt, SpringComponent* Spring) const;
+		void UpdateEntity(SpringComponent* Spring, RigidBodyComponent* Rb, Transform* Trans) const;
 	};
 }

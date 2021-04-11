@@ -1,12 +1,9 @@
-#pragma once
-
 #include "ColliderSystem.h"
 #include "RigidBodyComponent.h"
 #include "Core.h"
 
 namespace ScarletEngine::Achilles
 {
-
 #pragma region AABBvsAABB
 	void AABBvsAABBColliderSystem::Update() const
 	{
@@ -17,9 +14,11 @@ namespace ScarletEngine::Achilles
 		const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
 
 		// Move collider
-		for (const auto [Entity, Box, Rb] : GetEntities<BoxColliderComponent, RigidBodyComponent>())
+		for (const auto& [Entity, Box, Rb] : GetEntities<BoxColliderComponent, RigidBodyComponent>())
 		{
-			Box->Max, Box->Min += Rb->Velocity * (float)FIXED_UPDATE_S;
+			glm::vec3 Dx = Rb->Velocity * (float)FIXED_UPDATE_S;
+			Box->Max += Dx;
+			Box->Min += Dx;
 		}
 
 		// @todo : bounce
@@ -35,20 +34,20 @@ namespace ScarletEngine::Achilles
 	void SphereVsSphereColliderSystem::FixedUpdate() const
 	{
 		// Move collider
-		for (const auto [Entity, Rb, Sphere] : GetEntities<RigidBodyComponent, SphereColliderComponent>())
+		for (const auto& [Entity, Rb, Sphere] : GetEntities<RigidBodyComponent, SphereColliderComponent>())
 		{
 			Sphere->Pos += Rb->Velocity * (float)FIXED_UPDATE_S;
 		}
 
 		// Compute intersection
-		const auto Entities = GetEntities<Transform, SphereColliderComponent, RigidBodyComponent>();
+		const auto& Entities = GetEntities<Transform, SphereColliderComponent, RigidBodyComponent>();
 		int size = Entities.size();
 		for (int i = 0; i < size - 1; i++)
 		{
-			const auto [EntityA, TransA, SphereA, RbA] = Entities.at(i);
+			const auto& [EntityA, TransA, SphereA, RbA] = Entities.at(i);
 			for (int j = i + 1; j < size; j++)
 			{
-				const auto [EntityB, TransB, SphereB, RbB] = Entities.at(j);
+				const auto& [EntityB, TransB, SphereB, RbB] = Entities.at(j);
 				std::pair<glm::vec3, float> IntersectionDepth = GetIntersection(SphereA, SphereB);
 
 				if (IntersectionDepth.second < 0.f)
@@ -95,9 +94,9 @@ namespace ScarletEngine::Achilles
 		const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
 
 		// Get Intersection
-		for (const auto [EntP, Plane] : GetEntities<PlaneColliderComponent>())
+		for (const auto& [EntP, Plane] : GetEntities<PlaneColliderComponent>())
 		{
-			for (const auto [EntS, TransSphere, Sphere, RbSphere] : GetEntities<Transform, SphereColliderComponent, RigidBodyComponent>())
+			for (const auto& [EntS, TransSphere, Sphere, RbSphere] : GetEntities<Transform, SphereColliderComponent, RigidBodyComponent>())
 			{
 				std::pair<glm::vec3, float> IntersectionDepth = GetIntersection(Plane, Sphere);
 

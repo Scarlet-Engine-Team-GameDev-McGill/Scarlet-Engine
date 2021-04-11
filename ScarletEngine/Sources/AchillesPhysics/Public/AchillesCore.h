@@ -1,3 +1,4 @@
+#pragma once
 #include "RigidBodyComponent.h"
 #include "ColliderComponent.h"
 #include "SpringComponent.h"

@@ -6,10 +6,8 @@ namespace ScarletEngine::Achilles
 	{
 	}
 
-	void SpringSystem::UpdateEntity(const EID Entity, double Dt, SpringComponent* Spring) const
+	void SpringSystem::UpdateEntity(SpringComponent* Spring, RigidBodyComponent* Rb, Transform* Trans) const
 	{
-		RigidBodyComponent* Rb = Reg->GetComponent<RigidBodyComponent>(Entity);
-		Transform* Trans = Reg->GetComponent<Transform>(Entity);
 		Transform* TransAnchor = Reg->GetComponent<Transform>(Spring->Anchor);
 
 		glm::vec3 distance = Trans->Position - TransAnchor->Position;
@@ -25,24 +23,17 @@ namespace ScarletEngine::Achilles
 
 	void SpringSystem::FixedUpdate() const
 	{
-		const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
-		for (const SharedPtr<Entity>& Ent : Entities)
+		for (const auto& [EntityID, Springs, Rb, Trans] : GetEntities<SpringCollection, RigidBodyComponent, Transform>())
 		{
-			EID EntityID = Ent->ID;
+			for (int i = 0; i < Springs->size(); i++)
+			{
+				UpdateEntity(&Springs->at(i), Rb, Trans);
+			}
+		}
 
-			if (Reg->HasComponent<SpringComponent>(EntityID) && Reg->HasComponent<RigidBodyComponent>(EntityID) && Reg->HasComponent<Transform>(EntityID))
-			{
-				SpringComponent* Spring = Reg->GetComponent<SpringComponent>(EntityID);
-				UpdateEntity(EntityID, FIXED_UPDATE_S, Spring);
-			}
-			else if (Reg->HasComponent<SpringCollection>(EntityID) && Reg->HasComponent<RigidBodyComponent>(EntityID) && Reg->HasComponent<Transform>(EntityID))
-			{
-				SpringCollection* Springs = Reg->GetComponent<SpringCollection>(EntityID);
-				for (int i=0; i < Springs->size(); i++)
-				{
-					UpdateEntity(EntityID, FIXED_UPDATE_S, &(Springs->at(i)));
-				}
-			}
+		for (const auto& [EntityID, Spring, Rb, Trans] : GetEntities<SpringComponent, RigidBodyComponent, Transform>())
+		{
+			UpdateEntity(Spring, Rb, Trans);
 		}
 	}
 }
