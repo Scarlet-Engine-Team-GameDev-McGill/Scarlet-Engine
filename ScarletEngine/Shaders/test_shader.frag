@@ -4,7 +4,7 @@ in vec3 FragPos;
 
 out vec4 FragColor;
 
-vec3 ObjectColor = vec3(0.7, 1.0, 1.0);
+vec3 ObjectColor = vec3(1.0, 1.0, 1.0);
 vec3 LightColor = vec3(1.0, 1.0, 1.0);
 vec3 LightPos = vec3(0.0, 5.0, 2.0);
 

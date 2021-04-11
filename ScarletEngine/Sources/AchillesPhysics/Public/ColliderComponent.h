@@ -13,13 +13,13 @@ namespace ScarletEngine::Achilles
 	{
 		glm::vec3 Pos;
 		float Radius;
-		float FrictionCoefficient = 0.3f;
+		float FrictionCoefficient = 0.01f;
 	};
 
 	struct PlaneColliderComponent
 	{
 		glm::vec3 Normal;
 		float Distance;
-		float FrictionCoefficient = 0.3f;
+		float FrictionCoefficient = 0.01f;
 	};
 }

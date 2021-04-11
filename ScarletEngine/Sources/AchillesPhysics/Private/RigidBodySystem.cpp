@@ -35,18 +35,13 @@ namespace ScarletEngine::Achilles
 	{
 		const auto Entities = GetEntities<Transform, RigidBodyComponent>();
 
+		// Dynamics
 		for (const auto [EntityID, Trans, Rb] : Entities)
 		{
 			UpdateEntity(EntityID, Trans, Rb, FIXED_UPDATE_S);
 		}
 
-		ComputeGravities();
-	}
-
-	void RigidBodySystem::ComputeGravities() const
-	{
-		// Compute the forces on the entities
-		const auto Entities = GetEntities<Transform, RigidBodyComponent>();
+		// Compute Gravities for Kepler
 		int size = Entities.size();
 		for (int i = 0; i < size - 1; i++)
 		{

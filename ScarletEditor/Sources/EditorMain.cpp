@@ -334,12 +334,12 @@ int main()
 	// #todo_core: this should be handled automatically by the engine
 	GEditor->Initialize();
 	{
-		DemoKepler();
+		//DemoKepler();
 		//DemoSpherePlaneCollision();
 		//DemoSphereSphereCollision();
 		//DemoSpring();
 		//DemoRope(glm::vec3(0.25f, 0.f, 0.f));
-		//DemoRopeCollision();
+		DemoRopeCollision();
 		//DemoFlag();
 		//DemoSoftBodies();
 	}
