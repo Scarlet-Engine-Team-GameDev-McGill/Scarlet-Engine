@@ -739,7 +739,7 @@ namespace ScarletEngine
 		RenderPassBeginInfo.renderArea.offset = { 0, 0 };
 		RenderPassBeginInfo.renderArea.extent = SwapchainImageExtent;
 
-		VkClearValue ClearColor = {0.f, 0.f, 0.f, 1.f};
+		VkClearValue ClearColor = {0.1f, 0.1f, 0.1f, 1.f};
 		RenderPassBeginInfo.clearValueCount = 1;
 		RenderPassBeginInfo.pClearValues = &ClearColor;
 
