@@ -80,7 +80,7 @@ namespace ScarletEngine
 		void CreateCommandPool();
 		void CreateCommandBuffers();
 
-		void BeginRenderPassCommandBuff(VkCommandBuffer& CmdBuff, uint32_t ImageIndex); // @todo: remove when pipeline is properly abstracted
+		void BeginRenderPassCommandBuff(VkCommandBuffer& CmdBuff); // @todo: remove when pipeline is properly abstracted
 		void EndRenderPassCommandBuff(VkCommandBuffer& CmdBuff); // @todo: remove when pipeline is properly abstracted
 
 		void CreateSyncObjects();

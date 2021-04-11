@@ -732,7 +732,7 @@ namespace ScarletEngine
 		CHECK_RESULT(vkAllocateCommandBuffers(LogicalDevice, &AllocInfo, CommandBuffers.data()));
 	}
 
-	void VulkanRAL::BeginRenderPassCommandBuff(VkCommandBuffer& CmdBuff, uint32_t ImageIndex)
+	void VulkanRAL::BeginRenderPassCommandBuff(VkCommandBuffer& CmdBuff)
 	{
 		VkRenderPassBeginInfo RenderPassBeginInfo{};
 		RenderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -801,6 +801,7 @@ namespace ScarletEngine
 
 	void VulkanRAL::RebuildSwapchain()
 	{
+		ImageIndex = -1;
 		// We don't need to recruit the swapchain for a minimized window.
 		int Width = 0, Height = 0;
 		const ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
@@ -886,6 +887,11 @@ namespace ScarletEngine
 			CommandListQueue.pop();
 		});
 
+		if (ImageIndex == -1 || CmdList.CmdBuff == VK_NULL_HANDLE || !bShouldSubmitFrame || bFramebufferResized)
+		{
+			return;
+		}
+
 		// Record all commands into the VkCommandBuffer
 		{
 			VkCommandBufferBeginInfo BeginInfo{};
@@ -895,7 +901,7 @@ namespace ScarletEngine
 
 			CHECK_RESULT(vkBeginCommandBuffer(CmdList.CmdBuff, &BeginInfo));
 
-			BeginRenderPassCommandBuff(CmdList.CmdBuff, ImageIndex);
+			BeginRenderPassCommandBuff(CmdList.CmdBuff);
 
 			CmdList.ExecuteAll();
 
@@ -942,9 +948,8 @@ namespace ScarletEngine
 		PresentInfo.pResults = nullptr;
 
 		vkQueuePresentKHR(PresentQueue, &PresentInfo);
-
+		
 		CurrentFrameIndex = (CurrentFrameIndex + 1) % MaxFramesInFlight;
-		ImageIndex = -1;
 	}
 
 	void VulkanRAL::Terminate()
@@ -986,8 +991,7 @@ namespace ScarletEngine
 
 	RALCommandList* VulkanRAL::CreateCommandList() const
 	{
-		check(ImageIndex != -1);
-		return ScarNew(VulkanCommandList, CommandBuffers[ImageIndex]);
+		return ScarNew(VulkanCommandList, ImageIndex != -1 ? CommandBuffers[ImageIndex] : VkCommandBuffer{VK_NULL_HANDLE});
 	}
 
 	void VulkanRAL::SetClearColorCmd(const glm::vec4& InClearColor)
