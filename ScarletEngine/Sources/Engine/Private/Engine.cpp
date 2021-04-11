@@ -8,8 +8,6 @@
 #include "ModuleManager.h"
 #include "Window.h"
 
-#define FIXED_UPDATE_S 0.020
-
 namespace ScarletEngine
 {
 	UniquePtr<Engine> GEngine = nullptr;

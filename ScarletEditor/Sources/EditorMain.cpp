@@ -3,15 +3,16 @@
 #include "Editor.h"
 #include "RAL.h"
 #include "StaticMeshComponent.h"
-#include "RigidBodyComponent.h"
-#include "ColliderComponent.h"
-#include "SpringComponent.h"
 #include "AssetManager.h"
 #include "RenderModule.h"
 #include "UIModule.h"
 
+#include "AchillesCore.h"
+
 using namespace ScarletEngine;
-using namespace Achilles;
+
+
+#pragma region Demos
 
 void MakeMesh(StaticMeshComponent* Mesh, ScarletEngine::String Model)
 {
@@ -281,9 +282,6 @@ void DemoSoftBodies(float heightOffset = 2.f)
 	MakeGround();
 }
 
-
-#pragma region Planet Dynamic
-
 EID MakePlanet(glm::vec3 Pos, glm::vec3 V0, float Mass, float Scale, const char* Name)
 {
 	auto [Ent, Trans, Mesh, Rb] = GEditor->GetActiveWorld()->CreateEntity<Transform, StaticMeshComponent, RigidBodyComponent>(Name);
@@ -314,7 +312,6 @@ void DemoKepler()
 
 #pragma endregion
 
-
 int main()
 {
 	// #todo_Core: this should be loaded by a config file or something, for now default it to this.
@@ -322,6 +319,8 @@ int main()
 
 	ModuleManager::GetInstance().RegisterModule<RenderModule>();
 	ModuleManager::GetInstance().RegisterModule<UIModule>();
+
+	SystemScheduler::Get().RegisterSystem<Achilles::SpringSystem>();
 
 	GEngine = MakeUnique<Engine>();
 	GEngine->Initialize();

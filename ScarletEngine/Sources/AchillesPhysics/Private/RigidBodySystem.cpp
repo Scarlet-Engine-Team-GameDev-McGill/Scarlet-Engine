@@ -4,12 +4,7 @@ namespace ScarletEngine
 {
 	namespace Achilles
 	{
-		RigidBodySystem::RigidBodySystem(Registry* InReg, const String& InName)
-			: System(InReg, InName)
-		{
-		}
-
-		void RigidBodySystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		void RigidBodySystem::Update() const
 		{
 		}
 
@@ -43,15 +38,17 @@ namespace ScarletEngine
 			Rb->Moment = glm::vec3(0.f, 0.f, 0.f);
 		}	
 
-		void RigidBodySystem::FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		void RigidBodySystem::FixedUpdate() const
 		{
+			const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
+
 			for (const SharedPtr<Entity>& Ent : Entities)
 			{
 				EID EntityID = Ent->ID;
 
 				if ((Reg->HasComponent<RigidBodyComponent>(EntityID)) && (Reg->HasComponent<Transform>(EntityID)))
 				{
-					UpdateEntity(EntityID, DeltaTime);
+					UpdateEntity(EntityID, FIXED_UPDATE_S);
 				}
 			}
 

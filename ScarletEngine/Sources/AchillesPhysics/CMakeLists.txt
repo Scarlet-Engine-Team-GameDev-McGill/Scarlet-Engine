@@ -3,7 +3,8 @@ set(AchillesPhysics_PrivateDeps
 
 set(AchillesPhysics_PublicDeps
 	"ECS"
-	"Core")
+	"Core"
+	"Engine")
 
 DECLARE_MODULE(
 	MODULE_NAME "AchillesPhysics" 

@@ -9,12 +9,7 @@ namespace ScarletEngine
 	namespace Achilles
 	{
 #pragma region AABBvsAABB
-		AABBvsAABBColliderSystem::AABBvsAABBColliderSystem(Registry* InReg, const String& InName)
-			: System(InReg, InName)
-		{
-		}
-
-		void AABBvsAABBColliderSystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		void AABBvsAABBColliderSystem::Update() const
 		{
 		}
 
@@ -27,15 +22,17 @@ namespace ScarletEngine
 			Box->Min += Rb->Velocity * (float)Dt;
 		}
 
-		void AABBvsAABBColliderSystem::FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		void AABBvsAABBColliderSystem::FixedUpdate() const
 		{
+			const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
+
 			// Move collider
 			for (int i = 0; i < Entities.size(); i++)
 			{
 				EID Entity = Entities[i]->ID;
 				if (Reg->HasComponent<RigidBodyComponent>(Entity) && Reg->HasComponent<BoxColliderComponent>(Entity))
 				{
-					UpdateEntity(Entity, DeltaTime);
+					UpdateEntity(Entity, FIXED_UPDATE_S);
 				}
 			}
 
@@ -49,10 +46,7 @@ namespace ScarletEngine
 
 					if (Reg->HasComponent<BoxColliderComponent>(EntityA) && Reg->HasComponent<BoxColliderComponent>(EntityB))
 					{
-						BoxColliderComponent* BoxA = Reg->GetComponent<BoxColliderComponent>(EntityA);
-						BoxColliderComponent* BoxB = Reg->GetComponent<BoxColliderComponent>(EntityB);
-
-						// TODO if dynamic : bounce
+						// @todo if dynamic : bounce
 					}
 				}
 			}
@@ -68,12 +62,7 @@ namespace ScarletEngine
 
 #pragma region SphereVSphere
 
-		SphereVsSphereColliderSystem::SphereVsSphereColliderSystem(Registry* InReg, const String& InName)
-			: System(InReg, InName)
-		{
-		}
-
-		void SphereVsSphereColliderSystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		void SphereVsSphereColliderSystem::Update() const
 		{
 		}
 
@@ -85,15 +74,17 @@ namespace ScarletEngine
 			Sphere->Pos += Rb->Velocity * (float)Dt;
 		}
 
-		void SphereVsSphereColliderSystem::FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		void SphereVsSphereColliderSystem::FixedUpdate() const
 		{
+			const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
+
 			// Move collider
 			for (int i = 0; i < Entities.size(); i++)
 			{
 				EID Entity = Entities[i]->ID;
 				if (Reg->HasComponent<RigidBodyComponent>(Entity) && Reg->HasComponent<SphereColliderComponent>(Entity))
 				{
-					UpdateEntity(Entity, DeltaTime);
+					UpdateEntity(Entity, FIXED_UPDATE_S);
 				}
 			}
 
@@ -124,7 +115,7 @@ namespace ScarletEngine
 
 							glm::vec3 RelativeVel = glm::length(RbA->Velocity - RbB->Velocity) * IntersectionDepth.first;
 
-							glm::vec3 Fi = -RelativeVel / ((float)DeltaTime * (1/RbA->Mass + 1/RbB->Mass));
+							glm::vec3 Fi = -RelativeVel / ((float)FIXED_UPDATE_S * (1/RbA->Mass + 1/RbB->Mass));
 
 							RbA->Force += Fi;
 							RbB->Force -= Fi;
@@ -135,8 +126,8 @@ namespace ScarletEngine
 							TransA->Position += IntersectionDepth.first * IntersectionDepth.second;
 							SphereA->Pos = TransA->Position;
 
-							TransA->Position -= IntersectionDepth.first * IntersectionDepth.second;
-							SphereA->Pos = TransA->Position;
+							TransB->Position -= IntersectionDepth.first * IntersectionDepth.second;
+							SphereB->Pos = TransB->Position;
 
 							if (RbA->UsesGravity)
 							{
@@ -163,28 +154,25 @@ namespace ScarletEngine
 
 #pragma region PlaneVsSphere
 
-		PlaneVsSphereColliderSystem::PlaneVsSphereColliderSystem(Registry* InReg, const String& InName)
-			: System(InReg, InName)
+		void PlaneVsSphereColliderSystem::Update() const
 		{
 		}
 
-		void PlaneVsSphereColliderSystem::Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
+		void PlaneVsSphereColliderSystem::UpdateEntity(const EID /*Entity*/, double /*Dt*/) const
 		{
 		}
 
-		void PlaneVsSphereColliderSystem::UpdateEntity(const EID Entity, double Dt) const
+		void PlaneVsSphereColliderSystem::FixedUpdate() const
 		{
-		}
+			const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
 
-		void PlaneVsSphereColliderSystem::FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const
-		{
 			// Move collider
 			for (int i = 0; i < Entities.size(); i++)
 			{
 				EID Entity = Entities[i]->ID;
 				if (Reg->HasComponent<RigidBodyComponent>(Entity) && Reg->HasComponent<PlaneColliderComponent>(Entity))
 				{
-					UpdateEntity(Entity, DeltaTime);
+					UpdateEntity(Entity, FIXED_UPDATE_S);
 				}
 			}
 

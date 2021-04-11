@@ -2,6 +2,7 @@
 #include "RigidBodyComponent.h"
 #include "Core.h"
 #include "Transform.h" 
+#include "Engine.h"
 #include "System.h"
 
 using namespace Achilles;
@@ -13,10 +14,9 @@ namespace ScarletEngine
 		class RigidBodySystem : public System<RigidBodyComponent, Transform>
 		{
 		public:
-			RigidBodySystem(Registry* InReg, const String& InName);
-			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
-			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
-			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
+			void UpdateEntity(EID EntityID, double DeltaTime) const;
+			virtual void FixedUpdate() const override;
+			virtual void Update() const override;
 			void ComputeGravities(const Array<SharedPtr<Entity>>& Entities) const;
 		};
 	}

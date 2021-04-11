@@ -3,6 +3,7 @@
 #include "ColliderComponent.h" 
 #include "RigidBodyComponent.h" 
 #include "Core.h"
+#include "Engine.h"
 #include "System.h"
 
 using namespace Achilles;
@@ -14,30 +15,27 @@ namespace ScarletEngine
 		class AABBvsAABBColliderSystem : public System<BoxColliderComponent, RigidBodyComponent, Transform>
 		{
 		public:
-			AABBvsAABBColliderSystem(Registry* InReg, const String& InName);
-			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
-			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
-			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
+			void UpdateEntity(EID EntityID, double DeltaTime) const;
+			virtual void FixedUpdate() const override;
+			virtual void Update() const override;
 			glm::vec3 GetIntersection(BoxColliderComponent* BoxA, BoxColliderComponent* BoxB) const;
 		};
 
 		class SphereVsSphereColliderSystem : public System<SphereColliderComponent, RigidBodyComponent, Transform>
 		{
 		public:
-			SphereVsSphereColliderSystem(Registry* InReg, const String& InName);
-			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
-			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
-			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
+			void UpdateEntity(EID EntityID, double DeltaTime) const;
+			virtual void FixedUpdate() const override;
+			virtual void Update() const override;
 			std::pair<glm::vec3, float> GetIntersection(SphereColliderComponent* SphereA, SphereColliderComponent* SphereB) const;
 		};
 
 		class PlaneVsSphereColliderSystem : public System<SphereColliderComponent, PlaneColliderComponent, RigidBodyComponent, Transform>
 		{
 		public:
-			PlaneVsSphereColliderSystem(Registry* InReg, const String& InName);
-			virtual void UpdateEntity(EID EntityID, double DeltaTime) const override;
-			virtual void FixedUpdate(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
-			virtual void Update(const Array<SharedPtr<Entity>>& Entities, double DeltaTime) const override;
+			void UpdateEntity(EID EntityID, double DeltaTime) const;
+			virtual void FixedUpdate() const override;
+			virtual void Update() const override;
 			std::pair<glm::vec3, float> GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const;
 		};
 	};
