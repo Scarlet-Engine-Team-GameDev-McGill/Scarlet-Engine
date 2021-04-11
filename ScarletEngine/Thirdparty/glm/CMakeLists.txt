@@ -266,7 +266,6 @@ add_library(glm INTERFACE)
 target_include_directories(glm INTERFACE
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-set_target_properties(glm PROPERTIES FOLDER "Thirdparty")
 install(TARGETS glm EXPORT glmTargets)
 
 export(EXPORT glmTargets FILE "${CMAKE_CURRENT_BINARY_DIR}/glmTargets.cmake")
