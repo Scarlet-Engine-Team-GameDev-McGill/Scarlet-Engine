@@ -4,7 +4,6 @@
 
 namespace ScarletEngine::Achilles
 {
-#pragma region AABBvsAABB
 	void AABBvsAABBColliderSystem::Update() const
 	{
 	}
@@ -21,9 +20,6 @@ namespace ScarletEngine::Achilles
 
 		// @todo : bounce
 	}
-#pragma endregion
-
-#pragma region SphereVSphere
 
 	void SphereVsSphereColliderSystem::Update() const
 	{
@@ -79,10 +75,6 @@ namespace ScarletEngine::Achilles
 		}
 	}
 
-#pragma endregion
-
-#pragma region PlaneVsSphere
-
 	void PlaneVsSphereColliderSystem::Update() const
 	{
 	}
@@ -119,5 +111,4 @@ namespace ScarletEngine::Achilles
 		float Dist = glm::dot(Plane->Normal, Sphere->Pos) - Plane->Distance - Sphere->Radius;
 		return std::pair<glm::vec3, float>(Plane->Normal * Dist, Dist); // Intersects if negative
 	}
-#pragma endregion
 }
