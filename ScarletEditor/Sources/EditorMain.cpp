@@ -320,11 +320,11 @@ int main()
 	ModuleManager::GetInstance().RegisterModule<RenderModule>();
 	ModuleManager::GetInstance().RegisterModule<UIModule>();
 
-	SystemScheduler::Get().RegisterSystem<Achilles::SpringSystem>();
-	SystemScheduler::Get().RegisterSystem<Achilles::RigidBodySystem>();
-	SystemScheduler::Get().RegisterSystem<Achilles::AABBvsAABBColliderSystem>();
-	SystemScheduler::Get().RegisterSystem<Achilles::SphereVsSphereColliderSystem>();
-	SystemScheduler::Get().RegisterSystem<Achilles::PlaneVsSphereColliderSystem>();
+	SystemScheduler::Get().RegisterSystem<SpringSystem>();
+	SystemScheduler::Get().RegisterSystem<RigidBodySystem>();
+	SystemScheduler::Get().RegisterSystem<AABBvsAABBColliderSystem>();
+	SystemScheduler::Get().RegisterSystem<SphereVsSphereColliderSystem>();
+	SystemScheduler::Get().RegisterSystem<PlaneVsSphereColliderSystem>();
 
 	GEngine = MakeUnique<Engine>();
 	GEngine->Initialize();
@@ -334,8 +334,8 @@ int main()
 	// #todo_core: this should be handled automatically by the engine
 	GEditor->Initialize();
 	{
-		//DemoKepler();
-		DemoSpherePlaneCollision();
+		DemoKepler();
+		//DemoSpherePlaneCollision();
 		//DemoSphereSphereCollision();
 		//DemoSpring();
 		//DemoRope(glm::vec3(0.25f, 0.f, 0.f));

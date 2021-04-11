@@ -6,14 +6,9 @@ namespace ScarletEngine::Achilles
 	{
 	}
 
-	void RigidBodySystem::UpdateEntity(const EID Entity, double DeltaTime) const
+	void RigidBodySystem::UpdateEntity(const EID Entity, Transform* Trans, RigidBodyComponent* Rb, float Dt) const
 	{
-		RigidBodyComponent* Rb = Reg->GetComponent<RigidBodyComponent>(Entity);
-		Transform* Trans = Reg->GetComponent<Transform>(Entity);
-		float Dt = (float)DeltaTime;
-
 		// translational
-
 		if (Rb->UsesGravity)
 		{
 			Rb->Force += Rb->GravityEarth * Rb->Mass;
@@ -38,60 +33,47 @@ namespace ScarletEngine::Achilles
 
 	void RigidBodySystem::FixedUpdate() const
 	{
-		const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
+		const auto Entities = GetEntities<Transform, RigidBodyComponent>();
 
-		for (const SharedPtr<Entity>& Ent : Entities)
+		for (const auto [EntityID, Trans, Rb] : Entities)
 		{
-			EID EntityID = Ent->ID;
-
-			if ((Reg->HasComponent<RigidBodyComponent>(EntityID)) && (Reg->HasComponent<Transform>(EntityID)))
-			{
-				UpdateEntity(EntityID, FIXED_UPDATE_S);
-			}
+			UpdateEntity(EntityID, Trans, Rb, FIXED_UPDATE_S);
 		}
 
-		ComputeGravities(Entities);
+		ComputeGravities();
 	}
 
-	void RigidBodySystem::ComputeGravities(const Array<SharedPtr<Entity>>& Entities) const
+	void RigidBodySystem::ComputeGravities() const
 	{
 		// Compute the forces on the entities
+		const auto Entities = GetEntities<Transform, RigidBodyComponent>();
 		int size = Entities.size();
 		for (int i = 0; i < size - 1; i++)
 		{
-			EID EntityA = Entities[i]->ID;
-
-			if ((Reg->HasComponent<RigidBodyComponent>(EntityA)) && (Reg->HasComponent<Transform>(EntityA)))
+			const auto [EntityA, TransA, RbA] = Entities.at(i);
+			for (int j = i + 1; j < size; j++)
 			{
-				for (int j = i + 1; j < size; j++)
+				const auto [EntityB, TransB, RbB] = Entities.at(j);
+
+				if (RbA->UsesKeplerGravity && RbB->UsesKeplerGravity)
 				{
-					EID EntityB = Entities[j]->ID;
-					if ((Reg->HasComponent<RigidBodyComponent>(EntityB)) && (Reg->HasComponent<Transform>(EntityB)))
+
+					glm::vec3 posA = TransA->Position;
+					glm::vec3 posB = TransB->Position;
+
+					float d = abs(glm::distance(posA, posB));
+
+					if (d != 0)
 					{
-						RigidBodyComponent* RbA = Reg->GetComponent<RigidBodyComponent>(EntityA);
-						RigidBodyComponent* RbB = Reg->GetComponent<RigidBodyComponent>(EntityB);
+						glm::vec3 u = (posB - posA) / d;
 
-						if (RbA->UsesKeplerGravity && RbB->UsesKeplerGravity)
-						{
+						float mA = RbA->Mass;
+						float mB = RbB->Mass;
 
-							glm::vec3 posA = Reg->GetComponent<Transform>(EntityA)->Position;
-							glm::vec3 posB = Reg->GetComponent<Transform>(EntityB)->Position;
+						glm::vec3 G = 6.14f * pow(10.f, -11.f) * mA * mB * u / pow(d, 2.f);
 
-							float d = abs(glm::distance(posA, posB));
-
-							if (d != 0)
-							{
-								glm::vec3 u = (posB - posA) / d;
-
-								float mA = RbA->Mass;
-								float mB = RbB->Mass;
-
-								glm::vec3 G = 6.14f * pow(10.f, -11.f) * mA * mB * u / pow(d, 2.f);
-
-								RbA->Force += G;
-								RbB->Force -= G;
-							}
-						}
+						RbA->Force += G;
+						RbB->Force -= G;
 					}
 				}
 			}

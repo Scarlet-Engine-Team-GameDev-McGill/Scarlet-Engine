@@ -10,9 +10,9 @@ namespace ScarletEngine::Achilles
 	class RigidBodySystem : public System<RigidBodyComponent, Transform>
 	{
 	public:
-		void UpdateEntity(EID EntityID, double DeltaTime) const;
+		void UpdateEntity(EID EntityID, Transform* Trans, RigidBodyComponent* Rb, float DeltaTime) const;
 		virtual void FixedUpdate() const override;
 		virtual void Update() const override;
-		void ComputeGravities(const Array<SharedPtr<Entity>>& Entities) const;
+		void ComputeGravities() const;
 	};
 }
