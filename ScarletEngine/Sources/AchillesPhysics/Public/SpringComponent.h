@@ -2,7 +2,7 @@
 #include "Core.h"
 #include "Transform.h"
 
-namespace Achilles
+namespace ScarletEngine::Achilles
 {
 	struct SpringComponent
 	{

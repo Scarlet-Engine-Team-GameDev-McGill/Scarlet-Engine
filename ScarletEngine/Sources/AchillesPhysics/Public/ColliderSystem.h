@@ -6,37 +6,32 @@
 #include "Engine.h"
 #include "System.h"
 
-using namespace Achilles;
-
-namespace ScarletEngine
+namespace ScarletEngine::Achilles
 {
-	namespace Achilles
+	class AABBvsAABBColliderSystem : public System<BoxColliderComponent, RigidBodyComponent, Transform>
 	{
-		class AABBvsAABBColliderSystem : public System<BoxColliderComponent, RigidBodyComponent, Transform>
-		{
-		public:
-			void UpdateEntity(EID EntityID, double DeltaTime) const;
-			virtual void FixedUpdate() const override;
-			virtual void Update() const override;
-			glm::vec3 GetIntersection(BoxColliderComponent* BoxA, BoxColliderComponent* BoxB) const;
-		};
+	public:
+		void UpdateEntity(EID EntityID, double DeltaTime) const;
+		virtual void FixedUpdate() const override;
+		virtual void Update() const override;
+		glm::vec3 GetIntersection(BoxColliderComponent* BoxA, BoxColliderComponent* BoxB) const;
+	};
 
-		class SphereVsSphereColliderSystem : public System<SphereColliderComponent, RigidBodyComponent, Transform>
-		{
-		public:
-			void UpdateEntity(EID EntityID, double DeltaTime) const;
-			virtual void FixedUpdate() const override;
-			virtual void Update() const override;
-			std::pair<glm::vec3, float> GetIntersection(SphereColliderComponent* SphereA, SphereColliderComponent* SphereB) const;
-		};
+	class SphereVsSphereColliderSystem : public System<SphereColliderComponent, RigidBodyComponent, Transform>
+	{
+	public:
+		void UpdateEntity(EID EntityID, double DeltaTime) const;
+		virtual void FixedUpdate() const override;
+		virtual void Update() const override;
+		std::pair<glm::vec3, float> GetIntersection(SphereColliderComponent* SphereA, SphereColliderComponent* SphereB) const;
+	};
 
-		class PlaneVsSphereColliderSystem : public System<SphereColliderComponent, PlaneColliderComponent, RigidBodyComponent, Transform>
-		{
-		public:
-			void UpdateEntity(EID EntityID, double DeltaTime) const;
-			virtual void FixedUpdate() const override;
-			virtual void Update() const override;
-			std::pair<glm::vec3, float> GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const;
-		};
+	class PlaneVsSphereColliderSystem : public System<SphereColliderComponent, PlaneColliderComponent, RigidBodyComponent, Transform>
+	{
+	public:
+		void UpdateEntity(EID EntityID, double DeltaTime) const;
+		virtual void FixedUpdate() const override;
+		virtual void Update() const override;
+		std::pair<glm::vec3, float> GetIntersection(PlaneColliderComponent* Plane, SphereColliderComponent* Sphere) const;
 	};
 };

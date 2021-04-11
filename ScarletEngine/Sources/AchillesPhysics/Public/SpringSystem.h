@@ -6,18 +6,13 @@
 #include "SpringComponent.h"
 #include "Engine.h"
 
-using namespace Achilles;
-
-namespace ScarletEngine
+namespace ScarletEngine::Achilles
 {
-	namespace Achilles
+	class SpringSystem : public System<RigidBodyComponent, Transform, SpringComponent>
 	{
-		class SpringSystem : public System<RigidBodyComponent, Transform, SpringComponent>
-		{
-		public:
-			virtual void FixedUpdate() const override;
-			virtual void Update() const override;
-			void UpdateEntity(const EID Entity, double Dt, SpringComponent* Spring) const;
-		};
-	}
+	public:
+		virtual void FixedUpdate() const override;
+		virtual void Update() const override;
+		void UpdateEntity(const EID Entity, double Dt, SpringComponent* Spring) const;
+	};
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include "Core.h"
 
-namespace Achilles
+namespace ScarletEngine::Achilles
 {
 	struct RigidBodyComponent
 	{

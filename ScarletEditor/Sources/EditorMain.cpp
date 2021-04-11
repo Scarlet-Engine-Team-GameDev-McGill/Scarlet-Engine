@@ -321,6 +321,10 @@ int main()
 	ModuleManager::GetInstance().RegisterModule<UIModule>();
 
 	SystemScheduler::Get().RegisterSystem<Achilles::SpringSystem>();
+	SystemScheduler::Get().RegisterSystem<Achilles::RigidBodySystem>();
+	SystemScheduler::Get().RegisterSystem<Achilles::AABBvsAABBColliderSystem>();
+	SystemScheduler::Get().RegisterSystem<Achilles::SphereVsSphereColliderSystem>();
+	SystemScheduler::Get().RegisterSystem<Achilles::PlaneVsSphereColliderSystem>();
 
 	GEngine = MakeUnique<Engine>();
 	GEngine->Initialize();

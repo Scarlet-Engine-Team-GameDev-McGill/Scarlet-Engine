@@ -1,51 +1,48 @@
 #include "SpringSystem.h"
 
-namespace ScarletEngine
+namespace ScarletEngine::Achilles
 {
-	namespace Achilles
+	void SpringSystem::Update() const
 	{
-		void SpringSystem::Update() const
+	}
+
+	void SpringSystem::UpdateEntity(const EID Entity, double Dt, SpringComponent* Spring) const
+	{
+		RigidBodyComponent* Rb = Reg->GetComponent<RigidBodyComponent>(Entity);
+		Transform* Trans = Reg->GetComponent<Transform>(Entity);
+		Transform* TransAnchor = Reg->GetComponent<Transform>(Spring->Anchor);
+
+		glm::vec3 distance = Trans->Position - TransAnchor->Position;
+		glm::vec3 F = -glm::normalize(distance) * Spring->Stiffness * (glm::length(distance) - Spring->RestLength);
+		Rb->Force += F - Spring->Damping * Rb->Velocity;
+
+		if (Reg->HasComponent<RigidBodyComponent>(Spring->Anchor))
 		{
+			RigidBodyComponent* RbAnchor = Reg->GetComponent<RigidBodyComponent>(Spring->Anchor);
+			RbAnchor->Force += -F - Spring->Damping * RbAnchor->Velocity;
 		}
+	}
 
-		void SpringSystem::UpdateEntity(const EID Entity, double Dt, SpringComponent* Spring) const
+	void SpringSystem::FixedUpdate() const
+	{
+		const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
+		for (const SharedPtr<Entity>& Ent : Entities)
 		{
-			RigidBodyComponent* Rb = Reg->GetComponent<RigidBodyComponent>(Entity);
-			Transform* Trans = Reg->GetComponent<Transform>(Entity);
-			Transform* TransAnchor = Reg->GetComponent<Transform>(Spring->Anchor);
+			EID EntityID = Ent->ID;
 
-			glm::vec3 distance = Trans->Position - TransAnchor->Position;
-			glm::vec3 F = -glm::normalize(distance) * Spring->Stiffness * (glm::length(distance) - Spring->RestLength);
-			Rb->Force += F - Spring->Damping * Rb->Velocity;
-
-			if (Reg->HasComponent<RigidBodyComponent>(Spring->Anchor))
+			if (Reg->HasComponent<SpringComponent>(EntityID) && Reg->HasComponent<RigidBodyComponent>(EntityID) && Reg->HasComponent<Transform>(EntityID))
 			{
-				RigidBodyComponent* RbAnchor = Reg->GetComponent<RigidBodyComponent>(Spring->Anchor);
-				RbAnchor->Force += -F - Spring->Damping * RbAnchor->Velocity;
+				SpringComponent* Spring = Reg->GetComponent<SpringComponent>(EntityID);
+				UpdateEntity(EntityID, FIXED_UPDATE_S, Spring);
 			}
-		}
-
-		void SpringSystem::FixedUpdate() const
-		{
-			const Array<SharedPtr<Entity>>& Entities = Reg->GetEntities();
-			for (const SharedPtr<Entity>& Ent : Entities)
+			else if (Reg->HasComponent<SpringCollection>(EntityID) && Reg->HasComponent<RigidBodyComponent>(EntityID) && Reg->HasComponent<Transform>(EntityID))
 			{
-				EID EntityID = Ent->ID;
-
-				if (Reg->HasComponent<SpringComponent>(EntityID) && Reg->HasComponent<RigidBodyComponent>(EntityID) && Reg->HasComponent<Transform>(EntityID))
+				SpringCollection* Springs = Reg->GetComponent<SpringCollection>(EntityID);
+				for (int i = 0; i < Springs->size(); i++)
 				{
-					SpringComponent* Spring = Reg->GetComponent<SpringComponent>(EntityID);
-					UpdateEntity(EntityID, FIXED_UPDATE_S, Spring);
-				}
-				else if (Reg->HasComponent<SpringCollection>(EntityID) && Reg->HasComponent<RigidBodyComponent>(EntityID) && Reg->HasComponent<Transform>(EntityID))
-				{
-					SpringCollection* Springs = Reg->GetComponent<SpringCollection>(EntityID);
-					for (int i=0; i < Springs->size(); i++)
-					{
-						UpdateEntity(EntityID, FIXED_UPDATE_S, &(Springs->at(i)));
-					}
+					UpdateEntity(EntityID, FIXED_UPDATE_S, &(Springs->at(i)));
 				}
 			}
 		}
 	}
-}
+};
