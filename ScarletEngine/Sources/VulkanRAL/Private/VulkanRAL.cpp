@@ -58,12 +58,14 @@ namespace ScarletEngine
 			Func(Instance, DebugMessenger, Allocator);
 		}
 	}
-	
+
 	VulkanRAL::VulkanRAL()
 		: RAL()
 		, SwapchainImageFormat()
 		, SwapchainImageExtent()
 		, bEnableValidationLayers(true) // todo (VkRAL): For now always enable
+		, ClearColor({0.1f, 0.1f, 0.1f, 1.f})
+		, ImageIndex(-1)
 	{
 		RequiredDeviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 	}
@@ -739,7 +741,6 @@ namespace ScarletEngine
 		RenderPassBeginInfo.renderArea.offset = { 0, 0 };
 		RenderPassBeginInfo.renderArea.extent = SwapchainImageExtent;
 
-		VkClearValue ClearColor = {0.1f, 0.1f, 0.1f, 1.f};
 		RenderPassBeginInfo.clearValueCount = 1;
 		RenderPassBeginInfo.pClearValues = &ClearColor;
 
@@ -994,9 +995,13 @@ namespace ScarletEngine
 		return ScarNew(VulkanCommandList, CommandBuffers[ImageIndex]);
 	}
 
-	void VulkanRAL::SetClearColorCmd(const glm::vec4& ClearColor)
+	void VulkanRAL::SetClearColorCmd(const glm::vec4& InClearColor)
 	{
-
+		const VkClearValue ClearValue = { InClearColor.x, InClearColor.y, InClearColor.z, InClearColor.a };
+		QueueCommand([this, ClearValue](RALCommandList&)
+		{
+			ClearColor = ClearValue;
+		}, "ClearCommand");
 	}
 
 	void VulkanRAL::ClearCmd(bool bColor, bool bDepth, bool bStencil)

@@ -125,6 +125,7 @@ namespace ScarletEngine
 		Array<const char*> RequiredDeviceExtensions;
 		bool bEnableValidationLayers;
 
+		VkClearValue ClearColor;
 		uint32_t ImageIndex;
 	};
 }
