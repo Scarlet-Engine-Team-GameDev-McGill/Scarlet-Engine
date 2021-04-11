@@ -13,6 +13,5 @@ namespace ScarletEngine::Achilles
 		void UpdateEntity(EID EntityID, Transform* Trans, RigidBodyComponent* Rb, float DeltaTime) const;
 		virtual void FixedUpdate() const override;
 		virtual void Update() const override;
-		void ComputeGravities() const;
 	};
 }
