@@ -27,6 +27,12 @@ namespace ScarletEngine
 			return Reg->GetProxies<Components...>();
 		}
 
+		template <typename ...Components>
+		std::optional<ProxyType<Components...>> GetEntity(EID EntityID) const
+		{
+			return Reg->GetProxy<Components...>(EntityID);
+		}
+
 		template <typename SingletonType>
         SingletonType* GetSingleton() const
 		{
@@ -53,6 +59,24 @@ namespace ScarletEngine
 			// Create an array of std::tuples of references to components
 			// could probably cache some of this work
 			return ISystem::GetEntities<Components...>();
+		}
+
+		template <typename ...Components>
+		std::optional<ProxyType<Components...>> GetEntity(EID EntityID) const
+		{
+			ZoneScoped
+			static_assert(std::conjunction_v<Contains<Components, ComponentTypes...>...>,
+				"Trying to get components which are not marked in the system's signature!");
+
+			return ISystem::GetEntity<Components...>(EntityID);
+		}
+
+		template <typename ...Components>
+		ProxyType<Components...> GetEntityChecked(EID EntityID) const
+		{
+			const std::optional<ProxyType<Components...>> OptProxy = GetEntity<Components...>(EntityID);
+			check(OptProxy.has_value());
+			return OptProxy.value();
 		}
 
 		template <typename SingletonType>

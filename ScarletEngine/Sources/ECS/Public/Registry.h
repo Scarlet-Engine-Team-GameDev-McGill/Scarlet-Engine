@@ -109,26 +109,27 @@ namespace ScarletEngine
 		}
 
 		template <typename ...ComponentTypes>
-        Array<ProxyType<ComponentTypes...>> GetProxies()
+        Array<ProxyType<ComponentTypes...>> GetProxies() const
 		{
 			ZoneScoped
             static_assert(sizeof...(ComponentTypes) > 0, "Missing template argument list");
 
 			// Cache pointers to all component containers in a tuple to access later
-			const auto Containers = std::make_tuple(GetOrCreateComponentContainer<std::remove_cv_t<ComponentTypes>>()...);
+			const auto Containers = std::make_tuple(GetComponentContainer<std::remove_cv_t<ComponentTypes>>()...);
+			const bool bAllContainersExist = ((std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers) != nullptr) && ...);
 			
 			// Create an array of std::tuples of references to components
 			// could probably cache some of this work
 			Array<ProxyType<ComponentTypes...>> EntityProxies;
-			const size_t Count = std::min({ std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers)->Count()... });
-			EntityProxies.reserve(Count);
-			
+			const size_t Count = bAllContainersExist ? std::min({ std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers)->Count()... }) : 0;
+
 			if (Count > 0)
 			{
+				EntityProxies.reserve(Count);
 				for (const EID Entity : Entities)
 				{
 					const auto Proxy = std::make_tuple(Entity, std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers)->Get(Entity)...);
-					if ((std::get<std::remove_cv_t<ComponentTypes>*>(Proxy) && ...))
+					if (((std::get<std::remove_cv_t<ComponentTypes>*>(Proxy) != nullptr) && ...))
 					{
 						EntityProxies.emplace_back(Proxy);
 					}
@@ -136,6 +137,27 @@ namespace ScarletEngine
 			}
 
 			return EntityProxies;
+		}
+
+		template <typename ...ComponentTypes>
+		std::optional<ProxyType<ComponentTypes...>> GetProxy(EID EntityID) const
+		{
+			ZoneScoped
+			static_assert(sizeof...(ComponentTypes) > 0, "Missing template argument list");
+
+			const auto Containers = std::make_tuple(GetComponentContainer<std::remove_cv_t<ComponentTypes>>()...);
+			const bool bAllContainersExist = (std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers) && ...);
+
+			if (bAllContainersExist)
+			{
+				const auto Proxy = std::make_tuple(EntityID, std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers)->Get(EntityID)...);
+				// if any one of the components is nullptr, zero out the proxy
+				if (((std::get<std::remove_cv_t<ComponentTypes>*>(Proxy) != nullptr) && ...))
+				{
+					return Proxy;
+				}
+			}
+			return std::optional<ProxyType<ComponentTypes...>>{};
 		}
 
 		const Array<EID>& GetEntities() const { return Entities; }

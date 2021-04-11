@@ -283,3 +283,34 @@ TEST(ECS, ConstSingleton)
 
 	EXPECT_EQ(SC->X, static_cast<uint32_t>(99));
 }
+
+TEST(ECS, GetEntity)
+{
+	struct Component
+	{
+		uint32_t X = 11;
+	};
+	
+	class TestSystem : public ScarletEngine::System<Component>
+	{
+	public:
+		virtual void Update() const override
+		{
+			for (auto& [Ent, TC] : GetEntities<Component>())
+			{
+				const auto& [Ent1, TC1] = GetEntityChecked<Component>(Ent);
+				EXPECT_EQ(TC, TC1);
+				EXPECT_EQ(Ent, Ent1);
+			}
+		}
+	};
+
+	Registry Reg;
+	SystemScheduler Scheduler;
+	Scheduler.RegisterSystem<TestSystem>();
+	auto [Entity, TC] = Reg.CreateEntity<Component>();
+
+	ASSERT_NE(TC, nullptr);
+
+	Scheduler.RunUpdate(&Reg);
+}
