@@ -22,6 +22,8 @@ namespace ScarletEngine
 			const EID EntityID = NextAvailableEID++;
 			Entities.push_back(EntityID);
 			
+			(MarkComponentContainerDirty<ComponentTypes>(), ...);
+			
 			return std::make_tuple(EntityID, AddComponent<ComponentTypes>(EntityID)...);
 		}
 	public:
@@ -33,6 +35,8 @@ namespace ScarletEngine
 			ZoneScoped
 			const auto Container = GetOrCreateComponentContainer<ComponentType>();
 			check(Container);
+			
+			MarkComponentContainerDirty<ComponentType>();
 
 			return Container->Add(EntityID);
 		}
@@ -43,6 +47,7 @@ namespace ScarletEngine
 			ZoneScoped
 			if (const auto Container = GetComponentContainer<ComponentType>())
 			{
+				MarkComponentContainerDirty<ComponentType>();
 				return Container->Remove(EntityID);
 			}
 			return false;
@@ -54,6 +59,11 @@ namespace ScarletEngine
 			ZoneScoped
 			const auto Container = GetOrCreateComponentContainer<ComponentType>();
 			check(Container);
+
+			if (!Container->Has(EntityID))
+			{
+				MarkComponentContainerDirty<ComponentType>();
+			}
 			
 			return Container->Attach(EntityID, Component);
 		}
@@ -109,31 +119,38 @@ namespace ScarletEngine
 		}
 
 		template <typename ...ComponentTypes>
-		Array<ProxyType<ComponentTypes...>> GetProxies() const
+		const Array<ProxyType<ComponentTypes...>>& GetProxies() const
 		{
 			ZoneScoped
-            static_assert(sizeof...(ComponentTypes) > 0, "Missing template argument list");
+			static_assert(sizeof...(ComponentTypes) > 0, "Missing template argument list");
 
+			static Array<ProxyType<ComponentTypes...>> EntityProxies;
+
+			const bool bAllClean = (IsComponentContainerClean<std::remove_cv_t<ComponentTypes>>() && ...);
+
+			if (bAllClean) return EntityProxies;
+			
 			// Cache pointers to all component containers in a tuple to access later
 			const auto Containers = std::make_tuple(GetComponentContainer<std::remove_cv_t<ComponentTypes>>()...);
 			const bool bAllContainersExist = ((std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers) != nullptr) && ...);
-			
-			// Create an array of std::tuples of references to components
-			// could probably cache some of this work
-			Array<ProxyType<ComponentTypes...>> EntityProxies;
-			const size_t Count = bAllContainersExist ? std::min({ std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers)->Count()... }) : 0;
 
-			if (Count > 0)
+			if (bAllContainersExist)
 			{
-				EntityProxies.reserve(Count);
-				for (const EID Entity : Entities)
+				const size_t Count = std::min({ std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers)->Count()... });
+				if (Count > 0)
 				{
-					const auto Proxy = std::make_tuple(Entity, std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers)->Get(Entity)...);
-					if (((std::get<std::remove_cv_t<ComponentTypes>*>(Proxy) != nullptr) && ...))
+					EntityProxies.clear();
+					EntityProxies.reserve(Count);
+					for (const EID Entity : Entities)
 					{
-						EntityProxies.emplace_back(Proxy);
+						const auto Proxy = std::make_tuple(Entity, std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers)->Get(Entity)...);
+						if (((std::get<std::remove_cv_t<ComponentTypes>*>(Proxy) != nullptr) && ...))
+						{
+							EntityProxies.emplace_back(Proxy);
+						}
 					}
 				}
+				(DirtyComponentContainers.erase(ComponentTypeID<ComponentTypes>::Value()), ...);
 			}
 
 			return EntityProxies;
@@ -160,6 +177,18 @@ namespace ScarletEngine
 			return std::optional<ProxyType<ComponentTypes...>>{};
 		}
 
+		template <typename ComponentType>
+		void MarkComponentContainerDirty() const
+		{
+			DirtyComponentContainers.emplace(ComponentTypeID<std::remove_cv_t<ComponentType>>::Value());
+		}
+
+		template <typename ComponentType>
+		bool IsComponentContainerClean() const
+		{
+			return !DirtyComponentContainers.contains(ComponentTypeID<std::remove_cv_t<ComponentType>>::Value());
+		}
+		
 		const Array<EID>& GetEntities() const { return Entities; }
 	private:
 		template <typename ComponentType>
@@ -181,12 +210,15 @@ namespace ScarletEngine
 			if (!Container)
 			{
 				Container = UniquePtr<IComponentContainer>(ScarNew(ComponentContainer<ComponentType>));
+				MarkComponentContainerDirty<ComponentType>();
 			}
 			return static_cast<ComponentContainer<ComponentType>*>(Container.get());
 		}
+
 	private:
 		EID NextAvailableEID = 1;
 		UnorderedMap<CTID, UniquePtr<IComponentContainer>> ComponentContainers;
+		mutable UnorderedSet<CTID> DirtyComponentContainers;
 		Array<EID> Entities;
 	};
 }
