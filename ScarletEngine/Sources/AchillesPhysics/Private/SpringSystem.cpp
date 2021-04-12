@@ -5,14 +5,15 @@ namespace ScarletEngine::Achilles
 	void SpringSystem::UpdateEntity(const SpringComponent* Spring, RigidBodyComponent* Rb, const Transform* Trans) const
 	{
 		ZoneScoped
-		const Transform* TransAnchor = Reg->GetComponent<Transform>(Spring->Anchor);
+		const auto [EntA, TransAnchor] = GetEntityChecked<const Transform>(Spring->Anchor);
 
 		const glm::vec3 Distance = Trans->Position - TransAnchor->Position;
 		const glm::vec3 F = -glm::normalize(Distance) * Spring->Stiffness * (glm::length(Distance) - Spring->RestLength);
 		Rb->Force += F - Spring->Damping * Rb->Velocity;
 
-		if (RigidBodyComponent* RbAnchor = Reg->GetComponent<RigidBodyComponent>(Spring->Anchor))
+		if (auto Proxy = GetEntity<RigidBodyComponent>(Spring->Anchor))
 		{
+			auto [Ent, RbAnchor] = Proxy.value();
 			RbAnchor->Force += -F - Spring->Damping * RbAnchor->Velocity;
 		}
 	}

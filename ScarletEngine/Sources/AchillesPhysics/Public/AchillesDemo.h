@@ -42,7 +42,7 @@ namespace ScarletEngine::Achilles
 
 		MakeMesh(Mesh, "/ScarletEngine/Content/Sphere.obj");
 
-		return Ent->ID;
+		return Ent;
 	};
 
 
@@ -53,7 +53,7 @@ namespace ScarletEngine::Achilles
 		Plane->Distance = Dist;
 		Plane->Normal = glm::vec3(0.f, 1.f, 0.f);
 		Plane->FrictionCoefficient = Friction;
-		return Ent->ID;
+		return Ent;
 	};
 
 
@@ -84,13 +84,13 @@ namespace ScarletEngine::Achilles
 	{
 		auto [Anchor, AnchorTrans] = World->CreateEntity<Transform>("Anchor");
 
-		EID AnchorPtr = Anchor->ID;
+		EID AnchorPtr = Anchor;
 		AnchorTrans->Position = glm::vec3(2.f, 2.f, 0.f);
 		MakeNode(World, glm::vec3(0.f, 2.f, 0.f), { AnchorPtr }, { 2.f });
 
 		auto [Anchor2, AnchorTrans2] = World->CreateEntity<Transform>("Anchor");
 
-		EID AnchorPtr2 = Anchor2->ID;
+		EID AnchorPtr2 = Anchor2;
 		AnchorTrans2->Position = glm::vec3(-2.f, 2.f, 0.f);
 		MakeNode(World, glm::vec3(-2.f, -0.5f, 0.f), { AnchorPtr2 }, { 2.f });
 	}
@@ -101,7 +101,7 @@ namespace ScarletEngine::Achilles
 		auto [Anchor, AnchorTrans] = World->CreateEntity<Transform>("Anchor");
 
 		glm::vec3 pos = glm::vec3(0.f, 2.f, 0.f);
-		EID AnchorPtr = Anchor->ID;
+		EID AnchorPtr = Anchor;
 		AnchorTrans->Position = pos;
 
 		for (int i = 0; i < 15; i++)
@@ -156,7 +156,7 @@ namespace ScarletEngine::Achilles
 				{
 					auto [Anchor, AnchorTrans] = World->CreateEntity<Transform>("Anchor");
 					AnchorTrans->Position = glm::vec3(0.f - offset, y * scale + offset * 0.5f, 0.f);
-					Grid[x][y] = Anchor->ID;
+					Grid[x][y] = Anchor;
 				}
 				else
 				{
@@ -291,7 +291,7 @@ namespace ScarletEngine::Achilles
 
 		MakeMesh(Mesh, "/ScarletEngine/Content/Sphere.obj");
 
-		return Ent->ID;
+		return Ent;
 	};
 
 	void DemoKepler(SharedPtr<World>& World)
