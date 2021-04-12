@@ -58,9 +58,9 @@ namespace ScarletEngine
         {
         }
 
-        virtual void Bind() const override;
-        virtual void Unbind() const override;
-        virtual void Release() override;
+        virtual void Bind() const override {}
+        virtual void Unbind() const override {}
+        virtual void Release() override {}
 
         // todo (vkRAL): This should be made dynamically configurable
         static VkVertexInputBindingDescription GetBindingDescription()

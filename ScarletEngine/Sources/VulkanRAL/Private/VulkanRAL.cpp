@@ -1059,7 +1059,7 @@ namespace ScarletEngine
 
     RALVertexArray* VulkanRAL::CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB)
     {
-        return nullptr;
+        return ScarNew(VulkanVertexArray, VB, IB);
     }
 
     RALShader* VulkanRAL::CreateShader(RALShaderStage Stage, const String& ShaderPath)

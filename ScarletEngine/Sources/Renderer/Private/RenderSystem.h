@@ -2,6 +2,8 @@
 #include "System.h"
 #include "StaticMeshComponent.h"
 #include "Transform.h"
+#include "RAL.h"
+
 
 namespace ScarletEngine
 {
@@ -15,7 +17,7 @@ namespace ScarletEngine
             
             for (const auto& [EID, SMC, Trans] : GetEntities<const StaticMeshComponent, const Transform>())
             {
-                Proxy->DrawSMC(*Trans, *SMC);
+                RAL::Get().DrawVertexArrayCmd(SMC->VertexArray);
             }
         }
     };

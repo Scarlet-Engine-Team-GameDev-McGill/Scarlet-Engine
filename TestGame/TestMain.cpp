@@ -22,6 +22,34 @@ int main()
 	{
 		SharedPtr<World> TestWorld = MakeShared<World>();
 		TestWorld->Initialize();
+		
+		const Array<Vertex> Vertices = {
+            {{0.0f, -0.5f, 0.f}, {1.0f, 1.0f, 1.0f}},
+            {{0.5f, 0.5f, 0.f}, {0.0f, 1.0f, 0.0f}},
+            {{-0.5f, 0.5f, 0.f}, {0.0f, 0.0f, 1.0f}}
+        };
+
+		const Array<uint32_t> Indices = { 0, 1, 2};
+		
+		auto [Ent, Trans, Mesh] = TestWorld->CreateEntity<Transform, StaticMeshComponent>("TestEntity");
+
+		Trans->Position = glm::vec3(0.f, 0.5f, 0.f);
+		Trans->Rotation = glm::vec3(0.f, 0.f, 0.f);
+		Trans->Scale = glm::vec3(0.5f);
+
+		Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
+		Mesh->VertexBuff->UploadData((void*)Vertices.data(), Vertices.size() * sizeof(Vertex));
+		
+		Mesh->IndexBuff = RAL::Get().CreateBuffer((uint32_t)Indices.size() * sizeof(uint32_t), RALBufferUsage::STATIC_DRAW);
+		Mesh->IndexBuff->UploadData((void*)Indices.data(), Indices.size() * sizeof(uint32_t));
+		
+		Mesh->VertexArray = RAL::Get().CreateVertexArray(Mesh->VertexBuff, Mesh->IndexBuff);
+
+		//auto VertShader = RAL::Get().CreateShader(RALShaderStage::Vertex, "/ScarletEngine/Shaders/test_shader.vert");
+		//auto FragShader = RAL::Get().CreateShader(RALShaderStage::Pixel, "/ScarletEngine/Shaders/test_shader.frag");
+		//Mesh->Shader = RAL::Get().CreateShaderProgram(VertShader, FragShader, nullptr, nullptr);
+		//ScarDelete(VertShader);
+		//ScarDelete(FragShader);
 
 		GEngine->Run();
 	}
