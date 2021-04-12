@@ -52,6 +52,13 @@ namespace ScarletEngine
 			ZoneScoped
 			return Reg.GetComponent<ComponentType>(Ent.ID);
 		}
+
+		template <typename ComponentType>
+		auto AddComponent(const EID Ent)
+		{
+			ZoneScoped
+				return Reg.AddComponent<ComponentType>(Ent);
+		}
 	private:
 		double LastDeltaTime;
 		Registry Reg;
