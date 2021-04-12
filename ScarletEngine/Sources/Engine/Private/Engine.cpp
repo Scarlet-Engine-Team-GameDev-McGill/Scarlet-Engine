@@ -8,8 +8,6 @@
 #include "ModuleManager.h"
 #include "Window.h"
 
-#define FIXED_UPDATE_S 0.020
-
 namespace ScarletEngine
 {
 	UniquePtr<Engine> GEngine = nullptr;
@@ -56,6 +54,7 @@ namespace ScarletEngine
 		while (bIsRunning)
 		{
 			FrameMark
+
 			const double DeltaTime = std::chrono::duration_cast<seconds>(Clock.now() - LastTime).count();
 			LastTime = Clock.now();
 			Lag += DeltaTime;

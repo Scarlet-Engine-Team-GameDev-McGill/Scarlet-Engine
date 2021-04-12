@@ -2,6 +2,9 @@
 
 #include "CoreMinimal.h"
 
+#define FIXED_UPDATE_S 0.020
+
+
 namespace ScarletEngine
 {
 	class ITickable;
