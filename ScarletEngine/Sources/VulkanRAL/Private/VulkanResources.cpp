@@ -5,8 +5,8 @@
 namespace ScarletEngine
 {
     VulkanGpuBuffer::VulkanGpuBuffer(VkPhysicalDevice InPhysicalDevice, VkDevice InLogicalDevice, uint32_t InSize,
-                                     RALBufferUsage InUsage)
-        : RALGpuBuffer(InSize, InUsage)
+                                     RALBufferType InType, RALBufferUsage InUsage, RALBufferPropertyFlags InProperties)
+        : RALGpuBuffer(InSize, InType, InUsage, InProperties)
           , PhysicalDevice(InPhysicalDevice)
           , LogicalDevice(InLogicalDevice)
     {
@@ -14,12 +14,13 @@ namespace ScarletEngine
         BufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         BufferCreateInfo.size = Size;
         
-        switch (Usage)
+        switch (Type)
         {
-        case RALBufferUsage::STATIC_DRAW:
-        case RALBufferUsage::DYNAMIC_DRAW:
+        case RALBufferType::VERTEX_BUFFER:
             BufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-            // todo (vkRAL): this is not exactly correct but will suffice for now
+            break;
+        case RALBufferType::INDEX_BUFFER:
+            BufferCreateInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
             break;
         default:
             break;
@@ -73,9 +74,12 @@ namespace ScarletEngine
 
     void VulkanGpuBuffer::UploadData(void* DataPtr, size_t InSize) const
     {
-        void* Mapped = nullptr;
-        vkMapMemory(LogicalDevice, Memory, 0, InSize, 0, &Mapped);
-        check(Mapped != nullptr);
-        memcpy(Mapped, DataPtr, InSize);
+        if((Properties & RALBufferPropertyFlagBits::HOST_VISIBLE_BIT) &&
+            (Properties & RALBufferPropertyFlagBits::HOST_COHERENT_BIT)) {
+            void* Mapped = nullptr;
+            vkMapMemory(LogicalDevice, Memory, 0, InSize, 0, &Mapped);
+            check(Mapped != nullptr);
+            memcpy(Mapped, DataPtr, InSize);
+        }
     }
 }

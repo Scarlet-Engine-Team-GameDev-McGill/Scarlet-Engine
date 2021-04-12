@@ -128,8 +128,9 @@ namespace ScarletEngine
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	OpenGLGpuBuffer::OpenGLGpuBuffer(uint32_t InSize, RALBufferUsage InUsage)
-		: RALGpuBuffer(InSize, InUsage)
+	OpenGLGpuBuffer::OpenGLGpuBuffer(uint32_t InSize, RALBufferType InType, RALBufferUsage InUsage,
+									 RALBufferPropertyFlags InProperties)
+		: RALGpuBuffer(InSize, InType, InUsage, InProperties)
 		, BufferObject(0)
 	{
 		ZoneScoped

@@ -54,12 +54,34 @@ namespace ScarletEngine
 		INVALID
 	};
 
+	// TODO This enum is used similarly to how the above one is used, but
+	// vulkan requires us to be more specific about the type in the usage. Should
+	// probably merge these somehow in the future
+	enum class RALBufferType 
+	{
+		TRANSFER_SRC,
+		TRANSFER_DST,
+		VERTEX_BUFFER,
+		INDEX_BUFFER,
+	};
+	
+	typedef enum RALBufferPropertyFlagBits {
+		DEVICE_LOCAL_BIT = 0x00000001,
+		HOST_VISIBLE_BIT = 0x00000002,
+		HOST_COHERENT_BIT = 0x00000004,
+		HOST_CACHED_BIT = 0x00000008,
+	};
+	typedef uint32_t RALBufferPropertyFlags;
+
 	class RALGpuBuffer
 	{
 	public:
-		RALGpuBuffer(uint32_t InSize, RALBufferUsage InUsage)
+		RALGpuBuffer(uint32_t InSize, RALBufferType InType, RALBufferUsage InUsage, 
+		RALBufferPropertyFlags InProperties)
 			: Size(InSize)
+			, Type(InType)
 			, Usage(InUsage)
+			, Properties(InProperties)
 		{}
 
 		virtual ~RALGpuBuffer() {}
@@ -68,7 +90,9 @@ namespace ScarletEngine
 		virtual void Release() = 0;
 
 		uint32_t Size;
+		RALBufferType Type;
 		RALBufferUsage Usage;
+		RALBufferPropertyFlags Properties;
 	};
 
 	class RALVertexArray

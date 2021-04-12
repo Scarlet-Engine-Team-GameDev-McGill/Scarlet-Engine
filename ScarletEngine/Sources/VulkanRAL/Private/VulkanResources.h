@@ -35,7 +35,7 @@ namespace ScarletEngine
     {
     public:
         VulkanGpuBuffer(VkPhysicalDevice PhysicalDevice, VkDevice LogicalDevice, uint32_t InSize,
-                        RALBufferUsage InUsage);
+                        RALBufferType InType, RALBufferUsage InUsage, RALBufferPropertyFlags InProperties);
         virtual ~VulkanGpuBuffer();
 
         virtual void UploadData(void* DataPtr, size_t InSize) const override;

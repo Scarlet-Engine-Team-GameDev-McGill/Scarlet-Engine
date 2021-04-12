@@ -1052,9 +1052,10 @@ namespace ScarletEngine
         return nullptr;
     }
 
-    RALGpuBuffer* VulkanRAL::CreateBuffer(uint32_t Size, RALBufferUsage Usage)
+    RALGpuBuffer* VulkanRAL::CreateBuffer(uint32_t Size, RALBufferType Type, RALBufferUsage Usage,
+                                          RALBufferPropertyFlags Properties)
     {
-        return ScarNew(VulkanGpuBuffer, PhysicalDevice, LogicalDevice, Size, Usage);
+        return ScarNew(VulkanGpuBuffer, PhysicalDevice, LogicalDevice, Size, Type, Usage, Properties);
     }
 
     RALVertexArray* VulkanRAL::CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB)

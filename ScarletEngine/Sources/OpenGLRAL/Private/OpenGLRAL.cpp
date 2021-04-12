@@ -165,10 +165,11 @@ namespace ScarletEngine
 		return ScarNew(OpenGLTexture2D, AssetHandle);
 	}
 
-	RALGpuBuffer* OpenGLRAL::CreateBuffer(uint32_t Size, RALBufferUsage Usage)
+	RALGpuBuffer* OpenGLRAL::CreateBuffer(uint32_t Size, RALBufferType Type, RALBufferUsage Usage,
+		RALBufferPropertyFlags Properties)
 	{
 		ZoneScoped
-		return ScarNew(OpenGLGpuBuffer, Size, Usage);
+		return ScarNew(OpenGLGpuBuffer, Size, Type, Usage, Properties);
 	}
 
 	RALVertexArray* OpenGLRAL::CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB)

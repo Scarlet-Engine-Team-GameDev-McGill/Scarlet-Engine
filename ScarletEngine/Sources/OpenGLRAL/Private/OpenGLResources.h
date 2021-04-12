@@ -41,7 +41,8 @@ namespace ScarletEngine
 	class OpenGLGpuBuffer : public RALGpuBuffer
 	{
 	public:
-		OpenGLGpuBuffer(uint32_t InSize, RALBufferUsage InUsage);
+		OpenGLGpuBuffer(uint32_t InSize, RALBufferType InType, RALBufferUsage InUsage,
+						RALBufferPropertyFlags InProperties);
 
 		virtual void UploadData(void* DataPtr, size_t InSize) const override;
 		virtual void Release() override;

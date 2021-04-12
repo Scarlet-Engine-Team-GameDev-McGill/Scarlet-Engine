@@ -47,7 +47,7 @@ namespace ScarletEngine
 
 		virtual RALTexture2D* CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle) = 0;
 
-		virtual RALGpuBuffer* CreateBuffer(uint32_t Size, RALBufferUsage Usage) = 0;
+		virtual RALGpuBuffer* CreateBuffer(uint32_t Size, RALBufferType Type, RALBufferUsage Usage, RALBufferPropertyFlags Properties) = 0;
 		virtual RALVertexArray* CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB) = 0;
 		
 		virtual RALShader* CreateShader(RALShaderStage Stage, const String& ShaderPath) = 0;

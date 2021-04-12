@@ -37,10 +37,12 @@ int main()
 		Trans->Rotation = glm::vec3(0.f, 0.f, 0.f);
 		Trans->Scale = glm::vec3(0.5f);
 
-		Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
+		Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Vertices.size() * sizeof(Vertex), RALBufferType::VERTEX_BUFFER, 
+			RALBufferUsage::STATIC_DRAW, RALBufferPropertyFlagBits::HOST_COHERENT_BIT | RALBufferPropertyFlagBits::HOST_VISIBLE_BIT);
 		Mesh->VertexBuff->UploadData((void*)Vertices.data(), Vertices.size() * sizeof(Vertex));
 		
-		Mesh->IndexBuff = RAL::Get().CreateBuffer((uint32_t)Indices.size() * sizeof(uint32_t), RALBufferUsage::STATIC_DRAW);
+		Mesh->IndexBuff = RAL::Get().CreateBuffer((uint32_t)Indices.size() * sizeof(uint32_t), RALBufferType::INDEX_BUFFER,
+			RALBufferUsage::STATIC_DRAW, RALBufferPropertyFlagBits::HOST_COHERENT_BIT | RALBufferPropertyFlagBits::HOST_VISIBLE_BIT);
 		Mesh->IndexBuff->UploadData((void*)Indices.data(), Indices.size() * sizeof(uint32_t));
 		
 		Mesh->VertexArray = RAL::Get().CreateVertexArray(Mesh->VertexBuff, Mesh->IndexBuff);
