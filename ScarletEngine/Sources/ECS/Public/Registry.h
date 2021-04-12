@@ -109,7 +109,7 @@ namespace ScarletEngine
 		}
 
 		template <typename ...ComponentTypes>
-        Array<ProxyType<ComponentTypes...>> GetProxies() const
+		Array<ProxyType<ComponentTypes...>> GetProxies() const
 		{
 			ZoneScoped
             static_assert(sizeof...(ComponentTypes) > 0, "Missing template argument list");
