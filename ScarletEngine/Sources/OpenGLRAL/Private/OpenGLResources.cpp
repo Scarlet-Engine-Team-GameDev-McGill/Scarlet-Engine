@@ -75,7 +75,7 @@ namespace ScarletEngine
 
 	void OpenGLFramebuffer::Unbind() const
 	{
-		RAL::Get().QueueCommand([this](RALCommandList&)
+		RAL::Get().QueueCommand([](RALCommandList&)
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}, "UnbindFramebuffer");
