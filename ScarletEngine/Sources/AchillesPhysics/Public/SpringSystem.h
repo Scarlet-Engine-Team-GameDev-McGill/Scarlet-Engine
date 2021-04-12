@@ -4,7 +4,6 @@
 #include "Transform.h" 
 #include "System.h"
 #include "SpringComponent.h"
-#include "Engine.h"
 
 namespace ScarletEngine::Achilles
 {
@@ -12,6 +11,7 @@ namespace ScarletEngine::Achilles
 	{
 	public:
 		virtual void FixedUpdate() const override;
+	private:
 		void UpdateEntity(const SpringComponent* Spring, RigidBodyComponent* Rb, const Transform* Trans) const;
 	};
 }

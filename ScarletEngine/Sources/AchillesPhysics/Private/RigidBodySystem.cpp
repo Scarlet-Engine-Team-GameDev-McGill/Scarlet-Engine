@@ -1,19 +1,16 @@
 #include "RigidBodySystem.h"
+#include "Engine.h"
 
 namespace ScarletEngine::Achilles
 {
 	void RigidBodySystem::UpdateEntity(Transform* Trans, RigidBodyComponent* Rb, const float Dt) const
 	{
 		ZoneScoped
-		// translational
-		if (Rb->UsesGravity)
-		{
-			Rb->Force += Rb->Gravity * Rb->Mass;
-		}
 
+		// translational
+		Rb->Force += Rb->Gravity * Rb->Mass;
 		Rb->Velocity += Rb->Force / Rb->Mass * Dt;
 		Trans->Position += Rb->Velocity * Dt;
-
 		Rb->Force = glm::vec3(0.f, 0.f, 0.f);
 
 		// rotational
@@ -24,7 +21,6 @@ namespace ScarletEngine::Achilles
 		QOrientation += DQ;
 
 		Trans->Rotation = glm::degrees(glm::eulerAngles(glm::normalize(QOrientation))); // returns XYZ (PYR) 
-
 		Rb->Moment = glm::vec3(0.f, 0.f, 0.f);
 	}	
 
@@ -53,7 +49,7 @@ namespace ScarletEngine::Achilles
 			for (size_t j = i + 1; j < Size; j++)
 			{
 				const auto& [EntityB, TransB, RbB] = Entities[j];
-				if (RbA->UsesKeplerGravity && RbB->UsesKeplerGravity)
+				if (RbA->bUsesKeplerGravity && RbB->bUsesKeplerGravity)
 				{
 
 					const glm::vec3 PosA = TransA->Position;

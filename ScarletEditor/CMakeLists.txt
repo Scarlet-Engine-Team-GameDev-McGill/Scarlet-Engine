@@ -57,7 +57,7 @@ file(GLOB ScarletEditor_SRC "Sources/EditorMain.cpp")
 add_executable(ScarletEditor ${ScarletEditor_SRC})
 
 get_property(ScarletEditorModules GLOBAL PROPERTY ScarletEditorModulesProperty)
-target_link_libraries(ScarletEditor PRIVATE Engine UI ${ScarletEditorModules})
+target_link_libraries(ScarletEditor PRIVATE Engine UI AchillesPhysics ${ScarletEditorModules})
 
 target_include_directories(ScarletEditor PUBLIC "include")
 target_compile_features(ScarletEditor PUBLIC cxx_std_20)

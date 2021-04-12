@@ -281,13 +281,13 @@ namespace ScarletEngine::Achilles
 		auto [Ent, Trans, Mesh, Rb] = World->CreateEntity<Transform, StaticMeshComponent, RigidBodyComponent>(Name);
 
 		Trans->Position = Pos;
-		Trans->Rotation = glm::vec3(0.f, 0.f, 0.f);
+		Trans->Rotation = glm::vec3(0.f);
 		Trans->Scale = glm::vec3(Scale * 0.05f);
 
 		Rb->Velocity = V0;
 		Rb->Mass = Mass;
-		Rb->UsesGravity = false;
-		Rb->UsesKeplerGravity = true;
+		Rb->Gravity = glm::vec3(0.f);
+		Rb->bUsesKeplerGravity = true;
 
 		MakeMesh(Mesh, "/ScarletEngine/Content/Sphere.obj");
 

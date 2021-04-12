@@ -24,7 +24,8 @@ namespace ScarletEngine::Achilles
 	{
 	public:
 		virtual void FixedUpdate() const override;
-		const IntersectionData GetIntersection(const SphereColliderComponent* SphereA, const SphereColliderComponent* SphereB) const;
+	private:
+		IntersectionData GetIntersection(const SphereColliderComponent* SphereA, const SphereColliderComponent* SphereB) const;
 		void SolveIntersection(RigidBodyComponent* Rb, Transform* Trans, SphereColliderComponent* Sphere, SphereColliderComponent* OtherSphere, const glm::vec3 Fi, const glm::vec3 newPos) const;
 	};
 
@@ -32,6 +33,7 @@ namespace ScarletEngine::Achilles
 	{
 	public:
 		virtual void FixedUpdate() const override;
-		const IntersectionData GetIntersection(const PlaneColliderComponent* Plane, const SphereColliderComponent* Sphere) const;
+	private:
+		IntersectionData GetIntersection(const PlaneColliderComponent* Plane, const SphereColliderComponent* Sphere) const;
 	};
 }

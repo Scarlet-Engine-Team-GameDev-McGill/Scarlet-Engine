@@ -7,6 +7,7 @@ namespace ScarletEngine::Achilles
 	{
 		glm::vec3 Min;
 		glm::vec3 Max;
+		float FrictionCoefficient = 0.01f;
 	};
 
 	struct SphereColliderComponent

@@ -1,6 +1,7 @@
 #include "ColliderSystem.h"
 #include "RigidBodyComponent.h"
 #include "Core.h"
+#include "Engine.h"
 
 namespace ScarletEngine::Achilles
 {
@@ -55,7 +56,7 @@ namespace ScarletEngine::Achilles
 		}
 	}
 
-	const IntersectionData SphereVsSphereColliderSystem::GetIntersection(const SphereColliderComponent* SphereA, const SphereColliderComponent* SphereB) const
+	IntersectionData SphereVsSphereColliderSystem::GetIntersection(const SphereColliderComponent* SphereA, const SphereColliderComponent* SphereB) const
 	{
 		const glm::vec3 CentDist = SphereB->Pos - SphereA->Pos;
 		const float RadDist = SphereB->Radius + SphereA->Radius;
@@ -72,10 +73,7 @@ namespace ScarletEngine::Achilles
 		Rb->Velocity *= (1.f - OtherSphere->FrictionCoefficient);
 		Trans->Position += newPos;
 		Sphere->Pos = Trans->Position;
-		if (Rb->UsesGravity)
-		{
-			Rb->Force -= Rb->Gravity * Rb->Mass;
-		}
+		Rb->Force -= Rb->Gravity * Rb->Mass;
 	}
 
 	void PlaneVsSphereColliderSystem::FixedUpdate() const
@@ -96,17 +94,13 @@ namespace ScarletEngine::Achilles
 					RbSphere->Velocity = (1.f - Plane->FrictionCoefficient) * glm::reflect(RbSphere->Velocity, Plane->Normal);
 
 					Sphere->Pos += NewPos;
-
-					if (RbSphere->UsesGravity)
-					{
-						RbSphere->Force -= RbSphere->Gravity * RbSphere->Mass;
-					}
+					RbSphere->Force -= RbSphere->Gravity * RbSphere->Mass;
 				}
 			}
 		}
 	}
 
-	const IntersectionData PlaneVsSphereColliderSystem::GetIntersection(const PlaneColliderComponent* Plane, const SphereColliderComponent* Sphere) const
+	IntersectionData PlaneVsSphereColliderSystem::GetIntersection(const PlaneColliderComponent* Plane, const SphereColliderComponent* Sphere) const
 	{
 		const float Dist = glm::dot(Plane->Normal, Sphere->Pos) - Plane->Distance - Sphere->Radius;
 		IntersectionData Data;
