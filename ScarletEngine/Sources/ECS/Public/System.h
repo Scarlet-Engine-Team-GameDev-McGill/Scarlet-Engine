@@ -21,17 +21,34 @@ namespace ScarletEngine
 		virtual void Update() const {}
 		virtual void FixedUpdate() const {}
 
-		Registry* Reg;
+		template <typename ...Components>
+		Array<ProxyType<Components...>> GetEntities() const
+		{
+			return Reg->GetProxies<Components...>();
+		}
+
+		template <typename ...Components>
+		std::optional<ProxyType<Components...>> GetEntity(EID EntityID) const
+		{
+			return Reg->GetProxy<Components...>(EntityID);
+		}
+
+		template <typename SingletonType>
+        SingletonType* GetSingleton() const
+		{
+			return Reg->GetSingleton<std::remove_cv_t<SingletonType>>();
+		}
+
 		const String Name;
+	private:
+		friend class SystemScheduler;
+		Registry* Reg = nullptr;
 	};
 
 	template <typename... ComponentTypes>
 	class System : public ISystem
 	{
 	public:
-		template <typename ...Components>
-		using ProxyType = std::tuple<EID, std::add_pointer_t<Components>...>;
-		
 		template <typename ...Components>
 		Array<ProxyType<Components...>> GetEntities() const
 		{
@@ -41,17 +58,25 @@ namespace ScarletEngine
 
 			// Create an array of std::tuples of references to components
 			// could probably cache some of this work
-			Array<ProxyType<Components...>> EntityProxies;
+			return ISystem::GetEntities<Components...>();
+		}
 
-			for (const SharedPtr<Entity>& Entity : Reg->GetEntities())
-			{
-				if ((Reg->HasComponent<std::remove_cv_t<Components>>(Entity->ID) && ...))
-				{
-					EntityProxies.push_back(std::make_tuple(Entity->ID, Reg->GetComponent<std::remove_cv_t<Components>>(Entity->ID)...));
-				}
-			}
+		template <typename ...Components>
+		std::optional<ProxyType<Components...>> GetEntity(EID EntityID) const
+		{
+			ZoneScoped
+			static_assert(std::conjunction_v<Contains<Components, ComponentTypes...>...>,
+				"Trying to get components which are not marked in the system's signature!");
 
-			return EntityProxies;
+			return ISystem::GetEntity<Components...>(EntityID);
+		}
+
+		template <typename ...Components>
+		ProxyType<Components...> GetEntityChecked(EID EntityID) const
+		{
+			const std::optional<ProxyType<Components...>> OptProxy = GetEntity<Components...>(EntityID);
+			check(OptProxy.has_value());
+			return OptProxy.value();
 		}
 
 		template <typename SingletonType>
@@ -59,7 +84,7 @@ namespace ScarletEngine
 		{
 			static_assert(Contains_V<SingletonType, ComponentTypes...>,
 				"Trying to get singleton which is not marked in the system's signature!");
-			return Reg->GetSingleton<std::remove_cv_t<SingletonType>>();
+			return ISystem::GetSingleton<SingletonType>();
 		}
 	};
 

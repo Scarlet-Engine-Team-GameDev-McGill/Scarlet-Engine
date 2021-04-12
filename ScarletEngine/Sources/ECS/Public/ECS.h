@@ -2,9 +2,9 @@
 
 #include "Registry.h"
 #include "System.h"
-#include "Entity.h"
+#include "EntityHandle.h"
 
 namespace ScarletEngine
 {
-	using EntityPtr = SharedPtr<Entity>;
+	using EntityPtr = SharedPtr<EntityHandle>;
 }

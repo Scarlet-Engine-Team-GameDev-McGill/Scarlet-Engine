@@ -2,13 +2,10 @@
 
 #include "CoreUtils.h"
 
-#define INVALID_EID 0
-#define INVALID_CTID 0
-
 namespace ScarletEngine
 {
-	using CTID = uint64_t;
-	using EID = uint64_t;
+	using CTID = uint32_t;
+	using EID = uint32_t;
 
 	namespace Internal
 	{
@@ -16,7 +13,6 @@ namespace ScarletEngine
 		{
 			static CTID GetNextTypeID()
 			{
-				ZoneScoped
 				static CTID NextID = 1;
 				return NextID++;
 			}
@@ -29,9 +25,11 @@ namespace ScarletEngine
 	{
 		static CTID Value()
 		{
-			ZoneScoped
 			static CTID ID = Internal::ComponentTypeID::GetNextTypeID();
 			return ID;
 		}
 	};
 }
+
+#define INVALID_EID static_cast<CTID>(0)
+#define INVALID_CTID static_cast<EID>(0)

@@ -34,16 +34,16 @@ TEST(ECS, RegistryCreateEntity)
 {
 	Registry Reg;
 
-	auto [TestEntity, TC] = Reg.CreateEntity<TestComponent>("TestEntity1");
+	auto [TestEntity, TC] = Reg.CreateEntity<TestComponent>();
 
-	const EID EntityID = TestEntity->ID;
+	const EID EntityID = TestEntity;
 
 	EXPECT_NE(EntityID, INVALID_EID);
 
-	auto [TestEntity2] = Reg.CreateEntity("TestEntity2");
+	auto [TestEntity2] = Reg.CreateEntity();
 	
-	EXPECT_NE(TestEntity2->ID, INVALID_EID);
-	EXPECT_NE(TestEntity2->ID, EntityID);
+	EXPECT_NE(TestEntity2, INVALID_EID);
+	EXPECT_NE(TestEntity2, EntityID);
 }
 
 TEST(ECS, RegistryCreateComponent)
@@ -52,11 +52,11 @@ TEST(ECS, RegistryCreateComponent)
 
 	Registry Reg;
 
-	auto [TestEntity, TC] = Reg.CreateEntity<TestComponent>("TestEntity");
+	const auto& [TestEntity, TC] = Reg.CreateEntity<TestComponent>();
 
 	EXPECT_EQ(TestComponent::ConstructorCounter, static_cast<uint32_t>(1));
 
-	TestComponent* GetTC = Reg.GetComponent<TestComponent>(TestEntity->ID);
+	TestComponent* const GetTC = Reg.GetComponent<TestComponent>(TestEntity);
 
 	EXPECT_EQ(TestComponent::ConstructorCounter, static_cast<uint32_t>(1));
 
@@ -69,17 +69,17 @@ TEST(ECS, RegistryAddComponent)
 
 	Registry Reg;
 
-	auto [TestEntity] = Reg.CreateEntity<>("TestEntity");
+	auto [TestEntity] = Reg.CreateEntity<>();
 	
 	EXPECT_EQ(TestComponent::ConstructorCounter, static_cast<uint32_t>(0));
 
-	EXPECT_EQ(Reg.GetComponent<TestComponent>(TestEntity->ID), nullptr);
+	EXPECT_EQ(Reg.GetComponent<TestComponent>(TestEntity), nullptr);
 
-	Reg.AddComponent<TestComponent>(TestEntity->ID);
+	Reg.AddComponent<TestComponent>(TestEntity);
 
 	EXPECT_EQ(TestComponent::ConstructorCounter, static_cast<uint32_t>(1));
 
-	EXPECT_NE(Reg.GetComponent<TestComponent>(TestEntity->ID), nullptr);
+	EXPECT_NE(Reg.GetComponent<TestComponent>(TestEntity), nullptr);
 }
 
 TEST(ECS, RegistryAttachComponent)
@@ -88,17 +88,17 @@ TEST(ECS, RegistryAttachComponent)
 
 	Registry Reg;
 
-	auto [TestEntity] = Reg.CreateEntity<>("TestEntity");
+	auto [TestEntity] = Reg.CreateEntity<>();
 
 	TestComponent TC;
 	
-	Reg.AttachComponent(TestEntity->ID, TC);
+	Reg.AttachComponent(TestEntity, TC);
 
 	EXPECT_EQ(TestComponent::ConstructorCounter, static_cast<uint32_t>(2));
 	// Attach should not call the move constructor since we expect the TC in this scope to remain alive.
 	EXPECT_EQ(TestComponent::MoveCounter, static_cast<uint32_t>(0));
 
-	EXPECT_NE(Reg.GetComponent<TestComponent>(TestEntity->ID), nullptr);
+	EXPECT_NE(Reg.GetComponent<TestComponent>(TestEntity), nullptr);
 }
 
 TEST(ECS, RegistrySort)
@@ -106,26 +106,26 @@ TEST(ECS, RegistrySort)
 	const uint32_t NumEntities = 100;
 	Registry Reg;
 
-	Array<SharedPtr<Entity>> Entities;
+	Array<EID> Entities;
 
 	for (uint32_t i = 0; i < NumEntities; ++i)
 	{
-		auto [E, TC] = Reg.CreateEntity<TestComponent>(std::to_string(i).c_str());
+		auto [E, TC] = Reg.CreateEntity<TestComponent>();
 		TC->Val = i;
 
 		Entities.push_back(E);
 	}
 
-	Array<SharedPtr<Entity>> ShuffledEntities = Entities;
+	Array<EID> ShuffledEntities = Entities;
 
 	auto RngEngine = std::default_random_engine{};
 	std::shuffle(ShuffledEntities.begin(), ShuffledEntities.end(), RngEngine);
 
 	for (const auto& Ent : ShuffledEntities)
 	{
-		const uint32_t Val = Reg.GetComponent<TestComponent>(Ent->ID)->Val;
-		Reg.RemoveComponent<TestComponent>(Ent->ID);
-		TestComponent* TC = Reg.AddComponent<TestComponent>(Ent->ID);
+		const uint32_t Val = Reg.GetComponent<TestComponent>(Ent)->Val;
+		Reg.RemoveComponent<TestComponent>(Ent);
+		TestComponent* TC = Reg.AddComponent<TestComponent>(Ent);
 		TC->Val = Val;
 	}
 
@@ -133,8 +133,8 @@ TEST(ECS, RegistrySort)
 
 	for (uint32_t i = 1; i < NumEntities; ++i)
 	{
-		const TestComponent* PreviousTC = Reg.GetComponent<TestComponent>(Entities[i - static_cast<uint32_t>(1)]->ID);
-		const TestComponent* TC = Reg.GetComponent<TestComponent>(Entities[i]->ID);
+		const TestComponent* PreviousTC = Reg.GetComponent<TestComponent>(Entities[i - static_cast<uint32_t>(1)]);
+		const TestComponent* TC = Reg.GetComponent<TestComponent>(Entities[i]);
 		
 		// Expect that they are contiguous in memory (no holes between them)
 		EXPECT_EQ(PreviousTC + 1, TC);
@@ -166,7 +166,7 @@ TEST(ECS, System)
 	Registry Reg;
 	SystemScheduler Scheduler;
 	Scheduler.RegisterSystem<TestSystem>();
-	auto [Entity, TC] = Reg.CreateEntity<Component>("TestComponent");
+	auto [Entity, TC] = Reg.CreateEntity<Component>();
 
 	ASSERT_NE(TC, nullptr);
 	EXPECT_EQ(TC->X, static_cast<uint32_t>(11));
@@ -199,7 +199,7 @@ TEST(ECS, ConstSystem)
 	Registry Reg;
 	SystemScheduler Scheduler;
 	Scheduler.RegisterSystem<TestSystem>();
-	auto [Entity, TC] = Reg.CreateEntity<Component>("TestComponent");
+	auto [Entity, TC] = Reg.CreateEntity<Component>();
 
 	ASSERT_NE(TC, nullptr);
 	EXPECT_EQ(TC->X, static_cast<uint32_t>(11));
@@ -282,4 +282,35 @@ TEST(ECS, ConstSingleton)
 	Scheduler.RunUpdate(&Reg);
 
 	EXPECT_EQ(SC->X, static_cast<uint32_t>(99));
+}
+
+TEST(ECS, GetEntity)
+{
+	struct Component
+	{
+		uint32_t X = 11;
+	};
+	
+	class TestSystem : public ScarletEngine::System<Component>
+	{
+	public:
+		virtual void Update() const override
+		{
+			for (auto& [Ent, TC] : GetEntities<Component>())
+			{
+				const auto& [Ent1, TC1] = GetEntityChecked<Component>(Ent);
+				EXPECT_EQ(TC, TC1);
+				EXPECT_EQ(Ent, Ent1);
+			}
+		}
+	};
+
+	Registry Reg;
+	SystemScheduler Scheduler;
+	Scheduler.RegisterSystem<TestSystem>();
+	auto [Entity, TC] = Reg.CreateEntity<Component>();
+
+	ASSERT_NE(TC, nullptr);
+
+	Scheduler.RunUpdate(&Reg);
 }

@@ -23,19 +23,19 @@ namespace ScarletEngine
 
 	public:
 		/* Selection */
-		void SetSelection(const Array<Entity*>& NewSelection);
-		void SetSelection(Entity* SelectedItem);
+		void SetSelection(const Array<EntityHandle*>& NewSelection);
+		void SetSelection(EntityHandle* SelectedItem);
 
-		void AddToSelection(const Array<Entity*>& EntitiesToAdd);
-		void AddToSelection(Entity* EntityToAdd);
+		void AddToSelection(const Array<EntityHandle*>& EntitiesToAdd);
+		void AddToSelection(EntityHandle* EntityToAdd);
 
-		void RemoveFromSelection(Entity* EntityToRemove);
+		void RemoveFromSelection(EntityHandle* EntityToRemove);
 
 		void ClearSelection();
 
-		bool IsEntitySelected(Entity* Ent) const;
+		bool IsEntitySelected(EntityHandle* Ent) const;
 
-		const Set<Entity*>& GetSelection() const { return SelectedEntities; }
+		const Set<EntityHandle*>& GetSelection() const { return SelectedEntities; }
 
 		SharedPtr<World>& GetActiveWorld() { return EditorWorld; }
 
@@ -44,7 +44,7 @@ namespace ScarletEngine
 	private:
 		SharedPtr<World> EditorWorld;
 
-		Set<Entity*> SelectedEntities;
+		Set<EntityHandle*> SelectedEntities;
 
 		OnSelectionChangedEvent OnSelectionChanged;
 		OnSelectionClearedEvent OnSelectionCleared;

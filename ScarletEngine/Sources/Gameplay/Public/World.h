@@ -8,7 +8,7 @@
 
 namespace ScarletEngine
 {
-	using OnEntityAddedToWorldEvent = Event<const SharedPtr<Entity>&>;
+	using OnEntityAddedToWorldEvent = Event<const SharedPtr<EntityHandle>&>;
 
 	class World final : public ITickable
 	{
@@ -24,38 +24,29 @@ namespace ScarletEngine
 
 		inline double GetDeltaTime() const { return LastDeltaTime; }
 
-		SceneProxy* GetRenderSceneProxy() { return Reg.GetSingleton<SceneProxy>(); }
+		SceneProxy* GetRenderSceneProxy() const { return Reg.GetSingleton<SceneProxy>(); }
 
 		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
 	public:
 		template <typename... ComponentTypes>
-		std::tuple<SharedPtr<Entity>, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name)
+		std::tuple<EID, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name)
 		{
 			ZoneScoped
-			auto EntityProxy = Reg.CreateEntity<ComponentTypes...>(Name);
-			SharedPtr<Entity>& Ent = std::get<SharedPtr<Entity>>(EntityProxy);
-			Ent->OwningWorld = this;
+			const auto EntityProxy = Reg.CreateEntity<ComponentTypes...>();
+			SharedPtr<EntityHandle>& Ent = Entities.emplace_back(ScarNew(EntityHandle, Name, std::get<EID>(EntityProxy), this));
+			
 			OnEntityAddedToWorld.Broadcast(Ent);
 			return EntityProxy;
 		}
 
-		/** Register a new system with the world */
-		template <typename... SystemSig>
-		void RegisterSystem(const String& Name)
+		const Array<SharedPtr<EntityHandle>>& GetEntities() const
 		{
 			ZoneScoped
-			//return *static_cast<System<SystemSig...>*>(Systems.emplace_back(ScarNew(System<SystemSig...>, &Reg, Name)).get());
-			
-		}
-
-		auto GetEntities()
-		{
-			ZoneScoped
-			return Reg.GetEntities();
+			return Entities;
 		}
 
 		template <typename ComponentType>
-		auto GetComponent(const Entity& Ent)
+		auto GetComponent(const EntityHandle& Ent)
 		{
 			ZoneScoped
 			return Reg.GetComponent<ComponentType>(Ent.ID);
@@ -63,6 +54,7 @@ namespace ScarletEngine
 	private:
 		double LastDeltaTime;
 		Registry Reg;
+		Array<SharedPtr<EntityHandle>> Entities;
 
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
 	};
