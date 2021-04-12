@@ -20,7 +20,7 @@ namespace ScarletEngine
 
         void ExecuteAll()
         {
-            for (const auto& Command : Commands | std::views::keys)
+            for (const auto& [Command, _] : Commands)
             {
                 Command(*this);
             }
