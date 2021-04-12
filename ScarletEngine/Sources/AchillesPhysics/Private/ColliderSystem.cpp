@@ -58,6 +58,7 @@ namespace ScarletEngine::Achilles
 
 	IntersectionData SphereVsSphereColliderSystem::GetIntersection(const SphereColliderComponent* SphereA, const SphereColliderComponent* SphereB) const
 	{
+		ZoneScoped
 		const glm::vec3 CentDist = SphereB->Pos - SphereA->Pos;
 		const float RadDist = SphereB->Radius + SphereA->Radius;
 		IntersectionData Data;

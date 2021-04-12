@@ -3,9 +3,7 @@ set(AchillesPhysics_PrivateDeps
 
 set(AchillesPhysics_PublicDeps
 	"ECS"
-	"Core"
-	"Editor"
-	"Gameplay")
+	"Core")
 
 DECLARE_MODULE(
 	MODULE_NAME "AchillesPhysics" 

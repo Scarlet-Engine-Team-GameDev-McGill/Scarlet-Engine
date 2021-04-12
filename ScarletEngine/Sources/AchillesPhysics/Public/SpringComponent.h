@@ -8,7 +8,7 @@ namespace ScarletEngine::Achilles
 		float RestLength = 0.25f;
 		float Stiffness = 1000.f;
 		float Damping = 0.4f;
-		EID Anchor; // int
+		EID Anchor;
 	};
 
 	using SpringCollection = Array<SpringComponent>;
