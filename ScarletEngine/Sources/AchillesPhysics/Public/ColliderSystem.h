@@ -8,6 +8,12 @@
 
 namespace ScarletEngine::Achilles
 {
+	struct IntersectionData
+	{
+		float Distance;
+		glm::vec3 Direction;
+	};
+
 	class AABBvsAABBColliderSystem : public System<BoxColliderComponent, RigidBodyComponent, Transform>
 	{
 	public:
@@ -18,7 +24,7 @@ namespace ScarletEngine::Achilles
 	{
 	public:
 		virtual void FixedUpdate() const override;
-		std::pair<glm::vec3, float> GetIntersection(const SphereColliderComponent* SphereA, const SphereColliderComponent* SphereB) const;
+		const IntersectionData GetIntersection(const SphereColliderComponent* SphereA, const SphereColliderComponent* SphereB) const;
 		void SolveIntersection(RigidBodyComponent* Rb, Transform* Trans, SphereColliderComponent* Sphere, SphereColliderComponent* OtherSphere, const glm::vec3 Fi, const glm::vec3 newPos) const;
 	};
 
@@ -26,6 +32,6 @@ namespace ScarletEngine::Achilles
 	{
 	public:
 		virtual void FixedUpdate() const override;
-		std::pair<glm::vec3, float> GetIntersection(const PlaneColliderComponent* Plane, const SphereColliderComponent* Sphere) const;
+		const IntersectionData GetIntersection(const PlaneColliderComponent* Plane, const SphereColliderComponent* Sphere) const;
 	};
 }

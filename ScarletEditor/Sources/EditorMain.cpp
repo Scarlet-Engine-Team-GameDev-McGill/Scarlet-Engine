@@ -29,7 +29,7 @@ int main()
 	// #todo_core: this should be handled automatically by the engine
 	GEditor->Initialize();
 	{
-		ScarletEngine::Achilles::DemoRopeCollision(GEditor->GetActiveWorld());
+		ScarletEngine::Achilles::DemoSphereSphereCollision(GEditor->GetActiveWorld());
 	}
 
 	GEngine->Run();

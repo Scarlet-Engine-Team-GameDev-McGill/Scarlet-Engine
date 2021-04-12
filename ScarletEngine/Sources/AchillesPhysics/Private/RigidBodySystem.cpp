@@ -45,6 +45,12 @@ namespace ScarletEngine::Achilles
 
 		// Compute Gravities for Kepler
 		const size_t Size = Entities.size();
+
+		if (Size == 0)
+		{
+			return;
+		}
+
 		for (size_t i = 0; i < Size - 1; i++)
 		{
 			const auto& [EntityA, TransA, RbA] = Entities[i];
