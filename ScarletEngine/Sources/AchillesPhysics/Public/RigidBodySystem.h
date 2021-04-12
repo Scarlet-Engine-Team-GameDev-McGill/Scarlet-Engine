@@ -12,6 +12,5 @@ namespace ScarletEngine::Achilles
 	public:
 		void UpdateEntity(Transform* Trans, RigidBodyComponent* Rb, const float Dt) const;
 		virtual void FixedUpdate() const override;
-		virtual void Update() const override;
 	};
 }

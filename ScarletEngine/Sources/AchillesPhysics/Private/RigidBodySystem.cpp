@@ -2,10 +2,6 @@
 
 namespace ScarletEngine::Achilles
 {
-	void RigidBodySystem::Update() const
-	{
-	}
-
 	void RigidBodySystem::UpdateEntity(Transform* Trans, RigidBodyComponent* Rb, const float Dt) const
 	{
 		ZoneScoped
