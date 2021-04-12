@@ -3,13 +3,12 @@
 #include "Core.h"
 #include "Engine.h"
 #include "OpenGLResources.h"
+#include "OpenGLCommandList.h"
 #include "AssetManager.h"
 #include "Window.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <TracyOpenGL.hpp>
-#include <sstream>
 
 namespace ScarletEngine
 {
@@ -74,6 +73,7 @@ namespace ScarletEngine
 	void OpenGLRAL::Initialize()
 	{
 		ZoneScoped
+		RAL::Initialize();
 
 		ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
 		GLFWwindow* WindowHandle = (GLFWwindow*)AppWindow->GetWindowHandle();
@@ -119,67 +119,79 @@ namespace ScarletEngine
 		return Info;
 	}
 
-	void OpenGLRAL::SetClearColorCommand(const glm::vec4& ClearColor) const
+	void OpenGLRAL::SetClearColorCmd(const glm::vec4& ClearColor)
 	{
 		ZoneScoped
-		glClearColor(ClearColor.r, ClearColor.g, ClearColor.b, ClearColor.a);
-	}
-
-	void OpenGLRAL::ClearCommand(bool bColor, bool bDepth, bool bStencil) const
-	{
-		ZoneScoped
-		GLbitfield ClearField = 0;
-		if (bColor) ClearField |= GL_COLOR_BUFFER_BIT;
-		if (bDepth) ClearField |= GL_DEPTH_BUFFER_BIT;
-		if (bStencil) ClearField |= GL_STENCIL_BUFFER_BIT;
-
+		QueueCommand([ClearColor](RALCommandList&)
 		{
-			//TracyGpuZone("Clear");
-			glClear(ClearField);
-		}
+			glClearColor(ClearColor.r, ClearColor.g, ClearColor.b, ClearColor.a);
+		}, "SetClearColor");
 	}
 
-	void OpenGLRAL::DrawVertexArray(const RALVertexArray* VA) const
+	void OpenGLRAL::ClearCmd(bool bColor, bool bDepth, bool bStencil)
 	{
 		ZoneScoped
-		VA->Bind();
-		glDrawElements(GL_TRIANGLES, VA->IB->Size / sizeof(uint32_t), GL_UNSIGNED_INT, 0);
-		VA->Unbind();
+		QueueCommand([bColor, bDepth, bStencil](RALCommandList&)
+		{
+			GLbitfield ClearField = 0;
+			if (bColor) ClearField |= GL_COLOR_BUFFER_BIT;
+			if (bDepth) ClearField |= GL_DEPTH_BUFFER_BIT;
+			if (bStencil) ClearField |= GL_STENCIL_BUFFER_BIT;
+
+			glClear(ClearField);
+		}, "Clear");
 	}
 
-	RALFramebuffer* OpenGLRAL::CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples) const
+	void OpenGLRAL::DrawVertexArrayCmd(const RALVertexArray* VA)
+	{
+		ZoneScoped
+		QueueCommand([VA](RALCommandList&)
+		{
+			VA->Bind();
+			glDrawElements(GL_TRIANGLES, VA->IB->Size / sizeof(uint32_t), GL_UNSIGNED_INT, 0);
+			VA->Unbind();
+		}, "DrawVertexArray");
+	}
+
+	RALFramebuffer* OpenGLRAL::CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples)
 	{
 		ZoneScoped
 		return ScarNew(OpenGLFramebuffer, Width, Height, Samples);
 	}
 
-	ScarletEngine::RALTexture2D* OpenGLRAL::CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle) const
+	ScarletEngine::RALTexture2D* OpenGLRAL::CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle)
 	{
 		ZoneScoped
 		return ScarNew(OpenGLTexture2D, AssetHandle);
 	}
 
-	RALGpuBuffer* OpenGLRAL::CreateBuffer(uint32_t Size, RALBufferUsage Usage) const
+	RALGpuBuffer* OpenGLRAL::CreateBuffer(uint32_t Size, RALBufferUsage Usage)
 	{
 		ZoneScoped
 		return ScarNew(OpenGLGpuBuffer, Size, Usage);
 	}
 
-	RALVertexArray* OpenGLRAL::CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB) const
+	RALVertexArray* OpenGLRAL::CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB)
 	{
 		ZoneScoped
 		return ScarNew(OpenGLVertexArray, VB, IB);
 	}
 
-	RALShader* OpenGLRAL::CreateShader(RALShaderStage Stage, const String& ShaderPath) const
+	RALShader* OpenGLRAL::CreateShader(RALShaderStage Stage, const String& ShaderPath)
 	{
 		ZoneScoped
 		return ScarNew(OpenGLShader, Stage, ShaderPath);
 	}
 
-	RALShaderProgram* OpenGLRAL::CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader) const
+	RALShaderProgram* OpenGLRAL::CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader)
 	{
 		ZoneScoped
 		return ScarNew(OpenGLShaderProgram, InVertexShader, InPixelShader, InGeometryShader, InComputeShader);
+	}
+
+	RALCommandList* OpenGLRAL::CreateCommandList() const
+	{
+		ZoneScoped
+		return ScarNew(OpenGLCommandList);
 	}
 }

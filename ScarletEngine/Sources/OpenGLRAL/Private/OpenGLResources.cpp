@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "AssetManager.h"
+#include "RAL.h"
 
 namespace ScarletEngine
 {
@@ -65,13 +66,19 @@ namespace ScarletEngine
 	void OpenGLFramebuffer::Bind() const
 	{
 		ZoneScoped
-		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferObject);
-		glViewport(0, 0, Width, Height);
+		RAL::Get().QueueCommand([this](RALCommandList&)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, FramebufferObject);
+			glViewport(0, 0, Width, Height);
+		}, "BindFramebuffer");
 	}
 
 	void OpenGLFramebuffer::Unbind() const
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		RAL::Get().QueueCommand([this](RALCommandList&)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}, "UnbindFramebuffer");
 	}
 
 	void OpenGLFramebuffer::Resize(uint32_t NewWidth, uint32_t NewHeight)
@@ -302,25 +309,38 @@ namespace ScarletEngine
 	void OpenGLShaderProgram::Bind() const
 	{
 		ZoneScoped
-		glUseProgram(ProgramObject);
+		RAL::Get().QueueCommand([this](RALCommandList&)
+		{
+			glUseProgram(ProgramObject);
+		}, "BindShaderProgram");
 	}
 
 	void OpenGLShaderProgram::Unbind() const
 	{
 		ZoneScoped
-
-		glUseProgram(0);
+		RAL::Get().QueueCommand([](RALCommandList&)
+		{
+			glUseProgram(0);
+		}, "UnbindShaderProgram");
 	}
 
 	void OpenGLShaderProgram::SetUniformMat4(const glm::mat4& Mat, const char* Binding) const
 	{
 		ZoneScoped
-		glUniformMatrix4fv(glGetUniformLocation(ProgramObject, Binding), 1, GL_FALSE, &Mat[0][0]);
+		const glm::mat4 MatVal = Mat;
+		RAL::Get().QueueCommand([this, Binding, MatVal](RALCommandList&)
+		{
+			glUniformMatrix4fv(glGetUniformLocation(ProgramObject, Binding), 1, GL_FALSE, &MatVal[0][0]);
+		}, "SetUniformMat4");
 	}
 
 	void OpenGLShaderProgram::SetUniformVec3(const glm::vec3& Vec, const char* Binding) const
 	{
 		ZoneScoped
-		glUniform3fv(glGetUniformLocation(ProgramObject, Binding), 1, &Vec.x);
+		const glm::vec3 VecVal = Vec;
+		RAL::Get().QueueCommand([this, Binding, VecVal](RALCommandList&)
+        {
+            glUniform3fv(glGetUniformLocation(ProgramObject, Binding), 1, &VecVal.x);
+        }, "SetUniformVec3");
 	}
 }
