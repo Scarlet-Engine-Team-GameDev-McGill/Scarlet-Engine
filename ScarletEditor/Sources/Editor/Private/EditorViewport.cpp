@@ -132,10 +132,10 @@ namespace ScarletEngine
 			EntityHandle* SelectedEntity = *Selection.begin();
 			check(SelectedEntity != nullptr);
 
-			Transform* TransformComponent = SelectedEntity->OwningWorld->GetComponent<Transform>(*SelectedEntity);
-			check(TransformComponent != nullptr);
+			TransformComponent* Transform = SelectedEntity->OwningWorld->GetComponent<TransformComponent>(*SelectedEntity);
+			check(Transform != nullptr);
 
-			glm::mat4 TransformMatrix = TransformComponent->GetTransformMatrix();
+			glm::mat4 TransformMatrix = Transform->GetTransformMatrix();
 			ImGuizmo::Manipulate(glm::value_ptr(ViewportCamera.GetView()), glm::value_ptr(ViewportCamera.GetProj()), ImGuizmo::TRANSLATE, ImGuizmo::WORLD, glm::value_ptr(TransformMatrix));
 			
 			if (ImGui::IsWindowFocused())
@@ -146,9 +146,9 @@ namespace ScarletEngine
 				glm::vec3 Skew{};
 				glm::vec4 Perspective{};
 				glm::decompose(TransformMatrix, Scale, Rotation, Position, Skew, Perspective);
-				TransformComponent->Position = Position;
-				TransformComponent->Rotation = glm::degrees(glm::eulerAngles(Rotation));
-				TransformComponent->Scale = Scale;
+				Transform->Position = Position;
+				Transform->Rotation = glm::degrees(glm::eulerAngles(Rotation));
+				Transform->Scale = Scale;
 			}
 		}
 	}

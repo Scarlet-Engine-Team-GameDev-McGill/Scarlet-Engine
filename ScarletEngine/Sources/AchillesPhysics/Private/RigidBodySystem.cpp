@@ -3,7 +3,7 @@
 
 namespace ScarletEngine::Achilles
 {
-	void RigidBodySystem::UpdateEntity(Transform* Trans, RigidBodyComponent* Rb, const float Dt) const
+	void RigidBodySystem::UpdateEntity(TransformComponent* Trans, RigidBodyComponent* Rb, const float Dt) const
 	{
 		ZoneScoped
 
@@ -27,7 +27,7 @@ namespace ScarletEngine::Achilles
 	void RigidBodySystem::FixedUpdate() const
 	{
 		ZoneScoped
-		const auto& Entities = GetEntities<Transform, RigidBodyComponent>();
+		const auto& Entities = GetEntities<TransformComponent, RigidBodyComponent>();
 
 		// Dynamics
 		for (const auto& [EntityID, Trans, Rb] : Entities)

@@ -1,7 +1,8 @@
 set(PropertyEditor_PrivateDeps
 	"Core"
 	"UI"
-	"Editor")
+	"Editor"
+	"AchillesPhysics")
 
 set(PropertyEditor_PublicDeps)
 

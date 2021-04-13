@@ -54,7 +54,7 @@ namespace ScarletEngine::Widgets
         ImGui::PopID();
     }
 
-    void DrawTransformInput(const char* Label, Transform& Trans)
+    void DrawTransformInput(const char* Label, TransformComponent& Trans)
     {
         if (ImGui::CollapsingHeader(Label, ImGuiTreeNodeFlags_DefaultOpen))
         {

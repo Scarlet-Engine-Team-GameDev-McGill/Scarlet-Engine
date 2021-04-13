@@ -1,15 +1,15 @@
 #pragma once
-#include "RigidBodyComponent.h"
+#include "Components/RigidBodyComponent.h"
 #include "Core.h"
-#include "Transform.h" 
+#include "Components/TransformComponent.h" 
 #include "System.h"
 
 namespace ScarletEngine::Achilles
 {
-	class RigidBodySystem : public System<RigidBodyComponent, Transform>
+	class RigidBodySystem : public System<RigidBodyComponent, TransformComponent>
 	{
 	public:
-		void UpdateEntity(Transform* Trans, RigidBodyComponent* Rb, const float Dt) const;
+		void UpdateEntity(TransformComponent* Trans, RigidBodyComponent* Rb, const float Dt) const;
 		virtual void FixedUpdate() const override;
 	};
 }

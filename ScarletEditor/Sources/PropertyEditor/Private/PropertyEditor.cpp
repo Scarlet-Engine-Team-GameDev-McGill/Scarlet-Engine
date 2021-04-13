@@ -3,6 +3,8 @@
 #include "Editor.h"
 #include "ECS.h"
 #include "Widgets.h"
+#include "Components/RigidBodyComponent.h"
+#include <imgui.h>
 
 namespace ScarletEngine
 {
@@ -27,14 +29,30 @@ namespace ScarletEngine
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 10, ImGui::GetStyle().FramePadding.y });
 			ImGui::Text("Name");
 			ImGui::SameLine();
-			ImGui::InputText("###Name", (char*)FocusedEntity->Name.c_str(), FocusedEntity->Name.capacity());
+			ImGui::InputText("###Name", FocusedEntity->Name.data(), FocusedEntity->Name.capacity());
 
 			ImGui::Text("ID: %u", FocusedEntity->ID);
 
 			ImGui::Separator();
 			
-			DrawTransformEditor();
-			
+			if (FocusedEntity != nullptr)
+			{
+				World* OwningWorld = FocusedEntity->OwningWorld;
+				check(OwningWorld);
+				
+				if (TransformComponent* Transform = OwningWorld->GetComponent<TransformComponent>(*FocusedEntity))
+				{
+					DrawTransformWidget(*Transform);
+				}
+
+				ImGui::Separator();
+
+				if (Achilles::RigidBodyComponent* RigidBody = OwningWorld->GetComponent<Achilles::RigidBodyComponent>(*FocusedEntity))
+				{
+					DrawRigidBodyWidget(*RigidBody);
+				}
+			}
+
 			ImGui::Separator();
 			
 			ImGui::Button("Add Component");
@@ -42,18 +60,46 @@ namespace ScarletEngine
 		}
 	}
 
-	void PropertyEditorPanel::DrawTransformEditor()
+	void PropertyEditorPanel::DrawTransformWidget(TransformComponent& Transform) const
 	{
 		ZoneScoped
-		if (FocusedEntity != nullptr)
+		Widgets::DrawTransformInput("Transform Component", Transform);
+	}
+
+	void PropertyEditorPanel::DrawRigidBodyWidget(Achilles::RigidBodyComponent& RigidBody) const
+	{
+		if (ImGui::CollapsingHeader("Rigidbody Component", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			if (Transform* TransformComponent = FocusedEntity->OwningWorld->GetComponent<Transform>(*FocusedEntity))
+			static bool bFirstColumnOffsetSet = false;
+			static const float FirstColumnOffset = ImGui::CalcTextSize("Gravity").x + 6 * ImGui::GetStyle().ItemSpacing.x;
+
+			ImGui::Columns(2);
+
+			if (!bFirstColumnOffsetSet)
 			{
-				Widgets::DrawTransformInput("Transform Component", *TransformComponent);
+				bFirstColumnOffsetSet = true;
+				ImGui::SetColumnWidth(0, FirstColumnOffset);
 			}
 			
+			ImGui::Text("Gravity");
+			ImGui::Text("Mass");
+			ImGui::NextColumn();
+			
+			Widgets::DrawVec3Input("Gravity", RigidBody.Gravity);
+			ImGui::DragFloat("###Mass", &RigidBody.Mass, 0.1f, 0.0000001f, std::numeric_limits<float>::max(), "%.2f kg", ImGuiSliderFlags_AlwaysClamp);
+
+			ImGui::Columns(1);
+
+			ImGui::Text("Use Kepler Gravity");
+			const ImVec2 StartPos = ImGui::GetCursorPos();
+
+			ImGui::SameLine(ImGui::GetWindowWidth() - 50);
+			const ImVec2 EndPos = ImGui::GetCursorPos();
+			ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 1.f, 0.0f, 0.0f, 1.f}), 10);
+			ImGui::Checkbox("###UseKeplerGravity", &RigidBody.bUsesKeplerGravity);
 		}
 	}
+
 
 	void PropertyEditorPanel::OnSelectionChanged()
 	{

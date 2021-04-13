@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "System.h"
 #include "StaticMeshComponent.h"
-#include "Transform.h"
+#include "Components/TransformComponent.h"
 
 namespace ScarletEngine
 {
-    class SMCRenderSystem : public System<SceneProxy, const StaticMeshComponent, const Transform>
+    class SMCRenderSystem : public System<SceneProxy, const StaticMeshComponent, const TransformComponent>
     {
     public:
         virtual void Update() const override
@@ -13,7 +13,7 @@ namespace ScarletEngine
             SceneProxy* Proxy = GetSingleton<SceneProxy>();
             Proxy->Reset(); // @todo: this will only work while there is a single rendering system
             
-            for (const auto& [EID, SMC, Trans] : GetEntities<const StaticMeshComponent, const Transform>())
+            for (const auto& [EID, SMC, Trans] : GetEntities<const StaticMeshComponent, const TransformComponent>())
             {
                 Proxy->DrawSMC(*Trans, *SMC);
             }

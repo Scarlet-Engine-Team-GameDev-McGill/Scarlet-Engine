@@ -2,10 +2,10 @@
 
 namespace ScarletEngine::Achilles
 {
-	void SpringSystem::UpdateEntity(const SpringComponent* Spring, RigidBodyComponent* Rb, const Transform* Trans) const
+	void SpringSystem::UpdateEntity(const SpringComponent* Spring, RigidBodyComponent* Rb, const TransformComponent* Trans) const
 	{
 		ZoneScoped
-		const auto [EntA, TransAnchor] = GetEntityChecked<const Transform>(Spring->Anchor);
+		const auto [EntA, TransAnchor] = GetEntityChecked<const TransformComponent>(Spring->Anchor);
 
 		const glm::vec3 Distance = Trans->Position - TransAnchor->Position;
 		const glm::vec3 F = -glm::normalize(Distance) * Spring->Stiffness * (glm::length(Distance) - Spring->RestLength);
@@ -21,7 +21,7 @@ namespace ScarletEngine::Achilles
 	void SpringSystem::FixedUpdate() const
 	{
 		ZoneScoped
-		for (const auto& [EntityID, Springs, Rb, Trans] : GetEntities<const SpringCollection, RigidBodyComponent, const Transform>())
+		for (const auto& [EntityID, Springs, Rb, Trans] : GetEntities<const SpringCollection, RigidBodyComponent, const TransformComponent>())
 		{
 			for (size_t i = 0; i < Springs->size(); i++)
 			{
@@ -29,7 +29,7 @@ namespace ScarletEngine::Achilles
 			}
 		}
 
-		for (const auto& [EntityID, Spring, Rb, Trans] : GetEntities<const SpringComponent, RigidBodyComponent, const Transform>())
+		for (const auto& [EntityID, Spring, Rb, Trans] : GetEntities<const SpringComponent, RigidBodyComponent, const TransformComponent>())
 		{
 			UpdateEntity(Spring, Rb, Trans);
 		}

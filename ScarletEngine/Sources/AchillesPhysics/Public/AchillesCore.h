@@ -1,7 +1,7 @@
 #pragma once
-#include "RigidBodyComponent.h"
-#include "ColliderComponent.h"
-#include "SpringComponent.h"
+#include "Components/RigidBodyComponent.h"
+#include "Components/ColliderComponent.h"
+#include "Components/SpringComponent.h"
 #include "SpringSystem.h"
 #include "RigidBodySystem.h"
 #include "ColliderSystem.h"

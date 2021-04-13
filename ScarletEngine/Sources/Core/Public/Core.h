@@ -12,4 +12,4 @@
 #include "ModuleManager.h"
 
 // Core component types
-#include "Transform.h"
+#include "Components/TransformComponent.h"

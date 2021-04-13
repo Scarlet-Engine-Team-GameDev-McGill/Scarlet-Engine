@@ -1,5 +1,5 @@
 #include "ColliderSystem.h"
-#include "RigidBodyComponent.h"
+#include "Components/RigidBodyComponent.h"
 #include "Core.h"
 #include "Engine.h"
 
@@ -29,7 +29,7 @@ namespace ScarletEngine::Achilles
 		}
 
 		// Compute intersection
-		const auto& Entities = GetEntities<Transform, SphereColliderComponent, RigidBodyComponent>();
+		const auto& Entities = GetEntities<TransformComponent, SphereColliderComponent, RigidBodyComponent>();
 		const size_t Size = Entities.size();
 
 		if (Size == 0)
@@ -68,7 +68,7 @@ namespace ScarletEngine::Achilles
 	}
 
 	void SphereVsSphereColliderSystem::SolveIntersection
-		(RigidBodyComponent* Rb, Transform* Trans, SphereColliderComponent* Sphere, SphereColliderComponent* OtherSphere, const glm::vec3 Fi, const glm::vec3 newPos) const
+		(RigidBodyComponent* Rb, TransformComponent* Trans, SphereColliderComponent* Sphere, SphereColliderComponent* OtherSphere, const glm::vec3 Fi, const glm::vec3 newPos) const
 	{
 		Rb->Force += Fi;
 		Rb->Velocity *= (1.f - OtherSphere->FrictionCoefficient);
@@ -83,7 +83,7 @@ namespace ScarletEngine::Achilles
 		// Get Intersection
 		for (const auto& [EntP, Plane] : GetEntities<PlaneColliderComponent>())
 		{
-			for (const auto& [EntS, TransSphere, Sphere, RbSphere] : GetEntities<Transform, SphereColliderComponent, RigidBodyComponent>())
+			for (const auto& [EntS, TransSphere, Sphere, RbSphere] : GetEntities<TransformComponent, SphereColliderComponent, RigidBodyComponent>())
 			{
 				const IntersectionData IntersectionDepth = GetIntersection(Plane, Sphere);
 
