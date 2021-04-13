@@ -8,6 +8,23 @@
 
 namespace ScarletEngine
 {
+    class ImGuiVulkanObjects {
+    public:
+        ImGuiVulkanObjects();
+        void Initialize(VkDevice device, VkFormat swapChainImageFormat, size_t swapChainImageCount);
+        void CleanUp(VkDevice device);
+    private:
+        void CreateRenderPass(VkDevice device, VkFormat swapChainFormat);
+        void CreateCommandPool();
+        void CreateCommandBuffers();
+        void CreateFramebuffers();
+
+        VkRenderPass RenderPass;
+        VkCommandPool CommandPool;
+        std::vector<VkCommandBuffer> CommandBuffers;
+        std::vector<VkFramebuffer> Framebuffers;
+    };
+
     class VulkanRAL : public RAL
     {
     public:
@@ -136,6 +153,8 @@ namespace ScarletEngine
         Array<const char*> RequiredInstanceExtensions;
         Array<const char*> RequiredDeviceExtensions;
         bool bEnableValidationLayers;
+
+        ImGuiVulkanObjects ImGuiObjects;
 
         VkClearValue ClearColor;
         uint32_t ImageIndex;
