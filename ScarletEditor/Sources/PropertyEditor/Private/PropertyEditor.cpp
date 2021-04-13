@@ -82,21 +82,18 @@ namespace ScarletEngine
 			}
 			
 			ImGui::Text("Gravity");
+			ImGui::NextColumn();
+			Widgets::DrawVec3Input("Gravity", RigidBody.Gravity);
+
+			ImGui::NextColumn();
+
 			ImGui::Text("Mass");
 			ImGui::NextColumn();
-			
-			Widgets::DrawVec3Input("Gravity", RigidBody.Gravity);
 			ImGui::DragFloat("###Mass", &RigidBody.Mass, 0.1f, 0.0000001f, std::numeric_limits<float>::max(), "%.2f kg", ImGuiSliderFlags_AlwaysClamp);
 
 			ImGui::Columns(1);
 
-			ImGui::Text("Use Kepler Gravity");
-			const ImVec2 StartPos = ImGui::GetCursorPos();
-
-			ImGui::SameLine(ImGui::GetWindowWidth() - 50);
-			const ImVec2 EndPos = ImGui::GetCursorPos();
-			ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 1.f, 0.0f, 0.0f, 1.f}), 10);
-			ImGui::Checkbox("###UseKeplerGravity", &RigidBody.bUsesKeplerGravity);
+			Widgets::DrawBooleanInput("Use Kepler Gravity", RigidBody.bUsesKeplerGravity);
 		}
 	}
 

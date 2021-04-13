@@ -69,20 +69,43 @@ namespace ScarletEngine::Widgets
                 ImGui::SetColumnWidth(0, FirstColumnOffset);
             }
 
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2 { 0, 2 * GImGui->Style.ItemSpacing.y });
             ImGui::Text("Position");
+            ImGui::NextColumn();
+            DrawVec3Input("Position", Trans.Position);
+
+            ImGui::NextColumn();
+ 
             ImGui::Text("Rotation");
+            ImGui::NextColumn();
+            DrawVec3Input("Rotation", Trans.Rotation);
+
+            ImGui::NextColumn();
+            
             ImGui::Text("Scale");
-            ImGui::PopStyleVar();
+            ImGui::NextColumn();
+            DrawVec3Input("Scale", Trans.Scale);
 
             ImGui::NextColumn();
 
-            DrawVec3Input("Position", Trans.Position);
-            DrawVec3Input("Rotation", Trans.Rotation);
-            DrawVec3Input("Scale", Trans.Scale);
 
             // Restore default columns
             ImGui::Columns(1);
         }
     }
+
+    void DrawBooleanInput(const char* Label, bool& Boolean)
+    {
+        ImGui::Text("%s", Label);
+        ImGui::PushID(Label);
+        const ImVec2 WindowPos = ImGui::GetWindowPos();
+        ImVec2 StartPos = { WindowPos.x + ImGui::GetCursorPos().x + ImGui::CalcTextSize("Use Kepler Gravity").x + 2 * ImGui::GetStyle().ItemSpacing.x, WindowPos.y + ImGui::GetCursorPos().y};
+        ImGui::SameLine(ImGui::GetWindowWidth() - 50);
+        ImVec2 EndPos = { ImGui::GetWindowPos().x + ImGui::GetCursorPos().x - 2 * ImGui::GetStyle().ItemSpacing.x, WindowPos.y + ImGui::GetCursorPos().y };
+        const float MiddleY = (EndPos.y + StartPos.y) / 2;
+        StartPos.y = EndPos.y = MiddleY;
+        ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 0.2f, 0.2f, 0.2f, 1.f}), 2);
+        ImGui::Checkbox("", &Boolean);
+        ImGui::PopID();
+    }
+
 }
