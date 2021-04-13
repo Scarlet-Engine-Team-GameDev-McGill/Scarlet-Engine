@@ -111,6 +111,7 @@ namespace ScarletEngine
 		Style.WindowMenuButtonPosition = ImGuiDir_Right;
 		Style.TabRounding = 0.f;
 		Style.FramePadding.x = 8.f;
+		Style.CellPadding.x = 8.f;
 
 #ifdef RAL_USE_OPENGL
 		ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();

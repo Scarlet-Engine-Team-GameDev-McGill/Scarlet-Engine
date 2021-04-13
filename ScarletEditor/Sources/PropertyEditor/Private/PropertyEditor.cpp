@@ -73,25 +73,24 @@ namespace ScarletEngine
 			static bool bFirstColumnOffsetSet = false;
 			static const float FirstColumnOffset = ImGui::CalcTextSize("Gravity").x + 6 * ImGui::GetStyle().ItemSpacing.x;
 
-			ImGui::Columns(2);
-
-			if (!bFirstColumnOffsetSet)
-			{
-				bFirstColumnOffsetSet = true;
-				ImGui::SetColumnWidth(0, FirstColumnOffset);
-			}
+			ImGui::BeginTable("RigidbodyComponentContent", 2, ImGuiTableFlags_Resizable);
 			
+			ImGui::TableSetupColumn("", 0, ImGui::CalcTextSize("Gravity").x + 6 * ImGui::GetStyle().ItemSpacing.x);
+			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
+
+			ImGui::TableNextColumn();
 			ImGui::Text("Gravity");
-			ImGui::NextColumn();
+			ImGui::TableNextColumn();
 			Widgets::DrawVec3Input("Gravity", RigidBody.Gravity);
 
-			ImGui::NextColumn();
+			ImGui::TableNextRow();
 
+			ImGui::TableNextColumn();
 			ImGui::Text("Mass");
-			ImGui::NextColumn();
+			ImGui::TableNextColumn();
 			ImGui::DragFloat("###Mass", &RigidBody.Mass, 0.1f, 0.0000001f, std::numeric_limits<float>::max(), "%.2f kg", ImGuiSliderFlags_AlwaysClamp);
 
-			ImGui::Columns(1);
+			ImGui::EndTable();
 
 			Widgets::DrawBooleanInput("Use Kepler Gravity", RigidBody.bUsesKeplerGravity);
 		}

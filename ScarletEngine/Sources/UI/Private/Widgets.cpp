@@ -74,19 +74,18 @@ namespace ScarletEngine::Widgets
             DrawVec3Input("Position", Trans.Position);
 
             ImGui::NextColumn();
- 
+
             ImGui::Text("Rotation");
             ImGui::NextColumn();
             DrawVec3Input("Rotation", Trans.Rotation);
 
             ImGui::NextColumn();
-            
+
             ImGui::Text("Scale");
             ImGui::NextColumn();
             DrawVec3Input("Scale", Trans.Scale);
 
             ImGui::NextColumn();
-
 
             // Restore default columns
             ImGui::Columns(1);
@@ -98,14 +97,20 @@ namespace ScarletEngine::Widgets
         ImGui::Text("%s", Label);
         ImGui::PushID(Label);
         const ImVec2 WindowPos = ImGui::GetWindowPos();
-        ImVec2 StartPos = { WindowPos.x + ImGui::GetCursorPos().x + ImGui::CalcTextSize("Use Kepler Gravity").x + 2 * ImGui::GetStyle().ItemSpacing.x, WindowPos.y + ImGui::GetCursorPos().y};
+        ImVec2 StartPos = {
+            WindowPos.x + ImGui::GetCursorPos().x + ImGui::CalcTextSize("Use Kepler Gravity").x + 2 * ImGui::GetStyle().
+            ItemSpacing.x,
+            WindowPos.y + ImGui::GetCursorPos().y
+        };
         ImGui::SameLine(ImGui::GetWindowWidth() - 50);
-        ImVec2 EndPos = { ImGui::GetWindowPos().x + ImGui::GetCursorPos().x - 2 * ImGui::GetStyle().ItemSpacing.x, WindowPos.y + ImGui::GetCursorPos().y };
+        ImVec2 EndPos = {
+            ImGui::GetWindowPos().x + ImGui::GetCursorPos().x - 2 * ImGui::GetStyle().ItemSpacing.x,
+            WindowPos.y + ImGui::GetCursorPos().y
+        };
         const float MiddleY = (EndPos.y + StartPos.y) / 2;
         StartPos.y = EndPos.y = MiddleY;
-        ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 0.2f, 0.2f, 0.2f, 1.f}), 2);
+        ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 0.2f, 0.2f, 0.2f, 1.f }), 2);
         ImGui::Checkbox("", &Boolean);
         ImGui::PopID();
     }
-
 }
