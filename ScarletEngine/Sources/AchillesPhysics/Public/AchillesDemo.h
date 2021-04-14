@@ -34,7 +34,7 @@ namespace ScarletEngine::Achilles
 		Trans->Scale = Scale;
 
 		Rb->Velocity = V0;
-		Rb->Mass = Mass;
+		Rb->InvMass = 1 / Mass;
 
 		Sphere->Radius = Radius;
 		Sphere->Pos = Pos;
@@ -46,12 +46,12 @@ namespace ScarletEngine::Achilles
 	};
 
 
-	EID MakeGround(SharedPtr<World>& World, float Dist = 0.f, float Friction = 0.15f)
+	EID MakeGround(SharedPtr<World>& World, float Dist = 0.f, float Friction = 0.15f, glm::vec3 Normal = glm::vec3(0.f, 1.f, 0.f))
 	{
 		auto [Ent, Plane] = World->CreateEntity<PlaneColliderComponent>("Ground");
 
 		Plane->Distance = Dist;
-		Plane->Normal = glm::vec3(0.f, 1.f, 0.f);
+		Plane->Normal = Normal;
 		Plane->FrictionCoefficient = Friction;
 		return Ent;
 	};
@@ -285,7 +285,7 @@ namespace ScarletEngine::Achilles
 		Trans->Scale = glm::vec3(Scale * 0.05f);
 
 		Rb->Velocity = V0;
-		Rb->Mass = Mass;
+		Rb->InvMass = 1 / Mass;
 		Rb->Gravity = glm::vec3(0.f);
 		Rb->bUsesKeplerGravity = true;
 
@@ -302,5 +302,50 @@ namespace ScarletEngine::Achilles
 		MakePlanet(World, glm::vec3(4.f, -0.4f, 0.f), glm::vec3(0.f, 0.f, 2.f), 7.f * glm::pow(10.f, 8.f), 0.6f, "Earth");
 		MakePlanet(World, glm::vec3(2.f, 0.2f, 0.f), glm::vec3(0.f, 0.f, 2.5f), 1.f, 0.5f, "Mercury");
 		MakePlanet(World, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f), 3.f * glm::pow(10.f, 11.f), 2.f, "Sun");
+	}
+
+	void DemoFluid(SharedPtr<World>& World)
+	{
+		int width = 5;
+		int height = 5;
+		int depth = 5;
+		float scale = 0.1f;
+
+		int offsetHeight = 0;
+
+		auto VertShader = RAL::Get().CreateShader(RALShaderStage::Vertex, "/ScarletEngine/Shaders/test_shader.vert");
+		auto FragShader = RAL::Get().CreateShader(RALShaderStage::Pixel, "/ScarletEngine/Shaders/test_shader.frag");
+		auto ShaderProgram = RAL::Get().CreateShaderProgram(VertShader, FragShader, nullptr, nullptr);
+		ScarDelete(VertShader);
+		ScarDelete(FragShader);
+
+		auto MeshHandle = AssetManager::LoadStaticMesh("/ScarletEngine/Content/Sphere.obj");
+		auto VB = RAL::Get().CreateBuffer((uint32_t)MeshHandle->Vertices.size() * sizeof(Vertex), RALBufferUsage::STATIC_DRAW);
+		auto IB = RAL::Get().CreateBuffer((uint32_t)MeshHandle->Indices.size() * sizeof(uint32_t), RALBufferUsage::STATIC_DRAW);
+		VB->UploadData(MeshHandle->Vertices.data(), MeshHandle->Vertices.size() * sizeof(Vertex));
+		IB->UploadData(MeshHandle->Indices.data(), MeshHandle->Indices.size() * sizeof(uint32_t));
+		auto VA = RAL::Get().CreateVertexArray(VB, IB);
+		
+		for (int x = 0; x < width; x++)
+		{
+			for (int y = offsetHeight; y < offsetHeight + height; y++)
+			{
+				for (int z = 0; z < depth; z++)
+				{
+					const auto [Ent, Trans, Mesh, Fluid, Sphere, Rb] = World->CreateEntity<Transform, StaticMeshComponent, FluidComponent, SphereColliderComponent, RigidBodyComponent>("Particle");
+					Trans->Position = 4.f * scale * glm::vec3(x, y, z);
+					Trans->Scale = glm::vec3(scale * 0.5f);
+					Sphere->Pos = 4.f * scale * glm::vec3(x, y, z);
+					Sphere->Radius = scale * 0.5f;
+
+					Mesh->MeshHandle = MeshHandle;
+					Mesh->VertexBuff = VB;
+					Mesh->VertexArray = VA;
+					Mesh->Shader = ShaderProgram;
+				}
+			}
+		}
+
+		MakeGround(World, 0.f, 0.9f, glm::vec3(0.f, 1.f, 0.f));
 	}
 }

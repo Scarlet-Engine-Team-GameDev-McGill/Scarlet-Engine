@@ -8,8 +8,8 @@ namespace ScarletEngine::Achilles
 		ZoneScoped
 
 		// translational
-		Rb->Force += Rb->Gravity * Rb->Mass;
-		Rb->Velocity += Rb->Force / Rb->Mass * Dt;
+		Rb->Force += Rb->Gravity / Rb->InvMass;
+		Rb->Velocity += Rb->Force * Rb->InvMass * Dt;
 		Trans->Position += Rb->Velocity * Dt;
 		Rb->Force = glm::vec3(0.f, 0.f, 0.f);
 
@@ -60,7 +60,7 @@ namespace ScarletEngine::Achilles
 					if (Dist != 0)
 					{
 						const glm::vec3 UnitVec = (PosB - PosA) / Dist;
-						const glm::vec3 GravForce = (6.14f * std::pow(10.f, -11.f) * RbA->Mass * RbB->Mass / (Dist * Dist)) * UnitVec;
+						const glm::vec3 GravForce = (6.14f * std::pow(10.f, -11.f) / (Dist * Dist * RbA->InvMass * RbB->InvMass)) * UnitVec;
 
 						RbA->Force += GravForce;
 						RbB->Force -= GravForce;

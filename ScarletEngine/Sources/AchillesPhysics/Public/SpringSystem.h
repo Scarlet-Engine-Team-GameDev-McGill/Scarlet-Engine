@@ -13,5 +13,7 @@ namespace ScarletEngine::Achilles
 		virtual void FixedUpdate() const override;
 	private:
 		void UpdateEntity(const SpringComponent* Spring, RigidBodyComponent* Rb, const Transform* Trans) const;
+		float Poly6Kernel(float radius, float h);
+		float SpikyKernel(float radius, float h);
 	};
 }

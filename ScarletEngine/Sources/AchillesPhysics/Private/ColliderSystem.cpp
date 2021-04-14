@@ -27,7 +27,7 @@ namespace ScarletEngine::Achilles
 		{
 			Sphere->Pos += Rb->Velocity * static_cast<float>(FIXED_UPDATE_S);
 		}
-
+		/*
 		// Compute intersection
 		const auto& Entities = GetEntities<Transform, SphereColliderComponent, RigidBodyComponent>();
 		const size_t Size = Entities.size();
@@ -36,7 +36,7 @@ namespace ScarletEngine::Achilles
 		{
 			return;
 		}
-
+		
 		for (size_t i = 0; i < Size - 1; i++)
 		{
 			const auto& [EntityA, TransA, SphereA, RbA] = Entities[i];
@@ -47,13 +47,13 @@ namespace ScarletEngine::Achilles
 
 				if (IntersectionDepth.Distance < 0.f)
 				{
-					const glm::vec3 Fi = - (glm::length(RbA->Velocity - RbB->Velocity) * IntersectionDepth.Direction) / (static_cast<float>(FIXED_UPDATE_S) * (1 / RbA->Mass + 1 / RbB->Mass));
+					const glm::vec3 Fi = - (glm::length(RbA->Velocity - RbB->Velocity) * IntersectionDepth.Direction) / (static_cast<float>(FIXED_UPDATE_S) * (RbA->InvMass + 1 / RbB->InvMass));
 
 					SolveIntersection(RbA, TransA, SphereA, SphereB, Fi, IntersectionDepth.Direction * IntersectionDepth.Distance);
 					SolveIntersection(RbB, TransB, SphereB, SphereA, -Fi, -IntersectionDepth.Direction * IntersectionDepth.Distance);
 				}
 			}
-		}
+		}*/
 	}
 
 	IntersectionData SphereVsSphereColliderSystem::GetIntersection(const SphereColliderComponent* SphereA, const SphereColliderComponent* SphereB) const
@@ -74,7 +74,7 @@ namespace ScarletEngine::Achilles
 		Rb->Velocity *= (1.f - OtherSphere->FrictionCoefficient);
 		Trans->Position += newPos;
 		Sphere->Pos = Trans->Position;
-		Rb->Force -= Rb->Gravity * Rb->Mass;
+		Rb->Force -= Rb->Gravity / Rb->InvMass;
 	}
 
 	void PlaneVsSphereColliderSystem::FixedUpdate() const
@@ -95,7 +95,7 @@ namespace ScarletEngine::Achilles
 					RbSphere->Velocity = (1.f - Plane->FrictionCoefficient) * glm::reflect(RbSphere->Velocity, Plane->Normal);
 
 					Sphere->Pos += NewPos;
-					RbSphere->Force -= RbSphere->Gravity * RbSphere->Mass;
+					RbSphere->Force -= RbSphere->Gravity / RbSphere->InvMass;
 				}
 			}
 		}
