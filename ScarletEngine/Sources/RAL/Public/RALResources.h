@@ -65,12 +65,12 @@ namespace ScarletEngine
 		INDEX_BUFFER,
 	};
 	
-	typedef enum RALBufferPropertyFlagBits {
+	enum RALBufferPropertyFlagBits {
 		DEVICE_LOCAL_BIT = 0x00000001,
 		HOST_VISIBLE_BIT = 0x00000002,
 		HOST_COHERENT_BIT = 0x00000004,
 		HOST_CACHED_BIT = 0x00000008,
-	} RALBufferPropertyFlagBits;
+	};
 	typedef uint32_t RALBufferPropertyFlags;
 
 	class RALGpuBuffer
