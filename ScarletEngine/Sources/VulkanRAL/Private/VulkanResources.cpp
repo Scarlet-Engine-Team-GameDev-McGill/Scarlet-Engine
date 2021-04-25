@@ -4,8 +4,35 @@
 
 namespace ScarletEngine
 {
+
+    VulkanFramebuffer::VulkanFramebuffer(VkDevice LogicalDevice, uint32_t InWidth, uint32_t InHeight, 
+        uint32_t InSamples, VkImage ColorImage, VkImageView ColorImageView, VkDeviceMemory ColorImageMemory,
+        VkSampler ColorImageSampler, VkFramebuffer Framebuffer) 
+        : RALFramebuffer(InWidth, InHeight, InSamples)
+        , device(LogicalDevice), colorImage(ColorImage), colorImageView(ColorImageView)
+        , colorImageMemory(ColorImageMemory), colorImageSampler(ColorImageSampler), framebuffer(Framebuffer)
+    {
+    }
+
+    VulkanFramebuffer::~VulkanFramebuffer() 
+    {
+        ZoneScoped
+        vkDestroyImage(device, colorImage, nullptr);
+        vkDestroyImageView(device, colorImageView, nullptr);
+        vkFreeMemory(device, colorImageMemory, nullptr);
+        vkDestroySampler(device, colorImageSampler, nullptr);
+        vkDestroyFramebuffer(device, framebuffer, nullptr);
+
+    }
+
+    // TODO: implement these 
+    void VulkanFramebuffer::Bind() const {}
+    void VulkanFramebuffer::Unbind() const {}
+    void VulkanFramebuffer::Resize(uint32_t NewWidth, uint32_t NewHeight) {}
+    uint64_t VulkanFramebuffer::GetColorAttachmentID() const { return 1;}
+
     VulkanGpuBuffer::VulkanGpuBuffer(VkPhysicalDevice InPhysicalDevice, VkDevice InLogicalDevice, uint32_t InSize,
-                                     RALBufferType InType, RALBufferUsage InUsage, RALBufferPropertyFlags InProperties)
+        RALBufferType InType, RALBufferUsage InUsage, RALBufferPropertyFlags InProperties)
         : RALGpuBuffer(InSize, InType, InUsage, InProperties)
           , PhysicalDevice(InPhysicalDevice)
           , LogicalDevice(InLogicalDevice)
@@ -43,7 +70,7 @@ namespace ScarletEngine
         CHECK_RESULT(vkAllocateMemory(LogicalDevice, &AllocateInfo, nullptr, &Memory));
 
         vkBindBufferMemory(LogicalDevice, Buffer, Memory, 0);
-    }
+    } 
 
     VulkanGpuBuffer::~VulkanGpuBuffer()
     {

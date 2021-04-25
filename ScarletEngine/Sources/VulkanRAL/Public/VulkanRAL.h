@@ -109,6 +109,17 @@ namespace ScarletEngine
         void CreateCommandPool();
         void CreateCommandBuffers();
 
+        // Generic util methods for image related objects, probably best
+        // to move these somewhere else to reduce size of impl file
+        VkFormat GetSupportedDepthFormat(const std::vector<VkFormat>& Candidates, VkImageTiling tiling, 
+            VkFormatFeatureFlags Features);
+        uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+        void CreateImage(uint32_t Width, uint32_t Height, VkFormat format, VkImageTiling Tiling, 
+            VkImageUsageFlags Usage, VkMemoryPropertyFlags Properties, VkImage& Image, VkDeviceMemory& ImageMemory);
+        VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+        VkSampler CreateSampler(VkFilter magFilter, VkFilter minFilter, 
+            VkSamplerMipmapMode mipmapMode, VkSamplerAddressMode addressMode);
+
         void BeginRenderPassCommandBuff(VkCommandBuffer& CmdBuff); // @todo: remove when pipeline is properly abstracted
         void EndRenderPassCommandBuff(VkCommandBuffer& CmdBuff); // @todo: remove when pipeline is properly abstracted
 

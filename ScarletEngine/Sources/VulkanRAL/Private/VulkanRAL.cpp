@@ -456,7 +456,7 @@ namespace ScarletEngine
         CreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         CreateInfo.presentMode = PresentMode;
         CreateInfo.clipped = VK_TRUE;
-        CreateInfo.oldSwapchain = nullptr;
+        CreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
         check(vkCreateSwapchainKHR(LogicalDevice, &CreateInfo, nullptr, &Swapchain) == VK_SUCCESS);
 
@@ -491,6 +491,107 @@ namespace ScarletEngine
 
             CHECK_RESULT(vkCreateImageView(LogicalDevice, &CreateInfo, nullptr, &SwapchainImageViews[i]));
         }
+    }
+
+    VkFormat VulkanRAL::GetSupportedDepthFormat(const std::vector<VkFormat>& Candidates, VkImageTiling tiling, 
+        VkFormatFeatureFlags Features)
+    {
+        for(VkFormat format : Candidates) 
+        {
+            VkFormatProperties props;
+            vkGetPhysicalDeviceFormatProperties(PhysicalDevice, format, &props);
+
+            if(tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & Features) == Features) return format;
+            else if(tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & Features) == Features) return format;
+            else throw std::runtime_error("failed to find supported format!");
+        }
+    }
+
+    void VulkanRAL::CreateImage(uint32_t Width, uint32_t Height, VkFormat format, VkImageTiling Tiling, 
+        VkImageUsageFlags Usage, VkMemoryPropertyFlags Properties, VkImage& Image, VkDeviceMemory& ImageMemory)
+    {
+        VkImageCreateInfo imageInfo{};
+        imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        imageInfo.imageType = VK_IMAGE_TYPE_2D;
+        imageInfo.extent.width = Width;
+        imageInfo.extent.height = Height;
+        imageInfo.extent.depth = 1;
+        imageInfo.mipLevels = 1;
+        imageInfo.arrayLayers = 1;
+        imageInfo.format = format;
+        imageInfo.tiling = Tiling;
+        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageInfo.usage = Usage;
+        imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        imageInfo.flags = 0;
+
+        CHECK_RESULT(vkCreateImage(LogicalDevice, &imageInfo, nullptr, &Image));
+
+        VkMemoryRequirements memRequirements;
+        vkGetImageMemoryRequirements(LogicalDevice, Image, &memRequirements);
+
+        VkMemoryAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.allocationSize = memRequirements.size;
+        allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, Properties);
+
+        CHECK_RESULT(vkAllocateMemory(LogicalDevice, &allocInfo, nullptr, &ImageMemory));
+        vkBindImageMemory(LogicalDevice, Image, ImageMemory, 0);       
+    }
+
+    VkImageView VulkanRAL::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+    {
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image = image;
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = format;
+        viewInfo.subresourceRange.aspectMask = aspectFlags;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+
+        VkImageView imageView;
+        CHECK_RESULT(vkCreateImageView(LogicalDevice, &viewInfo, nullptr, &imageView));
+
+        return imageView;       
+    }
+
+    VkSampler VulkanRAL::CreateSampler(VkFilter magFilter, VkFilter minFilter, 
+        VkSamplerMipmapMode mipmapMode, VkSamplerAddressMode addressMode) {
+		VkSamplerCreateInfo samplerInfo{};
+        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		samplerInfo.magFilter = magFilter;
+		samplerInfo.minFilter = minFilter;
+		samplerInfo.mipmapMode = mipmapMode;
+		samplerInfo.addressModeU = addressMode;
+		samplerInfo.addressModeV = addressMode;
+		samplerInfo.addressModeW = addressMode;
+		samplerInfo.mipLodBias = 0.0f;
+		samplerInfo.maxAnisotropy = 1.0f;
+		samplerInfo.minLod = 0.0f;
+		samplerInfo.maxLod = 1.0f;
+		samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+
+        VkSampler sampler;
+		CHECK_RESULT(vkCreateSampler(LogicalDevice, &samplerInfo, nullptr, &sampler));
+
+        return sampler;
+    }
+
+    uint32_t VulkanRAL::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+        VkPhysicalDeviceMemoryProperties memProperties;
+        vkGetPhysicalDeviceMemoryProperties(PhysicalDevice, &memProperties);
+
+        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+            if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+                return i;
+            }
+        }
+
+        throw std::runtime_error("failed to find suitable memory type");
     }
 
     Array<char> VulkanRAL::ReadShaderFile(const String& Filename)
@@ -690,7 +791,7 @@ namespace ScarletEngine
         PipelineInfo.layout = PipelineLayout;
         PipelineInfo.renderPass = RenderPass;
         PipelineInfo.subpass = 0;
-        PipelineInfo.basePipelineHandle = nullptr;
+        PipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
         PipelineInfo.basePipelineIndex = -1;
 
         CHECK_RESULT(
@@ -772,7 +873,7 @@ namespace ScarletEngine
         ImageAvailableSemaphores.resize(MaxFramesInFlight);
         RenderFinishedSemaphores.resize(MaxFramesInFlight);
         InFlightFences.resize(MaxFramesInFlight);
-        InFlightImages.resize(SwapchainImages.size(), nullptr);
+        InFlightImages.resize(SwapchainImages.size(), VK_NULL_HANDLE);
 
         VkSemaphoreCreateInfo SemaphoreCreateInfo {};
         SemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -882,7 +983,7 @@ namespace ScarletEngine
 
         ImageIndex = -1;
         const VkResult Result = vkAcquireNextImageKHR(LogicalDevice, Swapchain, UINT64_MAX,
-                                                      ImageAvailableSemaphores[CurrentFrameIndex], nullptr,
+                                                      ImageAvailableSemaphores[CurrentFrameIndex], VK_NULL_HANDLE,
                                                       &ImageIndex);
         if (Result == VK_ERROR_OUT_OF_DATE_KHR || Result == VK_SUBOPTIMAL_KHR || bFramebufferResized)
         {
@@ -928,7 +1029,7 @@ namespace ScarletEngine
             CHECK_RESULT(vkEndCommandBuffer(CmdList.CmdBuff));
         }
 
-        if (InFlightImages[ImageIndex] != nullptr)
+        if (InFlightImages[ImageIndex] != VK_NULL_HANDLE)
         {
             vkWaitForFences(LogicalDevice, 1, &InFlightImages[ImageIndex], VK_TRUE, UINT64_MAX);
         }
@@ -1044,6 +1145,87 @@ namespace ScarletEngine
 
     RALFramebuffer* VulkanRAL::CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples)
     {
+        VkFormat colorFormat = VK_FORMAT_R8G8B8A8_UNORM;
+        VkImage colorImage;
+        VkImageView colorImageView;
+        VkDeviceMemory colorImageMemory;
+        VkSampler colorImageSampler;
+
+        CreateImage(Width, Height, colorFormat, VK_IMAGE_TILING_OPTIMAL,
+            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+            colorImage, colorImageMemory);
+        colorImageView = CreateImageView(colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+        colorImageSampler = CreateSampler(VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_MIPMAP_MODE_LINEAR, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+
+        VkImageView attachments[] = {colorImageView};
+
+        VkFramebufferCreateInfo frameBufferInfo{};
+        frameBufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        frameBufferInfo.attachmentCount = 1;
+        frameBufferInfo.renderPass = RenderPass; // TODO: make sure to change this if render pass is abstracted out        
+        frameBufferInfo.pAttachments = attachments;
+        frameBufferInfo.width = Width;
+        frameBufferInfo.height = Height;
+        frameBufferInfo.layers = 1;
+
+        VkFramebuffer framebuffer;
+        CHECK_RESULT(vkCreateFramebuffer(LogicalDevice, &frameBufferInfo, nullptr, &framebuffer));
+
+        return ScarNew(VulkanFramebuffer, LogicalDevice, Width, Height, Samples, colorImage, colorImageView, colorImageMemory,
+            colorImageSampler, framebuffer);
+
+        // TODO: for now we can ignore depth and reuse the same render pass that's already created. In the future
+        // though this info should technically be abstracted into some sort of render pass object because
+        // rendering to a viewport will probably require going through multiple render passes
+        /*
+        VkFormat depthFormat;
+        GetSupportedDepthFormat(
+            {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT}, 
+            VK_IMAGE_TILING_OPTIMAL, 
+            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+        );
+        VkImage depthImage;
+        VkDeviceMemory depthImageMemory;
+        VkImageView depthImageView;
+
+        CreateImage(Width, Height, depthFormat, VK_IMAGE_TILING_OPTIMAL, 
+            VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+            depthImage, depthImageMemory);
+        depthImageView = CreateImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+
+        std::array<VkAttachmentDescription, 2> attachmentDescription = {};
+
+        // color attachment
+        attachmentDescription[0].format = colorFormat;
+        attachmentDescription[0].samples = VK_SAMPLE_COUNT_1_BIT;
+        attachmentDescription[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        attachmentDescription[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        attachmentDescription[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        attachmentDescription[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        attachmentDescription[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        attachmentDescription[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        //depth attachment
+        attachmentDescription[1].format = depthFormat;
+        attachmentDescription[1].samples = VK_SAMPLE_COUNT_1_BIT;
+        attachmentDescription[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        attachmentDescription[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        attachmentDescription[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        attachmentDescription[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        attachmentDescription[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        attachmentDescription[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference colorReference = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
+        VkAttachmentReference depthReference = {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+
+        VkSubpassDescription subpassDescription = {};
+        subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpassDescription.colorAttachmentCount = 1;
+        subpassDescription.pColorAttachments = &colorReference;
+        subpassDescription.pDepthStencilAttachment = &depthReference;
+        */
+
+
+
         return nullptr;
     }
 

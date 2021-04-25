@@ -9,7 +9,9 @@ namespace ScarletEngine
     class VulkanFramebuffer : public RALFramebuffer
     {
     public:
-        VulkanFramebuffer(uint32_t InWidth, uint32_t InHeight, uint32_t InSamples);
+        VulkanFramebuffer(VkDevice LogicalDevice, uint32_t InWidth, uint32_t InHeight, uint32_t InSamples,
+            VkImage ColorImage, VkImageView ColorImageView, VkDeviceMemory ColorImageMemory, 
+            VkSampler ColorImageSampler, VkFramebuffer Framebuffer);
         virtual ~VulkanFramebuffer();
 
         virtual void Bind() const override;
@@ -17,6 +19,15 @@ namespace ScarletEngine
         virtual void Resize(uint32_t NewWidth, uint32_t NewHeight) override;
 
         virtual uint64_t GetColorAttachmentID() const override;
+    
+    private:
+        VkImage colorImage;
+        VkDeviceMemory colorImageMemory;
+        VkImageView colorImageView;
+        VkSampler colorImageSampler;
+
+        VkDevice device;
+        VkFramebuffer framebuffer;
     };
 
     class VulkanTexture2D : public RALTexture2D
@@ -30,6 +41,7 @@ namespace ScarletEngine
         virtual void Unbind() const override;
         virtual uint64_t GetTextureResource() const override;
     };
+
 
     class VulkanGpuBuffer : public RALGpuBuffer
     {
