@@ -4,7 +4,6 @@
 #include "ECS.h"
 #include "Widgets.h"
 #include "Components/RigidBodyComponent.h"
-#include <imgui.h>
 
 namespace ScarletEngine
 {
@@ -70,13 +69,10 @@ namespace ScarletEngine
 	{
 		if (ImGui::CollapsingHeader("Rigidbody Component", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			static bool bFirstColumnOffsetSet = false;
-			static const float FirstColumnOffset = ImGui::CalcTextSize("Gravity").x + 6 * ImGui::GetStyle().ItemSpacing.x;
-
 			ImGui::BeginTable("RigidbodyComponentContent", 2, ImGuiTableFlags_Resizable);
 			
-			ImGui::TableSetupColumn("", 0, ImGui::CalcTextSize("Gravity").x + 6 * ImGui::GetStyle().ItemSpacing.x);
-			ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed, Widgets::GetDefaultColumnWidth());
+			ImGui::TableSetupColumn("Value");
 
 			ImGui::TableNextColumn();
 			ImGui::Text("Gravity");

@@ -5,6 +5,11 @@
 
 namespace ScarletEngine::Widgets
 {
+    float GetDefaultColumnWidth()
+    {
+        return ImGui::CalcTextSize("XXXXXXXXXXXX").x + 2 * ImGui::GetStyle().ItemSpacing.x;
+    }
+
     void DrawVec3Input(const char* Label, glm::vec3& Vec)
     {
         ImGui::PushID(Label);
@@ -12,7 +17,7 @@ namespace ScarletEngine::Widgets
         Size.x += GImGui->Style.FramePadding.x * 2;
         Size.y += GImGui->Style.FramePadding.y * 2;
 
-        ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+        ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth() * 0.85);
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2 { 0, GImGui->Style.ItemSpacing.y });
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4 { 0.8f, 0.1f, 0.15f, 1.0f });
@@ -58,37 +63,34 @@ namespace ScarletEngine::Widgets
     {
         if (ImGui::CollapsingHeader(Label, ImGuiTreeNodeFlags_DefaultOpen))
         {
-            static bool bFirstColumnOffsetSet = false;
-            const float FirstColumnOffset = ImGui::CalcTextSize("Position").x + 6 * ImGui::GetStyle().ItemSpacing.x;
+            ImGui::PushID(Label);
+            ImGui::BeginTable(Label, 2, ImGuiTableFlags_Resizable);
 
-            ImGui::Columns(2);
+            ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed, GetDefaultColumnWidth());
+            ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthAlwaysAutoResize);
 
-            if (!bFirstColumnOffsetSet)
-            {
-                bFirstColumnOffsetSet = true;
-                ImGui::SetColumnWidth(0, FirstColumnOffset);
-            }
-
+            ImGui::TableNextColumn();
             ImGui::Text("Position");
-            ImGui::NextColumn();
+            ImGui::TableNextColumn();
             DrawVec3Input("Position", Trans.Position);
 
-            ImGui::NextColumn();
+            ImGui::TableNextRow();
 
+            ImGui::TableNextColumn();
             ImGui::Text("Rotation");
-            ImGui::NextColumn();
+            ImGui::TableNextColumn();
             DrawVec3Input("Rotation", Trans.Rotation);
 
-            ImGui::NextColumn();
+            ImGui::TableNextRow();
 
+            ImGui::TableNextColumn();
             ImGui::Text("Scale");
-            ImGui::NextColumn();
+            ImGui::TableNextColumn();
             DrawVec3Input("Scale", Trans.Scale);
 
-            ImGui::NextColumn();
-
             // Restore default columns
-            ImGui::Columns(1);
+            ImGui::EndTable();
+            ImGui::PopID();
         }
     }
 
@@ -98,7 +100,7 @@ namespace ScarletEngine::Widgets
         ImGui::PushID(Label);
         const ImVec2 WindowPos = ImGui::GetWindowPos();
         ImVec2 StartPos = {
-            WindowPos.x + ImGui::GetCursorPos().x + ImGui::CalcTextSize("Use Kepler Gravity").x + 2 * ImGui::GetStyle().
+            WindowPos.x + ImGui::GetCursorPos().x + ImGui::CalcTextSize(Label).x + 2 * ImGui::GetStyle().
             ItemSpacing.x,
             WindowPos.y + ImGui::GetCursorPos().y
         };
