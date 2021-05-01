@@ -1,4 +1,4 @@
-#include "SceneGraph.h"
+#include "SceneHierarchy.h"
 
 #include "Core.h"
 #include "World.h"
@@ -7,14 +7,12 @@
 #include "Editor.h"
 
 #include "AssetManager.h"
-#include "RAL.h"
 
 namespace ScarletEngine
 {
 	SceneHierarchyPanel::SceneHierarchyPanel(const SharedPtr<World>& InRepresentingWorld)
 		: UIWindow(ICON_MD_ACCOUNT_TREE " Scene Hierarchy")
 		, RepresentingWorld(InRepresentingWorld)
-		, Items()
 		, CurrentSelectionIndex(INVALID_EID)
 	{
 	}
@@ -30,12 +28,12 @@ namespace ScarletEngine
 	void SceneHierarchyPanel::DrawWindowContent()
 	{
 		ZoneScoped
-		ImGuiTreeNodeFlags BaseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+		const ImGuiTreeNodeFlags BaseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		for (const auto& [ID, EntItem] : Items)
 		{
-			ImGui::PushID((uint32_t)ID);
+			ImGui::PushID(static_cast<uint32_t>(ID));
 			char Buffer[128];
-			snprintf(Buffer, 128, "%s %s", ICON_MD_CUBE, EntItem->GetDisplayString());
+			snprintf(Buffer, 128, "%s   %s", ICON_MD_CUBE, EntItem->GetDisplayString());
 			
 			ImGuiTreeNodeFlags Flags = BaseFlags;
 			if (EntItem->bIsSelected)
@@ -45,7 +43,7 @@ namespace ScarletEngine
 
 			if (EntItem->Children.size() > 0)
 			{
-				bool bNodeOpen = ImGui::TreeNodeEx(Buffer, Flags);
+				const bool bNodeOpen = ImGui::TreeNodeEx(Buffer, Flags);
 				if (ImGui::IsItemClicked())
 				{
 					if (SelectItem(*EntItem))
@@ -134,14 +132,14 @@ namespace ScarletEngine
 		{
 			// Select items from the current selection index until the newly selected item
 			Array<EntityHandle*> EntitiesToSelect;
-			EID ClickedIndex = Item.Ent.lock()->ID;
+			const EID ClickedIndex = Item.Ent.lock()->ID;
 
 			// Determine the iterator direction
 			if (ClickedIndex > CurrentSelectionIndex)
 			{
 				auto It = Items.find(CurrentSelectionIndex);
 				// We want to select everything up to _and including_ the clicked item
-				auto EndIndex = (++Items.find(Item.Ent.lock()->ID));
+				const auto EndIndex = (++Items.find(Item.Ent.lock()->ID));
 				for (; It != EndIndex; ++It)
 				{
 					EntitiesToSelect.push_back(It->second->Ent.lock().get());
@@ -151,7 +149,7 @@ namespace ScarletEngine
 			{
 				auto It = Items.find(CurrentSelectionIndex);
 				// We want to select everything up to _and including_ the clicked item
-				auto EndIndex = (--Items.find(Item.Ent.lock()->ID));
+				const auto EndIndex = (--Items.find(Item.Ent.lock()->ID));
 				for (; It != EndIndex; --It)
 				{
 					EntitiesToSelect.push_back(It->second->Ent.lock().get());

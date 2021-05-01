@@ -47,7 +47,7 @@ namespace ScarletEngine
 		}
 
 		template <typename ComponentType>
-		ComponentType* GetComponent(const EntityHandle& Ent)
+		ComponentType* GetComponent(const EntityHandle& Ent) const
 		{
 			ZoneScoped
 			return Reg.GetComponent<ComponentType>(Ent.ID);

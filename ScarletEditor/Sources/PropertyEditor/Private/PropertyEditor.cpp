@@ -36,7 +36,7 @@ namespace ScarletEngine
 			
 			if (FocusedEntity != nullptr)
 			{
-				World* OwningWorld = FocusedEntity->OwningWorld;
+				const World* OwningWorld = FocusedEntity->OwningWorld;
 				check(OwningWorld);
 				
 				if (TransformComponent* Transform = OwningWorld->GetComponent<TransformComponent>(*FocusedEntity))

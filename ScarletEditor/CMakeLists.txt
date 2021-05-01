@@ -47,7 +47,7 @@ macro(declare_editor_module)
 endmacro(declare_editor_module)
 
 add_subdirectory("Sources/Editor")
-add_subdirectory("Sources/SceneGraph")
+add_subdirectory("Sources/SceneHierarchy")
 add_subdirectory("Sources/OutputLog")
 add_subdirectory("Sources/PropertyEditor")
 add_subdirectory("Sources/AssetView")
