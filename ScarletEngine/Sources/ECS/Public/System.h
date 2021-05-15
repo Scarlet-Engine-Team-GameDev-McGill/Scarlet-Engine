@@ -22,7 +22,7 @@ namespace ScarletEngine
 		virtual void FixedUpdate() const {}
 
 		template <typename ...Components>
-		Array<ProxyType<Components...>> GetEntities() const
+		const Array<ProxyType<Components...>>& GetEntities() const
 		{
 			return Reg->GetProxies<Components...>();
 		}

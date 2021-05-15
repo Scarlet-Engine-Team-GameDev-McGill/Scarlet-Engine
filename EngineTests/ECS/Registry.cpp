@@ -314,3 +314,84 @@ TEST(ECS, GetEntity)
 
 	Scheduler.RunUpdate(&Reg);
 }
+
+TEST(ECS, UncachedProxy)
+{
+	struct Component
+	{
+		uint32_t X = 20;
+	};
+	
+	class TestSystem : public ScarletEngine::System<Component>
+	{
+	public:
+		virtual void Update() const override
+		{
+			for (auto& [Ent, TC] : GetEntities<Component>())
+			{
+				TC->X += 1;
+			}
+		}
+	};
+
+	Registry Reg;
+	SystemScheduler Scheduler;
+	Scheduler.RegisterSystem<TestSystem>();
+	auto [Entity, TC] = Reg.CreateEntity<Component>();
+
+	ASSERT_NE(TC, nullptr);
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(20));
+
+	Scheduler.RunUpdate(&Reg);
+
+	EXPECT_TRUE(Reg.IsComponentContainerClean<Component>());
+	
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(21));
+
+	Scheduler.RunUpdate(&Reg);
+	
+	Reg.CreateEntity<Component>();
+	EXPECT_FALSE(Reg.IsComponentContainerClean<Component>());
+
+	TC = Reg.GetComponent<Component>(Entity);
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(22));
+}
+
+TEST(ECS, CachedProxy)
+{
+	struct Component
+	{
+		uint32_t X = 20;
+	};
+	
+	class TestSystem : public ScarletEngine::System<Component>
+	{
+	public:
+		virtual void Update() const override
+		{
+			for (auto& [Ent, TC] : GetEntities<Component>())
+			{
+				TC->X += 1;
+			}
+		}
+	};
+
+	Registry Reg;
+	SystemScheduler Scheduler;
+	Scheduler.RegisterSystem<TestSystem>();
+	auto [Entity, TC] = Reg.CreateEntity<Component>();
+
+	ASSERT_NE(TC, nullptr);
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(20));
+
+	Scheduler.RunUpdate(&Reg);
+
+	EXPECT_TRUE(Reg.IsComponentContainerClean<Component>());
+	
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(21));
+
+	Scheduler.RunUpdate(&Reg);
+
+	TC = Reg.GetComponent<Component>(Entity);
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(22));
+}

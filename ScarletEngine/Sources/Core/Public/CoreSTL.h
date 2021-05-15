@@ -22,8 +22,8 @@ namespace ScarletEngine
 	template <typename Key, typename KeyCmp = std::less<Key>, typename Alloc = GlobalAllocator<Key >>
 	using Set = std::set<Key, KeyCmp, Alloc>;
 
-	template <typename Key, typename KeyCmp = std::equal_to<Key>, typename Alloc = GlobalAllocator<Key>>
-	using UnorderedSet = std::unordered_set<Key, KeyCmp, Alloc>;
+	template <typename Key, typename KeyHash = std::hash<Key>, typename KeyEq = std::equal_to<Key>, typename Alloc = GlobalAllocator<Key>>
+	using UnorderedSet = std::unordered_set<Key, KeyHash, KeyEq, Alloc>;
 
 	template <typename T, typename Alloc = GlobalAllocator<T>>
 	using Deque = std::deque<T, Alloc>;
