@@ -1,4 +1,4 @@
-#include "SceneGraphItem.h"
+#include "SceneHierarchyItem.h"
 
 namespace ScarletEngine
 {

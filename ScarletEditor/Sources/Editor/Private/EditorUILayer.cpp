@@ -2,7 +2,7 @@
 
 #include "Engine.h"
 #include "Editor.h"
-#include "SceneGraph.h"
+#include "SceneHierarchy.h"
 #include "EditorViewport.h"
 #include "PropertyEditor.h"
 #include "OutputLog.h"

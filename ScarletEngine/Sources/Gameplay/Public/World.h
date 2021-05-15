@@ -47,17 +47,17 @@ namespace ScarletEngine
 		}
 
 		template <typename ComponentType>
-		auto GetComponent(const EntityHandle& Ent)
+		ComponentType* GetComponent(const EntityHandle& Ent) const
 		{
 			ZoneScoped
 			return Reg.GetComponent<ComponentType>(Ent.ID);
 		}
 
 		template <typename ComponentType>
-		auto AddComponent(const EID Ent)
+		ComponentType* AddComponent(const EID Ent)
 		{
 			ZoneScoped
-				return Reg.AddComponent<ComponentType>(Ent);
+			return Reg.AddComponent<ComponentType>(Ent);
 		}
 	private:
 		double LastDeltaTime;

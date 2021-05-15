@@ -1,17 +1,17 @@
 #pragma once
-#include "RigidBodyComponent.h"
+#include "Components/RigidBodyComponent.h"
 #include "Core.h"
-#include "Transform.h" 
+#include "Components/TransformComponent.h" 
 #include "System.h"
-#include "SpringComponent.h"
+#include "Components/SpringComponent.h"
 
 namespace ScarletEngine::Achilles
 {
-	class SpringSystem : public System<RigidBodyComponent, const Transform, const SpringComponent, const SpringCollection>
+	class SpringSystem : public System<RigidBodyComponent, const TransformComponent, const SpringComponent, const SpringCollection>
 	{
 	public:
 		virtual void FixedUpdate() const override;
 	private:
-		void UpdateEntity(const SpringComponent* Spring, RigidBodyComponent* Rb, const Transform* Trans) const;
+		void UpdateEntity(const SpringComponent* Spring, RigidBodyComponent* Rb, const TransformComponent* Trans) const;
 	};
 }

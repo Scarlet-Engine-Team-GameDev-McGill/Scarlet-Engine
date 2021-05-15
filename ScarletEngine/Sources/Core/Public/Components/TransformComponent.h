@@ -4,7 +4,7 @@
 
 namespace ScarletEngine
 {
-	struct Transform
+	struct TransformComponent
 	{
 	public:
 		glm::vec3 Position = { 0.f, 0.f, 0.f };

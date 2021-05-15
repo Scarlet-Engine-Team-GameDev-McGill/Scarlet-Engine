@@ -27,7 +27,7 @@ namespace ScarletEngine::Achilles
 
 	EID MakeSphereCollider(SharedPtr<World>& World, glm::vec3 Pos, glm::vec3 Scale = glm::vec3(0.1f), glm::vec3 V0 = glm::vec3(0.f), float Mass = 1.f, float Radius = 0.0125f)
 	{
-		auto [Ent, Trans, Mesh, Rb, Sphere] = World->CreateEntity<Transform, StaticMeshComponent, RigidBodyComponent, SphereColliderComponent>("Ball");
+		auto [Ent, Trans, Mesh, Rb, Sphere] = World->CreateEntity<TransformComponent, StaticMeshComponent, RigidBodyComponent, SphereColliderComponent>("Ball");
 
 		Trans->Position = Pos;
 		Trans->Rotation = glm::vec3(0.f, 0.f, 0.f);
@@ -82,13 +82,13 @@ namespace ScarletEngine::Achilles
 
 	void DemoSpring(SharedPtr<World>& World)
 	{
-		auto [Anchor, AnchorTrans] = World->CreateEntity<Transform>("Anchor");
+		auto [Anchor, AnchorTrans] = World->CreateEntity<TransformComponent>("Anchor");
 
 		EID AnchorPtr = Anchor;
 		AnchorTrans->Position = glm::vec3(2.f, 2.f, 0.f);
 		MakeNode(World, glm::vec3(0.f, 2.f, 0.f), { AnchorPtr }, { 2.f });
 
-		auto [Anchor2, AnchorTrans2] = World->CreateEntity<Transform>("Anchor");
+		auto [Anchor2, AnchorTrans2] = World->CreateEntity<TransformComponent>("Anchor");
 
 		EID AnchorPtr2 = Anchor2;
 		AnchorTrans2->Position = glm::vec3(-2.f, 2.f, 0.f);
@@ -98,7 +98,7 @@ namespace ScarletEngine::Achilles
 
 	void DemoRope(SharedPtr<World>& World, glm::vec3 Interval)
 	{
-		auto [Anchor, AnchorTrans] = World->CreateEntity<Transform>("Anchor");
+		auto [Anchor, AnchorTrans] = World->CreateEntity<TransformComponent>("Anchor");
 
 		glm::vec3 pos = glm::vec3(0.f, 2.f, 0.f);
 		EID AnchorPtr = Anchor;
@@ -154,7 +154,7 @@ namespace ScarletEngine::Achilles
 			{
 				if (x == 0)
 				{
-					auto [Anchor, AnchorTrans] = World->CreateEntity<Transform>("Anchor");
+					auto [Anchor, AnchorTrans] = World->CreateEntity<TransformComponent>("Anchor");
 					AnchorTrans->Position = glm::vec3(0.f - offset, y * scale + offset * 0.5f, 0.f);
 					Grid[x][y] = Anchor;
 				}
@@ -278,7 +278,7 @@ namespace ScarletEngine::Achilles
 
 	EID MakePlanet(SharedPtr<World>& World, glm::vec3 Pos, glm::vec3 V0, float Mass, float Scale, const char* Name)
 	{
-		auto [Ent, Trans, Mesh, Rb] = World->CreateEntity<Transform, StaticMeshComponent, RigidBodyComponent>(Name);
+		auto [Ent, Trans, Mesh, Rb] = World->CreateEntity<TransformComponent, StaticMeshComponent, RigidBodyComponent>(Name);
 
 		Trans->Position = Pos;
 		Trans->Rotation = glm::vec3(0.f);

@@ -2,7 +2,7 @@ set(Editor_PrivateDeps
 	"Core"
 	"Engine"
 	"UI"
-	"SceneGraph"
+	"SceneHierarchy"
 	"OutputLog"
 	"PropertyEditor"
 	"AssetView"

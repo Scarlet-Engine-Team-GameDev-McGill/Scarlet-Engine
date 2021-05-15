@@ -3,8 +3,7 @@
 #include "Core.h"
 #include "UIWindow.h"
 #include "ECS.h"
-
-#include "SceneGraphItem.h"
+#include "SceneHierarchyItem.h"
 
 namespace ScarletEngine
 {

@@ -1,7 +1,7 @@
 #include "RenderModule.h"
 #include "CoreUtils.h"
 #include "OpenGLRAL.h"
-#include "Transform.h"
+#include "Components/TransformComponent.h"
 #include "SceneProxy.h"
 #include "Viewport.h"
 #include "SystemScheduler.h"
