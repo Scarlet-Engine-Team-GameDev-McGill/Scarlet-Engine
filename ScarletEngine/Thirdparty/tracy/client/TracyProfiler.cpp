@@ -39,6 +39,15 @@
 
 #if defined __APPLE__
 #  include "TargetConditionals.h"
+#  include <mach-o/dyld.h>
+#endif
+
+#ifdef __ANDROID__
+#  include <sys/mman.h>
+#  include <stdio.h>
+#  include <stdint.h>
+#  include <algorithm>
+#  include <vector>
 #endif
 
 #include <algorithm>
@@ -49,6 +58,7 @@
 #include <new>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <thread>
 
 #include "../common/TracyAlign.hpp"
@@ -217,7 +227,7 @@ static void InitFailure( const char* msg )
 
 static int64_t SetupHwTimer()
 {
-#ifndef TRACY_TIMER_QPC
+#if !defined TRACY_TIMER_QPC && !defined TRACY_TIMER_FALLBACK
     uint32_t regs[4];
     CpuId( regs, 1 );
     if( !( regs[3] & ( 1 << 4 ) ) ) InitFailure( "CPU doesn't support RDTSC instruction." );
@@ -227,7 +237,11 @@ static int64_t SetupHwTimer()
         const char* noCheck = getenv( "TRACY_NO_INVARIANT_CHECK" );
         if( !noCheck || noCheck[0] != '1' )
         {
-            InitFailure( "CPU doesn't support invariant TSC.\nDefine TRACY_NO_INVARIANT_CHECK=1 to ignore this error, *if you know what you are doing*.\nAlternatively you may rebuild the application with the TRACY_TIMER_QPC define to use lower resolution timer." );
+#if defined _WIN32 || defined __CYGWIN__
+            InitFailure( "CPU doesn't support invariant TSC.\nDefine TRACY_NO_INVARIANT_CHECK=1 to ignore this error, *if you know what you are doing*.\nAlternatively you may rebuild the application with the TRACY_TIMER_QPC or TRACY_TIMER_FALLBACK define to use lower resolution timer." );
+#else
+            InitFailure( "CPU doesn't support invariant TSC.\nDefine TRACY_NO_INVARIANT_CHECK=1 to ignore this error, *if you know what you are doing*.\nAlternatively you may rebuild the application with the TRACY_TIMER_FALLBACK define to use lower resolution timer." );
+#endif
         }
     }
 #endif
@@ -258,12 +272,50 @@ static const char* GetProcessName()
     if( buf ) processName = buf;
 #  endif
 #elif defined _GNU_SOURCE || defined __CYGWIN__
-    processName = program_invocation_short_name;
+    if( program_invocation_short_name ) processName = program_invocation_short_name;
 #elif defined __APPLE__ || defined BSD
     auto buf = getprogname();
     if( buf ) processName = buf;
 #endif
     return processName;
+}
+
+static const char* GetProcessExecutablePath()
+{
+#ifdef _WIN32
+    static char buf[_MAX_PATH];
+    GetModuleFileNameA( nullptr, buf, _MAX_PATH );
+    return buf;
+#elif defined __ANDROID__
+    return nullptr;
+#elif defined _GNU_SOURCE || defined __CYGWIN__
+    return program_invocation_name;
+#elif defined __APPLE__
+    static char buf[1024];
+    uint32_t size = 1024;
+    _NSGetExecutablePath( buf, &size );
+    return buf;
+#elif defined __DragonFly__
+    static char buf[1024];
+    readlink( "/proc/curproc/file", buf, 1024 );
+    return buf;
+#elif defined __FreeBSD__
+    static char buf[1024];
+    int mib[4];
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC;
+    mib[2] = KERN_PROC_PATHNAME;
+    mib[3] = -1;
+    size_t cb = 1024;
+    sysctl( mib, 4, buf, &cb, nullptr, 0 );
+    return buf;
+#elif defined __NetBSD__
+    static char buf[1024];
+    readlink( "/proc/curproc/exe", buf, 1024 );
+    return buf;
+#else
+    return nullptr;
+#endif
 }
 
 #if defined __linux__ && defined __ARM_ARCH
@@ -517,6 +569,22 @@ static uint64_t GetPid()
 #endif
 }
 
+void Profiler::AckServerQuery()
+{
+    QueueItem item;
+    MemWrite( &item.hdr.type, QueueType::AckServerQueryNoop );
+    NeedDataSize( QueueDataSize[(int)QueueType::AckServerQueryNoop] );
+    AppendDataUnsafe( &item, QueueDataSize[(int)QueueType::AckServerQueryNoop] );
+}
+
+void Profiler::AckSourceCodeNotAvailable()
+{
+    QueueItem item;
+    MemWrite( &item.hdr.type, QueueType::AckSourceCodeNotAvailable );
+    NeedDataSize( QueueDataSize[(int)QueueType::AckSourceCodeNotAvailable] );
+    AppendDataUnsafe( &item, QueueDataSize[(int)QueueType::AckSourceCodeNotAvailable] );
+}
+
 static BroadcastMessage& GetBroadcastMessage( const char* procname, size_t pnsz, int& len, int port )
 {
     static BroadcastMessage msg;
@@ -590,12 +658,12 @@ LONG WINAPI CrashFilter( PEXCEPTION_POINTERS pExp )
     }
 
     {
+        GetProfiler().SendCallstack( 60, "KiUserExceptionDispatcher" );
+
         TracyLfqPrepare( QueueType::CrashReport );
         item->crashReport.time = Profiler::GetTime();
         item->crashReport.text = (uint64_t)s_crashText;
         TracyLfqCommit;
-
-        GetProfiler().SendCallstack( 60, "KiUserExceptionDispatcher" );
     }
 
     HANDLE h = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 );
@@ -681,6 +749,10 @@ static void CrashHandler( int signal, siginfo_t* info, void* /*ucontext*/ )
 {
     bool expected = false;
     if( !s_alreadyCrashed.compare_exchange_strong( expected, true ) ) ThreadFreezer( signal );
+
+    struct sigaction act = {};
+    act.sa_handler = SIG_DFL;
+    sigaction( SIGABRT, &act, nullptr );
 
     auto msgPtr = s_crashText;
     switch( signal )
@@ -808,6 +880,9 @@ static void CrashHandler( int signal, siginfo_t* info, void* /*ucontext*/ )
             break;
         }
         break;
+    case SIGABRT:
+        strcpy( msgPtr, "Abort signal from abort().\n" );
+        break;
     default:
         abort();
     }
@@ -822,12 +897,12 @@ static void CrashHandler( int signal, siginfo_t* info, void* /*ucontext*/ )
     }
 
     {
+        GetProfiler().SendCallstack( 60, "__kernel_rt_sigreturn" );
+
         TracyLfqPrepare( QueueType::CrashReport );
         item->crashReport.time = Profiler::GetTime();
         item->crashReport.text = (uint64_t)s_crashText;
         TracyLfqCommit;
-
-        GetProfiler().SendCallstack( 60, "__kernel_rt_sigreturn" );
     }
 
     DIR* dp = opendir( "/proc/self/task" );
@@ -1085,6 +1160,7 @@ Profiler::Profiler()
     , m_deferredQueue( 64*1024 )
 #endif
     , m_paramCallback( nullptr )
+    , m_queryData( nullptr )
 {
     assert( !s_instance );
     s_instance = this;
@@ -1156,6 +1232,7 @@ void Profiler::SpawnWorkerThreads()
     sigaction( SIGSEGV, &crashHandler, nullptr );
     sigaction( SIGPIPE, &crashHandler, nullptr );
     sigaction( SIGBUS, &crashHandler, nullptr );
+    sigaction( SIGABRT, &crashHandler, nullptr );
 #endif
 
 #ifdef TRACY_HAS_CALLSTACK
@@ -1235,6 +1312,17 @@ void Profiler::Worker()
 
     rpmalloc_thread_initialize();
 
+    m_exectime = 0;
+    const auto execname = GetProcessExecutablePath();
+    if( execname )
+    {
+        struct stat st;
+        if( stat( execname, &st ) == 0 )
+        {
+            m_exectime = (uint64_t)st.st_mtime;
+        }
+    }
+
     const auto procname = GetProcessName();
     const auto pnsz = std::min<size_t>( strlen( procname ), WelcomeMessageProgramNameSize - 1 );
 
@@ -1295,6 +1383,7 @@ void Profiler::Worker()
     MemWrite( &welcome.delay, m_delay );
     MemWrite( &welcome.resolution, m_resolution );
     MemWrite( &welcome.epoch, m_epoch );
+    MemWrite( &welcome.exectime, m_exectime );
     MemWrite( &welcome.pid, pid );
     MemWrite( &welcome.samplingPeriod, m_samplingPeriod );
     MemWrite( &welcome.onDemand, onDemand );
@@ -1346,7 +1435,12 @@ void Profiler::Worker()
 #ifndef TRACY_NO_BROADCAST
     m_broadcast = (UdpBroadcast*)tracy_malloc( sizeof( UdpBroadcast ) );
     new(m_broadcast) UdpBroadcast();
-    if( !m_broadcast->Open( "255.255.255.255", broadcastPort ) )
+#  ifdef TRACY_ONLY_LOCALHOST
+    const char* addr = "127.255.255.255";
+#  else
+    const char* addr = "255.255.255.255";
+#  endif
+    if( !m_broadcast->Open( addr, broadcastPort ) )
     {
         m_broadcast->~UdpBroadcast();
         tracy_free( m_broadcast );
@@ -1369,6 +1463,11 @@ void Profiler::Worker()
 #ifndef TRACY_NO_EXIT
             if( !m_noExit && ShouldExit() )
             {
+                if( m_broadcast )
+                {
+                    broadcastMsg.activeTime = -1;
+                    m_broadcast->Send( broadcastPort, &broadcastMsg, broadcastLen );
+                }
                 m_shutdownFinished.store( true, std::memory_order_relaxed );
                 return;
             }
@@ -1386,10 +1485,18 @@ void Profiler::Worker()
                 {
                     lastBroadcast = t;
                     const auto ts = std::chrono::duration_cast<std::chrono::seconds>( std::chrono::system_clock::now().time_since_epoch() ).count();
-                    broadcastMsg.activeTime = uint32_t( ts - m_epoch );
+                    broadcastMsg.activeTime = int32_t( ts - m_epoch );
+                    assert( broadcastMsg.activeTime >= 0 );
                     m_broadcast->Send( broadcastPort, &broadcastMsg, broadcastLen );
                 }
             }
+        }
+
+        if( m_broadcast )
+        {
+            lastBroadcast = 0;
+            broadcastMsg.activeTime = -1;
+            m_broadcast->Send( broadcastPort, &broadcastMsg, broadcastLen );
         }
 
         // Handshake
@@ -1466,6 +1573,11 @@ void Profiler::Worker()
             case QueueType::LockName:
                 ptr = MemRead<uint64_t>( &item.lockNameFat.name );
                 size = MemRead<uint16_t>( &item.lockNameFat.size );
+                SendSingleString( (const char*)ptr, size );
+                break;
+            case QueueType::GpuContextName:
+                ptr = MemRead<uint64_t>( &item.gpuContextNameFat.ptr );
+                size = MemRead<uint16_t>( &item.gpuContextNameFat.size );
                 SendSingleString( (const char*)ptr, size );
                 break;
             default:
@@ -1723,10 +1835,13 @@ static void FreeAssociatedMemory( const QueueItem& item )
         ptr = MemRead<uint64_t>( &item.zoneTextFat.text );
         tracy_free( (void*)ptr );
         break;
-    case QueueType::Message:
     case QueueType::MessageColor:
-    case QueueType::MessageCallstack:
     case QueueType::MessageColorCallstack:
+        ptr = MemRead<uint64_t>( &item.messageColorFat.text );
+        tracy_free( (void*)ptr );
+        break;
+    case QueueType::Message:
+    case QueueType::MessageCallstack:
 #ifndef TRACY_ON_DEMAND
     case QueueType::MessageAppInfo:
 #endif
@@ -1738,7 +1853,14 @@ static void FreeAssociatedMemory( const QueueItem& item )
         ptr = MemRead<uint64_t>( &item.zoneBegin.srcloc );
         tracy_free( (void*)ptr );
         break;
-    case QueueType::CallstackMemory:
+    case QueueType::GpuZoneBeginAllocSrcLoc:
+    case QueueType::GpuZoneBeginAllocSrcLocCallstack:
+    case QueueType::GpuZoneBeginAllocSrcLocSerial:
+    case QueueType::GpuZoneBeginAllocSrcLocCallstackSerial:
+        ptr = MemRead<uint64_t>( &item.gpuZoneBegin.srcloc );
+        tracy_free( (void*)ptr );
+        break;
+    case QueueType::CallstackSerial:
     case QueueType::Callstack:
         ptr = MemRead<uint64_t>( &item.callstackFat.ptr );
         tracy_free( (void*)ptr );
@@ -1762,9 +1884,14 @@ static void FreeAssociatedMemory( const QueueItem& item )
         ptr = MemRead<uint64_t>( &item.lockNameFat.name );
         tracy_free( (void*)ptr );
         break;
+    case QueueType::GpuContextName:
+        ptr = MemRead<uint64_t>( &item.gpuContextNameFat.ptr );
+        tracy_free( (void*)ptr );
+        break;
 #endif
 #ifdef TRACY_ON_DEMAND
     case QueueType::MessageAppInfo:
+    case QueueType::GpuContextName:
         // Don't free memory associated with deferred messages.
         break;
 #endif
@@ -1943,6 +2070,18 @@ Profiler::DequeueStatus Profiler::Dequeue( moodycamel::ConsumerToken& token )
                         MemWrite( &item->gpuZoneBegin.cpuTime, dt );
                         break;
                     }
+                    case QueueType::GpuZoneBeginAllocSrcLoc:
+                    case QueueType::GpuZoneBeginAllocSrcLocCallstack:
+                    {
+                        int64_t t = MemRead<int64_t>( &item->gpuZoneBegin.cpuTime );
+                        int64_t dt = t - refThread;
+                        refThread = t;
+                        MemWrite( &item->gpuZoneBegin.cpuTime, dt );
+                        ptr = MemRead<uint64_t>( &item->gpuZoneBegin.srcloc );
+                        SendSourceLocationPayload( ptr );
+                        tracy_free( (void*)ptr );
+                        break;
+                    }
                     case QueueType::GpuZoneEnd:
                     {
                         int64_t t = MemRead<int64_t>( &item->gpuZoneEnd.cpuTime );
@@ -1951,6 +2090,14 @@ Profiler::DequeueStatus Profiler::Dequeue( moodycamel::ConsumerToken& token )
                         MemWrite( &item->gpuZoneEnd.cpuTime, dt );
                         break;
                     }
+                    case QueueType::GpuContextName:
+                        ptr = MemRead<uint64_t>( &item->gpuContextNameFat.ptr );
+                        size = MemRead<uint16_t>( &item->gpuContextNameFat.size );
+                        SendSingleString( (const char*)ptr, size );
+#ifndef TRACY_ON_DEMAND
+                        tracy_free( (void*)ptr );
+#endif
+                        break;
                     case QueueType::PlotData:
                     {
                         int64_t t = MemRead<int64_t>( &item->plotData.time );
@@ -2100,7 +2247,7 @@ Profiler::DequeueStatus Profiler::DequeueSerial()
             {
                 switch( (QueueType)idx )
                 {
-                case QueueType::CallstackMemory:
+                case QueueType::CallstackSerial:
                     ptr = MemRead<uint64_t>( &item->callstackFat.ptr );
                     SendCallstackPayload( ptr );
                     tracy_free( (void*)ptr );
@@ -2143,7 +2290,9 @@ Profiler::DequeueStatus Profiler::DequeueSerial()
                     break;
                 }
                 case QueueType::MemAlloc:
+                case QueueType::MemAllocNamed:
                 case QueueType::MemAllocCallstack:
+                case QueueType::MemAllocCallstackNamed:
                 {
                     int64_t t = MemRead<int64_t>( &item->memAlloc.time );
                     int64_t dt = t - refSerial;
@@ -2152,7 +2301,9 @@ Profiler::DequeueStatus Profiler::DequeueSerial()
                     break;
                 }
                 case QueueType::MemFree:
+                case QueueType::MemFreeNamed:
                 case QueueType::MemFreeCallstack:
+                case QueueType::MemFreeCallstackNamed:
                 {
                     int64_t t = MemRead<int64_t>( &item->memFree.time );
                     int64_t dt = t - refSerial;
@@ -2169,6 +2320,18 @@ Profiler::DequeueStatus Profiler::DequeueSerial()
                     MemWrite( &item->gpuZoneBegin.cpuTime, dt );
                     break;
                 }
+                case QueueType::GpuZoneBeginAllocSrcLocSerial:
+                case QueueType::GpuZoneBeginAllocSrcLocCallstackSerial:
+                {
+                    int64_t t = MemRead<int64_t>( &item->gpuZoneBegin.cpuTime );
+                    int64_t dt = t - refSerial;
+                    refSerial = t;
+                    MemWrite( &item->gpuZoneBegin.cpuTime, dt );
+                    ptr = MemRead<uint64_t>( &item->gpuZoneBegin.srcloc );
+                    SendSourceLocationPayload( ptr );
+                    tracy_free( (void*)ptr );
+                    break;
+                }
                 case QueueType::GpuZoneEndSerial:
                 {
                     int64_t t = MemRead<int64_t>( &item->gpuZoneEnd.cpuTime );
@@ -2183,6 +2346,16 @@ Profiler::DequeueStatus Profiler::DequeueSerial()
                     int64_t dt = t - refGpu;
                     refGpu = t;
                     MemWrite( &item->gpuTime.gpuTime, dt );
+                    break;
+                }
+                case QueueType::GpuContextName:
+                {
+                    ptr = MemRead<uint64_t>( &item->gpuContextNameFat.ptr );
+                    uint16_t size = MemRead<uint16_t>( &item->gpuContextNameFat.size );
+                    SendSingleString( (const char*)ptr, size );
+#ifndef TRACY_ON_DEMAND
+                    tracy_free( (void*)ptr );
+#endif
                     break;
                 }
                 default:
@@ -2275,7 +2448,8 @@ void Profiler::SendSecondString( const char* ptr, size_t len )
 void Profiler::SendLongString( uint64_t str, const char* ptr, size_t len, QueueType type )
 {
     assert( type == QueueType::FrameImageData ||
-            type == QueueType::SymbolCode );
+            type == QueueType::SymbolCode ||
+            type == QueueType::SourceCode );
 
     QueueItem item;
     MemWrite( &item.hdr.type, type );
@@ -2497,6 +2671,20 @@ bool Profiler::HandleServerQuery()
 #endif
     case ServerQueryCodeLocation:
         SendCodeLocation( ptr );
+        break;
+    case ServerQuerySourceCode:
+        HandleSourceCodeQuery();
+        break;
+    case ServerQueryDataTransfer:
+        assert( !m_queryData );
+        m_queryDataPtr = m_queryData = (char*)tracy_malloc( ptr + 11 );
+        AckServerQuery();
+        break;
+    case ServerQueryDataTransferPart:
+        memcpy( m_queryDataPtr, &ptr, 8 );
+        memcpy( m_queryDataPtr+8, &extra, 4 );
+        m_queryDataPtr += 12;
+        AckServerQuery();
         break;
     default:
         assert( false );
@@ -2804,10 +2992,9 @@ void Profiler::ReportTopology()
 void Profiler::SendCallstack( int depth, const char* skipBefore )
 {
 #ifdef TRACY_HAS_CALLSTACK
+    TracyLfqPrepare( QueueType::Callstack );
     auto ptr = Callstack( depth );
     CutCallstack( ptr, skipBefore );
-
-    TracyLfqPrepare( QueueType::Callstack );
     MemWrite( &item->callstackFat.ptr, (uint64_t)ptr );
     TracyLfqCommit;
 #endif
@@ -2865,13 +3052,160 @@ void Profiler::HandleParameter( uint64_t payload )
     const auto idx = uint32_t( payload >> 32 );
     const auto val = int32_t( payload & 0xFFFFFFFF );
     m_paramCallback( idx, val );
-    TracyLfqPrepare( QueueType::ParamPingback );
-    TracyLfqCommit;
+    AckServerQuery();
 }
+
+#ifdef __ANDROID__
+// Implementation helpers of EnsureReadable(address).
+// This is so far only needed on Android, where it is common for libraries to be mapped
+// with only executable, not readable, permissions. Typical example (line from /proc/self/maps):
+/*
+746b63b000-746b6dc000 --xp 00042000 07:48 35                             /apex/com.android.runtime/lib64/bionic/libc.so
+*/
+// See https://github.com/wolfpld/tracy/issues/125 .
+// To work around this, we parse /proc/self/maps and we use mprotect to set read permissions
+// on any mappings that contain symbols addresses hit by HandleSymbolCodeQuery.
+
+namespace {
+// Holds some information about a single memory mapping.
+struct MappingInfo {
+    // Start of address range. Inclusive.
+    uintptr_t start_address;
+    // End of address range. Exclusive, so the mapping is the half-open interval
+    // [start, end) and its length in bytes is `end - start`. As in /proc/self/maps.
+    uintptr_t end_address;
+    // Read/Write/Executable permissions.
+    bool perm_r, perm_w, perm_x;
+};
+}  // anonymous namespace
+
+// Internal implementation helper for LookUpMapping(address).
+//
+// Parses /proc/self/maps returning a vector<MappingInfo>.
+// /proc/self/maps is assumed to be sorted by ascending address, so the resulting
+// vector is sorted by ascending address too.
+static std::vector<MappingInfo> ParseMappings()
+{
+    std::vector<MappingInfo> result;
+    FILE* file = fopen( "/proc/self/maps", "r" );
+    if( !file ) return result;
+    char line[1024];
+    while( fgets( line, sizeof( line ), file ) )
+    {
+        uintptr_t start_addr;
+        uintptr_t end_addr;
+        if( sscanf( line, "%lx-%lx", &start_addr, &end_addr ) != 2 ) continue;
+        char* first_space = strchr( line, ' ' );
+        if( !first_space ) continue;
+        char* perm = first_space + 1;
+        char* second_space = strchr( perm, ' ' );
+        if( !second_space || second_space - perm != 4 ) continue;
+        result.emplace_back();
+        auto& mapping = result.back();
+        mapping.start_address = start_addr;
+        mapping.end_address = end_addr;
+        mapping.perm_r = perm[0] == 'r';
+        mapping.perm_w = perm[1] == 'w';
+        mapping.perm_x = perm[2] == 'x';
+    }
+    fclose( file );
+    return result;
+}
+
+// Internal implementation helper for LookUpMapping(address).
+//
+// Takes as input an `address` and a known vector `mappings`, assumed to be
+// sorted by increasing addresses, as /proc/self/maps seems to be.
+// Returns a pointer to the MappingInfo describing the mapping that this
+// address belongs to, or nullptr if the address isn't in `mappings`.
+static MappingInfo* LookUpMapping(std::vector<MappingInfo>& mappings, uintptr_t address)
+{
+    // Comparison function for std::lower_bound. Returns true if all addresses in `m1`
+    // are lower than `addr`.
+    auto Compare = []( const MappingInfo& m1, uintptr_t addr ) {
+        // '<=' because the address ranges are half-open intervals, [start, end).
+        return m1.end_address <= addr;
+    };
+    auto iter = std::lower_bound( mappings.begin(), mappings.end(), address, Compare );
+    if( iter == mappings.end() || iter->start_address > address) {
+        return nullptr;
+    }
+    return &*iter;
+}
+
+// Internal implementation helper for EnsureReadable(address).
+//
+// Takes as input an `address` and returns a pointer to a MappingInfo
+// describing the mapping that this address belongs to, or nullptr if
+// the address isn't in any known mapping.
+//
+// This function is stateful and not reentrant (assumes to be called from
+// only one thread). It holds a vector of mappings parsed from /proc/self/maps.
+//
+// Attempts to react to mappings changes by re-parsing /proc/self/maps.
+static MappingInfo* LookUpMapping(uintptr_t address)
+{
+    // Static state managed by this function. Not constant, we mutate that state as
+    // we turn some mappings readable. Initially parsed once here, updated as needed below.
+    static std::vector<MappingInfo> s_mappings = ParseMappings();
+    MappingInfo* mapping = LookUpMapping( s_mappings, address );
+    if( mapping ) return mapping;
+
+    // This address isn't in any known mapping. Try parsing again, maybe
+    // mappings changed.
+    s_mappings = ParseMappings();
+    return LookUpMapping( s_mappings, address );
+}
+
+// Internal implementation helper for EnsureReadable(address).
+//
+// Attempts to make the specified `mapping` readable if it isn't already.
+// Returns true if and only if the mapping is readable.
+static bool EnsureReadable( MappingInfo& mapping )
+{
+    if( mapping.perm_r )
+    {
+        // The mapping is already readable.
+        return true;
+    }
+    int prot = PROT_READ;
+    if( mapping.perm_w ) prot |= PROT_WRITE;
+    if( mapping.perm_x ) prot |= PROT_EXEC;
+    if( mprotect( reinterpret_cast<void*>( mapping.start_address ),
+                  mapping.end_address - mapping.start_address, prot ) == -1 )
+    {
+        // Failed to make the mapping readable. Shouldn't happen, hasn't
+        // been observed yet. If it happened in practice, we should consider
+        // adding a bool to MappingInfo to track this to avoid retrying mprotect
+        // everytime on such mappings.
+        return false;
+    }
+    // The mapping is now readable. Update `mapping` so the next call will be fast.
+    mapping.perm_r = true;
+    return true;
+}
+
+// Attempts to set the read permission on the entire mapping containing the
+// specified address. Returns true if and only if the mapping is now readable.
+static bool EnsureReadable( uintptr_t address )
+{
+    MappingInfo* mapping = LookUpMapping(address);
+    return mapping && EnsureReadable( *mapping );
+}
+
+#endif  // defined __ANDROID__
 
 void Profiler::HandleSymbolQuery( uint64_t symbol )
 {
 #ifdef TRACY_HAS_CALLSTACK
+#ifdef __ANDROID__
+    // On Android it's common for code to be in mappings that are only executable
+    // but not readable.
+    if( !EnsureReadable( symbol ) )
+    {
+        return;
+    }
+#endif
     const auto sym = DecodeSymbolAddress( symbol );
 
     SendSingleString( sym.file );
@@ -2889,7 +3223,53 @@ void Profiler::HandleSymbolQuery( uint64_t symbol )
 
 void Profiler::HandleSymbolCodeQuery( uint64_t symbol, uint32_t size )
 {
+#ifdef __ANDROID__
+    // On Android it's common for code to be in mappings that are only executable
+    // but not readable.
+    if( !EnsureReadable( symbol ) )
+    {
+        return;
+    }
+#endif
     SendLongString( symbol, (const char*)symbol, size, QueueType::SymbolCode );
+}
+
+void Profiler::HandleSourceCodeQuery()
+{
+    assert( m_exectime != 0 );
+    assert( m_queryData );
+
+    struct stat st;
+    if( stat( m_queryData, &st ) == 0 && (uint64_t)st.st_mtime < m_exectime && st.st_size < ( TargetFrameSize - 16 ) )
+    {
+        FILE* f = fopen( m_queryData, "rb" );
+        tracy_free( m_queryData );
+        if( f )
+        {
+            auto ptr = (char*)tracy_malloc( st.st_size );
+            auto rd = fread( ptr, 1, st.st_size, f );
+            fclose( f );
+            if( rd == (size_t)st.st_size )
+            {
+                SendLongString( (uint64_t)ptr, ptr, rd, QueueType::SourceCode );
+            }
+            else
+            {
+                AckSourceCodeNotAvailable();
+            }
+            tracy_free( ptr );
+        }
+        else
+        {
+            AckSourceCodeNotAvailable();
+        }
+    }
+    else
+    {
+        tracy_free( m_queryData );
+        AckSourceCodeNotAvailable();
+    }
+    m_queryData = nullptr;
 }
 
 void Profiler::SendCodeLocation( uint64_t ptr )
@@ -2972,14 +3352,13 @@ TRACY_API TracyCZoneCtx ___tracy_emit_zone_begin_callstack( const struct ___trac
         TracyLfqCommitC;
     }
 #endif
+    tracy::GetProfiler().SendCallstack( depth );
     {
         TracyLfqPrepareC( tracy::QueueType::ZoneBeginCallstack );
         tracy::MemWrite( &item->zoneBegin.time, tracy::Profiler::GetTime() );
         tracy::MemWrite( &item->zoneBegin.srcloc, (uint64_t)srcloc );
         TracyLfqCommitC;
     }
-
-    tracy::GetProfiler().SendCallstack( depth );
     return ctx;
 }
 
@@ -3038,14 +3417,13 @@ TRACY_API TracyCZoneCtx ___tracy_emit_zone_begin_alloc_callstack( uint64_t srclo
         TracyLfqCommitC;
     }
 #endif
+    tracy::GetProfiler().SendCallstack( depth );
     {
         TracyLfqPrepareC( tracy::QueueType::ZoneBeginAllocSrcLocCallstack );
         tracy::MemWrite( &item->zoneBegin.time, tracy::Profiler::GetTime() );
         tracy::MemWrite( &item->zoneBegin.srcloc, srcloc );
         TracyLfqCommitC;
     }
-
-    tracy::GetProfiler().SendCallstack( depth );
     return ctx;
 }
 
@@ -3108,6 +3486,24 @@ TRACY_API void ___tracy_emit_zone_name( TracyCZoneCtx ctx, const char* txt, size
     }
 }
 
+TRACY_API void ___tracy_emit_zone_color( TracyCZoneCtx ctx, uint32_t color ) {
+    if( !ctx.active ) return;
+#ifndef TRACY_NO_VERIFY
+    {
+        TracyLfqPrepareC( tracy::QueueType::ZoneValidation );
+        tracy::MemWrite( &item->zoneValidation.id, ctx.id );
+        TracyLfqCommitC;
+    }
+#endif
+    {
+        TracyLfqPrepareC( tracy::QueueType::ZoneColor );
+        tracy::MemWrite( &item->zoneColor.r, uint8_t( ( color       ) & 0xFF ) );
+        tracy::MemWrite( &item->zoneColor.g, uint8_t( ( color >> 8  ) & 0xFF ) );
+        tracy::MemWrite( &item->zoneColor.b, uint8_t( ( color >> 16 ) & 0xFF ) );
+        TracyLfqCommitC;
+    }
+}
+
 TRACY_API void ___tracy_emit_zone_value( TracyCZoneCtx ctx, uint64_t value )
 {
     if( !ctx.active ) return;
@@ -3129,6 +3525,10 @@ TRACY_API void ___tracy_emit_memory_alloc( const void* ptr, size_t size, int sec
 TRACY_API void ___tracy_emit_memory_alloc_callstack( const void* ptr, size_t size, int depth, int secure ) { tracy::Profiler::MemAllocCallstack( ptr, size, depth, secure != 0 ); }
 TRACY_API void ___tracy_emit_memory_free( const void* ptr, int secure ) { tracy::Profiler::MemFree( ptr, secure != 0 ); }
 TRACY_API void ___tracy_emit_memory_free_callstack( const void* ptr, int depth, int secure ) { tracy::Profiler::MemFreeCallstack( ptr, depth, secure != 0 ); }
+TRACY_API void ___tracy_emit_memory_alloc_named( const void* ptr, size_t size, int secure, const char* name ) { tracy::Profiler::MemAllocNamed( ptr, size, secure != 0, name ); }
+TRACY_API void ___tracy_emit_memory_alloc_callstack_named( const void* ptr, size_t size, int depth, int secure, const char* name ) { tracy::Profiler::MemAllocCallstackNamed( ptr, size, depth, secure != 0, name ); }
+TRACY_API void ___tracy_emit_memory_free_named( const void* ptr, int secure, const char* name ) { tracy::Profiler::MemFreeNamed( ptr, secure != 0, name ); }
+TRACY_API void ___tracy_emit_memory_free_callstack_named( const void* ptr, int depth, int secure, const char* name ) { tracy::Profiler::MemFreeCallstackNamed( ptr, depth, secure != 0, name ); }
 TRACY_API void ___tracy_emit_frame_mark( const char* name ) { tracy::Profiler::SendFrameMark( name ); }
 TRACY_API void ___tracy_emit_frame_mark_start( const char* name ) { tracy::Profiler::SendFrameMark( name, tracy::QueueType::FrameMarkMsgStart ); }
 TRACY_API void ___tracy_emit_frame_mark_end( const char* name ) { tracy::Profiler::SendFrameMark( name, tracy::QueueType::FrameMarkMsgEnd ); }
