@@ -20,13 +20,13 @@ namespace ScarletEngine
 
 		virtual void Update() const {}
 		virtual void FixedUpdate() const {}
-
+	protected:
 		template <typename ...Components>
 		const Array<ProxyType<Components...>>& GetEntities() const
 		{
 			return Reg->GetProxies<Components...>();
 		}
-
+		
 		template <typename ...Components>
 		std::optional<ProxyType<Components...>> GetEntity(EID EntityID) const
 		{
@@ -42,6 +42,7 @@ namespace ScarletEngine
 		const String Name;
 	private:
 		friend class SystemScheduler;
+
 		Registry* Reg = nullptr;
 	};
 
@@ -49,6 +50,7 @@ namespace ScarletEngine
 	class System : public ISystem
 	{
 	public:
+		/** Get the entity proxies matching this systems signature */
 		template <typename ...Components>
 		Array<ProxyType<Components...>> GetEntities() const
 		{
@@ -60,6 +62,7 @@ namespace ScarletEngine
 			return ISystem::GetEntities<Components...>();
 		}
 
+		/** Get the entity proxy that matches this systems signature for the specified entity if possible */
 		template <typename ...Components>
 		std::optional<ProxyType<Components...>> GetEntity(EID EntityID) const
 		{
@@ -69,6 +72,7 @@ namespace ScarletEngine
 			return ISystem::GetEntity<Components...>(EntityID);
 		}
 
+		/** Get the entity proxy that matches this systems signature for the specified entity. */
 		template <typename ...Components>
 		ProxyType<Components...> GetEntityChecked(EID EntityID) const
 		{
@@ -77,6 +81,7 @@ namespace ScarletEngine
 			return OptProxy.value();
 		}
 
+		/** Returns a pointer to the singleton component of the templated type */
 		template <typename SingletonType>
 		SingletonType* GetSingleton() const
 		{

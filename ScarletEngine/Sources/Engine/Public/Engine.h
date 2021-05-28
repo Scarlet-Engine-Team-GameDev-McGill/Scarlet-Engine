@@ -19,6 +19,7 @@ namespace ScarletEngine
 		void Terminate();
 		void Run();
 
+		/** Signals that the engine should quit on the next update */
 		void SignalQuit() { bIsRunning = false; }
 
 		void Update(double DeltaTime);
@@ -43,7 +44,7 @@ namespace ScarletEngine
 		void AddQueuedTickables();
 		void AddTickable(ITickable* TickableToAdd);
 	private:
-		// Prevent disable copy/move constructors
+		// Prevent copy/move constructors
 		Engine(const Engine&) = delete;
 		Engine(Engine&&) = delete;
 		

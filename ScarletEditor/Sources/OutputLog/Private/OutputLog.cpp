@@ -105,9 +105,9 @@ namespace ScarletEngine
 		return Msg.find(FilterText.c_str()) != std::string::npos;
 	}
 
-	void OutputLogPanel::OnMessageLogged(LogLevel Level, const char* Msg)
+	void OutputLogPanel::OnMessageLogged(LogLevel Level, StringView Msg)
 	{
-		MessageBuffer[CurrentMessageIndex] = { Msg, Level };
+		MessageBuffer[CurrentMessageIndex] = { String(Msg), Level };
 		CurrentMessageIndex = (CurrentMessageIndex + 1) % MaxBufferLength;
 		if (NumMessages != MaxBufferLength)
 		{

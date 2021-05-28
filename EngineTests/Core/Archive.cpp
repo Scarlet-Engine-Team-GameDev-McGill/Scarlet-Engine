@@ -15,7 +15,7 @@ TEST(Archive, Basic)
 	Ar << B;
 	Ar << C;
 
-	Ar.SetReadModeandResetPos();
+	Ar.SetReadModeAndResetPos();
 
 	int ReadA = 0;
 	int ReadB = 0;
@@ -61,7 +61,7 @@ TEST(Archive, Primitives)
 		<< Float
 		<< Double;
 
-	Ar.SetReadModeandResetPos();
+	Ar.SetReadModeAndResetPos();
 
 	bool ReadBoolean1 = false;
 	bool ReadBoolean2 = false;
@@ -126,7 +126,7 @@ TEST(Archive, Serializable)
 
 	Ar << S;
 
-	Ar.SetReadModeandResetPos();
+	Ar.SetReadModeAndResetPos();
 
 	SerializableType ReadS{};
 
@@ -143,7 +143,7 @@ TEST(Archive, Array)
 
 	Ar << IntArray;
 
-	Ar.SetReadModeandResetPos();
+	Ar.SetReadModeAndResetPos();
 
 	Array<uint32_t> ReadIntArray;
 
@@ -165,7 +165,7 @@ TEST(Archive, String)
 
 	Ar << Str;
 
-	Ar.SetReadModeandResetPos();
+	Ar.SetReadModeAndResetPos();
 
 	String ReadStr;
 

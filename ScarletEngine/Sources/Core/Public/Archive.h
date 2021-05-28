@@ -23,13 +23,14 @@ namespace ScarletEngine
 		Archive(const String& Filename, ArchiveMode Mode = ArchiveMode::Read);
 		~Archive() { Close(); }
 
+		/** Close the archive by dumping contents to file and clearing it of data. */
 		void Close();
-		/** Dump the binary contents of the Archive to a file */
+		/** Dump the binary contents of the Archive to a file. By default uses the stored filename but can be overriden with the OverrideFile param.  */
 		bool SaveToFile(const char* OverrideFile = nullptr);
 		/** Set the archive to Read Mode and reset the position to the start */
-		void SetReadModeandResetPos() { Pos = 0; Mode = ArchiveMode::Read; }
+		void SetReadModeAndResetPos() { Pos = 0; Mode = ArchiveMode::Read; }
 		/** Return the mode of the archive */
-		ArchiveMode GetMode() { return Mode; }
+		ArchiveMode GetMode() const { return Mode; }
 
 		/* Write operations */
 

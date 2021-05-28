@@ -7,10 +7,10 @@ namespace ScarletEngine
 {
 	class World;
 
-	struct EntityHandle
+	struct Entity
 	{
 	public:
-		EntityHandle(const String& InName, EID InID, World* InOwningWorld)
+		Entity(const String& InName, EID InID, World* InOwningWorld)
 			: Name(InName)
 			, ID(InID)
 			, OwningWorld(InOwningWorld)
@@ -22,4 +22,6 @@ namespace ScarletEngine
 		const EID ID;
 		World* const OwningWorld;
 	};
+
+	using EntityPtr = SharedPtr<Entity>;
 }

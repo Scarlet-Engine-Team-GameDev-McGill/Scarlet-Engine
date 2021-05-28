@@ -12,18 +12,31 @@
 #endif
 
 #ifdef DEBUG
+/**
+ * Breaks the debugger if the predicate evaluates to false and then aborts the program.
+ * Essentially acts like an assert with a debug break.
+ *
+ * Only active in debug builds
+ */
 #define check(pred)	\
 {					\
 	if (!(pred))	\
 	{				\
 		PLATFORM_BREAK();\
+		abort();	\
 	}				\
 }
 #else
+/**
+* Breaks the debugger if the predicate evaluates to false and then aborts the program.
+* Essentially acts like an assert with a debug break.
+*
+* Only active in debug builds
+*/
 #define check(pred) (void)(pred)
 #endif
 
-/** Define OUT as nothing, it is simply used to markup code to make it more readable */
+/** Define OUT as nothing, it is simply used to markup out params in code to make it more readable */
 #define OUT
 
 #define NODISCARD [[nodiscard]]

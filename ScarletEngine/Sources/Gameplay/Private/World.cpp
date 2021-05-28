@@ -3,11 +3,6 @@
 namespace ScarletEngine
 {
 	World::World()
-		: LastDeltaTime()
-	{
-	}
-
-	void World::Initialize()
 	{
 	}
 

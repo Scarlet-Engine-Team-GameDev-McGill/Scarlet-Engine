@@ -23,8 +23,7 @@ namespace ScarletEngine
 
 	void DirectoryAssetViewItem::OnDoubleClick()
 	{
-		String NewDirectory = AssetViewPtr->GetCurrentDirectory();
-		StringUtils::PathConcat(NewDirectory, GetName());
+		const String NewDirectory = StringUtils::PathConcat(AssetViewPtr->GetCurrentDirectory(), GetName());
 		AssetViewPtr->SetCurrentDirectory(NewDirectory);
 	}
 }

@@ -9,15 +9,12 @@ namespace ScarletEngine
 
 	Editor::Editor()
 		: EditorWorld(nullptr)
-		, SelectedEntities()
 	{
 	}
 
 	void Editor::Initialize()
 	{
 		EditorWorld = MakeShared<World>();
-		// #todo_core: this should be probably be handled by the engine
-		EditorWorld->Initialize();
 
 		ModuleManager::GetModuleChecked<UIModule>("UIModule")->SetActiveLayer(MakeShared<EditorUILayer>());
 	}
@@ -27,33 +24,33 @@ namespace ScarletEngine
 		ZoneScopedN("Editor Tick")
 	}
 
-	void Editor::SetSelection(const Array<EntityHandle*>& NewSelection)
+	void Editor::SetSelection(const Array<Entity*>& NewSelection)
 	{
 		SelectedEntities.clear();
-		for (EntityHandle* Ent : NewSelection)
+		for (Entity* Ent : NewSelection)
 		{
 			SelectedEntities.insert(Ent);
 		}
 		OnSelectionChanged.Broadcast();
 	}
 	
-	void Editor::SetSelection(EntityHandle* SelectedItem)
+	void Editor::SetSelection(Entity* SelectedItem)
 	{
 		SelectedEntities.clear();
 		SelectedEntities.insert(SelectedItem);
 		OnSelectionChanged.Broadcast();
 	}
 
-	void Editor::AddToSelection(const Array<EntityHandle*>& EntitiesToAdd)
+	void Editor::AddToSelection(const Array<Entity*>& EntitiesToAdd)
 	{
-		for (EntityHandle* Ent : EntitiesToAdd)
+		for (Entity* Ent : EntitiesToAdd)
 		{
 			SelectedEntities.insert(Ent);
 		}
 		OnSelectionChanged.Broadcast();
 	}
 
-	void Editor::AddToSelection(EntityHandle* EntityToAdd)
+	void Editor::AddToSelection(Entity* EntityToAdd)
 	{
 		SelectedEntities.insert(EntityToAdd);
 		OnSelectionChanged.Broadcast();
@@ -65,13 +62,13 @@ namespace ScarletEngine
 		OnSelectionCleared.Broadcast();
 	}
 
-	void Editor::RemoveFromSelection(EntityHandle* EntityToRemove)
+	void Editor::RemoveFromSelection(Entity* EntityToRemove)
 	{
 		SelectedEntities.erase(EntityToRemove);
 		OnSelectionChanged.Broadcast();
 	}
 
-	bool Editor::IsEntitySelected(EntityHandle* Ent) const
+	bool Editor::IsEntitySelected(Entity* Ent) const
 	{
 		return SelectedEntities.find(Ent) != SelectedEntities.end();
 	}

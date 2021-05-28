@@ -2,7 +2,6 @@
 
 #include "Core.h"
 #include "World.h"
-#include "ECS.h"
 
 #include "Editor.h"
 
@@ -128,7 +127,7 @@ namespace ScarletEngine
 		else if (IO.KeyShift)
 		{
 			// Select items from the current selection index until the newly selected item
-			Array<EntityHandle*> EntitiesToSelect;
+			Array<Entity*> EntitiesToSelect;
 			const EID ClickedIndex = Item.Ent.lock()->ID;
 
 			// Determine the iterator direction

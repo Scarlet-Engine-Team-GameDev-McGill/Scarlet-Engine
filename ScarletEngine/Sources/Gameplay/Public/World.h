@@ -2,50 +2,44 @@
 
 #include "Core.h"
 #include "ITickable.h"
-#include "ECS.h"
 #include "SceneProxy.h"
 #include "SystemScheduler.h"
+#include "Entity.h"
 
 
 namespace ScarletEngine
 {
-	using OnEntityAddedToWorldEvent = Event<const SharedPtr<EntityHandle>&>;
+	using OnEntityAddedToWorldEvent = Event<const EntityPtr&>;
 
 	class World final : public ITickable
 	{
 	public:
 		World();
-
-		void Initialize();
-
+		
+		/* ITickable interface */
 		virtual void Tick(double DeltaTime) override;
 		virtual void FixedTick(double DeltaTime) override;
-
 		virtual bool WantsFixedTimestep() const override { return true; }
 
-		inline double GetDeltaTime() const { return LastDeltaTime; }
-
+		/** Returns the render scene proxy for this world */
+		// #todo_rendering: should be managed by the renderer directly
 		SceneProxy* GetRenderSceneProxy() const { return Reg.GetSingleton<SceneProxy>(); }
 
-		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
-	public:
+		/** Create a new entity in the world with specified component types */
 		template <typename... ComponentTypes>
 		std::tuple<EID, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name)
 		{
 			const auto EntityProxy = Reg.CreateEntity<ComponentTypes...>();
-			SharedPtr<EntityHandle>& Ent = Entities.emplace_back(ScarNew(EntityHandle, Name, std::get<EID>(EntityProxy), this));
+			EntityPtr& Ent = Entities.emplace_back(ScarNew(Entity, Name, std::get<EID>(EntityProxy), this));
 			
 			OnEntityAddedToWorld.Broadcast(Ent);
 			return EntityProxy;
 		}
 
-		const Array<SharedPtr<EntityHandle>>& GetEntities() const
-		{
-			return Entities;
-		}
+		const Array<EntityPtr>& GetEntities() const { return Entities; }
 
 		template <typename ComponentType>
-		ComponentType* GetComponent(const EntityHandle& Ent) const
+		ComponentType* GetComponent(const Entity& Ent) const
 		{
 			return Reg.GetComponent<ComponentType>(Ent.ID);
 		}
@@ -55,10 +49,11 @@ namespace ScarletEngine
 		{
 			return Reg.AddComponent<ComponentType>(Ent);
 		}
+
+		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
 	private:
-		double LastDeltaTime;
 		Registry Reg;
-		Array<SharedPtr<EntityHandle>> Entities;
+		Array<EntityPtr> Entities;
 
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
 	};

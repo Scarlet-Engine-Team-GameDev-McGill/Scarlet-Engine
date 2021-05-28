@@ -157,8 +157,8 @@ namespace ScarletEngine
 	OpenGLVertexArray::OpenGLVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB)
 		: RALVertexArray(VB, IB)
 	{
-		const OpenGLGpuBuffer* OpenGLVB = static_cast<const OpenGLGpuBuffer*>(VB);
-		const OpenGLGpuBuffer* OpenGLIB = static_cast<const OpenGLGpuBuffer*>(IB);
+		auto OpenGLVB = static_cast<const OpenGLGpuBuffer*>(VB);
+		auto OpenGLIB = static_cast<const OpenGLGpuBuffer*>(IB);
 
 		glGenVertexArrays(1, &VAObject);
 		glBindVertexArray(VAObject);
@@ -311,10 +311,9 @@ namespace ScarletEngine
 
 	void OpenGLShaderProgram::SetUniformVec3(const glm::vec3& Vec, const char* Binding) const
 	{
-		const glm::vec3 VecVal = Vec;
 		RAL::Get().QueueCommand([this, Binding, Vec](RALCommandList&)
-        {
-            glUniform3fv(glGetUniformLocation(ProgramObject, Binding), 1, &Vec.x);
-        }, "SetUniformVec3");
+		{
+			glUniform3fv(glGetUniformLocation(ProgramObject, Binding), 1, &Vec.x);
+		}, "SetUniformVec3");
 	}
 }

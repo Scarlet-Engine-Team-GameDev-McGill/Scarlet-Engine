@@ -101,6 +101,31 @@ TEST(ECS, RegistryAttachComponent)
 	EXPECT_NE(Reg.GetComponent<TestComponent>(TestEntity), nullptr);
 }
 
+TEST(ECS, RegistryRemove)
+{
+	TestComponent::ResetCounter();
+
+	Registry Reg;
+
+	auto [TestEntity, TC] = Reg.CreateEntity<TestComponent>();
+
+	EXPECT_EQ(TestComponent::ConstructorCounter, static_cast<uint32_t>(1));
+
+	EXPECT_NE(Reg.GetComponent<TestComponent>(TestEntity), nullptr);
+
+	bool Result = Reg.RemoveComponent<TestComponent>(TestEntity);
+
+	EXPECT_TRUE(Result);
+
+	EXPECT_EQ(Reg.GetComponent<TestComponent>(TestEntity), nullptr);
+
+	Result = Reg.RemoveComponent<TestComponent>(TestEntity);
+
+	EXPECT_FALSE(Result);
+
+	EXPECT_EQ(Reg.GetComponent<TestComponent>(TestEntity), nullptr);
+}
+
 TEST(ECS, RegistrySort)
 {
 	const uint32_t NumEntities = 100;

@@ -28,7 +28,9 @@ namespace ScarletEngine
 	}
 }
 
+/** Allocates a new object on the heap */
 #define ScarNew(TypeName, ...) ScarletEngine::_ScarNew<TypeName>(__VA_ARGS__)
+/** Deletes a heap-allocated object */
 #define ScarDelete(Ptr) ScarletEngine::_ScarDelete(Ptr)
 
 namespace ScarletEngine
@@ -80,12 +82,14 @@ namespace ScarletEngine
 	template <typename T>
 	using WeakPtr = std::weak_ptr<T>;
 
+	/** Construct a shared pointer of type T */
 	template <typename T, typename... Args>
 	NODISCARD SharedPtr<T> MakeShared(Args&&... args)
 	{
 		return SharedPtr<T>(ScarNew(T, std::forward<Args>(args)...), typename GlobalAllocator<T>::Delete());
 	}
 
+	/** Construct a unique pointer of type T */
 	template <typename T, typename... Args>
 	NODISCARD UniquePtr<T> MakeUnique(Args&&... args)
 	{

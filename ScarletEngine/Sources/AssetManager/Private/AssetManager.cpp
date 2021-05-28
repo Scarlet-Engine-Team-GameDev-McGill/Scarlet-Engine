@@ -87,9 +87,7 @@ namespace ScarletEngine
 
 	String AssetManager::ToFullPath(const String& AssetPath)
 	{
-		String Result = AssetRoot;
-		StringUtils::PathConcat(OUT Result, AssetPath);
-		return Result;
+		return StringUtils::PathConcat(AssetRoot, AssetPath);
 	}
 	
 }

@@ -9,12 +9,18 @@ namespace ScarletEngine
 	template <typename ...Components>
 	using ProxyType = std::tuple<EID, std::add_pointer_t<Components>...>;
 	
-	/** Manages entity-component relationships at a low level. */
+	/** Manages entity-component relationships. */
 	class Registry
 	{
 	public:
 		/* Entity Interface */
 
+		/**
+		 * Create a new entity.
+		 * Optionally creates a set of components along with the entity which are automatically attached to it.
+		 *
+		 * @returns a std::tuple with the entity id followed by a pointer to each of its components.
+		 */
 		template <typename ...ComponentTypes>
 		ProxyType<ComponentTypes...> CreateEntity()
 		{
@@ -28,17 +34,22 @@ namespace ScarletEngine
 	public:
 		/* Component Interface */
 
+		/** Add a component of the templated type to an entity */
 		template <typename ComponentType>
 		ComponentType* AddComponent(EID EntityID)
 		{
 			const auto Container = GetOrCreateComponentContainer<ComponentType>();
 			check(Container);
-			
+
 			MarkComponentContainerDirty<ComponentType>();
 
 			return Container->Add(EntityID);
 		}
 
+		/**
+		 * Removes a component of the templated type from an entity if it exists.
+		 * @returns true if operation was successful
+		 */
 		template <typename ComponentType>
 		bool RemoveComponent(EID EntityID) const
 		{
@@ -50,6 +61,11 @@ namespace ScarletEngine
 			return false;
 		}
 
+		/**
+		 * Attach an existing component to an entity.
+		 * @note: The old component will be invalid and changes to it will not be reflected on the entity.
+		 * @returns the new pointer for that component.
+		 */
 		template <typename ComponentType>
 		ComponentType* AttachComponent(EID EntityID, const ComponentType& Component)
 		{
@@ -64,6 +80,7 @@ namespace ScarletEngine
 			return Container->Attach(EntityID, Component);
 		}
 
+		/** Get a pointer to the component of the templated type associated with the given entity */
 		template <typename ComponentType>
 		ComponentType* GetComponent(EID EntityID) const
 		{
@@ -75,6 +92,7 @@ namespace ScarletEngine
 			return nullptr;
 		}
 
+		/** @returns true if the entity has a component of the templated type */
 		template <typename ComponentType>
 		bool HasComponent(EID EntityID) const
 		{
@@ -85,8 +103,10 @@ namespace ScarletEngine
 			return false;
 		}
 
+		/** Destroy an entity along with all its components */
 		void DestroyEntity(EID EntityID);
 
+		/** Sort all the component containers */
 		void SortAll()
 		{
 			ZoneScoped
@@ -96,6 +116,7 @@ namespace ScarletEngine
 			}
 		}
 
+		/** @returns a pointer to the singleton instance of the templated component type */
 		template <typename ComponentType>
 		ComponentType* GetSingleton() const
 		{
@@ -104,14 +125,18 @@ namespace ScarletEngine
 			return &Instance;
 		}
 
+		/**
+		 * Clears the registry, deleting all entities and components.
+		 * @note does not clear the values of any singleton components as these are static.
+		 */
 		void Clear()
 		{
-			// Note: this does NOT clear any values for singletons.
 			ComponentContainers.clear();
 			Entities.clear();
 			NextAvailableEID = 1;
 		}
 
+		/** @returns an array of entity proxies for the templated component types */
 		template <typename ...ComponentTypes>
 		const Array<ProxyType<ComponentTypes...>>& GetProxies() const
 		{
@@ -152,6 +177,7 @@ namespace ScarletEngine
 			return EntityProxies;
 		}
 
+		/** @returns an entity proxies for the templated component types if possible */
 		template <typename ...ComponentTypes>
 		std::optional<ProxyType<ComponentTypes...>> GetProxy(EID EntityID) const
 		{
@@ -172,6 +198,7 @@ namespace ScarletEngine
 			return std::optional<ProxyType<ComponentTypes...>>{};
 		}
 
+		/** Mark a component container as dirty such that any proxies that depend on it will be reconstructed next time they are requested. */
 		template <typename ComponentType>
 		void MarkComponentContainerDirty() const
 		{

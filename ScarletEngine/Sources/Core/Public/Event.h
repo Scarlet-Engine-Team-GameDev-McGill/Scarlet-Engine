@@ -11,6 +11,11 @@ namespace ScarletEngine
 		using FunctionType = std::function<void(Args...)>;
 		struct CallbackData
 		{
+			CallbackData(void* InOwner, const FunctionType& InFunc)
+				: CallbackOwner(InOwner)
+				, Func(InFunc)
+			{}
+			
 			void* CallbackOwner;
 			FunctionType Func;
 		};
@@ -58,9 +63,10 @@ namespace ScarletEngine
 			}
 		}
 
+		/** Unbind a callback owned by `Ptr` from this event */
 		void Unbind(void* Ptr) const
 		{
-			auto It = std::find_if(Callbacks.begin(), Callbacks.end(), [Ptr](const CallbackData& Data)
+			const auto It = std::find_if(Callbacks.begin(), Callbacks.end(), [Ptr](const CallbackData& Data)
 				{
 					return Data.CallbackOwner == Ptr;
 				});
@@ -71,14 +77,16 @@ namespace ScarletEngine
 			}
 		}
 
+		/** Broadcast this event calling all bound callbacks */
 		void Broadcast(Args... args)
 		{
 			for (const auto& CallbackInfo : Callbacks)
 			{
-				CallbackInfo.Func(args...);
+				CallbackInfo.Func(std::forward<Args>(args)...);
 			}
 		}
 
+		/** Empty the list of callbacks, resetting the event. */
 		void Clear()
 		{
 			Callbacks.clear();

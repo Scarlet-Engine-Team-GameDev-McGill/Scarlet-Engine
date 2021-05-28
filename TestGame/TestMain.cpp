@@ -1,7 +1,6 @@
 #include "Engine.h"
 #include "AssetManager.h"
 #include "World.h"
-#include "RAL.h"
 #include "ModuleManager.h"
 #include "RenderModule.h"
 
@@ -19,7 +18,6 @@ int main()
 
 	{
 		SharedPtr<World> TestWorld = MakeShared<World>();
-		TestWorld->Initialize();
 
 		GEngine->Run();
 	}

@@ -121,10 +121,10 @@ namespace ScarletEngine
 			ViewportCamera.SetView(ViewMatrix);
 		}
 		
-		Set<EntityHandle*> Selection = GEditor->GetSelection();
+		Set<Entity*> Selection = GEditor->GetSelection();
 		if (Selection.size() == 1)
 		{
-			EntityHandle* SelectedEntity = *Selection.begin();
+			Entity* SelectedEntity = *Selection.begin();
 			check(SelectedEntity != nullptr);
 
 			TransformComponent* Transform = SelectedEntity->OwningWorld->GetComponent<TransformComponent>(*SelectedEntity);

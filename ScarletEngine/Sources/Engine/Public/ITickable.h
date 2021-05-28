@@ -22,9 +22,10 @@ namespace ScarletEngine
 		/** Called at a fixed-interval with a fixed timestep. */
 		virtual void FixedTick(double /* DeltaTime */) {}
 
+		/** Override if object wants to tick on the variable timestep update. */
 		virtual bool WantsVariableTimestep() const { return true; }
 
-		/** Override if object wants a fixed timestep rather than variable */
+		/** Override if object wants to tick on the fixed timestep update. */
 		virtual bool WantsFixedTimestep() const { return false; }
 	};
 }

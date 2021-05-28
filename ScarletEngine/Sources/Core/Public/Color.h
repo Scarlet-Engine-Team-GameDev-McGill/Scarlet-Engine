@@ -17,6 +17,7 @@ namespace ScarletEngine
 			: R(R), G(G), B(B), A(A)
 		{}
 
+		/** Convert the color to a glm::vec4 */
 		inline glm::vec4 AsVec4() const { return glm::vec4(R, G, B, A); }
 
 		float R;
