@@ -23,89 +23,79 @@ namespace ScarletEngine
 		Archive(const String& Filename, ArchiveMode Mode = ArchiveMode::Read);
 		~Archive() { Close(); }
 
+		/** Close the archive by dumping contents to file and clearing it of data. */
 		void Close();
-		/** Dump the binary contents of the Archive to a file */
+		/** Dump the binary contents of the Archive to a file. By default uses the stored filename but can be overriden with the OverrideFile param.  */
 		bool SaveToFile(const char* OverrideFile = nullptr);
 		/** Set the archive to Read Mode and reset the position to the start */
-		void SetReadModeandResetPos() { Pos = 0; Mode = ArchiveMode::Read; }
+		void SetReadModeAndResetPos() { Pos = 0; Mode = ArchiveMode::Read; }
 		/** Return the mode of the archive */
-		ArchiveMode GetMode() { return Mode; }
+		ArchiveMode GetMode() const { return Mode; }
 
 		/* Write operations */
 
 		inline Archive& operator<<(bool Data)
 		{
-			ZoneScoped
 			Write((uint8_t)(Data ? 1 : 0));
 			return *this;
 		}
 
 		inline Archive& operator<<(char Data)
 		{
-			ZoneScoped
 			Write((uint8_t)Data);
 			return *this;
 		}
 
 		inline Archive& operator<<(unsigned char Data)
 		{
-			ZoneScoped
 			Write((uint8_t)Data);
 			return *this;
 		}
 
 		inline Archive& operator<<(int Data)
 		{
-			ZoneScoped
 			Write((uint64_t)Data);
 			return *this;
 		}
 
 		inline Archive& operator<<(unsigned int Data)
 		{
-			ZoneScoped
 			Write((uint64_t)Data);
 			return *this;
 		}
 
 		inline Archive& operator<<(long Data)
 		{
-			ZoneScoped
 			Write((uint64_t)Data);
 			return *this;
 		}
 
 		inline Archive& operator<<(unsigned long Data)
 		{
-			ZoneScoped
 			Write((uint64_t)Data);
 			return *this;
 		}
 
 		inline Archive& operator<<(long long Data)
 		{
-			ZoneScoped
 			Write((uint64_t)Data);
 			return *this;
 		}
 
 		inline Archive& operator<<(unsigned long long Data)
 		{
-			ZoneScoped
 			Write((uint64_t)Data);
 			return *this;
 		}
 
 		inline Archive& operator<<(float Data)
 		{
-			ZoneScoped
 			Write(Data);
 			return *this;
 		}
 
 		inline Archive& operator<<(double Data)
 		{
-			ZoneScoped
 			Write(Data);
 			return *this;
 		}
@@ -113,7 +103,6 @@ namespace ScarletEngine
 		template <typename ElemType, typename Alloc>
 		inline Archive& operator<<(const Array<ElemType, Alloc>& Arr)
 		{
-			ZoneScoped
 			(*this) << Arr.size();
 			for (const auto& Data : Arr)
 			{
@@ -125,7 +114,6 @@ namespace ScarletEngine
 		template <typename ElemType, typename Traits, typename Alloc>
 		inline Archive& operator<<(const BasicString<ElemType, Traits, Alloc>& Str)
 		{
-			ZoneScoped
 			size_t StrCount = (size_t)Str.size();
 			(*this) << StrCount;
 			Write(*Str.c_str(), StrCount);
@@ -135,7 +123,6 @@ namespace ScarletEngine
 		template <typename Serializable>
 		inline Archive& operator<<(const Serializable& Data)
 		{
-			ZoneScoped
 			Data.Serialize(*this);
 			return *this;
 		}
@@ -144,7 +131,6 @@ namespace ScarletEngine
 
 		inline Archive& operator>>(bool& DataOut)
 		{
-			ZoneScoped
 			uint8_t Temp;
 			Read(Temp);
 			DataOut = (Temp == 1);
@@ -153,7 +139,6 @@ namespace ScarletEngine
 
 		inline Archive& operator>>(char& DataOut)
 		{
-			ZoneScoped
 			uint8_t Temp;
 			Read(Temp);
 			DataOut = (char)Temp;
@@ -162,7 +147,6 @@ namespace ScarletEngine
 
 		inline Archive& operator>>(unsigned char& DataOut)
 		{
-			ZoneScoped
 			uint8_t Temp;
 			Read(Temp);
 			DataOut = (unsigned char)Temp;
@@ -171,7 +155,6 @@ namespace ScarletEngine
 
 		inline Archive& operator>>(int& DataOut)
 		{
-			ZoneScoped
 			uint64_t Temp;
 			Read(Temp);
 			DataOut = (int)Temp;
@@ -180,7 +163,6 @@ namespace ScarletEngine
 
 		inline Archive& operator>>(unsigned int& DataOut)
 		{
-			ZoneScoped
 			uint64_t Temp;
 			Read(Temp);
 			DataOut = (unsigned int)Temp;
@@ -189,7 +171,6 @@ namespace ScarletEngine
 
 		inline Archive& operator>>(long& DataOut)
 		{
-			ZoneScoped
 			uint64_t Temp;
 			Read(Temp);
 			DataOut = (long)Temp;
@@ -198,7 +179,6 @@ namespace ScarletEngine
 
 		inline Archive& operator>>(unsigned long& DataOut)
 		{
-			ZoneScoped
 			uint64_t Temp;
 			Read(Temp);
 			DataOut = (unsigned long)Temp;
@@ -207,7 +187,6 @@ namespace ScarletEngine
 
 		inline Archive& operator>>(long long& DataOut)
 		{
-			ZoneScoped
 			uint64_t Temp;
 			Read(Temp);
 			DataOut = (long long)Temp;
@@ -216,7 +195,6 @@ namespace ScarletEngine
 
 		inline Archive& operator>>(unsigned long long& DataOut)
 		{
-			ZoneScoped
 			uint64_t Temp;
 			Read(Temp);
 			DataOut = (unsigned long long)Temp;
@@ -225,14 +203,12 @@ namespace ScarletEngine
 
 		inline Archive& operator>>(float& DataOut)
 		{
-			ZoneScoped
 			Read(DataOut);
 			return *this;
 		}
 
 		inline Archive& operator>>(double& DataOut)
 		{
-			ZoneScoped
 			Read(DataOut);
 			return *this;
 		}
@@ -240,7 +216,6 @@ namespace ScarletEngine
 		template <typename Deserializable>
 		inline Archive& operator>>(Deserializable& Data)
 		{
-			ZoneScoped
 			Data.Deserialize(*this);
 			return *this;
 		}
@@ -248,7 +223,6 @@ namespace ScarletEngine
 		template <typename ElemType, typename Alloc>
 		inline Archive& operator>>(Array<ElemType, Alloc>& Arr)
 		{
-			ZoneScoped
 			size_t ArrayCount = 0;
 			(*this) >> ArrayCount;
 			Arr.resize(ArrayCount);
@@ -262,7 +236,6 @@ namespace ScarletEngine
 		template <typename ElemType, typename Traits, typename Alloc>
 		inline Archive& operator>>(BasicString<ElemType, Traits, Alloc>& Str)
 		{
-			ZoneScoped
 			size_t StringCount = 0;
 			(*this) >> StringCount;
 			Str.resize(StringCount);
@@ -274,7 +247,6 @@ namespace ScarletEngine
 		template <typename DataType>
 		inline void Write(const DataType& Data, uint64_t Count = 1)
 		{
-			ZoneScoped
 			check(Mode == ArchiveMode::Write);
 			size_t Size = (size_t)(sizeof(Data) * Count);
 			size_t NewPos = Pos + Size;
@@ -289,7 +261,6 @@ namespace ScarletEngine
 		template <typename DataType>
 		inline void Read(DataType& DataOut, uint64_t Count = 1)
 		{
-			ZoneScoped
 			check(Mode == ArchiveMode::Read);
 			size_t Size = (size_t)(sizeof(DataOut) * Count);
 			check(Pos + Size <= DataArray.size()); // Attempting to read past the end of the archive.

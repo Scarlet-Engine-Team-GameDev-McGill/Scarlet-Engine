@@ -17,7 +17,7 @@ namespace ScarletEngine::Widgets
         Size.x += GImGui->Style.FramePadding.x * 2;
         Size.y += GImGui->Style.FramePadding.y * 2;
 
-        ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth() * 0.85);
+        ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth() * 0.85f);
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2 { 0, GImGui->Style.ItemSpacing.y });
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4 { 0.8f, 0.1f, 0.15f, 1.0f });

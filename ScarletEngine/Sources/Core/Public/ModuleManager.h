@@ -8,6 +8,7 @@ namespace ScarletEngine
 	class ModuleManager
 	{
 	public:
+		/** Registers a new module of `ModuleType` */
 		template <typename ModuleType>
 		static void RegisterModule()
 		{
@@ -18,6 +19,7 @@ namespace ScarletEngine
 			Instance.Modules.push_back(Module);
 		}
 
+		/** Returns a pointer to the specified module, casted to type */
 		template <typename ModuleType>
 		NODISCARD static ModuleType* GetModule(StringView ModuleName)
 		{
@@ -29,6 +31,7 @@ namespace ScarletEngine
 			return (It != Instance.Modules.end()) ? static_cast<ModuleType*>(It->get()) : nullptr;
 		}
 
+		/** Returns a pointer to the specified module, checked to ensure it exists */
 		template <typename ModuleType>
 		NODISCARD static ModuleType* GetModuleChecked(StringView ModuleName)
 		{

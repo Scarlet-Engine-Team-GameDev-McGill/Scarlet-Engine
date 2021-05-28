@@ -22,7 +22,7 @@ namespace ScarletEngine
 	private:
 		bool PassesFilter(const String& Msg) const;
 
-		void OnMessageLogged(LogLevel Level, const char* Msg);
+		void OnMessageLogged(LogLevel Level, StringView Msg);
 
 		void Clear();
 	private:

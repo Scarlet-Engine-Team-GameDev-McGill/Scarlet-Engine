@@ -67,12 +67,17 @@ namespace ScarletEngine::Achilles
 		return Data;
 	}
 
-	void SphereVsSphereColliderSystem::SolveIntersection
-		(RigidBodyComponent* Rb, TransformComponent* Trans, SphereColliderComponent* Sphere, SphereColliderComponent* OtherSphere, const glm::vec3 Fi, const glm::vec3 newPos) const
+	void SphereVsSphereColliderSystem::SolveIntersection(
+		RigidBodyComponent* Rb,
+		TransformComponent* Trans,
+		SphereColliderComponent* Sphere,
+		SphereColliderComponent* OtherSphere,
+		const glm::vec3 Fi, const glm::vec3 NewPos)
 	{
+		ZoneScoped
 		Rb->Force += Fi;
 		Rb->Velocity *= (1.f - OtherSphere->FrictionCoefficient);
-		Trans->Position += newPos;
+		Trans->Position += NewPos;
 		Sphere->Pos = Trans->Position;
 		Rb->Force -= Rb->Gravity * Rb->Mass;
 	}
@@ -103,6 +108,7 @@ namespace ScarletEngine::Achilles
 
 	IntersectionData PlaneVsSphereColliderSystem::GetIntersection(const PlaneColliderComponent* Plane, const SphereColliderComponent* Sphere) const
 	{
+		ZoneScoped
 		const float Dist = glm::dot(Plane->Normal, Sphere->Pos) - Plane->Distance - Sphere->Radius;
 		IntersectionData Data;
 		Data.Direction = Plane->Normal * Dist;

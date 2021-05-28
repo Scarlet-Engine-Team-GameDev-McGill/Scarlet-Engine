@@ -21,7 +21,6 @@ namespace ScarletEngine
 		, bIsTerminated(false)
 		, bTickingObjects(false)
 	{
-		tracy::SetThreadName("Engine Thread");
 	}
 
 	void Engine::Initialize()
@@ -42,6 +41,8 @@ namespace ScarletEngine
 	void Engine::Run()
 	{
 		ZoneScoped
+		tracy::SetThreadName("Engine Thread");
+
 		check(bIsInitialized);
 
 		std::chrono::high_resolution_clock Clock;
@@ -100,6 +101,7 @@ namespace ScarletEngine
 	void Engine::Terminate()
 	{
 		ZoneScoped
+		SCAR_LOG(LogInfo, "Terminating engine");
 		ModuleManager::GetInstance().Shutdown();
 
 		ScarDelete(AppWindow);
@@ -132,21 +134,17 @@ namespace ScarletEngine
 
 	void Engine::QueueAddTickable(ITickable* TickableObject)
 	{
-		ZoneScoped
-		//std::lock_guard<std::mutex> Lock(TickableQueueMutex);
-
 		TickableQueue.push_back(TickableObject);
 	}
 
 	void Engine::RemoveTickable(ITickable* TickableObject)
 	{
-		ZoneScoped
 		// Tickables cannot be removed while objects are being ticked as this would invalidate the iterator
 		check(!bTickingObjects);
 
 		if (TickableObject->WantsFixedTimestep())
 		{
-			auto It = std::remove(FixedUpdateTickables.begin(), FixedUpdateTickables.end(), TickableObject);
+			const auto It = std::remove(FixedUpdateTickables.begin(), FixedUpdateTickables.end(), TickableObject);
 			if (It != FixedUpdateTickables.end())
 			{
 				FixedUpdateTickables.erase(It, FixedUpdateTickables.end());
@@ -154,7 +152,7 @@ namespace ScarletEngine
 		}
 		if (TickableObject->WantsVariableTimestep())
 		{
-			auto It = std::remove(VariableUpdateTickables.begin(), VariableUpdateTickables.end(), TickableObject);
+			const auto It = std::remove(VariableUpdateTickables.begin(), VariableUpdateTickables.end(), TickableObject);
 			if (It != VariableUpdateTickables.end())
 			{
 				VariableUpdateTickables.erase(It, VariableUpdateTickables.end());
@@ -164,8 +162,6 @@ namespace ScarletEngine
 
 	void Engine::AddQueuedTickables()
 	{
-		ZoneScoped
-		//std::lock_guard<std::mutex> Lock(TickableQueueMutex);
 		// Add any new tickables which may have been enqueued during the last frame
 		for (const auto TickableToAdd : TickableQueue)
 		{
@@ -177,7 +173,6 @@ namespace ScarletEngine
 
 	void Engine::AddTickable(ITickable* TickableObject)
 	{
-		ZoneScoped
 		check(bIsInitialized);
 		check(!bTickingObjects);
 

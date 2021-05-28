@@ -38,25 +38,25 @@ TEST(StringUtils, PathConcat)
 {
 	String FirstPath = "/Assets/";
 	String SecondPath = "Scarlet.png";
-	StringUtils::PathConcat(OUT FirstPath, SecondPath);
+	String Result = StringUtils::PathConcat(FirstPath, SecondPath);
 
-	EXPECT_STREQ(FirstPath.c_str(), "/Assets/Scarlet.png");
+	EXPECT_STREQ(Result.c_str(), "/Assets/Scarlet.png");
 	
 	FirstPath = "/Assets/";
 	SecondPath = "/Scarlet.png";
-	StringUtils::PathConcat(OUT FirstPath, SecondPath);
+	Result = StringUtils::PathConcat(FirstPath, SecondPath);
 
-	EXPECT_STREQ(FirstPath.c_str(), "/Assets/Scarlet.png");
+	EXPECT_STREQ(Result.c_str(), "/Assets/Scarlet.png");
 
 	FirstPath = "/Assets";
 	SecondPath = "Scarlet.png";
-	StringUtils::PathConcat(OUT FirstPath, SecondPath);
+	Result = StringUtils::PathConcat(FirstPath, SecondPath);
 
-	EXPECT_STREQ(FirstPath.c_str(), "/Assets/Scarlet.png");
+	EXPECT_STREQ(Result.c_str(), "/Assets/Scarlet.png");
 
 	FirstPath = "/This/Is/A/Very/Long/FileSystem/Path/";
 	SecondPath = "/ThisIsAReallyLongFileName.png";
-	StringUtils::PathConcat(OUT FirstPath, SecondPath);
+	Result = StringUtils::PathConcat(FirstPath, SecondPath);
 
-	EXPECT_STREQ(FirstPath.c_str(), "/This/Is/A/Very/Long/FileSystem/Path/ThisIsAReallyLongFileName.png");
+	EXPECT_STREQ(Result.c_str(), "/This/Is/A/Very/Long/FileSystem/Path/ThisIsAReallyLongFileName.png");
 }

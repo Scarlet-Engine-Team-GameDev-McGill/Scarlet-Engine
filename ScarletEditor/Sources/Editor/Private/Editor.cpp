@@ -9,78 +9,67 @@ namespace ScarletEngine
 
 	Editor::Editor()
 		: EditorWorld(nullptr)
-		, SelectedEntities()
 	{
 	}
 
 	void Editor::Initialize()
 	{
-		ZoneScoped
 		EditorWorld = MakeShared<World>();
-		// #todo_core: this should be handled by the engine
-		EditorWorld->Initialize();
 
 		ModuleManager::GetModuleChecked<UIModule>("UIModule")->SetActiveLayer(MakeShared<EditorUILayer>());
 	}
 
 	void Editor::Tick(double)
 	{
-		ZoneScoped
+		ZoneScopedN("Editor Tick")
 	}
 
-	void Editor::SetSelection(const Array<EntityHandle*>& NewSelection)
+	void Editor::SetSelection(const Array<Entity*>& NewSelection)
 	{
-		ZoneScoped
 		SelectedEntities.clear();
-		for (EntityHandle* Ent : NewSelection)
+		for (Entity* Ent : NewSelection)
 		{
 			SelectedEntities.insert(Ent);
 		}
 		OnSelectionChanged.Broadcast();
 	}
 	
-	void Editor::SetSelection(EntityHandle* SelectedItem)
+	void Editor::SetSelection(Entity* SelectedItem)
 	{
-		ZoneScoped
 		SelectedEntities.clear();
 		SelectedEntities.insert(SelectedItem);
 		OnSelectionChanged.Broadcast();
 	}
 
-	void Editor::AddToSelection(const Array<EntityHandle*>& EntitiesToAdd)
+	void Editor::AddToSelection(const Array<Entity*>& EntitiesToAdd)
 	{
-		ZoneScoped
-		for (EntityHandle* Ent : EntitiesToAdd)
+		for (Entity* Ent : EntitiesToAdd)
 		{
 			SelectedEntities.insert(Ent);
 		}
 		OnSelectionChanged.Broadcast();
 	}
 
-	void Editor::AddToSelection(EntityHandle* EntityToAdd)
+	void Editor::AddToSelection(Entity* EntityToAdd)
 	{
-		ZoneScoped
 		SelectedEntities.insert(EntityToAdd);
 		OnSelectionChanged.Broadcast();
 	}
 
 	void Editor::ClearSelection()
 	{
-		ZoneScoped
 		SelectedEntities.clear();
 		OnSelectionCleared.Broadcast();
 	}
 
-	void Editor::RemoveFromSelection(EntityHandle* EntityToRemove)
+	void Editor::RemoveFromSelection(Entity* EntityToRemove)
 	{
-		ZoneScoped
 		SelectedEntities.erase(EntityToRemove);
 		OnSelectionChanged.Broadcast();
 	}
 
-	bool Editor::IsEntitySelected(EntityHandle* Ent) const
+	bool Editor::IsEntitySelected(Entity* Ent) const
 	{
-		ZoneScoped
 		return SelectedEntities.find(Ent) != SelectedEntities.end();
 	}
 }

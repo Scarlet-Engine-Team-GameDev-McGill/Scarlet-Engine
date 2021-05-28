@@ -35,7 +35,6 @@ namespace ScarletEngine
 
 	void Viewport::ResizeFramebuffer(uint32_t NewWidth, uint32_t NewHeight)
 	{
-		ZoneScoped
 		Framebuffer->Resize(NewWidth, NewHeight);
 	}
 }

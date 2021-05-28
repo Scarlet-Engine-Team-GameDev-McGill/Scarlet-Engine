@@ -13,19 +13,17 @@ namespace ScarletEngine
 
 	void StatsPanel::Tick(double DeltaTime)
 	{
-		ZoneScoped
 		FrameTimeSum -= FrameTimes[CurrentFrameTimeIndex];
-		FrameTimes[CurrentFrameTimeIndex] = (float)DeltaTime;
-		FrameTimeSum += (float)DeltaTime;
+		FrameTimes[CurrentFrameTimeIndex] = static_cast<float>(DeltaTime);
+		FrameTimeSum += static_cast<float>(DeltaTime);
 
 		CurrentFrameTimeIndex = (CurrentFrameTimeIndex + 1) % FrameWindowSize;
 
-		FrameTimeMean = (float)(FrameTimeSum / FrameWindowSize);
+		FrameTimeMean = (FrameTimeSum / static_cast<float>(FrameWindowSize));
 	}
 
 	void StatsPanel::DrawWindowContent()
 	{
-		ZoneScoped
 		ImGui::Text("CPU");
 		ImGui::Separator();
 
@@ -36,7 +34,7 @@ namespace ScarletEngine
 			ZoneScopedN("Plot Frametimes")
 			ImGui::PlotLines("", FrameTimes, IM_ARRAYSIZE(FrameTimes), CurrentFrameTimeIndex, Buff, 0.0f, 0.02f, ImVec2(ContentRegion.x, 80.0f));
 		}
-		ImGui::Text("FPS: %.1f", (double)(1.f / FrameTimeMean));
+		ImGui::Text("FPS: %.1f", static_cast<double>(1.f / FrameTimeMean));
 
 		ImGui::Text(" ");
 		ImGui::Text("Memory");

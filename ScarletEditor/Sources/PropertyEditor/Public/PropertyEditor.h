@@ -10,7 +10,7 @@ namespace ScarletEngine
 		struct RigidBodyComponent;
 	}
 
-	struct EntityHandle;
+	struct Entity;
 
 	class PropertyEditorPanel : public UIWindow
 	{
@@ -28,6 +28,6 @@ namespace ScarletEngine
 		void DrawRigidBodyWidget(Achilles::RigidBodyComponent& RigidBody) const;
 		
 	private:
-		EntityHandle* FocusedEntity;
+		Entity* FocusedEntity;
 	};
 }

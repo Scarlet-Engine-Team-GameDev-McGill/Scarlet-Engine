@@ -11,6 +11,11 @@ namespace ScarletEngine
 		using FunctionType = std::function<void(Args...)>;
 		struct CallbackData
 		{
+			CallbackData(void* InOwner, const FunctionType& InFunc)
+				: CallbackOwner(InOwner)
+				, Func(InFunc)
+			{}
+			
 			void* CallbackOwner;
 			FunctionType Func;
 		};
@@ -22,8 +27,7 @@ namespace ScarletEngine
 		 */
 		void Bind(const FunctionType& Callback, void* OwnerPtr = nullptr) const
 		{
-			ZoneScoped
-			Callbacks.push_back({ (void*)OwnerPtr, Callback });
+			Callbacks.emplace_back(OwnerPtr, Callback);
 		}
 
 		/**
@@ -33,27 +37,25 @@ namespace ScarletEngine
 		template <typename CallerType, typename MemberFuncType>
 		void BindMember(CallerType Ptr, MemberFuncType Func) const
 		{
-			ZoneScoped
 			if constexpr (sizeof...(Args) == 0)
 			{
-				//Bind(std::bind(Func, Ptr));
-				Callbacks.push_back({ Ptr, std::bind(Func, Ptr) });
+				Callbacks.emplace_back(Ptr, std::bind(Func, Ptr));
 			}
 			else  if constexpr (sizeof...(Args) == 1)
 			{
-				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1) });
+				Callbacks.emplace_back(Ptr, std::bind(Func, Ptr, std::placeholders::_1));
 			}
 			else if constexpr (sizeof...(Args) == 2)
 			{
-				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2) });
+				Callbacks.emplace_back(Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2));
 			}
 			else if constexpr (sizeof...(Args) == 3)
 			{
-				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3) });
+				Callbacks.emplace_back(Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 			}
 			else if constexpr (sizeof...(Args) == 4)
 			{
-				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) });
+				Callbacks.emplace_back(Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 			}
 			else
 			{
@@ -61,10 +63,10 @@ namespace ScarletEngine
 			}
 		}
 
+		/** Unbind a callback owned by `Ptr` from this event */
 		void Unbind(void* Ptr) const
 		{
-			ZoneScoped
-			auto It = std::find_if(Callbacks.begin(), Callbacks.end(), [Ptr](const CallbackData& Data)
+			const auto It = std::find_if(Callbacks.begin(), Callbacks.end(), [Ptr](const CallbackData& Data)
 				{
 					return Data.CallbackOwner == Ptr;
 				});
@@ -75,18 +77,18 @@ namespace ScarletEngine
 			}
 		}
 
+		/** Broadcast this event calling all bound callbacks */
 		void Broadcast(Args... args)
 		{
-			ZoneScoped
-			for (const auto& CallbackInfo: Callbacks)
+			for (const auto& CallbackInfo : Callbacks)
 			{
-				CallbackInfo.Func(args...);
+				CallbackInfo.Func(std::forward<Args>(args)...);
 			}
 		}
 
+		/** Empty the list of callbacks, resetting the event. */
 		void Clear()
 		{
-			ZoneScoped
 			Callbacks.clear();
 		}
 	private:
