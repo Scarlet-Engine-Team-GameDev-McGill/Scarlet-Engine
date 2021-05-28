@@ -23,7 +23,7 @@ namespace ScarletEngine
 		void Bind(const FunctionType& Callback, void* OwnerPtr = nullptr) const
 		{
 			ZoneScoped
-			Callbacks.push_back({ (void*)OwnerPtr, Callback });
+			Callbacks.emplace_back(OwnerPtr, Callback);
 		}
 
 		/**
@@ -36,24 +36,23 @@ namespace ScarletEngine
 			ZoneScoped
 			if constexpr (sizeof...(Args) == 0)
 			{
-				//Bind(std::bind(Func, Ptr));
-				Callbacks.push_back({ Ptr, std::bind(Func, Ptr) });
+				Callbacks.emplace_back(Ptr, std::bind(Func, Ptr));
 			}
 			else  if constexpr (sizeof...(Args) == 1)
 			{
-				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1) });
+				Callbacks.emplace_back(Ptr, std::bind(Func, Ptr, std::placeholders::_1));
 			}
 			else if constexpr (sizeof...(Args) == 2)
 			{
-				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2) });
+				Callbacks.emplace_back(Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2));
 			}
 			else if constexpr (sizeof...(Args) == 3)
 			{
-				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3) });
+				Callbacks.emplace_back(Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 			}
 			else if constexpr (sizeof...(Args) == 4)
 			{
-				Callbacks.push_back({ Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4) });
+				Callbacks.emplace_back(Ptr, std::bind(Func, Ptr, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 			}
 			else
 			{
@@ -77,8 +76,7 @@ namespace ScarletEngine
 
 		void Broadcast(Args... args)
 		{
-			ZoneScoped
-			for (const auto& CallbackInfo: Callbacks)
+			for (const auto& CallbackInfo : Callbacks)
 			{
 				CallbackInfo.Func(args...);
 			}
