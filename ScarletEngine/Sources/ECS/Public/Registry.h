@@ -18,7 +18,6 @@ namespace ScarletEngine
 		template <typename ...ComponentTypes>
 		ProxyType<ComponentTypes...> CreateEntity()
 		{
-			ZoneScoped
 			const EID EntityID = NextAvailableEID++;
 			Entities.push_back(EntityID);
 			
@@ -32,7 +31,6 @@ namespace ScarletEngine
 		template <typename ComponentType>
 		ComponentType* AddComponent(EID EntityID)
 		{
-			ZoneScoped
 			const auto Container = GetOrCreateComponentContainer<ComponentType>();
 			check(Container);
 			
@@ -44,7 +42,6 @@ namespace ScarletEngine
 		template <typename ComponentType>
 		bool RemoveComponent(EID EntityID) const
 		{
-			ZoneScoped
 			if (const auto Container = GetComponentContainer<ComponentType>())
 			{
 				MarkComponentContainerDirty<ComponentType>();
@@ -56,7 +53,6 @@ namespace ScarletEngine
 		template <typename ComponentType>
 		ComponentType* AttachComponent(EID EntityID, const ComponentType& Component)
 		{
-			ZoneScoped
 			const auto Container = GetOrCreateComponentContainer<ComponentType>();
 			check(Container);
 
@@ -71,7 +67,6 @@ namespace ScarletEngine
 		template <typename ComponentType>
 		ComponentType* GetComponent(EID EntityID) const
 		{
-			ZoneScoped
 			if (const auto Container = GetComponentContainer<ComponentType>())
 			{
 				return Container->Get(EntityID);
@@ -83,7 +78,6 @@ namespace ScarletEngine
 		template <typename ComponentType>
 		bool HasComponent(EID EntityID) const
 		{
-			ZoneScoped
 			if (const auto Container = GetComponentContainer<ComponentType>())
 			{
 				return Container->Has(EntityID);
@@ -121,15 +115,17 @@ namespace ScarletEngine
 		template <typename ...ComponentTypes>
 		const Array<ProxyType<ComponentTypes...>>& GetProxies() const
 		{
-			ZoneScoped
 			static_assert(sizeof...(ComponentTypes) > 0, "Missing template argument list");
 
 			static Array<ProxyType<ComponentTypes...>> EntityProxies;
 
 			const bool bAllClean = (IsComponentContainerClean<std::remove_cv_t<ComponentTypes>>() && ...);
 
-			if (bAllClean) return EntityProxies;
-			
+			if (bAllClean)
+			{
+				return EntityProxies;
+			}
+
 			// Cache pointers to all component containers in a tuple to access later
 			const auto Containers = std::make_tuple(GetComponentContainer<std::remove_cv_t<ComponentTypes>>()...);
 			const bool bAllContainersExist = ((std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers) != nullptr) && ...);
@@ -159,7 +155,6 @@ namespace ScarletEngine
 		template <typename ...ComponentTypes>
 		std::optional<ProxyType<ComponentTypes...>> GetProxy(EID EntityID) const
 		{
-			ZoneScoped
 			static_assert(sizeof...(ComponentTypes) > 0, "Missing template argument list");
 
 			const auto Containers = std::make_tuple(GetComponentContainer<std::remove_cv_t<ComponentTypes>>()...);
@@ -194,7 +189,6 @@ namespace ScarletEngine
 		template <typename ComponentType>
 		ComponentContainer<ComponentType>* GetComponentContainer() const
 		{
-			ZoneScoped
 			if (const auto It = ComponentContainers.find(ComponentTypeID<ComponentType>::Value()); It != ComponentContainers.end())
 			{
 				return static_cast<ComponentContainer<ComponentType>*>(It->second.get());
@@ -205,7 +199,6 @@ namespace ScarletEngine
 		template <typename ComponentType>
 		ComponentContainer<ComponentType>* GetOrCreateComponentContainer()
 		{
-			ZoneScoped
 			UniquePtr<IComponentContainer>& Container = ComponentContainers[ComponentTypeID<ComponentType>::Value()];
 			if (!Container)
 			{

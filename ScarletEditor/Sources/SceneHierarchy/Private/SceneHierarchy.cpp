@@ -19,7 +19,6 @@ namespace ScarletEngine
 
 	void SceneHierarchyPanel::Construct()
 	{
-		ZoneScoped
 		RepresentingWorld.lock()->GetOnEntityAddedToWorldEvent().BindMember(this, &SceneHierarchyPanel::OnEntityAddedToWorld);
 		GEditor->GetOnSelectionChanged().BindMember(this, &SceneHierarchyPanel::OnWorldSelectionChanged);
 		RepopulateItems();
@@ -27,7 +26,8 @@ namespace ScarletEngine
 
 	void SceneHierarchyPanel::DrawWindowContent()
 	{
-		ZoneScoped
+		ZoneScopedN("Draw Scene Hierarchy")
+
 		const ImGuiTreeNodeFlags BaseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		for (const auto& [ID, EntItem] : Items)
 		{
@@ -87,7 +87,6 @@ namespace ScarletEngine
 
 	void SceneHierarchyPanel::OnEntityAddedToWorld(const EntityPtr& AddedEntity)
 	{
-		ZoneScoped
 		// If the item is not in the map, emplace it
 		if (Items.find(AddedEntity->ID) == Items.end())
 		{
@@ -95,20 +94,18 @@ namespace ScarletEngine
 		}
 	}
 
-	void SceneHierarchyPanel::OnWorldSelectionChanged()
-	{
-		ZoneScoped
-		SynchronizeSelection();
-	}
-
 	void SceneHierarchyPanel::SynchronizeSelection()
 	{
-		ZoneScoped
 		// We need to resynchronize the entire selection when something changes since we may have selected multiple
 		for (const auto& [ID, EntItem] : Items)
 		{
 			EntItem->bIsSelected = GEditor->IsEntitySelected(EntItem->Ent.lock().get());
 		}
+	}
+
+	void SceneHierarchyPanel::OnWorldSelectionChanged()
+	{
+		SynchronizeSelection();
 	}
 
 	bool SceneHierarchyPanel::SelectItem(const SceneHierarchyItem& Item)

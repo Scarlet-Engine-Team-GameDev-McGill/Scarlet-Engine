@@ -22,7 +22,6 @@ namespace ScarletEngine
 		 */
 		void Bind(const FunctionType& Callback, void* OwnerPtr = nullptr) const
 		{
-			ZoneScoped
 			Callbacks.emplace_back(OwnerPtr, Callback);
 		}
 
@@ -33,7 +32,6 @@ namespace ScarletEngine
 		template <typename CallerType, typename MemberFuncType>
 		void BindMember(CallerType Ptr, MemberFuncType Func) const
 		{
-			ZoneScoped
 			if constexpr (sizeof...(Args) == 0)
 			{
 				Callbacks.emplace_back(Ptr, std::bind(Func, Ptr));
@@ -62,7 +60,6 @@ namespace ScarletEngine
 
 		void Unbind(void* Ptr) const
 		{
-			ZoneScoped
 			auto It = std::find_if(Callbacks.begin(), Callbacks.end(), [Ptr](const CallbackData& Data)
 				{
 					return Data.CallbackOwner == Ptr;
@@ -84,7 +81,6 @@ namespace ScarletEngine
 
 		void Clear()
 		{
-			ZoneScoped
 			Callbacks.clear();
 		}
 	private:

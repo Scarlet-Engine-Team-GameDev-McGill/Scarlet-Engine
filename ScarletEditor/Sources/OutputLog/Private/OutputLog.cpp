@@ -12,7 +12,6 @@ namespace ScarletEngine
 
 	void OutputLogPanel::Construct()
 	{
-		ZoneScoped
 		MessageBuffer.resize(MaxBufferLength);
 		FilterText.reserve(32);
 
@@ -21,16 +20,15 @@ namespace ScarletEngine
 
 	void OutputLogPanel::Destroy()
 	{
-		ZoneScoped
 		Logger::Get().GetOnMessageLogged().Unbind(this);
 	}
 
 	void OutputLogPanel::DrawWindowContent()
 	{
-		ZoneScoped
+		ZoneScopedN("Draw Output Log")
 		ImGui::TextUnformatted(ICON_MD_FILTER_LIST " Filter:");
 		ImGui::SameLine();
-		ImGui::InputText("###Filter", (char*)FilterText.c_str(), FilterText.capacity(), ImGuiInputTextFlags_EnterReturnsTrue);
+		ImGui::InputText("###Filter", const_cast<char*>(FilterText.c_str()), FilterText.capacity(), ImGuiInputTextFlags_EnterReturnsTrue);
 			
 		ImGui::SameLine();
 
@@ -69,6 +67,7 @@ namespace ScarletEngine
 					(Msg.Severity == LogLevel::LogError && bShowError)) &&
 					PassesFilter(Msg.Text))
 				{
+					// #todo_outputlog: Make colors configurable
 					switch (Msg.Severity)
 					{
 					case LogLevel::LogInfo:
@@ -103,13 +102,11 @@ namespace ScarletEngine
 
 	bool OutputLogPanel::PassesFilter(const String& Msg) const
 	{
-		ZoneScoped
 		return Msg.find(FilterText.c_str()) != std::string::npos;
 	}
 
 	void OutputLogPanel::OnMessageLogged(LogLevel Level, const char* Msg)
 	{
-		ZoneScoped
 		MessageBuffer[CurrentMessageIndex] = { Msg, Level };
 		CurrentMessageIndex = (CurrentMessageIndex + 1) % MaxBufferLength;
 		if (NumMessages != MaxBufferLength)
@@ -121,7 +118,6 @@ namespace ScarletEngine
 
 	void OutputLogPanel::Clear()
 	{
-		ZoneScoped
 		CurrentMessageIndex = 0;
 		NumMessages = 0;
 	}

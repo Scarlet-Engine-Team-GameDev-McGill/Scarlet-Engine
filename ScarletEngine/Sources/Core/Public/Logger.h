@@ -35,7 +35,6 @@ namespace ScarletEngine
 
 #define SCAR_LOG(Level, Format, ...)		\
 {											\
-    ZoneScoped								\
 	constexpr int BufferSize = 4096;		\
 	char Buffer[BufferSize];				\
 	snprintf(Buffer, BufferSize, Format, ##__VA_ARGS__);\

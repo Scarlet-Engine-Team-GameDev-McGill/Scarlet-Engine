@@ -52,7 +52,6 @@ namespace ScarletEngine
 		template <typename ...Components>
 		Array<ProxyType<Components...>> GetEntities() const
 		{
-			ZoneScoped
 			static_assert(std::conjunction_v<Contains<Components, ComponentTypes...>...>,
 				"Trying to get components which are not marked in the system's signature!");
 
@@ -64,7 +63,6 @@ namespace ScarletEngine
 		template <typename ...Components>
 		std::optional<ProxyType<Components...>> GetEntity(EID EntityID) const
 		{
-			ZoneScoped
 			static_assert(std::conjunction_v<Contains<Components, ComponentTypes...>...>,
 				"Trying to get components which are not marked in the system's signature!");
 

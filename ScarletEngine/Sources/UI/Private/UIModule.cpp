@@ -116,7 +116,7 @@ namespace ScarletEngine
 #ifdef RAL_USE_OPENGL
 		ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
 		check(AppWindow);
-		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)(AppWindow->GetWindowHandle()), true);
+		ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(AppWindow->GetWindowHandle()), true);
 		ImGui_ImplOpenGL3_Init("#version 450");
 #elif RAL_USE_VULKAN
 		// #todo: implement vulkan setup for UI
@@ -125,6 +125,7 @@ namespace ScarletEngine
 
 	void UIModule::Shutdown()
 	{
+		ZoneScoped
 		if (ActiveLayer != nullptr)
 		{
 			ActiveLayer->Terminate();

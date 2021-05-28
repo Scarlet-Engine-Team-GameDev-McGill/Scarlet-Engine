@@ -19,12 +19,13 @@ namespace ScarletEngine
 
 		void RepopulateItems();
 	private:
-		void OnEntityAddedToWorld(const EntityPtr& AddedEntity);
-		void OnWorldSelectionChanged();
-
 		void SynchronizeSelection();
 
 		bool SelectItem(const SceneHierarchyItem& Item);
+	private:
+		/* Event callbacks */
+		void OnEntityAddedToWorld(const EntityPtr& AddedEntity);
+		void OnWorldSelectionChanged();
 	private:
 		WeakPtr<World> RepresentingWorld;
 

@@ -23,7 +23,10 @@ namespace ScarletEngine
 		const void*)
 	{
 		// ignore non-significant error/warning codes
-		if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+		if (id == 131169 || id == 131185 || id == 131218 || id == 131204)
+		{
+			return;
+		}
 
 		std::stringstream Message;
 		Message << "---------------" << std::endl;
@@ -112,7 +115,7 @@ namespace ScarletEngine
 
 	GPUInfo OpenGLRAL::GetGPUInfo() const
 	{
-		GPUInfo Info{};
+		GPUInfo Info;
 		Info.Vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 		Info.Renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 		Info.Version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
@@ -121,7 +124,6 @@ namespace ScarletEngine
 
 	void OpenGLRAL::SetClearColorCmd(const glm::vec4& ClearColor)
 	{
-		ZoneScoped
 		QueueCommand([ClearColor](RALCommandList&)
 		{
 			glClearColor(ClearColor.r, ClearColor.g, ClearColor.b, ClearColor.a);
@@ -130,7 +132,6 @@ namespace ScarletEngine
 
 	void OpenGLRAL::ClearCmd(bool bColor, bool bDepth, bool bStencil)
 	{
-		ZoneScoped
 		QueueCommand([bColor, bDepth, bStencil](RALCommandList&)
 		{
 			GLbitfield ClearField = 0;
@@ -144,7 +145,6 @@ namespace ScarletEngine
 
 	void OpenGLRAL::DrawVertexArrayCmd(const RALVertexArray* VA)
 	{
-		ZoneScoped
 		QueueCommand([VA](RALCommandList&)
 		{
 			VA->Bind();
@@ -155,43 +155,36 @@ namespace ScarletEngine
 
 	RALFramebuffer* OpenGLRAL::CreateFramebuffer(uint32_t Width, uint32_t Height, uint32_t Samples)
 	{
-		ZoneScoped
 		return ScarNew(OpenGLFramebuffer, Width, Height, Samples);
 	}
 
 	ScarletEngine::RALTexture2D* OpenGLRAL::CreateTexture2D(const WeakPtr<TextureHandle>& AssetHandle)
 	{
-		ZoneScoped
 		return ScarNew(OpenGLTexture2D, AssetHandle);
 	}
 
 	RALGpuBuffer* OpenGLRAL::CreateBuffer(uint32_t Size, RALBufferUsage Usage)
 	{
-		ZoneScoped
 		return ScarNew(OpenGLGpuBuffer, Size, Usage);
 	}
 
 	RALVertexArray* OpenGLRAL::CreateVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB)
 	{
-		ZoneScoped
 		return ScarNew(OpenGLVertexArray, VB, IB);
 	}
 
 	RALShader* OpenGLRAL::CreateShader(RALShaderStage Stage, const String& ShaderPath)
 	{
-		ZoneScoped
 		return ScarNew(OpenGLShader, Stage, ShaderPath);
 	}
 
 	RALShaderProgram* OpenGLRAL::CreateShaderProgram(RALShader* InVertexShader, RALShader* InPixelShader, RALShader* InGeometryShader, RALShader* InComputeShader)
 	{
-		ZoneScoped
 		return ScarNew(OpenGLShaderProgram, InVertexShader, InPixelShader, InGeometryShader, InComputeShader);
 	}
 
 	RALCommandList* OpenGLRAL::CreateCommandList() const
 	{
-		ZoneScoped
 		return ScarNew(OpenGLCommandList);
 	}
 }

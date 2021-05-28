@@ -15,29 +15,19 @@ namespace ScarletEngine
 	public:
 		void Bind(const FunctionType& InCallback)
 		{
-			ZoneScoped
 			Callback = InCallback;
 		}
 
 		bool IsBound() const
 		{
-			ZoneScoped
 			return Callback.has_value();
 		}
 
 		R operator()(Args... args) const
 		{
-			ZoneScoped
 			check(IsBound());
-			// prevent returning void if R is void type
-			if constexpr (std::is_void_v<R>)
-			{
-				(*Callback)(args...);
-			}
-			else
-			{
-				return (*Callback)(args...);
-			}
+
+			return (*Callback)(args...);
 		}
 	private:
 		std::optional<FunctionType> Callback;

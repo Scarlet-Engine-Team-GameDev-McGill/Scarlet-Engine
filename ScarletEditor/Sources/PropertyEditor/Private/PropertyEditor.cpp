@@ -15,14 +15,12 @@ namespace ScarletEngine
 
 	void PropertyEditorPanel::Construct()
 	{
-		ZoneScoped
 		GEditor->GetOnSelectionChanged().BindMember(this, &PropertyEditorPanel::OnSelectionChanged);
 		GEditor->GetOnSelectionCleared().BindMember(this, &PropertyEditorPanel::OnSelectionCleared);
 	}
 
 	void PropertyEditorPanel::DrawWindowContent()
 	{
-		ZoneScoped
 		if (FocusedEntity)
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 10, ImGui::GetStyle().FramePadding.y });
@@ -61,7 +59,6 @@ namespace ScarletEngine
 
 	void PropertyEditorPanel::DrawTransformWidget(TransformComponent& Transform) const
 	{
-		ZoneScoped
 		Widgets::DrawTransformInput("Transform Component", Transform);
 	}
 
@@ -95,7 +92,6 @@ namespace ScarletEngine
 
 	void PropertyEditorPanel::OnSelectionChanged()
 	{
-		ZoneScoped
 		const auto& Selection = GEditor->GetSelection();
 		if (Selection.size() == 1)
 		{
@@ -109,7 +105,6 @@ namespace ScarletEngine
 	
 	void PropertyEditorPanel::OnSelectionCleared()
 	{
-		ZoneScoped
 		FocusedEntity = nullptr;
 	}
 }

@@ -8,7 +8,6 @@ namespace ScarletEngine
 	{
 		String CreateBytesString(size_t Size)
 		{
-			ZoneScoped
 			if (Size == 0)
 			{
 				return "0 B";

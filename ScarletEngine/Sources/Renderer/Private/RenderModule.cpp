@@ -11,7 +11,6 @@ namespace ScarletEngine
 {
 	void RenderModule::Startup()
 	{
-		ZoneScoped
 #ifdef RAL_USE_OPENGL
 		RAL::Instance = UniquePtr<RAL>(ScarNew(OpenGLRAL));
 		RAL::API = RenderAPI::OpenGL;

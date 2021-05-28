@@ -8,7 +8,6 @@ namespace ScarletEngine
 
 	const char* SceneHierarchyItem::GetDisplayString() const
 	{
-		ZoneScoped
 		return Ent.lock()->Name.c_str();
 	}
 }

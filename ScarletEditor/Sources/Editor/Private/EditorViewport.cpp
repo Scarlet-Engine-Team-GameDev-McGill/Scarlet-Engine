@@ -21,7 +21,6 @@ namespace ScarletEngine
 		, bShowGrid(true)
 		, bShowCube(true)
 	{
-		ZoneScoped
 		char Buffer[32];
 		snprintf(Buffer, 32, "%s Viewport##%d", ICON_MD_CROP_ORIGINAL, NextViewportID++);
 		SetWindowTitle(Buffer);
@@ -29,8 +28,6 @@ namespace ScarletEngine
 
 	void EditorViewportPanel::Construct()
 	{
-		ZoneScoped
-
 		RenderModule* Renderer = ModuleManager::GetModuleChecked<RenderModule>("RenderModule");
 		View = UniquePtr<Viewport>(Renderer->CreateViewport((uint32_t)PanelSize.x, (uint32_t)PanelSize.y));
 		ViewportCam = MakeShared<Camera>();
@@ -44,7 +41,6 @@ namespace ScarletEngine
 
 	void EditorViewportPanel::Tick(double)
 	{
-		ZoneScoped
 		glm::ivec2 ViewportFramebufferSize = View->GetSize();
 
 		if ((PanelSize.x >= 1.f && PanelSize.y >= 1.f) &&
@@ -59,7 +55,7 @@ namespace ScarletEngine
 			SCAR_LOG(LogVerbose, "Framebuffer Resized");
 		}
 
-		// @todo: draw calls should be handled by the renderer not by the editor viewports
+		// #todo_rendering: draw calls should be handled by the renderer not by the editor viewports
 		{
 			ZoneScopedN("Render world");
 			RenderModule* Renderer = ModuleManager::GetModuleChecked<RenderModule>("RenderModule");
@@ -69,7 +65,6 @@ namespace ScarletEngine
 
 	void EditorViewportPanel::PushWindowFlags()
 	{
-		ZoneScoped
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGuiWindowClass WindowClass;
 		WindowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_AutoHideTabBar;
@@ -84,7 +79,7 @@ namespace ScarletEngine
 
 	void EditorViewportPanel::DrawWindowContent()
 	{
-		ZoneScoped
+		ZoneScopedN("Draw Viewport Content")
 		bViewportIsFocused = ImGui::IsWindowFocused();
 		bViewportIsHovered = ImGui::IsWindowHovered();
 

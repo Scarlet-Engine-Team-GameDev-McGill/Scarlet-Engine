@@ -26,13 +26,13 @@ namespace ScarletEngine
 	SharedPtr<IAssetHandle> AssetManager::LoadAsset_Impl(const String& FilePath, AssetType Type)
 	{
 		ZoneScoped
-		String FullPath = ToFullPath(FilePath);
+		const String FullPath = ToFullPath(FilePath);
 
 		// Check that we are loading a file which exists
 		check(std::filesystem::exists(FullPath));
 
 		// Check if the item is already in the cache and it is not invalid
-		if (auto It = CachedAssets.find(FullPath); It != CachedAssets.end())
+		if (const auto It = CachedAssets.find(FullPath); It != CachedAssets.end())
 		{
 			if (!It->second.expired())
 			{
@@ -71,7 +71,6 @@ namespace ScarletEngine
 
 	void AssetManager::ForEachLoadedAsset(const std::function<bool(IAssetHandle&)>& Func)
 	{
-		ZoneScoped
 		for (const auto& Pair : CachedAssets)
 		{
 			if (!Func(*(Pair.second.lock())))
@@ -83,7 +82,6 @@ namespace ScarletEngine
 
 	void AssetManager::UnloadAsset(const String& AssetToUnload)
 	{
-		ZoneScoped
 		CachedAssets.erase(AssetToUnload);
 	}
 

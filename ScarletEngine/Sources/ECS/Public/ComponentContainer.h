@@ -19,7 +19,6 @@ namespace ScarletEngine
 	public:
 		inline ComponentType* Add(EID EntityID)
 		{
-			ZoneScoped
 			const size_t Index = Components.size();
 			EntityMap[EntityID] = Index;
 			return &Components.emplace_back();
@@ -27,7 +26,6 @@ namespace ScarletEngine
 
 		inline ComponentType* Get(EID EntityID)
 		{
-			ZoneScoped
 			if (auto Index = Find(EntityID))
 			{
 				return &Components[Index.value()];
@@ -37,7 +35,6 @@ namespace ScarletEngine
 
 		inline virtual bool Has(EID EntityID) const override
 		{
-			ZoneScoped
 			return EntityMap.find(EntityID) != EntityMap.end();
 		}
 
@@ -45,7 +42,6 @@ namespace ScarletEngine
 		
 		inline virtual bool Remove(EID EntityID) override
 		{
-			ZoneScoped
 			const size_t IndexToRemove = EntityMap.at(EntityID);
 			const ComponentType* BackElement = &Components.back();
 			const EID BackOwner = FindOwner(BackElement);
@@ -65,7 +61,6 @@ namespace ScarletEngine
 
 		inline ComponentType* Attach(EID EntityID, const ComponentType& Component)
 		{
-			ZoneScoped
 			if (auto Index = Find(EntityID))
 			{
 				const size_t IndexVal = Index.value();
@@ -80,7 +75,7 @@ namespace ScarletEngine
 
 		inline virtual void Sort() override
 		{
-			ZoneScoped
+			ZoneScopedN("Sort Component Container")
 			Array<size_t> Ids(EntityMap.size());
 
 			size_t NextIndex = 0;
@@ -111,7 +106,6 @@ namespace ScarletEngine
 		/** Warning: Potentially slow! */
 		EID FindOwner(const ComponentType* Component) const
 		{
-			ZoneScoped
 			for (const auto& Pair : EntityMap)
 			{
 				if (&Components[Pair.second] == Component) return Pair.first;

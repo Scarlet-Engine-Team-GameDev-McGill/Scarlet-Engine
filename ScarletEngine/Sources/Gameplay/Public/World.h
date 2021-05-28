@@ -32,7 +32,6 @@ namespace ScarletEngine
 		template <typename... ComponentTypes>
 		std::tuple<EID, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name)
 		{
-			ZoneScoped
 			const auto EntityProxy = Reg.CreateEntity<ComponentTypes...>();
 			SharedPtr<EntityHandle>& Ent = Entities.emplace_back(ScarNew(EntityHandle, Name, std::get<EID>(EntityProxy), this));
 			
@@ -42,21 +41,18 @@ namespace ScarletEngine
 
 		const Array<SharedPtr<EntityHandle>>& GetEntities() const
 		{
-			ZoneScoped
 			return Entities;
 		}
 
 		template <typename ComponentType>
 		ComponentType* GetComponent(const EntityHandle& Ent) const
 		{
-			ZoneScoped
 			return Reg.GetComponent<ComponentType>(Ent.ID);
 		}
 
 		template <typename ComponentType>
 		ComponentType* AddComponent(const EID Ent)
 		{
-			ZoneScoped
 			return Reg.AddComponent<ComponentType>(Ent);
 		}
 	private:
