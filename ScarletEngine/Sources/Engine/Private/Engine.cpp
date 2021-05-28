@@ -100,6 +100,7 @@ namespace ScarletEngine
 	void Engine::Terminate()
 	{
 		ZoneScoped
+		SCAR_LOG(LogInfo, "Terminating engine");
 		ModuleManager::GetInstance().Shutdown();
 
 		ScarDelete(AppWindow);
