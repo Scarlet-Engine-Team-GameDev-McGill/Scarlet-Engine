@@ -6,6 +6,8 @@
 #include <ImGuizmo.h>
 #include <glm/gtx/matrix_decompose.hpp>
 
+#include "InputManager.h"
+
 namespace ScarletEngine
 {
 	uint32_t EditorViewportPanel::NextViewportID = 0;
@@ -29,7 +31,7 @@ namespace ScarletEngine
 	void EditorViewportPanel::Construct()
 	{
 		RenderModule* Renderer = ModuleManager::GetModuleChecked<RenderModule>("RenderModule");
-		View = UniquePtr<Viewport>(Renderer->CreateViewport((uint32_t)PanelSize.x, (uint32_t)PanelSize.y));
+		View = UniquePtr<Viewport>(Renderer->CreateViewport(static_cast<uint32_t>(PanelSize.x), static_cast<uint32_t>(PanelSize.y)));
 		ViewportCam = MakeShared<Camera>();
 
 		ViewportCam->SetPosition({ 0, 5, 5 });
@@ -39,20 +41,65 @@ namespace ScarletEngine
 		View->SetCamera(ViewportCam);
 	}
 
-	void EditorViewportPanel::Tick(double)
+	void EditorViewportPanel::Tick(double DeltaTime)
 	{
-		glm::ivec2 ViewportFramebufferSize = View->GetSize();
+		const glm::ivec2 ViewportFramebufferSize = View->GetSize();
 
+		// Resize internal framebuffer if representing viewport window was resized
 		if ((PanelSize.x >= 1.f && PanelSize.y >= 1.f) &&
-			(std::fabs((float)ViewportFramebufferSize.x - PanelSize.x) > 1.0 ||
-			std::fabs((float)ViewportFramebufferSize.y - PanelSize.y) > 1.0))
+			(std::fabs(static_cast<float>(ViewportFramebufferSize.x) - PanelSize.x) > 1.0 ||
+			std::fabs(static_cast<float>(ViewportFramebufferSize.y) - PanelSize.y) > 1.0))
 		{
-			View->ResizeFramebuffer((uint32_t)PanelSize.x, (uint32_t)PanelSize.y);
+			View->ResizeFramebuffer(static_cast<uint32_t>(PanelSize.x), static_cast<uint32_t>(PanelSize.y));
 			if (PanelSize.x > 0 && PanelSize.y > 0)
 			{
 				ViewportCam->SetAspectRatio(PanelSize.x / PanelSize.y);
 			}
 			SCAR_LOG(LogVerbose, "Framebuffer Resized");
+		}
+
+		// Move the view camera if right mouse button is down
+		// #todo_core: make this event-based
+		const InputManager& InputManager = InputManager::Get();
+		if (InputManager.IsMouseButtonHeld(EMouseCode::MouseButtonRight))
+		{
+			Camera& ViewCam = View->GetCamera();
+
+			// Update camera rotation
+			glm::vec2 DeltaRot = InputManager::Get().GetMouseDelta();
+			DeltaRot *= ViewCam.GetSensitivity() * DeltaTime;
+			ViewCam.Rotate(-DeltaRot.x, DeltaRot.y);
+
+			// Update camera position
+			const float Velocity = ViewCam.GetSpeed() * DeltaTime;
+			glm::vec3 Position = ViewCam.GetPosition();
+			const glm::vec3 ForwardVec = ViewCam.GetForwardVector();
+			const glm::vec3 RightVec = ViewCam.GetRightVector();
+			if (InputManager.IsKeyHeld(EKeyCode::KeyW))
+			{
+				Position += ForwardVec * Velocity;
+			}
+			if (InputManager.IsKeyHeld(EKeyCode::KeyS))
+			{
+				Position -= ForwardVec * Velocity;
+			}
+			if (InputManager.IsKeyHeld(EKeyCode::KeyA))
+			{
+				Position -= RightVec * Velocity;
+			}
+			if (InputManager.IsKeyHeld(EKeyCode::KeyD))
+			{
+				Position += RightVec * Velocity;
+			}
+			if (InputManager.IsKeyHeld(EKeyCode::KeyE))
+			{
+				Position += WorldUp * Velocity;
+			}
+			if (InputManager.IsKeyHeld(EKeyCode::KeyQ))
+			{
+				Position -= WorldUp * Velocity;
+			}
+			ViewCam.SetPosition(Position);
 		}
 
 		// #todo_rendering: draw calls should be handled by the renderer not by the editor viewports

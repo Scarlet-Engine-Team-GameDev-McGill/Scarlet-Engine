@@ -104,5 +104,7 @@ namespace ScarletEngine
                 State = EKeyState::Held;
             }
         }
+
+        MouseDelta = glm::vec2(0.f);
     }
 }

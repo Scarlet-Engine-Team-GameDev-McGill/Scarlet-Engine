@@ -7,3 +7,8 @@
 #include "CoreSTL.h"
 #include "Logger.h"
 #include "Memory/Memory.h"
+
+namespace ScarletEngine
+{
+    inline const glm::vec3 WorldUp = glm::vec3(0.f, 1.f, 0.f);
+}
