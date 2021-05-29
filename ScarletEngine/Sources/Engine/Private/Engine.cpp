@@ -5,6 +5,8 @@
 
 #include <chrono>
 #include <common/TracySystem.hpp>
+
+#include "InputManager.h"
 #include "ModuleManager.h"
 #include "Window.h"
 
@@ -85,7 +87,7 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 		AppWindow->PollEvents();
-		
+
 		AddQueuedTickables();
 		ModuleManager::GetInstance().PreUpdate();
 	}
@@ -94,6 +96,7 @@ namespace ScarletEngine
 	{
 		ZoneScoped
 		ModuleManager::GetInstance().PostUpdate();
+		InputManager::Get().PostUpdate();
 
 		AppWindow->SwapBuffer();
 	}

@@ -2,65 +2,51 @@
 
 #include "Core.h"
 #include "AssetManager.h"
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
+#include "InputManager.h"
 
 namespace ScarletEngine
 {
 	static void WindowCloseCallback(GLFWwindow* WindowHandle)
 	{
-		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
+		ApplicationWindow* AppWindow = static_cast<ApplicationWindow*>(glfwGetWindowUserPointer(WindowHandle));
 		
 		AppWindow->OnWindowClose.Broadcast();
 	}
 
 	static void WindowResizeCallback(GLFWwindow* WindowHandle, int Width, int Height)
 	{
-		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
+		ApplicationWindow* AppWindow = static_cast<ApplicationWindow*>(glfwGetWindowUserPointer(WindowHandle));
 
 		AppWindow->OnWindowResize.Broadcast(Width, Height);
 	}
 
-	static void KeyCallback(GLFWwindow* WindowHandle, int Key, int, int Action, int Mods)
+	static void KeyCallback(GLFWwindow*, int Key, int, int Action, int Mods)
 	{
-		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
-
-		KeyInputEvent InputEvent{ (uint32_t)Key, (uint32_t)Mods };
-
-		if (Action == GLFW_KEY_DOWN)
-		{
-			AppWindow->OnKeyDown.Broadcast(InputEvent);
-		}
-		else if (Action == GLFW_KEY_UP)
-		{
-			AppWindow->OnKeyUp.Broadcast(InputEvent);
-		}
-	}
-
-	static void CursorPosCallback(GLFWwindow* WindowHandle, double Xpos, double Ypos)
-	{
-		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
-
-		const double DeltaXPos = Xpos - AppWindow->GetLastCursorXPos();
-		const double DeltaYPos = Ypos - AppWindow->GetLastCursorYPos();
-
-		CursorMoveEvent MoveEvent{ DeltaXPos, DeltaYPos };
-
-		AppWindow->OnCursorMove.Broadcast(MoveEvent);
-	}
-
-	static void MouseButtonCallback(GLFWwindow* WindowHandle, int Button, int Action, int Mods)
-	{
-		ApplicationWindow* AppWindow = (ApplicationWindow*)glfwGetWindowUserPointer(WindowHandle);
-
-		MouseInputEvent MouseEvent{ (uint32_t)Button, (uint32_t)Mods };
-
 		if (Action == GLFW_PRESS)
 		{
-			AppWindow->OnMouseDown.Broadcast(MouseEvent);
+			InputManager::Get().OnKeyDownCallback(static_cast<KeyCode>(Key));
 		}
 		else if (Action == GLFW_RELEASE)
 		{
-			AppWindow->OnMouseUp.Broadcast(MouseEvent);
+			InputManager::Get().OnKeyUpCallback(static_cast<KeyCode>(Key));
+		}
+	}
+
+	static void CursorPosCallback(GLFWwindow*, double Xpos, double Ypos)
+	{
+		InputManager::Get().OnMouseMoveCallback({ Xpos, Ypos});
+	}
+
+	static void MouseButtonCallback(GLFWwindow*, int Button, int Action, int Mods)
+	{
+		if (Action == GLFW_PRESS)
+		{
+			InputManager::Get().OnMousePressCallback(static_cast<MouseCode>(Button));
+		}
+		else if (Action == GLFW_RELEASE)
+		{
+			InputManager::Get().OnMouseReleaseCallback(static_cast<MouseCode>(Button));
 		}
 	}
 
