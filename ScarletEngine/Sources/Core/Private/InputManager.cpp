@@ -2,53 +2,53 @@
 
 namespace ScarletEngine
 {
-    bool InputManager::IsKeyPressed(KeyCode Code) const
+    bool InputManager::IsKeyPressed(EKeyCode Code) const
     {
         return GetKeyState(Code) == EKeyState::Pressed;
     }
 
-    bool InputManager::IsKeyHeld(KeyCode Code) const
+    bool InputManager::IsKeyHeld(EKeyCode Code) const
     {
         return GetKeyState(Code) == EKeyState::Held;
     }
 
-    bool InputManager::IsKeyReleased(KeyCode Code) const
+    bool InputManager::IsKeyReleased(EKeyCode Code) const
     {
         return GetKeyState(Code) == EKeyState::Released;
     }
 
-    EKeyState InputManager::GetKeyState(KeyCode Code) const
+    EKeyState InputManager::GetKeyState(EKeyCode Code) const
     {
         const auto It = KeyMap.find(Code);
         return It != KeyMap.end() ? It->second : EKeyState::NotPressed;
     }
 
-    void InputManager::OnKeyDownCallback(KeyCode Code)
+    void InputManager::OnKeyDownCallback(EKeyCode Code)
     {
         KeyMap[Code] = EKeyState::Pressed;
     }
 
-    void InputManager::OnKeyUpCallback(KeyCode Code)
+    void InputManager::OnKeyUpCallback(EKeyCode Code)
     {
         KeyMap[Code] = EKeyState::Released;
     }
 
-    bool InputManager::IsMouseButtonPressed(MouseCode Code) const
+    bool InputManager::IsMouseButtonPressed(EMouseCode Code) const
     {
         return GetMouseButtonState(Code) == EKeyState::Pressed;
     }
 
-    bool InputManager::IsMouseButtonHeld(MouseCode Code) const
+    bool InputManager::IsMouseButtonHeld(EMouseCode Code) const
     {
         return GetMouseButtonState(Code) == EKeyState::Held;
     }
 
-    bool InputManager::IsMouseButtonReleased(MouseCode Code) const
+    bool InputManager::IsMouseButtonReleased(EMouseCode Code) const
     {
         return GetMouseButtonState(Code) == EKeyState::Released;
     }
 
-    EKeyState InputManager::GetMouseButtonState(MouseCode Code) const
+    EKeyState InputManager::GetMouseButtonState(EMouseCode Code) const
     {
         const auto It = MouseMap.find(Code);
         return It != MouseMap.end() ? It->second : EKeyState::NotPressed;
@@ -60,12 +60,12 @@ namespace ScarletEngine
         MousePos = NewPos;
     }
 
-    void InputManager::OnMousePressCallback(MouseCode Code)
+    void InputManager::OnMousePressCallback(EMouseCode Code)
     {
         MouseMap[Code] = EKeyState::Pressed;
     }
 
-    void InputManager::OnMouseReleaseCallback(MouseCode Code)
+    void InputManager::OnMouseReleaseCallback(EMouseCode Code)
     {
         MouseMap[Code] = EKeyState::Released;
     }
