@@ -26,11 +26,13 @@ namespace ScarletEngine
     void InputManager::OnKeyDownCallback(EKeyCode Code)
     {
         KeyMap[Code] = EKeyState::Pressed;
+        OnKeyDown.Broadcast(Code);
     }
 
     void InputManager::OnKeyUpCallback(EKeyCode Code)
     {
         KeyMap[Code] = EKeyState::Released;
+        OnKeyUp.Broadcast(Code);
     }
 
     bool InputManager::IsMouseButtonPressed(EMouseCode Code) const
@@ -58,16 +60,19 @@ namespace ScarletEngine
     {
         MouseDelta = MousePos - NewPos;
         MousePos = NewPos;
+        OnMouseMove.Broadcast(NewPos);
     }
 
     void InputManager::OnMousePressCallback(EMouseCode Code)
     {
         MouseMap[Code] = EKeyState::Pressed;
+        OnMouseButtonDown.Broadcast(Code);
     }
 
     void InputManager::OnMouseReleaseCallback(EMouseCode Code)
     {
         MouseMap[Code] = EKeyState::Released;
+        OnMouseButtonUp.Broadcast(Code);
     }
 
     void InputManager::PostUpdate()

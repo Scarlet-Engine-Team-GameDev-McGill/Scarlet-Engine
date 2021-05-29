@@ -4,6 +4,8 @@
 
 namespace ScarletEngine
 {
+    // -----------------------------------------------------------------------------------------------------------------
+
     enum class EKeyCode
     {
         KeyUnknown,
@@ -163,9 +165,9 @@ namespace ScarletEngine
     /* External input events */
     using OnKeyDownEvent = Event<EKeyCode>;
     using OnKeyUpEvent = Event<EKeyCode>;
-    using OnMouseMoveEvent = Event<EMouseCode>;
     using OnMouseButtonDownEvent = Event<EMouseCode>;
     using OnMouseButtonUpEvent = Event<EMouseCode>;
+    using OnMouseMoveEvent = Event<glm::vec2>;
 
     //------------------------------------------------------------------------------------------------------------------
 

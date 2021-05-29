@@ -295,7 +295,7 @@ namespace ScarletEngine
 	{
 		ApplicationWindow* AppWindow = static_cast<ApplicationWindow*>(glfwGetWindowUserPointer(WindowHandle));
 
-		AppWindow->OnWindowResize.Broadcast(Width, Height);
+		AppWindow->OnWindowResize.Broadcast({ Width, Height });
 	}
 
 	static void KeyCallback(GLFWwindow*, int Key, int, int Action, int Mods)
@@ -332,8 +332,6 @@ namespace ScarletEngine
 		, Width(InWidth)
 		, Height(InHeight)
 		, WindowTitle(InWindowTitle)
-		, LastCursorXPos(0)
-		, LastCursorYPos(0)
 	{
 		check(Width != 0 && Height != 0);
 
@@ -357,26 +355,24 @@ namespace ScarletEngine
 			glfwTerminate();
 			check(false);
 		}
-		glfwMaximizeWindow((GLFWwindow*)WindowHandle);
+		glfwMaximizeWindow(static_cast<GLFWwindow*>(WindowHandle));
 
-		glfwSetWindowUserPointer((GLFWwindow*)WindowHandle, this);
+		glfwSetWindowUserPointer(static_cast<GLFWwindow*>(WindowHandle), this);
 
 		// Set the window icon;
-		SharedPtr<TextureHandle> LogoTex = AssetManager::LoadTextureFile("/ScarletEngine/Content/scarlet_logo.png");
+		const SharedPtr<TextureHandle> LogoTex = AssetManager::LoadTextureFile("/ScarletEngine/Content/scarlet_logo.png");
 		GLFWimage Image;
 		Image.pixels = LogoTex->PixelDataBuffer;
 		Image.width = LogoTex->Width;
 		Image.height = LogoTex->Height;
 
-		glfwSetWindowIcon((GLFWwindow*)WindowHandle, 1, &Image);
+		glfwSetWindowIcon(static_cast<GLFWwindow*>(WindowHandle), 1, &Image);
 
-		glfwSetWindowCloseCallback((GLFWwindow*)WindowHandle, WindowCloseCallback);
-		glfwSetFramebufferSizeCallback((GLFWwindow*)WindowHandle, WindowResizeCallback);
-		glfwSetKeyCallback((GLFWwindow*)WindowHandle, KeyCallback);
-		glfwSetCursorPosCallback((GLFWwindow*)WindowHandle, CursorPosCallback);
-		glfwSetMouseButtonCallback((GLFWwindow*)WindowHandle, MouseButtonCallback);
-
-		OnCursorMove.Bind([this](CursorMoveEvent CursorEvent) { LastCursorXPos += CursorEvent.DeltaX; LastCursorYPos += CursorEvent.DeltaY; });
+		glfwSetWindowCloseCallback(static_cast<GLFWwindow*>(WindowHandle), WindowCloseCallback);
+		glfwSetFramebufferSizeCallback(static_cast<GLFWwindow*>(WindowHandle), WindowResizeCallback);
+		glfwSetKeyCallback(static_cast<GLFWwindow*>(WindowHandle), KeyCallback);
+		glfwSetCursorPosCallback(static_cast<GLFWwindow*>(WindowHandle), CursorPosCallback);
+		glfwSetMouseButtonCallback(static_cast<GLFWwindow*>(WindowHandle), MouseButtonCallback);
 	}
 
 
