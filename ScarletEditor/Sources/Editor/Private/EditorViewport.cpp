@@ -70,7 +70,7 @@ namespace ScarletEngine
 			ViewCam.Rotate(-DeltaRot.x, DeltaRot.y);
 
 			// Update camera position
-			const float Velocity = ViewCam.Speed * DeltaTime;
+			const float Velocity = static_cast<float>(ViewCam.Speed * DeltaTime);
 			glm::vec3 Position = ViewCam.GetPosition();
 			const glm::vec3 ForwardVec = ViewCam.GetForwardVector();
 			const glm::vec3 RightVec = ViewCam.GetRightVector();

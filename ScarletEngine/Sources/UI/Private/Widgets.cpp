@@ -118,18 +118,49 @@ namespace ScarletEngine::Widgets
 
     void DrawSeparator(const char* Label)
     {
+        const ImVec2 WindowPos = ImGui::GetWindowPos();
+        const float WindowWidth = ImGui::GetWindowWidth();
+        const ImVec2 TextSize = ImGui::CalcTextSize(Label);
+        
         if (Label == nullptr)
         {
-            ImGui::Separator();
+            const ImVec2 StartPos = {
+                WindowPos.x + ImGui::GetCursorPos().x,
+                WindowPos.y + ImGui::GetCursorPos().y + TextSize.y / 2
+            };
+
+            const ImVec2 EndPos = {
+                WindowPos.x + WindowWidth,
+                WindowPos.y + ImGui::GetCursorPos().y + TextSize.y / 2
+            };
+
+            ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 0.3f, 0.3f, 0.3f, 1.f }), 2);
+
+            ImGui::NewLine();
         }
         else
         {
-            const ImVec2 CursorPos = ImGui::GetCursorPos();
-            
-            ImGui::SetCursorPos({ CursorPos.x, CursorPos.y + ImGui::GetTextLineHeight() / 2 });
-            ImGui::Separator();
-            ImGui::SetCursorPos({ CursorPos.x + ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(Label).x / 2 - 2 * ImGui::GetStyle().ItemSpacing.x, CursorPos.y });
-            ImGui::TextDisabled(Label);
+            const float ItemWidth = ImGui::GetStyle().ItemSpacing.x;
+
+            ImVec2 StartPos = {
+                WindowPos.x + ImGui::GetCursorPos().x,
+                WindowPos.y + ImGui::GetCursorPos().y + TextSize.y / 2
+            };
+
+            ImVec2 EndPos = {
+                WindowPos.x + ImGui::GetCursorPos().x + ImGui::GetWindowWidth() / 2 - TextSize.x / 2 - 2 * ItemWidth,
+                WindowPos.y + ImGui::GetCursorPos().y + TextSize.y / 2
+            };
+
+            ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 0.3f, 0.3f, 0.3f, 1.f }), 2);
+
+            ImGui::SameLine(EndPos.x - WindowPos.x + 2 * ItemWidth);
+            ImGui::Text("%s", Label);
+
+            StartPos.x = EndPos.x + TextSize.x + 4 * ItemWidth;
+            EndPos.x = WindowPos.x + WindowWidth;
+
+            ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 0.3f, 0.3f, 0.3f, 1.f }), 2);
         }
     }
 }
