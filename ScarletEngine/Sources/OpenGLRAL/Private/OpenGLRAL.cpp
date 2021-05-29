@@ -68,9 +68,9 @@ namespace ScarletEngine
 	}
 #endif
 
-	static void FramebufferResizeCallback(uint32_t NewWidth, uint32_t NewHeight)
+	static void FramebufferResizeCallback(glm::ivec2 NewDims)
 	{
-		glViewport(0, 0, NewWidth, NewHeight);
+		glViewport(0, 0, NewDims.x, NewDims.y);
 	}
 
 	void OpenGLRAL::Initialize()
@@ -79,12 +79,12 @@ namespace ScarletEngine
 		RAL::Initialize();
 
 		ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
-		GLFWwindow* WindowHandle = (GLFWwindow*)AppWindow->GetWindowHandle();
+		GLFWwindow* WindowHandle = static_cast<GLFWwindow*>(AppWindow->GetWindowHandle());
 
 		glfwMakeContextCurrent(WindowHandle);
 		glfwSwapInterval(0);
 
-		check(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress));
+		check(gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)));
 		glViewport(0, 0, AppWindow->GetWidth(), AppWindow->GetHeight());
 
 		AppWindow->OnWindowResize.Bind(FramebufferResizeCallback);
