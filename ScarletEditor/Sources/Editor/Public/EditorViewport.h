@@ -30,6 +30,5 @@ namespace ScarletEngine
 		bool bViewportIsFocused;
 		bool bViewportIsHovered;
 		bool bShowGrid;
-		bool bShowCube;
 	};
 }

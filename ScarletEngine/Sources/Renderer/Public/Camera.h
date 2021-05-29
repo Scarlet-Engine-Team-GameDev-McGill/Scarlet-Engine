@@ -28,10 +28,10 @@ namespace ScarletEngine
 		inline glm::vec3 GetUpVector() const { return UpVector; }
 		inline glm::vec3 GetForwardVector() const { return ForwardVector; }
 		inline glm::vec3 GetRightVector() const { return RightVector; }
-		inline float GetSensitivity() const { return Sensitivity; }
-		inline float GetSpeed() const { return Speed; }
-		
-		void SetView(const glm::mat4& InView) { View = InView; RecalculateViewProj(); }
+
+		/* Movement */
+		float Sensitivity = 50.f;
+		float Speed = 10.f;
 	private:
 		void RecalculateProjection();
 		void RecalculateBasis();
@@ -55,9 +55,5 @@ namespace ScarletEngine
 		float FarPlane;
 		float FoV;
 		float Aspect;
-
-		/* Movement */
-		float Sensitivity = 50.f;
-		float Speed = 10.f;
 	};
 }

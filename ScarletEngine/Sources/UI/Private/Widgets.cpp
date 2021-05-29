@@ -115,4 +115,21 @@ namespace ScarletEngine::Widgets
         ImGui::Checkbox("", &Boolean);
         ImGui::PopID();
     }
+
+    void DrawSeparator(const char* Label)
+    {
+        if (Label == nullptr)
+        {
+            ImGui::Separator();
+        }
+        else
+        {
+            const ImVec2 CursorPos = ImGui::GetCursorPos();
+            
+            ImGui::SetCursorPos({ CursorPos.x, CursorPos.y + ImGui::GetTextLineHeight() / 2 });
+            ImGui::Separator();
+            ImGui::SetCursorPos({ CursorPos.x + ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(Label).x / 2 - 2 * ImGui::GetStyle().ItemSpacing.x, CursorPos.y });
+            ImGui::TextDisabled(Label);
+        }
+    }
 }

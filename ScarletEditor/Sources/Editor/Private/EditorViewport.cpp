@@ -2,11 +2,11 @@
 
 #include "RenderModule.h"
 #include "Editor.h"
-#include <imgui.h>
-#include <ImGuizmo.h>
-#include <glm/gtx/matrix_decompose.hpp>
-
+#include "imgui.h"
+#include "ImGuizmo.h"
+#include "glm/gtx/matrix_decompose.hpp"
 #include "InputManager.h"
+#include "Widgets.h"
 
 namespace ScarletEngine
 {
@@ -21,7 +21,6 @@ namespace ScarletEngine
 		, bViewportIsFocused(false)
 		, bViewportIsHovered(false)
 		, bShowGrid(true)
-		, bShowCube(true)
 	{
 		char Buffer[32];
 		snprintf(Buffer, 32, "%s Viewport##%d", ICON_MD_CROP_ORIGINAL, NextViewportID++);
@@ -67,11 +66,11 @@ namespace ScarletEngine
 
 			// Update camera rotation
 			glm::vec2 DeltaRot = InputManager::Get().GetMouseDelta();
-			DeltaRot *= ViewCam.GetSensitivity() * DeltaTime;
+			DeltaRot *= ViewCam.Sensitivity * DeltaTime;
 			ViewCam.Rotate(-DeltaRot.x, DeltaRot.y);
 
 			// Update camera position
-			const float Velocity = ViewCam.GetSpeed() * DeltaTime;
+			const float Velocity = ViewCam.Speed * DeltaTime;
 			glm::vec3 Position = ViewCam.GetPosition();
 			const glm::vec3 ForwardVec = ViewCam.GetForwardVector();
 			const glm::vec3 RightVec = ViewCam.GetRightVector();
@@ -133,15 +132,40 @@ namespace ScarletEngine
 		const ImVec2 WindowPos = ImGui::GetWindowPos();
 		ImGui::SetNextWindowPos(ImVec2(WindowPos.x + 16.f, WindowPos.y + 16.f));
 		ImGui::SetNextWindowBgAlpha(0.8f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 12.f);
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 12.f);
-		if (ImGui::Begin("View Options", 0, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 2.f);
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2.f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
+		if (ImGui::Begin("View Options", nullptr, ImGuiWindowFlags_NoMove))
 		{
-			ImGui::Checkbox("Show Grid", &bShowGrid);
-			ImGui::Checkbox("Show Cube", &bShowCube);
+			Widgets::DrawSeparator("Camera");
+			
+			ImGui::BeginTable("View Options", 2, ImGuiTableFlags_Resizable);
+
+			ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed);
+			ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthAlwaysAutoResize);
+
+			ImGui::TableNextColumn();
+			ImGui::Text("Sensitivity");
+			ImGui::TableNextColumn();
+			ImGui::SetNextItemWidth(100.f);
+			ImGui::DragFloat("###CamSens", &ViewportCam.get()->Sensitivity, 0.1f, 0.f, 0.f, "%.2f");
+
+			ImGui::TableNextRow();
+
+			ImGui::TableNextColumn();
+			ImGui::Text("Speed");
+			ImGui::TableNextColumn();
+			ImGui::SetNextItemWidth(100.f);
+			ImGui::DragFloat("###CamSpeed", &ViewportCam.get()->Speed, 0.1f, 0.f, 0.f, "%.2f");
+
+			ImGui::EndTable();
+
+			Widgets::DrawSeparator();
+
+			Widgets::DrawBooleanInput("Show Grid", bShowGrid);
 		}
 		ImGui::End();
-		ImGui::PopStyleVar(2);
+		ImGui::PopStyleVar(3);
 
 		PanelSize = ImGui::GetContentRegionAvail();
 
@@ -160,14 +184,6 @@ namespace ScarletEngine
 		const uint64_t TextureID = View->GetColorAttachmentID();
 		ImGui::Image(reinterpret_cast<void*>(TextureID), ImVec2{ PanelSize.x, PanelSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
-		if (bShowCube)
-		{
-			const float ViewManipulateRight = ImGui::GetWindowPos().x + PanelSize.x;
-			const float ViewManipulateTop = ImGui::GetWindowPos().y;
-			ImGuizmo::ViewManipulate(glm::value_ptr(ViewMatrix), 8.f, ImVec2(ViewManipulateRight - 128, ViewManipulateTop), ImVec2(128, 128), 0x10101010);
-			ViewportCamera.SetView(ViewMatrix);
-		}
-		
 		Set<Entity*> Selection = GEditor->GetSelection();
 		if (Selection.size() == 1)
 		{
