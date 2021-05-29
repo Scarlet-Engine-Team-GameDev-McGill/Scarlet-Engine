@@ -115,4 +115,52 @@ namespace ScarletEngine::Widgets
         ImGui::Checkbox("", &Boolean);
         ImGui::PopID();
     }
+
+    void DrawSeparator(const char* Label)
+    {
+        const ImVec2 WindowPos = ImGui::GetWindowPos();
+        const float WindowWidth = ImGui::GetWindowWidth();
+        const ImVec2 TextSize = ImGui::CalcTextSize(Label);
+        
+        if (Label == nullptr)
+        {
+            const ImVec2 StartPos = {
+                WindowPos.x + ImGui::GetCursorPos().x,
+                WindowPos.y + ImGui::GetCursorPos().y + TextSize.y / 2
+            };
+
+            const ImVec2 EndPos = {
+                WindowPos.x + WindowWidth,
+                WindowPos.y + ImGui::GetCursorPos().y + TextSize.y / 2
+            };
+
+            ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 0.3f, 0.3f, 0.3f, 1.f }), 2);
+
+            ImGui::NewLine();
+        }
+        else
+        {
+            const float ItemWidth = ImGui::GetStyle().ItemSpacing.x;
+
+            ImVec2 StartPos = {
+                WindowPos.x + ImGui::GetCursorPos().x,
+                WindowPos.y + ImGui::GetCursorPos().y + TextSize.y / 2
+            };
+
+            ImVec2 EndPos = {
+                WindowPos.x + ImGui::GetCursorPos().x + ImGui::GetWindowWidth() / 2 - TextSize.x / 2 - 2 * ItemWidth,
+                WindowPos.y + ImGui::GetCursorPos().y + TextSize.y / 2
+            };
+
+            ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 0.3f, 0.3f, 0.3f, 1.f }), 2);
+
+            ImGui::SameLine(EndPos.x - WindowPos.x + 2 * ItemWidth);
+            ImGui::Text("%s", Label);
+
+            StartPos.x = EndPos.x + TextSize.x + 4 * ItemWidth;
+            EndPos.x = WindowPos.x + WindowWidth;
+
+            ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 0.3f, 0.3f, 0.3f, 1.f }), 2);
+        }
+    }
 }
