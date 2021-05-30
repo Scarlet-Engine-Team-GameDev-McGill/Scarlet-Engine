@@ -11,6 +11,29 @@
 #define PLATFORM_BREAK() raise(SIGTRAP);
 #endif
 
+/** Define OUT as nothing, it is simply used to markup out params in code to make it more readable */
+#define OUT
+
+/** Indicate to the compiler that the return value of this function should not be discarded. */ 
+#define NODISCARD [[nodiscard]]
+
+// These attributes are only defined in cpp 20 builds
+#if __cplusplus >= 202002L
+/** Indicate to the compiler that this branch is likely to be taken */
+#define LIKELY [[likely]]
+/** Indicate to the compiler that this branch is less likely to be taken */ 
+#define UNLIKELY [[unlikely]]
+#else
+/** Indicate to the compiler that this case is likely to evaluate to true */
+#define LIKELY
+/** Indicate to the compiler that this case is unlikely to evaluate to true */ 
+#define UNLIKELY
+#endif // __cplusplus >= 202002L
+
+#define UNUSED [[maybe_unused]]
+
+#define DEPRECATED(Reason) [[deprecated(Reason)]]
+
 #ifdef DEBUG
 /**
  * Breaks the debugger if the predicate evaluates to false and then aborts the program.
@@ -45,24 +68,6 @@
 */
 #define check(pred) (void)(pred)
 
+/** Breaks the debugger if the predicate evaluates to false. Only active in debug builds. */
 #define ensure(pred) (void)(pred)
 #endif
-
-/** Define OUT as nothing, it is simply used to markup out params in code to make it more readable */
-#define OUT
-
-/** Indicate to the compiler that the return value of this function should not be discarded. */ 
-#define NODISCARD [[nodiscard]]
-
-// These attributes are only defined in cpp 20 builds
-#if __cplusplus >= 202002L
-/** Indicate to the compiler that this case is likely to evaluate to true */
-#define LIKELY [[likely]]
-/** Indicate to the compiler that this case is unlikely to evaluate to true */ 
-#define UNLIKELY [[unlikely]]
-#else
-/** Indicate to the compiler that this case is likely to evaluate to true */
-#define LIKELY
-/** Indicate to the compiler that this case is unlikely to evaluate to true */ 
-#define UNLIKELY
-#endif // __cplusplus >= 202002L

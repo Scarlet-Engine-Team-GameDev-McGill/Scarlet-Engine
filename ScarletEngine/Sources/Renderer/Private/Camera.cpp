@@ -68,18 +68,18 @@ namespace ScarletEngine
 	void Camera::RecalculateProjection(bool bUpdateViewProj)
 	{
 		Projection = glm::perspective(glm::radians(FoV), Aspect, NearPlane, FarPlane);
-		if (bUpdateViewProj) LIKELY
+		if (bUpdateViewProj)
 		{
-			RecalculateViewProj();
+			LIKELY RecalculateViewProj();
 		}
 	}
 
 	void Camera::RecalculateViewMatrix(bool bUpdateViewProj)
 	{
 		View = glm::lookAt(Position, Position + ForwardVector, UpVector);
-		if (bUpdateViewProj) LIKELY
+		if (bUpdateViewProj) 
 		{
-			RecalculateViewProj();
+			LIKELY RecalculateViewProj();
 		}
 	}
 }
