@@ -160,7 +160,7 @@ namespace ScarletEngine
 
 			ImGui::EndTable();
 
-			Widgets::DrawSeparator();
+			Widgets::DrawSeparator("Viewport");
 
 			Widgets::DrawBooleanInput("Show Grid", bShowGrid);
 		}

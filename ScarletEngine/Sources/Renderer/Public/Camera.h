@@ -33,10 +33,11 @@ namespace ScarletEngine
 		float Sensitivity = 50.f;
 		float Speed = 10.f;
 	private:
-		void RecalculateProjection();
 		void RecalculateBasis();
-		void RecalculateViewMatrix();
+		void RecalculateProjection(bool bUpdateViewProj = true);
+		void RecalculateViewMatrix(bool bUpdateViewProj = true);
 		inline void RecalculateViewProj() { ViewProjection = Projection * View; }
+		void ExtractEulerFromBasis();
 	private:
 		glm::mat4 Projection;
 		glm::mat4 View;
