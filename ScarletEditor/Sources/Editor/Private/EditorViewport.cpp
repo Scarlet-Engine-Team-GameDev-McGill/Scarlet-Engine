@@ -138,7 +138,7 @@ namespace ScarletEngine
 		if (ImGui::Begin("View Options", nullptr, ImGuiWindowFlags_NoMove))
 		{
 			Widgets::DrawSeparator("Camera");
-			
+
 			ImGui::BeginTable("View Options", 2, ImGuiTableFlags_Resizable);
 
 			ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed);
@@ -190,23 +190,23 @@ namespace ScarletEngine
 			Entity* SelectedEntity = *Selection.begin();
 			check(SelectedEntity != nullptr);
 
-			TransformComponent* Transform = SelectedEntity->OwningWorld->GetComponent<TransformComponent>(*SelectedEntity);
-			check(Transform != nullptr);
-
-			glm::mat4 TransformMatrix = Transform->GetTransformMatrix();
-			ImGuizmo::Manipulate(glm::value_ptr(ViewportCamera.GetView()), glm::value_ptr(ViewportCamera.GetProj()), ImGuizmo::TRANSLATE, ImGuizmo::WORLD, glm::value_ptr(TransformMatrix));
-			
-			if (ImGui::IsWindowFocused())
+			if (TransformComponent* Transform = SelectedEntity->OwningWorld->GetComponent<TransformComponent>(*SelectedEntity))
 			{
-				glm::vec3 Position{};
-				glm::quat Rotation{};
-				glm::vec3 Scale{};
-				glm::vec3 Skew{};
-				glm::vec4 Perspective{};
-				glm::decompose(TransformMatrix, Scale, Rotation, Position, Skew, Perspective);
-				Transform->Position = Position;
-				Transform->Rotation = glm::degrees(glm::eulerAngles(Rotation));
-				Transform->Scale = Scale;
+				glm::mat4 TransformMatrix = Transform->GetTransformMatrix();
+				ImGuizmo::Manipulate(glm::value_ptr(ViewportCamera.GetView()), glm::value_ptr(ViewportCamera.GetProj()), ImGuizmo::TRANSLATE, ImGuizmo::WORLD, glm::value_ptr(TransformMatrix));
+
+				if (ImGui::IsWindowFocused())
+				{
+					glm::vec3 Position{};
+					glm::quat Rotation{};
+					glm::vec3 Scale{};
+					glm::vec3 Skew{};
+					glm::vec4 Perspective{};
+					glm::decompose(TransformMatrix, Scale, Rotation, Position, Skew, Perspective);
+					Transform->Position = Position;
+					Transform->Rotation = glm::degrees(glm::eulerAngles(Rotation));
+					Transform->Scale = Scale;
+				}
 			}
 		}
 	}
