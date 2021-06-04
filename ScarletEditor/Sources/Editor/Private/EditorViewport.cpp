@@ -38,6 +38,8 @@ namespace ScarletEngine
 		ViewportCam->SetAspectRatio(PanelSize.x / PanelSize.y);
 		ViewportCam->LookAtPoint({ 0.f, 0.f, 0.f });
 		View->SetCamera(ViewportCam);
+
+		InputManager::Get().OnKeyDown.BindMember(this, &EditorViewportPanel::OnKeyPress);
 	}
 
 	void EditorViewportPanel::Tick(double DeltaTime)
@@ -121,6 +123,27 @@ namespace ScarletEngine
 	void EditorViewportPanel::PopWindowFlags()
 	{
 		ImGui::PopStyleVar();
+	}
+
+	void EditorViewportPanel::OnKeyPress(EKeyCode KeyCode)
+	{
+		switch (KeyCode)
+		{
+			case EKeyCode::KeyEscape:
+				if (GEditor->IsPlayingInEditor())
+				{
+					GEditor->StopPlayInEditor();
+				}
+				break;
+			case EKeyCode::KeyF5:
+				if (!GEditor->IsPlayingInEditor())
+				{
+					GEditor->StartPlayInEditor();
+				}
+				break;
+			default:
+				break;
+		}
 	}
 
 	void EditorViewportPanel::DrawWindowContent()

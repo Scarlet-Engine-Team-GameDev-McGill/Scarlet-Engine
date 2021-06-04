@@ -35,11 +35,20 @@ namespace ScarletEngine
 
 		const OnSelectionChangedEvent& GetOnSelectionChanged() const { return OnSelectionChanged; }
 		const OnSelectionClearedEvent& GetOnSelectionCleared() const { return OnSelectionCleared; }
+
+		/* Play in editor */
+		void StartPlayInEditor();
+
+		void StopPlayInEditor();
+
+		bool IsPlayingInEditor() const { return bPlayingInEditor; }
 	private:
 		Set<Entity*> SelectedEntities;
 
 		OnSelectionChangedEvent OnSelectionChanged;
 		OnSelectionClearedEvent OnSelectionCleared;
+
+		bool bPlayingInEditor = false;
 	};
 
 	extern Editor* GEditor;

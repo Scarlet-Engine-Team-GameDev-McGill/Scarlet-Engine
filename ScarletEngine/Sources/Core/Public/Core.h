@@ -10,6 +10,7 @@
 #include "Utils/StringUtils.h"
 #include "IModule.h"
 #include "ModuleManager.h"
+#include "InputCodes.h"
 
 // Core component types
 #include "Components/TransformComponent.h"

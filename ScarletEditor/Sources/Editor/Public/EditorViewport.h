@@ -17,6 +17,8 @@ namespace ScarletEngine
 
 		virtual void PushWindowFlags() override;
 		virtual void PopWindowFlags() override;
+
+		void OnKeyPress(EKeyCode KeyCode);
 	private:
 		static uint32_t NextViewportID;
 

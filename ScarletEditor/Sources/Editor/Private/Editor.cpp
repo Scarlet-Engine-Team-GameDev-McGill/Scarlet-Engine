@@ -67,4 +67,18 @@ namespace ScarletEngine
 	{
 		return SelectedEntities.find(Ent) != SelectedEntities.end();
 	}
+
+	void Editor::StartPlayInEditor()
+	{
+		SystemScheduler::Get().EnableGameplaySystems();
+
+		bPlayingInEditor = true;
+	}
+
+	void Editor::StopPlayInEditor()
+	{
+		SystemScheduler::Get().DisableGameplaySystems();
+
+		bPlayingInEditor = false;
+	}
 }

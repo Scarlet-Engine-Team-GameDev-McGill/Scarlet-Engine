@@ -31,9 +31,10 @@ namespace ScarletEngine
     void SystemScheduler::DisableGameplaySystems()
     {
         bRunningGameplaySystems = false;
-        std::remove_if(ActiveSystems.begin(), ActiveSystems.end(), [](const SharedPtr<ISystem>& System)
+        ActiveSystems.erase(std::remove_if(ActiveSystems.begin(), ActiveSystems.end(), [](const SharedPtr<ISystem>& System)
         {
             return System->IsGameplayOnly();
-        });
+        }),
+        ActiveSystems.end());
     }
 }

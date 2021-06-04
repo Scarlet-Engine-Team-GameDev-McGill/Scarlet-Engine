@@ -35,6 +35,11 @@ namespace ScarletEngine
 		// Create a default world
 		ActiveWorld = MakeShared<World>();
 
+		if (bStartGameplaySystemsOnLoad)
+		{
+			SystemScheduler::Get().EnableGameplaySystems();
+		}
+
 		bIsInitialized = true;
 	}
 
