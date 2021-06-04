@@ -388,4 +388,14 @@ namespace ScarletEngine
 	{
 		glfwPollEvents();
 	}
+
+	void ApplicationWindow::EnableCursor()
+	{
+		glfwSetInputMode(static_cast<GLFWwindow*>(WindowHandle), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+
+	void ApplicationWindow::DisableCursor()
+	{
+		glfwSetInputMode(static_cast<GLFWwindow*>(WindowHandle), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
 }

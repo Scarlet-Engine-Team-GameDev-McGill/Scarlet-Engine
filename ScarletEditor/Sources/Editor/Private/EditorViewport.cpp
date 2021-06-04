@@ -7,6 +7,7 @@
 #include "glm/gtx/matrix_decompose.hpp"
 #include "InputManager.h"
 #include "Widgets.h"
+#include "../../../../ScarletEngine/Sources/Window/Public/Window.h"
 
 namespace ScarletEngine
 {
@@ -39,7 +40,16 @@ namespace ScarletEngine
 		ViewportCam->LookAtPoint({ 0.f, 0.f, 0.f });
 		View->SetCamera(ViewportCam);
 
-		InputManager::Get().OnKeyDown.BindMember(this, &EditorViewportPanel::OnKeyPress);
+		InputManager::Get().OnKeyDown.BindMember(this, &EditorViewportPanel::OnKeyDown);
+		InputManager::Get().OnMouseButtonDown.BindMember(this, &EditorViewportPanel::OnMouseButtonDown);
+		InputManager::Get().OnMouseButtonUp.BindMember(this, &EditorViewportPanel::OnMouseButtonUp);
+	}
+
+	void EditorViewportPanel::Destroy()
+	{
+		InputManager::Get().OnKeyDown.Unbind(this);
+		InputManager::Get().OnMouseButtonDown.Unbind(this);
+		InputManager::Get().OnMouseButtonUp.Unbind(this);
 	}
 
 	void EditorViewportPanel::Tick(double DeltaTime)
@@ -125,7 +135,7 @@ namespace ScarletEngine
 		ImGui::PopStyleVar();
 	}
 
-	void EditorViewportPanel::OnKeyPress(EKeyCode KeyCode)
+	void EditorViewportPanel::OnKeyDown(EKeyCode KeyCode)
 	{
 		switch (KeyCode)
 		{
@@ -143,6 +153,30 @@ namespace ScarletEngine
 				break;
 			default:
 				break;
+		}
+	}
+
+	void EditorViewportPanel::OnMouseButtonDown(EMouseCode MouseCode)
+	{
+		switch (MouseCode)
+		{
+			case EMouseCode::MouseButtonRight:
+				GEditor->GetApplicationWindow()->DisableCursor();
+				break;
+			default:
+				break;
+		}
+	}
+
+	void EditorViewportPanel::OnMouseButtonUp(EMouseCode MouseCode)
+	{
+		switch (MouseCode)
+		{
+		case EMouseCode::MouseButtonRight:
+				GEditor->GetApplicationWindow()->EnableCursor();
+			break;
+		default:
+			break;
 		}
 	}
 
