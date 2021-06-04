@@ -19,29 +19,23 @@ int main()
 	ModuleManager::GetInstance().RegisterModule<RenderModule>();
 	ModuleManager::GetInstance().RegisterModule<UIModule>();
 
-	GEngine = MakeUnique<Engine>();
+	GEngine = GEditor = ScarNew(Editor);
 	GEngine->Initialize();
-
-	// Initialize the global editor object
-	GEditor = MakeUnique<Editor>();
-	// #todo_core: this should be handled automatically by the engine
-	GEditor->Initialize();
 
 	// Initialize the default editor world
 	{
 		// Register gameplay systems with the ECS
 		Achilles::RegisterSystems();
 
-		Achilles::DemoKepler(GEditor->GetActiveWorld());
+		Achilles::DemoKepler(GEngine->GetActiveWorld());
 	}
 
 	// Run the engine
 	GEngine->Run();
 
 	// Cleanup
-	GEditor.reset();
-	GEngine->Terminate();
-	GEngine.reset();
+	ScarDelete(GEngine);
+	GEngine = nullptr;
 
 	return 0;
 }

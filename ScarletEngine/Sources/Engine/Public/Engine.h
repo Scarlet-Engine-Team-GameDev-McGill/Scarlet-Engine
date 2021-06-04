@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "World.h"
 
 namespace ScarletEngine
 {
@@ -13,9 +14,9 @@ namespace ScarletEngine
 	{
 	public:
 		Engine();
+		virtual ~Engine() {}
 
-		void Initialize();
-		void Terminate();
+		virtual void Initialize();
 		void Run();
 
 		/** Signals that the engine should quit on the next update */
@@ -26,12 +27,18 @@ namespace ScarletEngine
 
 		bool IsInitialized() const { return bIsInitialized; }
 
+		const SharedPtr<World>& GetActiveWorld() const { return ActiveWorld; }
 		ApplicationWindow* GetApplicationWindow() const { return AppWindow; }
-	private:
+	protected:
+		virtual void Terminate();
+
 		/** Called before objects are ticked each frame */
 		void PreUpdate();
+
 		/** Called after objects are ticked each frame */
 		void PostUpdate();
+	protected:
+		SharedPtr<World> ActiveWorld = nullptr;
 	private:
 		// Prevent copy/move constructors
 		Engine(const Engine&) = delete;
@@ -41,14 +48,14 @@ namespace ScarletEngine
 		ApplicationWindow* AppWindow = nullptr;
 
 		/** True when the engine is initialized */
-		uint32_t bIsInitialized : 1;
+		uint32_t bIsInitialized : 1 = false;
 		/** True when the engine is in the running state */
-		uint32_t bIsRunning : 1;
+		uint32_t bIsRunning : 1 = false;
 		/** True after the engine has finished running */
-		uint32_t bIsTerminated : 1;
+		uint32_t bIsTerminated : 1 = false;
 		/** True when the engine is in the middle of ticking objects */
-		uint32_t bTickingObjects : 1;
+		uint32_t bTickingObjects : 1 = false;
 	};
 
-	extern UniquePtr<Engine> GEngine;
+	extern Engine* GEngine;
 }

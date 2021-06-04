@@ -5,23 +5,13 @@
 
 namespace ScarletEngine
 {
-	UniquePtr<Editor> GEditor = nullptr;
-
-	Editor::Editor()
-		: EditorWorld(nullptr)
-	{
-	}
+	Editor* GEditor = nullptr;
 
 	void Editor::Initialize()
 	{
-		EditorWorld = MakeShared<World>();
+		Engine::Initialize();
 
 		ModuleManager::GetModuleChecked<UIModule>("UIModule")->SetActiveLayer(MakeShared<EditorUILayer>());
-	}
-
-	void Editor::Tick(double)
-	{
-		ZoneScopedN("Editor Tick")
 	}
 
 	void Editor::SetSelection(const Array<Entity*>& NewSelection)

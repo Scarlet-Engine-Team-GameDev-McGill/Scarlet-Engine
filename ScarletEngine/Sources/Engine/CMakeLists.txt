@@ -2,7 +2,8 @@ set(Engine_PrivateDeps
 	"Window")
 
 set(Engine_PublicDeps
-	"Core")
+	"Core"
+	"Gameplay")
 
 DECLARE_MODULE(
 	MODULE_NAME "Engine" 

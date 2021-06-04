@@ -1,27 +1,22 @@
 #pragma once
+
 #include "Core.h"
-#include "ECS.h"
 #include "World.h"
 #include "Viewport.h"
-#include "AssetHandle.h"
-#include "RALResources.h"
-#include "Camera.h"
+#include "Engine.h"
 
 namespace ScarletEngine
 {
 	using OnSelectionChangedEvent = Event<>;
 	using OnSelectionClearedEvent = Event<>;
 
-	class Editor : public ITickable
+	class Editor : public Engine
 	{
 	public:
-		Editor();
 		virtual ~Editor() {}
 
-		void Initialize();
-		virtual void Tick(double DeltaTime) override;
+		virtual void Initialize() override;
 
-	public:
 		/* Selection */
 		void SetSelection(const Array<Entity*>& NewSelection);
 		void SetSelection(Entity* SelectedItem);
@@ -37,18 +32,14 @@ namespace ScarletEngine
 
 		const Set<Entity*>& GetSelection() const { return SelectedEntities; }
 
-		SharedPtr<World>& GetActiveWorld() { return EditorWorld; }
-
 		const OnSelectionChangedEvent& GetOnSelectionChanged() const { return OnSelectionChanged; }
 		const OnSelectionClearedEvent& GetOnSelectionCleared() const { return OnSelectionCleared; }
 	private:
-		SharedPtr<World> EditorWorld;
-
 		Set<Entity*> SelectedEntities;
 
 		OnSelectionChangedEvent OnSelectionChanged;
 		OnSelectionClearedEvent OnSelectionCleared;
 	};
 
-	extern UniquePtr<Editor> GEditor;
+	extern Editor* GEditor;
 }

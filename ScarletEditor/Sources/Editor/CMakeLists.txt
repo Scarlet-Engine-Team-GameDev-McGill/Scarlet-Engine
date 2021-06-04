@@ -5,12 +5,12 @@ set(Editor_PrivateDeps
 	"OutputLog"
 	"PropertyEditor"
 	"AssetView"
-	"ImGuizmo"
-	"Engine")
+	"ImGuizmo")
 
 set(Editor_PublicDeps
 	"Gameplay"
-	"ECS")
+	"ECS"
+	"Engine")
 
 DECLARE_EDITOR_MODULE(
 	MODULE_NAME "Editor" 
