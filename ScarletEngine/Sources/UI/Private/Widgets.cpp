@@ -154,6 +154,8 @@ namespace ScarletEngine::Widgets
 
             ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 0.3f, 0.3f, 0.3f, 1.f }), 2);
 
+            // Since we're going to use SameLine to set the x-offset, we need to ensure a newline is created here
+            ImGui::NewLine();
             ImGui::SameLine(EndPos.x - WindowPos.x + 2 * ItemWidth);
             ImGui::Text("%s", Label);
 

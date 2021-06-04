@@ -5752,7 +5752,7 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
             RenderArrow(window->DrawList, ImVec2(text_pos.x - text_offset_x + padding.x, text_pos.y), text_col, is_open ? ImGuiDir_Down : ImGuiDir_Right, 1.0f);
         else // Leaf without bullet, left-adjusted text
             text_pos.x -= text_offset_x;
-        if (flags & ImGuiTreeNodeFlags_ClipLabelForTrailingButton)
+        if (flags & ImGuiTreeNodeFlagsPrivate_ClipLabelForTrailingButton)
             frame_bb.Max.x -= g.FontSize + style.FramePadding.x;
         if (g.LogEnabled)
         {
@@ -5880,7 +5880,7 @@ bool ImGui::CollapsingHeader(const char* label, bool* p_open, ImGuiTreeNodeFlags
     ImGuiID id = window->GetID(label);
     flags |= ImGuiTreeNodeFlags_CollapsingHeader;
     if (p_open)
-        flags |= ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_ClipLabelForTrailingButton;
+        flags |= ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlagsPrivate_ClipLabelForTrailingButton;
     bool is_open = TreeNodeBehavior(id, flags, label);
     if (p_open != NULL)
     {

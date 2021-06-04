@@ -254,7 +254,7 @@ namespace ScarletEngine
 		case GLFW_KEY_MENU:
 			return EKeyCode::KeyMenu;
 		default:
-			check(false);
+			ensure(false); // Break the debugger if a key is pressed which we don't recognize so that it can be added
 			return EKeyCode::KeyUnknown;
 		}
 	}
@@ -280,6 +280,7 @@ namespace ScarletEngine
 		case GLFW_MOUSE_BUTTON_8:
 			return EMouseCode::MouseButton8;
 		default:
+			ensure(false); // Break the debugger if a mouse button is pressed which we don't recognize so that it can be added
 			return EMouseCode::MouseUnknown;
 		}
 	}
@@ -298,7 +299,7 @@ namespace ScarletEngine
 		AppWindow->OnWindowResize.Broadcast({ Width, Height });
 	}
 
-	static void KeyCallback(GLFWwindow*, int Key, int, int Action, int Mods)
+	static void KeyCallback(GLFWwindow*, int Key, int, int Action, int)
 	{
 		if (Action == GLFW_PRESS)
 		{
@@ -315,7 +316,7 @@ namespace ScarletEngine
 		InputManager::Get().OnMouseMoveCallback({ Xpos, Ypos});
 	}
 
-	static void MouseButtonCallback(GLFWwindow*, int Button, int Action, int Mods)
+	static void MouseButtonCallback(GLFWwindow*, int Button, int Action, int)
 	{
 		if (Action == GLFW_PRESS)
 		{
@@ -355,9 +356,10 @@ namespace ScarletEngine
 			glfwTerminate();
 			check(false);
 		}
-		glfwMaximizeWindow(static_cast<GLFWwindow*>(WindowHandle));
+		GLFWwindow* WindowPtr = static_cast<GLFWwindow*>(WindowHandle);
+		glfwMaximizeWindow(WindowPtr);
 
-		glfwSetWindowUserPointer(static_cast<GLFWwindow*>(WindowHandle), this);
+		glfwSetWindowUserPointer(WindowPtr, this);
 
 		// Set the window icon;
 		const SharedPtr<TextureHandle> LogoTex = AssetManager::LoadTextureFile("/ScarletEngine/Content/scarlet_logo.png");
@@ -366,19 +368,20 @@ namespace ScarletEngine
 		Image.width = LogoTex->Width;
 		Image.height = LogoTex->Height;
 
-		glfwSetWindowIcon(static_cast<GLFWwindow*>(WindowHandle), 1, &Image);
+		
+		glfwSetWindowIcon(WindowPtr, 1, &Image);
 
-		glfwSetWindowCloseCallback(static_cast<GLFWwindow*>(WindowHandle), WindowCloseCallback);
-		glfwSetFramebufferSizeCallback(static_cast<GLFWwindow*>(WindowHandle), WindowResizeCallback);
-		glfwSetKeyCallback(static_cast<GLFWwindow*>(WindowHandle), KeyCallback);
-		glfwSetCursorPosCallback(static_cast<GLFWwindow*>(WindowHandle), CursorPosCallback);
-		glfwSetMouseButtonCallback(static_cast<GLFWwindow*>(WindowHandle), MouseButtonCallback);
+		glfwSetWindowCloseCallback(WindowPtr, WindowCloseCallback);
+		glfwSetFramebufferSizeCallback(WindowPtr, WindowResizeCallback);
+		glfwSetKeyCallback(WindowPtr, KeyCallback);
+		glfwSetCursorPosCallback(WindowPtr, CursorPosCallback);
+		glfwSetMouseButtonCallback(WindowPtr, MouseButtonCallback);
 	}
 
 
 	void ApplicationWindow::SwapBuffer()
 	{
-		glfwSwapBuffers((GLFWwindow*)WindowHandle);
+		glfwSwapBuffers(static_cast<GLFWwindow*>(WindowHandle));
 	}
 
 	void ApplicationWindow::PollEvents()
