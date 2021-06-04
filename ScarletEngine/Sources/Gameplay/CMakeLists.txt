@@ -3,7 +3,6 @@ set(Gameplay_PrivateDeps
 
 set(Gameplay_PublicDeps
 	"ECS"
-	"Engine"
 	"RenderModule")
 
 DECLARE_MODULE(

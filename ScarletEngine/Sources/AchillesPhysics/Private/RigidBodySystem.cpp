@@ -1,5 +1,4 @@
 #include "RigidBodySystem.h"
-#include "Engine.h"
 
 namespace ScarletEngine::Achilles
 {
@@ -32,7 +31,7 @@ namespace ScarletEngine::Achilles
 		// Dynamics
 		for (const auto& [EntityID, Trans, Rb] : Entities)
 		{
-			UpdateEntity(Trans, Rb, static_cast<float>(FIXED_UPDATE_S));
+			UpdateEntity(Trans, Rb, static_cast<float>(FIXED_UPDATE_TIME));
 		}
 
 		// Compute Gravities for Kepler

@@ -1,5 +1,5 @@
 set(AchillesPhysics_PrivateDeps
-	"Engine")
+	"")
 
 set(AchillesPhysics_PublicDeps
 	"ECS"

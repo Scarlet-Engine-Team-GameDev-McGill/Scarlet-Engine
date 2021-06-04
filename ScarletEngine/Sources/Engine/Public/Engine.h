@@ -2,13 +2,12 @@
 
 #include "CoreMinimal.h"
 
-#define FIXED_UPDATE_S 0.020
-
-
 namespace ScarletEngine
 {
 	class ITickable;
 	class ApplicationWindow;
+
+	// -----------------------------------------------------------------------------------------------------------------
 
 	class Engine
 	{
@@ -27,36 +26,17 @@ namespace ScarletEngine
 
 		bool IsInitialized() const { return bIsInitialized; }
 
-		/** Enqueue the addition of a new tickable object for the next frame */
-		void QueueAddTickable(ITickable* TickableObject);
-		/** Remove a tickable object. This must be immediate as it will only be called on destruction of an ITickable */
-		void RemoveTickable(ITickable* TickableObject);
-
 		ApplicationWindow* GetApplicationWindow() const { return AppWindow; }
 	private:
-
 		/** Called before objects are ticked each frame */
 		void PreUpdate();
 		/** Called after objects are ticked each frame */
 		void PostUpdate();
-		
-		/** Moves queued tickables into the list of objects to tick on the next frame */
-		void AddQueuedTickables();
-		void AddTickable(ITickable* TickableToAdd);
 	private:
 		// Prevent copy/move constructors
 		Engine(const Engine&) = delete;
 		Engine(Engine&&) = delete;
-		
-		/** List of tickables to update on a fixed-timestep */
-		Array<ITickable*> VariableUpdateTickables;
-		/** List of tickables to update on a variable-timestep */
-		Array<ITickable*> FixedUpdateTickables;
-		/** Queue of tickables to add at the beginning of the next frame */
-		Array<ITickable*> TickableQueue;
-		/** Used to lock the TickableQueue */
-		std::mutex TickableQueueMutex;
-		
+
 		/** Main engine application window */
 		ApplicationWindow* AppWindow = nullptr;
 

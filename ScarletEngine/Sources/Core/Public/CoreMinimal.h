@@ -3,6 +3,7 @@
 /** This is where we put core utility types which would be used both internally and externally */
 
 #include "CorePCH.h"
+#include "CoreDefines.h"
 #include "CoreUtils.h"
 #include "CoreSTL.h"
 #include "Logger.h"
