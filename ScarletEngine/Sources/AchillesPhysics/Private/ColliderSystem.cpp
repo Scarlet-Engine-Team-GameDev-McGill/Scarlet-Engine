@@ -1,7 +1,6 @@
 #include "ColliderSystem.h"
 #include "Components/RigidBodyComponent.h"
 #include "Core.h"
-#include "Engine.h"
 
 namespace ScarletEngine::Achilles
 {
@@ -11,7 +10,7 @@ namespace ScarletEngine::Achilles
 		// Move collider
 		for (const auto& [Entity, Box, Rb] : GetEntities<BoxColliderComponent, RigidBodyComponent>())
 		{
-			const glm::vec3 Dx = Rb->Velocity * static_cast<float>(FIXED_UPDATE_S);
+			const glm::vec3 Dx = Rb->Velocity * static_cast<float>(FIXED_UPDATE_TIME);
 			Box->Max += Dx;
 			Box->Min += Dx;
 		}
@@ -25,7 +24,7 @@ namespace ScarletEngine::Achilles
 		// Move collider
 		for (const auto& [Entity, Rb, Sphere] : GetEntities<RigidBodyComponent, SphereColliderComponent>())
 		{
-			Sphere->Pos += Rb->Velocity * static_cast<float>(FIXED_UPDATE_S);
+			Sphere->Pos += Rb->Velocity * static_cast<float>(FIXED_UPDATE_TIME);
 		}
 
 		// Compute intersection
@@ -47,7 +46,7 @@ namespace ScarletEngine::Achilles
 
 				if (IntersectionDepth.Distance < 0.f)
 				{
-					const glm::vec3 Fi = - (glm::length(RbA->Velocity - RbB->Velocity) * IntersectionDepth.Direction) / (static_cast<float>(FIXED_UPDATE_S) * (1 / RbA->Mass + 1 / RbB->Mass));
+					const glm::vec3 Fi = - (glm::length(RbA->Velocity - RbB->Velocity) * IntersectionDepth.Direction) / (static_cast<float>(FIXED_UPDATE_TIME) * (1 / RbA->Mass + 1 / RbB->Mass));
 
 					SolveIntersection(RbA, TransA, SphereA, SphereB, Fi, IntersectionDepth.Direction * IntersectionDepth.Distance);
 					SolveIntersection(RbB, TransB, SphereB, SphereA, -Fi, -IntersectionDepth.Direction * IntersectionDepth.Distance);

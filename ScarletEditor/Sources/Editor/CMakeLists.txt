@@ -1,12 +1,12 @@
 set(Editor_PrivateDeps
 	"Core"
-	"Engine"
 	"UI"
 	"SceneHierarchy"
 	"OutputLog"
 	"PropertyEditor"
 	"AssetView"
-	"ImGuizmo")
+	"ImGuizmo"
+	"Engine")
 
 set(Editor_PublicDeps
 	"Gameplay"
