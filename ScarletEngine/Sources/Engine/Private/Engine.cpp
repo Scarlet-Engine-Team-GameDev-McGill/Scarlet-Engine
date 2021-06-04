@@ -1,7 +1,6 @@
 #include "Engine.h"
 
 #include "CoreUtils.h"
-#include "ITickable.h"
 
 #include <chrono>
 #include <common/TracySystem.hpp>
@@ -13,15 +12,11 @@
 
 namespace ScarletEngine
 {
-	UniquePtr<Engine> GEngine = nullptr;
+	Engine* GEngine = nullptr;
 
 	// -----------------------------------------------------------------------------------------------------------------
 
 	Engine::Engine()
-		: bIsInitialized(false)
-		, bIsRunning(false)
-		, bIsTerminated(false)
-		, bTickingObjects(false)
 	{
 	}
 
@@ -36,6 +31,14 @@ namespace ScarletEngine
 		AppWindow->OnWindowClose.BindMember(this, &Engine::SignalQuit);
 
 		ModuleManager::GetInstance().Startup();
+
+		// Create a default world
+		ActiveWorld = MakeShared<World>();
+
+		if (bStartGameplaySystemsOnLoad)
+		{
+			SystemScheduler::Get().EnableGameplaySystems();
+		}
 
 		bIsInitialized = true;
 	}
@@ -81,6 +84,8 @@ namespace ScarletEngine
 			// Process anything that should happen before the next update
 			PostUpdate();
 		}
+
+		Terminate();
 	}
 
 	void Engine::PreUpdate()

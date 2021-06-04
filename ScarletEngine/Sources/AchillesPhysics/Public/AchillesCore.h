@@ -8,7 +8,7 @@
 
 namespace ScarletEngine::Achilles
 {
-	void RegisterSystems()
+	inline void RegisterSystems()
 	{
 		SystemScheduler::Get().RegisterSystem<SpringSystem>();
 		SystemScheduler::Get().RegisterSystem<RigidBodySystem>();

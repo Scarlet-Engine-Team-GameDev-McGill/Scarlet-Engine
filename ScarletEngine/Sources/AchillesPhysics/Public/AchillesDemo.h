@@ -25,7 +25,7 @@ namespace ScarletEngine::Achilles
 	}
 
 
-	EID MakeSphereCollider(SharedPtr<World>& World, glm::vec3 Pos, glm::vec3 Scale = glm::vec3(0.1f), glm::vec3 V0 = glm::vec3(0.f), float Mass = 1.f, float Radius = 0.0125f)
+	EID MakeSphereCollider(const SharedPtr<World>& World, glm::vec3 Pos, glm::vec3 Scale = glm::vec3(0.1f), glm::vec3 V0 = glm::vec3(0.f), float Mass = 1.f, float Radius = 0.0125f)
 	{
 		auto [Ent, Trans, Mesh, Rb, Sphere] = World->CreateEntity<TransformComponent, StaticMeshComponent, RigidBodyComponent, SphereColliderComponent>("Ball");
 
@@ -46,7 +46,7 @@ namespace ScarletEngine::Achilles
 	};
 
 
-	EID MakeGround(SharedPtr<World>& World, float Dist = 0.f, float Friction = 0.15f)
+	EID MakeGround(const SharedPtr<World>& World, float Dist = 0.f, float Friction = 0.15f)
 	{
 		auto [Ent, Plane] = World->CreateEntity<PlaneColliderComponent>("Ground");
 
@@ -57,7 +57,7 @@ namespace ScarletEngine::Achilles
 	};
 
 
-	EID AddSpring(SharedPtr<World>& World, EID Ent, std::vector<EID> Anchors, std::vector<float> Lengths = { 0.25f }, float Stiffness = 1000.f)
+	EID AddSpring(const SharedPtr<World>& World, EID Ent, std::vector<EID> Anchors, std::vector<float> Lengths = { 0.25f }, float Stiffness = 1000.f)
 	{
 		SpringCollection* SpringArray = World->AddComponent<SpringCollection>(Ent);
 
@@ -73,14 +73,14 @@ namespace ScarletEngine::Achilles
 	};
 
 
-	EID MakeNode(SharedPtr<World>& World, glm::vec3 Pos, std::vector<EID> Anchors, std::vector<float> Lengths = { 0.25f })
+	EID MakeNode(const SharedPtr<World>& World, glm::vec3 Pos, std::vector<EID> Anchors, std::vector<float> Lengths = { 0.25f })
 	{
 		EID Ent = MakeSphereCollider(World, Pos, glm::vec3(0.05f));
 		AddSpring(World, Ent, Anchors, Lengths);
 		return Ent;
 	};
 
-	void DemoSpring(SharedPtr<World>& World)
+	void DemoSpring(const SharedPtr<World>& World)
 	{
 		auto [Anchor, AnchorTrans] = World->CreateEntity<TransformComponent>("Anchor");
 
@@ -96,7 +96,7 @@ namespace ScarletEngine::Achilles
 	}
 
 
-	void DemoRope(SharedPtr<World>& World, glm::vec3 Interval)
+	void DemoRope(const SharedPtr<World>& World, glm::vec3 Interval)
 	{
 		auto [Anchor, AnchorTrans] = World->CreateEntity<TransformComponent>("Anchor");
 
@@ -112,14 +112,14 @@ namespace ScarletEngine::Achilles
 	}
 
 
-	void DemoSpherePlaneCollision(SharedPtr<World>& World)
+	void DemoSpherePlaneCollision(const SharedPtr<World>& World)
 	{
 		MakeSphereCollider(World, glm::vec3(5.f, 3.f, 0.f), glm::vec3(0.1f), glm::vec3(-1.5f, 0.f, 0.f), 1.0f, 0.25f);
 		MakeGround(World);
 	}
 
 
-	void DemoSphereSphereCollision(SharedPtr<World>& World)
+	void DemoSphereSphereCollision(const SharedPtr<World>& World)
 	{
 		MakeSphereCollider(World, glm::vec3(3.f, 3.f, 0.f), glm::vec3(0.1f), glm::vec3(-1.5f, 0.f, 0.f), 1.0f, 0.25f);
 		MakeSphereCollider(World,glm::vec3(-3.f, 3.f, 0.f), glm::vec3(0.1f), glm::vec3(1.5f, 0.f, 0.f), 1.0f, 0.25f);
@@ -130,7 +130,7 @@ namespace ScarletEngine::Achilles
 	}
 
 
-	void DemoRopeCollision(SharedPtr<World>& World)
+	void DemoRopeCollision(const SharedPtr<World>& World)
 	{
 		DemoRope(World, glm::vec3(0.f, 0.25f, 0.f));
 		MakeSphereCollider(World, glm::vec3(8.f, -3.f, 0.f), glm::vec3(0.1f), glm::vec3(-18.f, 0.f, 0.f), 15.f, 0.25f);
@@ -138,7 +138,7 @@ namespace ScarletEngine::Achilles
 	}
 
 
-	void DemoFlag(SharedPtr<World>& World)
+	void DemoFlag(const SharedPtr<World>& World)
 	{
 		const int height = 4;
 		const int width = 7;
@@ -205,7 +205,7 @@ namespace ScarletEngine::Achilles
 		//MakeGround(World);
 	}
 
-	void DemoSoftBodies(SharedPtr<World>& World, float heightOffset = 2.f)
+	void DemoSoftBodies(const SharedPtr<World>& World, float heightOffset = 2.f)
 	{
 		const int height = 3;
 		const int width = 3;
@@ -276,7 +276,7 @@ namespace ScarletEngine::Achilles
 		MakeGround(World);
 	}
 
-	EID MakePlanet(SharedPtr<World>& World, glm::vec3 Pos, glm::vec3 V0, float Mass, float Scale, const char* Name)
+	EID MakePlanet(const SharedPtr<World>& World, glm::vec3 Pos, glm::vec3 V0, float Mass, float Scale, const char* Name)
 	{
 		auto [Ent, Trans, Mesh, Rb] = World->CreateEntity<TransformComponent, StaticMeshComponent, RigidBodyComponent>(Name);
 
@@ -294,7 +294,7 @@ namespace ScarletEngine::Achilles
 		return Ent;
 	};
 
-	void DemoKepler(SharedPtr<World>& World)
+	void DemoKepler(const SharedPtr<World>& World)
 	{
 		MakePlanet(World, glm::vec3(4.3f, -1.f, 0.f), glm::vec3(0.f, 0.f, 2.f), 1., 1.2f, "Jupiter");
 		MakePlanet(World, glm::vec3(3.f, 0.6f, 0.f), glm::vec3(0.f, 0.f, 2.5f), 1.f, 0.5f, "Venus");

@@ -20,6 +20,8 @@ namespace ScarletEngine
 
 		virtual void Update() const {}
 		virtual void FixedUpdate() const {}
+		// #todo_ecs: make into static rather than virtual?
+		virtual bool IsGameplayOnly() const { return false; }
 	protected:
 		template <typename ...Components>
 		const Array<ProxyType<Components...>>& GetEntities() const

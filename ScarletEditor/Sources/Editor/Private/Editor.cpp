@@ -5,23 +5,18 @@
 
 namespace ScarletEngine
 {
-	UniquePtr<Editor> GEditor = nullptr;
+	Editor* GEditor = nullptr;
 
 	Editor::Editor()
-		: EditorWorld(nullptr)
 	{
+		bStartGameplaySystemsOnLoad = false;
 	}
 
 	void Editor::Initialize()
 	{
-		EditorWorld = MakeShared<World>();
+		Engine::Initialize();
 
 		ModuleManager::GetModuleChecked<UIModule>("UIModule")->SetActiveLayer(MakeShared<EditorUILayer>());
-	}
-
-	void Editor::Tick(double)
-	{
-		ZoneScopedN("Editor Tick")
 	}
 
 	void Editor::SetSelection(const Array<Entity*>& NewSelection)
@@ -71,5 +66,19 @@ namespace ScarletEngine
 	bool Editor::IsEntitySelected(Entity* Ent) const
 	{
 		return SelectedEntities.find(Ent) != SelectedEntities.end();
+	}
+
+	void Editor::StartPlayInEditor()
+	{
+		SystemScheduler::Get().EnableGameplaySystems();
+
+		bPlayingInEditor = true;
+	}
+
+	void Editor::StopPlayInEditor()
+	{
+		SystemScheduler::Get().DisableGameplaySystems();
+
+		bPlayingInEditor = false;
 	}
 }

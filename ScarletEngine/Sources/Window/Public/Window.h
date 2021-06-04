@@ -20,6 +20,9 @@ namespace ScarletEngine
 		void SwapBuffer();
 		void PollEvents();
 
+		void EnableCursor();
+		void DisableCursor();
+
 		OnWindowCloseEvent OnWindowClose;
 		OnWindowResizeEvent OnWindowResize;
 
