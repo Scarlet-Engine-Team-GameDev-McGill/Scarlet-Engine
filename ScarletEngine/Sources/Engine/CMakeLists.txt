@@ -1,5 +1,6 @@
 set(Engine_PrivateDeps
-	"Window")
+	"Window"
+	"ECS")
 
 set(Engine_PublicDeps
 	"Core"

@@ -4,7 +4,7 @@ namespace ScarletEngine
 {
     void SystemScheduler::RunUpdate(Registry* Reg) const
     {
-        for (const UniquePtr<ISystem>& System : Systems)
+        for (const SharedPtr<ISystem>& System : ActiveSystems)
         {
             System->Reg = Reg;
             System->Update();
@@ -14,11 +14,26 @@ namespace ScarletEngine
 
     void SystemScheduler::RunFixedUpdate(Registry* Reg) const
     {
-        for (const UniquePtr<ISystem>& System : Systems)
+        for (const SharedPtr<ISystem>& System : ActiveSystems)
         {
             System->Reg = Reg;
             System->FixedUpdate();
             System->Reg = nullptr;
         }
+    }
+
+    void SystemScheduler::EnableGameplaySystems()
+    {
+        bRunningGameplaySystems = true;
+        ActiveSystems.insert(ActiveSystems.end(), GameplayOnlySystems.begin(), GameplayOnlySystems.end());
+    }
+
+    void SystemScheduler::DisableGameplaySystems()
+    {
+        bRunningGameplaySystems = false;
+        std::remove_if(ActiveSystems.begin(), ActiveSystems.end(), [](const SharedPtr<ISystem>& System)
+        {
+            return System->IsGameplayOnly();
+        });
     }
 }

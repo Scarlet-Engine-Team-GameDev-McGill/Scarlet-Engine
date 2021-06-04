@@ -7,6 +7,11 @@ namespace ScarletEngine
 {
 	Editor* GEditor = nullptr;
 
+	Editor::Editor()
+	{
+		bStartGameplaySystemsOnLoad = false;
+	}
+
 	void Editor::Initialize()
 	{
 		Engine::Initialize();

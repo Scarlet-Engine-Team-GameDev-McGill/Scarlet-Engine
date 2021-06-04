@@ -6,6 +6,7 @@
 namespace ScarletEngine
 {
 	class ITickable;
+	class ISystem;
 	class ApplicationWindow;
 
 	// -----------------------------------------------------------------------------------------------------------------
@@ -38,11 +39,11 @@ namespace ScarletEngine
 		/** Called after objects are ticked each frame */
 		void PostUpdate();
 	protected:
-		SharedPtr<World> ActiveWorld = nullptr;
-	private:
 		// Prevent copy/move constructors
 		Engine(const Engine&) = delete;
 		Engine(Engine&&) = delete;
+
+		SharedPtr<World> ActiveWorld = nullptr;
 
 		/** Main engine application window */
 		ApplicationWindow* AppWindow = nullptr;
@@ -55,6 +56,8 @@ namespace ScarletEngine
 		uint32_t bIsTerminated : 1 = false;
 		/** True when the engine is in the middle of ticking objects */
 		uint32_t bTickingObjects : 1 = false;
+		/** Should the engine immediately start all gameplay systems */
+		uint32_t bStartGameplaySystemsOnLoad : 1 = true;
 	};
 
 	extern Engine* GEngine;

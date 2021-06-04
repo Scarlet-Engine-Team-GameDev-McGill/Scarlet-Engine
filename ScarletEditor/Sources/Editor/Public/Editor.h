@@ -10,9 +10,10 @@ namespace ScarletEngine
 	using OnSelectionChangedEvent = Event<>;
 	using OnSelectionClearedEvent = Event<>;
 
-	class Editor : public Engine
+	class Editor final : public Engine
 	{
 	public:
+		Editor();
 		virtual ~Editor() {}
 
 		virtual void Initialize() override;
