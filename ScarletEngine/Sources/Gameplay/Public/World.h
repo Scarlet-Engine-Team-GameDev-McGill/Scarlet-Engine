@@ -1,82 +1,60 @@
 #pragma once
 
 #include "Core.h"
-#include "ECS.h"
+#include "ITickable.h"
 #include "SceneProxy.h"
+#include "SystemScheduler.h"
+#include "Entity.h"
+
 
 namespace ScarletEngine
 {
-	using OnEntityAddedToWorldEvent = Event<const SharedPtr<Entity>&>;
+	using OnEntityAddedToWorldEvent = Event<const EntityPtr&>;
 
 	class World final : public ITickable
 	{
 	public:
 		World();
-
-		void Initialize();
-
+		
+		/* ITickable interface */
 		virtual void Tick(double DeltaTime) override;
+		virtual void FixedTick(double DeltaTime) override;
+		virtual bool WantsFixedTimestep() const override { return true; }
 
-		inline double GetDeltaTime() const { return LastDeltaTime; }
+		/** Returns the render scene proxy for this world */
+		// #todo_rendering: should be managed by the renderer directly
+		SceneProxy* GetRenderSceneProxy() const { return Reg.GetSingleton<SceneProxy>(); }
 
-		SceneProxy* GetRenderSceneProxy() { return &RenderSceneProxy; }
-
-		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
-	public:
+		/** Create a new entity in the world with specified component types */
 		template <typename... ComponentTypes>
-		std::tuple<SharedPtr<Entity>, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name = "")
+		std::tuple<EID, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name)
 		{
-			ZoneScoped
-			Entities.push_back(MakeShared<Entity>(Name));
-			SharedPtr<Entity>& Ent = Entities.back();
-			Ent->OwningWorld = this;
+			const auto EntityProxy = Reg.CreateEntity<ComponentTypes...>();
+			EntityPtr& Ent = Entities.emplace_back(ScarNew(Entity, Name, std::get<EID>(EntityProxy), this));
 			
-			auto Ret = Reg.CreateEntity<ComponentTypes...>(*Ent);
 			OnEntityAddedToWorld.Broadcast(Ent);
-			return std::tuple_cat(std::make_tuple(Ent), Ret);
+			return EntityProxy;
 		}
 
-		/** Register a new system with the world */
-		template <typename... SystemSig>
-		System<SystemSig...>& AddSystem(const String& Name)
-		{
-			ZoneScoped
-			return *static_cast<System<SystemSig...>*>(Systems.emplace_back(GlobalAllocator<System<SystemSig...>>::New(&Reg, Name)).get());
-		}
+		const Array<EntityPtr>& GetEntities() const { return Entities; }
 
-		auto GetEntities()
+		template <typename ComponentType>
+		ComponentType* GetComponent(const Entity& Ent) const
 		{
-			ZoneScoped
-			return Entities;
+			return Reg.GetComponent<ComponentType>(Ent.ID);
 		}
 
 		template <typename ComponentType>
-		auto GetComponent(const Entity& Ent)
+		ComponentType* AddComponent(const EID Ent)
 		{
-			ZoneScoped
-			return Reg.GetComponent<ComponentType>(Ent.ID);
+			return Reg.AddComponent<ComponentType>(Ent);
 		}
-	private:
-		void RunSystems()
-		{
-			ZoneScoped
-			for (const auto& Sys : Systems)
-			{
-				for (const SharedPtr<Entity>& Ent : Entities)
-				{
-					Sys->Run(Ent->ID);
-				}
-			}
-		}
-	private:
-		double LastDeltaTime;
-		Registry Reg;
 
-		Array<SharedPtr<Entity>> Entities;
-		Array<UniquePtr<ISystem>> Systems;
+		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
+	private:
+		Registry Reg;
+		Array<EntityPtr> Entities;
 
 		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
-
-		SceneProxy RenderSceneProxy;
 	};
 }

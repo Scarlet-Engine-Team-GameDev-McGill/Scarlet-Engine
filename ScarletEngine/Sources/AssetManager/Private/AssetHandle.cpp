@@ -14,14 +14,12 @@ namespace ScarletEngine
 		, Leafname(FilePath)
 		, Extension(Leafname)
 	{
-		ZoneScoped
 		Leafname = Leafname.substr(Leafname.find_last_of("/") + 1);
 		Extension = Extension.substr(Extension.find_last_of("."));
 	}
 
 	IAssetHandle::~IAssetHandle()
 	{
-		ZoneScoped
 		// When nothing is referencing this asset, remove its entry in the cache
 		AssetManager::UnloadAsset(FilePath);
 	}
@@ -30,35 +28,33 @@ namespace ScarletEngine
 		: IAssetHandle(AssetType::Texture, InFilePath)
 		, PixelDataBuffer(nullptr)
 	{
-		ZoneScoped
-		// potentially dangerous casting happening here
 		int ImageWidth;
 		int ImageHeight;
 		int NumChannels;
 
-		PixelDataBuffer = stbi_load(InFilePath.c_str(), &ImageWidth, &ImageHeight, &NumChannels, STBI_rgb_alpha);
+		PixelDataBuffer = stbi_load(AssetManager::ToFullPath(InFilePath).c_str(), &ImageWidth, &ImageHeight, &NumChannels, STBI_rgb_alpha);
 		check(PixelDataBuffer != nullptr);
 
 		Width = ImageWidth;
 		Height = ImageHeight;
-		Channels = (uint8_t)NumChannels;
+		Channels = static_cast<uint8_t>(NumChannels);
 	}
 
 	TextureHandle::~TextureHandle()
 	{
-		ZoneScoped
 		stbi_image_free(PixelDataBuffer);
 	}
 
 	// #todo: move this somewhere else
 	static void LoadObj(const String& FilePath, Array<Vertex>& OutVertices, Array<uint32_t>& OutIndices)
 	{
+		ZoneScopedN("Load .Obj file")
 		std::vector<uint32_t> VertexIndices, UVIndices, NormalIndices;
 		std::vector<glm::vec3> TempVertices;
 		std::vector<glm::vec2> TempUVs;
 		std::vector<glm::vec3> TempNormals;
 
-		FILE* File = fopen(FilePath.c_str(), "r");
+		FILE* File = fopen(AssetManager::ToFullPath(FilePath).c_str(), "r");
 		if (File == nullptr)
 		{
 			SCAR_LOG(LogError, "Failed to load obj file from %s", FilePath.c_str());
@@ -69,7 +65,7 @@ namespace ScarletEngine
 		while (true)
 		{
 			char LineHeader[128];
-			int32_t Result = fscanf(File, "%s", LineHeader);
+			const int32_t Result = fscanf(File, "%s", LineHeader);
 			if (Result == EOF)
 			{
 				break;
@@ -97,7 +93,7 @@ namespace ScarletEngine
 			{
 				String Vertex1, Vertex2, Vertex3;
 				uint32_t VertexIndex[3], UVIndex[3], NormalIndex[3];
-				uint32_t NumMatches = fscanf(File, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &VertexIndex[0], &UVIndex[0], &NormalIndex[0], &VertexIndex[1], &UVIndex[1], &NormalIndex[1], &VertexIndex[2], &UVIndex[2], &NormalIndex[2]);
+				const uint32_t NumMatches = fscanf(File, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &VertexIndex[0], &UVIndex[0], &NormalIndex[0], &VertexIndex[1], &UVIndex[1], &NormalIndex[1], &VertexIndex[2], &UVIndex[2], &NormalIndex[2]);
 				if (NumMatches != 9) 
 				{
 					SCAR_LOG(LogError, "Can't understand OBJ file, try re-exporting with different options %s", FilePath.c_str());

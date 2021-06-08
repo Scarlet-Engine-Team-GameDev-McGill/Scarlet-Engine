@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.h"
+#include "ITickable.h"
 #include "UIWindow.h"
 
 namespace ScarletEngine
@@ -13,6 +14,7 @@ namespace ScarletEngine
 		virtual void Tick(double DeltaTime) override;
 		virtual void DrawWindowContent() override;
 	private:
+		/** Number of samples for the frame time sliding window mean */
 		static const int FrameWindowSize = 50;
 		float FrameTimes[FrameWindowSize];
 

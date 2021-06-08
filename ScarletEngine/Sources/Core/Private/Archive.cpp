@@ -19,7 +19,6 @@ namespace ScarletEngine
 		, Pos(0)
 		, Mode(InMode)
 	{
-		ZoneScoped
 		if (!Filename.empty())
 		{
 			if (InMode == ArchiveMode::Read)
@@ -39,7 +38,6 @@ namespace ScarletEngine
 
 	void Archive::Close()
 	{
-		ZoneScoped
 		if (Mode == ArchiveMode::Write && !Filename.empty())
 		{
 			SaveToFile();
@@ -49,14 +47,13 @@ namespace ScarletEngine
 
 	bool Archive::SaveToFile(const char* OverrideFile)
 	{
-		ZoneScoped
 		if (Pos > 0)
 		{
 			// trunc to immediately remove the old file contents
 			std::ofstream File(OverrideFile != nullptr ? OverrideFile : Filename.c_str(), std::ios::binary | std::ios::trunc | std::ios::out);
 			if (File.is_open())
 			{
-				File.write((const char*)DataArray.data(), (std::streamsize)Pos);
+				File.write(reinterpret_cast<const char*>(DataArray.data()), static_cast<std::streamsize>(Pos));
 				File.close();
 				return true;
 			}

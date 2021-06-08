@@ -3,10 +3,11 @@ set(OpenGLRAL_PrivateDeps
 	"RAL"
 	"glfw"
 	"OpenGL::GL"
-	"glad")
+	"glad"
+	"Window")
 
 set(OpenGLRAL_PublicDeps
-	"")
+	"Engine")
 
 DECLARE_MODULE(
 	MODULE_NAME "OpenGLRAL" 

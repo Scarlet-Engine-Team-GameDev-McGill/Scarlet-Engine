@@ -5,6 +5,9 @@
 #include <fstream>
 #include <sstream>
 
+#include "AssetManager.h"
+#include "RAL.h"
+
 namespace ScarletEngine
 {
 	OpenGLFramebuffer::OpenGLFramebuffer(uint32_t InWidth, uint32_t InHeight, uint32_t InSamples)
@@ -18,7 +21,6 @@ namespace ScarletEngine
 
 	OpenGLFramebuffer::~OpenGLFramebuffer()
 	{
-		ZoneScoped
 		glDeleteFramebuffers(1, &FramebufferObject);
 		uint32_t Textures[] = { ColorAttachment, DepthAttachment };
 		glDeleteTextures(2, Textures);
@@ -26,7 +28,6 @@ namespace ScarletEngine
 
 	void OpenGLFramebuffer::RecreateResource()
 	{
-		ZoneScoped
 		if (FramebufferObject)
 		{
 			glDeleteFramebuffers(1, &FramebufferObject);
@@ -62,19 +63,23 @@ namespace ScarletEngine
 
 	void OpenGLFramebuffer::Bind() const
 	{
-		ZoneScoped
-		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferObject);
-		glViewport(0, 0, Width, Height);
+		RAL::Get().QueueCommand([this](RALCommandList&)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, FramebufferObject);
+			glViewport(0, 0, Width, Height);
+		}, "BindFramebuffer");
 	}
 
 	void OpenGLFramebuffer::Unbind() const
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		RAL::Get().QueueCommand([](RALCommandList&)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}, "UnbindFramebuffer");
 	}
 
 	void OpenGLFramebuffer::Resize(uint32_t NewWidth, uint32_t NewHeight)
 	{
-		ZoneScoped
 		Width = NewWidth;
 		Height = NewHeight;
 		
@@ -85,9 +90,8 @@ namespace ScarletEngine
 		: RALTexture2D(InAssetHandle)
 		, TextureObject(0)
 	{
-		ZoneScoped
 		check(!InAssetHandle.expired());
-		SharedPtr<TextureHandle> TexHandle = AssetHandle.lock();
+		const SharedPtr<TextureHandle> TexHandle = AssetHandle.lock();
 		check(TexHandle->PixelDataBuffer != nullptr);
 		
 		glGenTextures(1, &TextureObject);
@@ -103,19 +107,16 @@ namespace ScarletEngine
 
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
-		ZoneScoped
 		glDeleteTextures(1, &TextureObject);
 	}
 
 	void OpenGLTexture2D::Bind() const
 	{
-		ZoneScoped
 		glBindTexture(GL_TEXTURE_2D, TextureObject);
 	}
 
 	void OpenGLTexture2D::Unbind() const
 	{
-		ZoneScoped
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
@@ -123,13 +124,11 @@ namespace ScarletEngine
 		: RALGpuBuffer(InSize, InUsage)
 		, BufferObject(0)
 	{
-		ZoneScoped
 		glGenBuffers(1, &BufferObject);
 	}
 
 	void OpenGLGpuBuffer::UploadData(void* DataPtr, size_t InSize) const
 	{
-		ZoneScoped
 		check(InSize <= Size);
 		(void)InSize;
 		glBindBuffer(GL_ARRAY_BUFFER, BufferObject);
@@ -150,7 +149,6 @@ namespace ScarletEngine
 
 	void OpenGLGpuBuffer::Release()
 	{
-		ZoneScoped
 		glDeleteBuffers(1, &BufferObject);
 		BufferObject = 0;
 		Usage = RALBufferUsage::INVALID;
@@ -159,16 +157,15 @@ namespace ScarletEngine
 	OpenGLVertexArray::OpenGLVertexArray(const RALGpuBuffer* VB, const RALGpuBuffer* IB)
 		: RALVertexArray(VB, IB)
 	{
-		ZoneScoped
-		const OpenGLGpuBuffer* OpenGLVB = static_cast<const OpenGLGpuBuffer*>(VB);
-		const OpenGLGpuBuffer* OpenGLIB = static_cast<const OpenGLGpuBuffer*>(IB);
+		auto OpenGLVB = static_cast<const OpenGLGpuBuffer*>(VB);
+		auto OpenGLIB = static_cast<const OpenGLGpuBuffer*>(IB);
 
 		glGenVertexArrays(1, &VAObject);
 		glBindVertexArray(VAObject);
 		glBindBuffer(GL_ARRAY_BUFFER, OpenGLVB->BufferObject);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, OpenGLIB->BufferObject);
 
-		// #todo: support more complex vertex attributes
+		// #todo_rendering: support more complex vertex attributes
 		// for now the layout is:
 		// vec3 vertex_pos
 		// vec3 normals
@@ -187,27 +184,22 @@ namespace ScarletEngine
 
 	void OpenGLVertexArray::Bind() const
 	{
-		ZoneScoped
 		glBindVertexArray(VAObject);
 	}
 
 	void OpenGLVertexArray::Unbind() const
 	{
-		ZoneScoped
 		glBindVertexArray(0);
 	}
 
 	void OpenGLVertexArray::Release()
 	{
-		ZoneScoped
 		glDeleteVertexArrays(1, &VAObject);
 	}
 
 	static String GetShaderCode(const String& ShaderFilePath)
 	{
-		ZoneScoped
-		String ShaderCode;
-		std::ifstream ShaderFile(ShaderFilePath.c_str());
+		std::ifstream ShaderFile(AssetManager::ToFullPath(ShaderFilePath).c_str());
 		if (!ShaderFile.is_open())
 		{
 			SCAR_LOG(LogError, "Could not open shader file: %s", ShaderFilePath.c_str());
@@ -218,17 +210,14 @@ namespace ScarletEngine
 		ShaderStream << ShaderFile.rdbuf();
 		ShaderFile.close();
 
-		ShaderCode = String(ShaderStream.str().c_str());
-
-		return ShaderCode;
+		return String(ShaderStream.str().c_str());
 	}
 
 	OpenGLShader::OpenGLShader(RALShaderStage Stage, const String& ShaderPath)
 		: RALShader(Stage)
 		, ShaderObject(0)
 	{
-		ZoneScoped
-			switch (Stage)
+		switch (Stage)
 		{
 		case RALShaderStage::Vertex:
 			ShaderObject = glCreateShader(GL_VERTEX_SHADER);
@@ -244,18 +233,18 @@ namespace ScarletEngine
 			break;
 		}
 
-		String Code = GetShaderCode(ShaderPath);
+		const String Code = GetShaderCode(ShaderPath);
 		const char* CodePtr = Code.c_str();
 
-		glShaderSource(ShaderObject, 1, &CodePtr, NULL);
+		glShaderSource(ShaderObject, 1, &CodePtr, nullptr);
 		glCompileShader(ShaderObject);
 
 		int Success;
-		char InfoBuffer[512];
 		glGetShaderiv(ShaderObject, GL_COMPILE_STATUS, &Success);
 		if (!Success)
 		{
-			glGetShaderInfoLog(ShaderObject, 512, NULL, InfoBuffer);
+			char InfoBuffer[512];
+			glGetShaderInfoLog(ShaderObject, 512, nullptr, InfoBuffer);
 			SCAR_LOG(LogError, "%s", InfoBuffer);
 			check(false);
 		}
@@ -265,7 +254,6 @@ namespace ScarletEngine
 		: RALShaderProgram(InVertexShader, InPixelShader, InGeometryShader, InComputeShader)
 		, ProgramObject(0)
 	{
-		ZoneScoped
 		ProgramObject = glCreateProgram();
 		if (VertexShader != nullptr)
 		{
@@ -287,11 +275,11 @@ namespace ScarletEngine
 		glLinkProgram(ProgramObject);
 
 		int Success;
-		char InfoBuffer[512];
 		glGetProgramiv(ProgramObject, GL_LINK_STATUS, &Success);
 		if (!Success)
 		{
-			glGetProgramInfoLog(ProgramObject, 512, NULL, InfoBuffer);
+			char InfoBuffer[512];
+			glGetProgramInfoLog(ProgramObject, 512, nullptr, InfoBuffer);
 			SCAR_LOG(LogError, "%s", InfoBuffer);
 			check(false);
 		}
@@ -299,26 +287,33 @@ namespace ScarletEngine
 
 	void OpenGLShaderProgram::Bind() const
 	{
-		ZoneScoped
-		glUseProgram(ProgramObject);
+		RAL::Get().QueueCommand([this](RALCommandList&)
+		{
+			glUseProgram(ProgramObject);
+		}, "BindShaderProgram");
 	}
 
 	void OpenGLShaderProgram::Unbind() const
 	{
-		ZoneScoped
-
-		glUseProgram(0);
+		RAL::Get().QueueCommand([](RALCommandList&)
+		{
+			glUseProgram(0);
+		}, "UnbindShaderProgram");
 	}
 
 	void OpenGLShaderProgram::SetUniformMat4(const glm::mat4& Mat, const char* Binding) const
 	{
-		ZoneScoped
-		glUniformMatrix4fv(glGetUniformLocation(ProgramObject, Binding), 1, GL_FALSE, &Mat[0][0]);
+		RAL::Get().QueueCommand([this, Binding, Mat](RALCommandList&)
+		{
+			glUniformMatrix4fv(glGetUniformLocation(ProgramObject, Binding), 1, GL_FALSE, &Mat[0][0]);
+		}, "SetUniformMat4");
 	}
 
 	void OpenGLShaderProgram::SetUniformVec3(const glm::vec3& Vec, const char* Binding) const
 	{
-		ZoneScoped
-		glUniform3fv(glGetUniformLocation(ProgramObject, Binding), 1, &Vec.x);
+		RAL::Get().QueueCommand([this, Binding, Vec](RALCommandList&)
+		{
+			glUniform3fv(glGetUniformLocation(ProgramObject, Binding), 1, &Vec.x);
+		}, "SetUniformVec3");
 	}
 }

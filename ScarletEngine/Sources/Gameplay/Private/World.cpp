@@ -1,32 +1,20 @@
 #include "World.h"
-#include "StaticMeshComponent.h"
 
 namespace ScarletEngine
 {
 	World::World()
-		: LastDeltaTime()
 	{
-		ZoneScoped
 	}
 
-	void World::Initialize()
+	void World::Tick(double)
 	{
 		ZoneScoped
-
-		SceneProxy* ProxyPtr = &RenderSceneProxy;
-		AddSystem<const Transform, const StaticMeshComponent>("Draw Static Meshes")
-			.Each([ProxyPtr](const EID, const Transform& Trans, const StaticMeshComponent& SMC)
-				{
-					ProxyPtr->DrawSMC(Trans, SMC);
-				});
+		SystemScheduler::Get().RunUpdate(&Reg);
 	}
 
-	void World::Tick(double DeltaTime)
+	void World::FixedTick(double)
 	{
 		ZoneScoped
-		LastDeltaTime = DeltaTime;
-		RenderSceneProxy.Reset();
-		RunSystems();
+		SystemScheduler::Get().RunFixedUpdate(&Reg);
 	}
-
 }

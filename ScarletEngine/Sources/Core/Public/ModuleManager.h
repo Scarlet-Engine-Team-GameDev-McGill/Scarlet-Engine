@@ -1,58 +1,66 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IModule.h"
 
 namespace ScarletEngine
 {
-	class IModule;
-
 	class ModuleManager
 	{
 	public:
-		static void RegisterModule(IModule* Module);
-
+		/** Registers a new module of `ModuleType` */
 		template <typename ModuleType>
-		NODISCARD static ModuleType* GetModule(const String& ModuleName)
+		static void RegisterModule()
 		{
-			return (Modules.find(ModuleName) != Modules.end()) ? static_cast<ModuleType*>(Modules.at(ModuleName)) : nullptr;
+			ModuleManager& Instance = GetInstance();
+			check(!Instance.bStarted);
+
+			const SharedPtr<IModule> Module(ScarNew(ModuleType));
+			Instance.Modules.push_back(Module);
 		}
 
+		/** Returns a pointer to the specified module, casted to type */
 		template <typename ModuleType>
-		NODISCARD static ModuleType* GetModuleChecked(const String& ModuleName)
+		NODISCARD static ModuleType* GetModule(StringView ModuleName)
 		{
-			ModuleType* Ptr = GetModule<ModuleType>(ModuleName);
+			ModuleManager& Instance = GetInstance();
+			auto It = std::find_if(Instance.Modules.begin(), Instance.Modules.end(), [ModuleName](const SharedPtr<IModule>& PotentialMatch)
+			{
+				return StringView(PotentialMatch->GetModuleName()) == ModuleName;
+			});
+			return (It != Instance.Modules.end()) ? static_cast<ModuleType*>(It->get()) : nullptr;
+		}
+
+		/** Returns a pointer to the specified module, checked to ensure it exists */
+		template <typename ModuleType>
+		NODISCARD static ModuleType* GetModuleChecked(StringView ModuleName)
+		{
+			ModuleManager& Instance = GetInstance();
+			ModuleType* Ptr = Instance.GetModule<ModuleType>(ModuleName);
 			check(Ptr != nullptr);
 			return Ptr;
 		}
 
 		/** Startup all modules */
-		static void Startup(); 
+		void Startup();
 		/** Shutdown all modules */
-		static void Shutdown();
+		void Shutdown();
 
 		/** Update all modules */
-		static void PreUpdate();
-		static void Update();
-		static void PostUpdate();
-
-		static String GetDependencyGraphViz();
+		void PreUpdate();
+		void Update();
+		void PostUpdate();
+		
+		static ModuleManager& GetInstance() { static ModuleManager Instance; return Instance; }
 	private:
 		/** Extract pointers to module dependencies based on module dependency names */
-		static void FillDependencyMap();
-		static void InitializeModuleAndDependencies(IModule* Module);
+		void ResolveModuleOrder();
 	private:
-		/** List of modules to add. 
-			Since we cannot call virtual functions from constructor, 
-			we must store them here until we are ready to initialize */
-		static Array<IModule*> ModulesToAdd;
-		static UnorderedMap<String, IModule*> Modules;
-		// In theory this doesn't need to be a class member but we will keep in here for debugging purposes
-		static UnorderedMap<IModule*, Set<IModule*>> ModuleDepMap;
-		static bool bStarted;
+		Array<SharedPtr<IModule>> Modules;
+
+		bool bStarted = false;
 	};
 }
-
-#define DECLARE_MODULE(ModuleType) ModuleType _##ModuleType
 
 #define IMPLEMENT_MODULE(ModuleType, ...) \
 	virtual Array<const char*> GetDependencies() const override { return {#__VA_ARGS__};} \

@@ -12,11 +12,16 @@ namespace ScarletEngine
 	public:
 		EditorViewportPanel(const SharedPtr<World>& InWorld);
 		virtual void Construct() override;
+		virtual void Destroy() override;
 		virtual void Tick(double DeltaTime) override;
 		virtual void DrawWindowContent() override;
 
 		virtual void PushWindowFlags() override;
 		virtual void PopWindowFlags() override;
+
+		void OnKeyDown(EKeyCode KeyCode);
+		void OnMouseButtonDown(EMouseCode MouseCode);
+		void OnMouseButtonUp(EMouseCode MouseCode);
 	private:
 		static uint32_t NextViewportID;
 
@@ -29,5 +34,6 @@ namespace ScarletEngine
 		glm::vec2 PanelSize;
 		bool bViewportIsFocused;
 		bool bViewportIsHovered;
+		bool bShowGrid;
 	};
 }

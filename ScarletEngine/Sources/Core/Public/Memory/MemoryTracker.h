@@ -13,27 +13,14 @@ namespace ScarletEngine
 	class MemoryTracker
 	{
 	public:
+		/** Mark an allocation event */
 		void MarkAlloc(void* Ptr, size_t Size)
 		{
 			Allocs[Ptr] = AllocationInfo{ Size };
 			MemUsed += Size;
 		}
 
-		void RemoveAlloc(void* Ptr, size_t Size)
-		{
-			ZoneScoped
-			if (Allocs.find(Ptr) != Allocs.end())
-			{
-				Allocs.erase(Ptr);
-				MemUsed -= Size;
-			}
-			else
-			{
-				// Attempting to delete a pointer which is not tracked by the application
-				check(false);
-			}
-		}
-
+		/** Remove a tracked allocation */
 		void RemoveAlloc(void* Ptr)
 		{
 			if (auto It = Allocs.find(Ptr); It != Allocs.end())
@@ -48,13 +35,15 @@ namespace ScarletEngine
 			}
 		}
 
+		/** Returns the total number of active allocations */
 		size_t GetNumAllocs() const { return Allocs.size(); }
+		/** Returns the amount of memory currently used in bytes */
 		size_t GetMemUsed() const { return MemUsed; }
 
 		static MemoryTracker& Get() { static MemoryTracker Instance; return Instance; }
 	private:
-		// Using a regular std::unordered map to prevent tracking memory used by this
+		// We are using a regular STL unordered map to prevent self-referencing since all Scarlet containers are tracked by default.
 		std::unordered_map<void*, AllocationInfo> Allocs;
-		size_t MemUsed;
+		size_t MemUsed = 0;
 	};
 }

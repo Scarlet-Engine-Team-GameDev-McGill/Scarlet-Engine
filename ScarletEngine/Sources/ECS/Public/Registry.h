@@ -2,175 +2,89 @@
 
 #include "CoreMinimal.h"
 #include "TypeInfo.h"
-#include "Entity.h"
+#include "ComponentContainer.h"
 
 namespace ScarletEngine
 {
+	template <typename ...Components>
+	using ProxyType = std::tuple<EID, std::add_pointer_t<Components>...>;
+	
+	/** Manages entity-component relationships. */
 	class Registry
 	{
-		struct IComponentContainer
-		{
-			virtual ~IComponentContainer() {}
-
-			virtual bool Has(EID EntityID) const = 0;
-			virtual bool Remove(EID EntityID) = 0;
-			virtual void Sort() = 0;
-		};
-
-		template <typename T>
-		struct ComponentContainer : public IComponentContainer
-		{
-		public:
-			T* Add(EID EntityID)
-			{
-				ZoneScoped
-				const size_t Index = Components.size();
-				EntityMap[EntityID] = Index;
-				return &Components.emplace_back(T());
-			}
-
-			T* Get(EID EntityID)
-			{
-				ZoneScoped
-				if (Has(EntityID))
-				{
-					return &Components[EntityMap.at(EntityID)];
-				}
-				return nullptr;
-			}
-
-			virtual bool Has(EID EntityID) const override
-			{
-				ZoneScoped
-				return EntityMap.find(EntityID) != EntityMap.end();
-			}
-
-			virtual bool Remove(EID EntityID) override
-			{
-				ZoneScoped
-				const size_t IndexToRemove = EntityMap.at(EntityID);
-				const T* BackElement = &Components.back();
-				const EID BackOwner = FindOwner(BackElement);
-
-				if (BackOwner == INVALID_EID)
-				{
-					return false;
-				}
-
-				Components[IndexToRemove] = *BackElement;
-				EntityMap[BackOwner] = IndexToRemove;
-				Components.pop_back();
-				EntityMap.erase(EntityID);
-
-				return true;
-			}
-
-			T* Attach(EID EntityID, const T& Component)
-			{
-				ZoneScoped
-				if (!Has(EntityID))
-				{
-					const size_t Index = Components.size();
-					EntityMap[EntityID] = Index;
-					return &Components.emplace_back(Component);
-				}
-
-				const size_t Index = EntityMap.at(EntityID);
-				Components[Index] = Component;
-				return &Components.at(Index);
-			}
-
-			virtual void Sort() override
-			{
-				ZoneScoped
-				Array<size_t> Ids(EntityMap.size());
-
-				size_t NextIndex = 0;
-				for (auto& Pair : EntityMap)
-				{
-					Ids[Pair.second] = NextIndex;
-					Pair.second = NextIndex;
-					NextIndex++;
-				}
-
-				for (size_t i = 0; i < Ids.size(); ++i)
-				{
-					while (Ids[i] != i)
-					{
-						const size_t IndexToSwap = Ids[i];
-						std::swap(Components[i], Components[IndexToSwap]);
-						std::swap(Ids[i], Ids[IndexToSwap]);
-					}
-				}
-			}
-		private:
-			/** Warning: Potentially slow! */
-			EID FindOwner(const T* Component) const
-			{
-				ZoneScoped
-				for (const auto& Pair : EntityMap)
-				{
-					if (&Components[Pair.second] == Component) return Pair.first;
-				}
-				return INVALID_EID;
-			}
-		private:
-			/** Maps EID to index in component map */
-			Map<EID, size_t> EntityMap;
-			/** Stores components */
-			Array<T> Components;
-		};
 	public:
 		/* Entity Interface */
 
-		template <typename ...Ts>
-		std::tuple<std::add_pointer_t<Ts>...> CreateEntity(Entity& Ent)
+		/**
+		 * Create a new entity.
+		 * Optionally creates a set of components along with the entity which are automatically attached to it.
+		 *
+		 * @returns a std::tuple with the entity id followed by a pointer to each of its components.
+		 */
+		template <typename ...ComponentTypes>
+		ProxyType<ComponentTypes...> CreateEntity()
 		{
-			ZoneScoped
-			Ent.ID = NextAvailableEID++;
-			return std::make_tuple(AddComponent<Ts>(Ent.ID)...);
+			const EID EntityID = NextAvailableEID++;
+			Entities.push_back(EntityID);
+			
+			(MarkComponentContainerDirty<ComponentTypes>(), ...);
+			
+			return std::make_tuple(EntityID, AddComponent<ComponentTypes>(EntityID)...);
 		}
 	public:
 		/* Component Interface */
 
-		template <typename T>
-		T* AddComponent(EID EntityID)
+		/** Add a component of the templated type to an entity */
+		template <typename ComponentType>
+		ComponentType* AddComponent(EID EntityID)
 		{
-			ZoneScoped
-			auto Container = GetOrCreateComponentContainer<T>();
+			const auto Container = GetOrCreateComponentContainer<ComponentType>();
 			check(Container);
-			check(!Container->Has(EntityID));
+
+			MarkComponentContainerDirty<ComponentType>();
 
 			return Container->Add(EntityID);
 		}
 
-		template <typename T>
+		/**
+		 * Removes a component of the templated type from an entity if it exists.
+		 * @returns true if operation was successful
+		 */
+		template <typename ComponentType>
 		bool RemoveComponent(EID EntityID) const
 		{
-			ZoneScoped
-			if (auto Container = GetComponentContainer<T>())
+			if (const auto Container = GetComponentContainer<ComponentType>())
 			{
+				MarkComponentContainerDirty<ComponentType>();
 				return Container->Remove(EntityID);
 			}
 			return false;
 		}
 
-		template <typename T>
-		T* AttachComponent(EID EntityID, const T& Component) const
+		/**
+		 * Attach an existing component to an entity.
+		 * @note: The old component will be invalid and changes to it will not be reflected on the entity.
+		 * @returns the new pointer for that component.
+		 */
+		template <typename ComponentType>
+		ComponentType* AttachComponent(EID EntityID, const ComponentType& Component)
 		{
-			ZoneScoped
-			if (auto Container = GetComponentContainer<T>())
+			const auto Container = GetOrCreateComponentContainer<ComponentType>();
+			check(Container);
+
+			if (!Container->Has(EntityID))
 			{
-				return Container->Attach(EntityID, Component);
+				MarkComponentContainerDirty<ComponentType>();
 			}
-			return nullptr;
+			
+			return Container->Attach(EntityID, Component);
 		}
 
-		template <typename T>
-		T* GetComponent(EID EntityID) const
+		/** Get a pointer to the component of the templated type associated with the given entity */
+		template <typename ComponentType>
+		ComponentType* GetComponent(EID EntityID) const
 		{
-			ZoneScoped
-			if (auto Container = GetComponentContainer<T>())
+			if (const auto Container = GetComponentContainer<ComponentType>())
 			{
 				return Container->Get(EntityID);
 			}
@@ -178,53 +92,153 @@ namespace ScarletEngine
 			return nullptr;
 		}
 
-		template <typename T>
+		/** @returns true if the entity has a component of the templated type */
+		template <typename ComponentType>
 		bool HasComponent(EID EntityID) const
 		{
-			ZoneScoped
-			if (auto Container = GetComponentContainer<T>())
+			if (const auto Container = GetComponentContainer<ComponentType>())
 			{
 				return Container->Has(EntityID);
 			}
 			return false;
 		}
 
+		/** Destroy an entity along with all its components */
 		void DestroyEntity(EID EntityID);
 
+		/** Sort all the component containers */
 		void SortAll()
 		{
 			ZoneScoped
-			for (auto& Container : ComponentContainers)
+			for (const auto& [_, Container] : ComponentContainers)
 			{
-				Container.second->Sort();
+				Container->Sort();
 			}
 		}
-	private:
-		template <typename T>
-		ComponentContainer<T>* GetComponentContainer() const
+
+		/** @returns a pointer to the singleton instance of the templated component type */
+		template <typename ComponentType>
+		ComponentType* GetSingleton() const
 		{
-			ZoneScoped
-			if (ComponentContainers.find(ComponentTypeID<T>::Value()) != ComponentContainers.end())
+			// HACK: Sort of a hacky way to implement singleton components but very performant since it doesn't use any hashmaps
+			static ComponentType Instance;
+			return &Instance;
+		}
+
+		/**
+		 * Clears the registry, deleting all entities and components.
+		 * @note does not clear the values of any singleton components as these are static.
+		 */
+		void Clear()
+		{
+			ComponentContainers.clear();
+			Entities.clear();
+			NextAvailableEID = 1;
+		}
+
+		/** @returns an array of entity proxies for the templated component types */
+		template <typename ...ComponentTypes>
+		const Array<ProxyType<ComponentTypes...>>& GetProxies() const
+		{
+			static_assert(sizeof...(ComponentTypes) > 0, "Missing template argument list");
+
+			static Array<ProxyType<ComponentTypes...>> EntityProxies;
+
+			const bool bAllClean = (IsComponentContainerClean<std::remove_cv_t<ComponentTypes>>() && ...);
+
+			if (bAllClean)
 			{
-				return static_cast<ComponentContainer<T>*>(ComponentContainers.at(ComponentTypeID<T>::Value()).get());
+				return EntityProxies;
+			}
+
+			// Cache pointers to all component containers in a tuple to access later
+			const auto Containers = std::make_tuple(GetComponentContainer<std::remove_cv_t<ComponentTypes>>()...);
+			const bool bAllContainersExist = ((std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers) != nullptr) && ...);
+
+			if (bAllContainersExist)
+			{
+				const size_t Count = std::min({ std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers)->Count()... });
+				if (Count > 0)
+				{
+					EntityProxies.clear();
+					EntityProxies.reserve(Count);
+					for (const EID Entity : Entities)
+					{
+						const auto Proxy = std::make_tuple(Entity, std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers)->Get(Entity)...);
+						if (((std::get<std::remove_cv_t<ComponentTypes>*>(Proxy) != nullptr) && ...))
+						{
+							EntityProxies.emplace_back(Proxy);
+						}
+					}
+				}
+				(DirtyComponentContainers.erase(ComponentTypeID<ComponentTypes>::Value()), ...);
+			}
+
+			return EntityProxies;
+		}
+
+		/** @returns an entity proxies for the templated component types if possible */
+		template <typename ...ComponentTypes>
+		std::optional<ProxyType<ComponentTypes...>> GetProxy(EID EntityID) const
+		{
+			static_assert(sizeof...(ComponentTypes) > 0, "Missing template argument list");
+
+			const auto Containers = std::make_tuple(GetComponentContainer<std::remove_cv_t<ComponentTypes>>()...);
+			const bool bAllContainersExist = (std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers) && ...);
+
+			if (bAllContainersExist)
+			{
+				const auto Proxy = std::make_tuple(EntityID, std::get<ComponentContainer<std::remove_cv_t<ComponentTypes>>*>(Containers)->Get(EntityID)...);
+				// if any one of the components is nullptr, zero out the proxy
+				if (((std::get<std::remove_cv_t<ComponentTypes>*>(Proxy) != nullptr) && ...))
+				{
+					return Proxy;
+				}
+			}
+			return std::optional<ProxyType<ComponentTypes...>>{};
+		}
+
+		/** Mark a component container as dirty such that any proxies that depend on it will be reconstructed next time they are requested. */
+		template <typename ComponentType>
+		void MarkComponentContainerDirty() const
+		{
+			DirtyComponentContainers.emplace(ComponentTypeID<std::remove_cv_t<ComponentType>>::Value());
+		}
+
+		template <typename ComponentType>
+		bool IsComponentContainerClean() const
+		{
+			return !DirtyComponentContainers.contains(ComponentTypeID<std::remove_cv_t<ComponentType>>::Value());
+		}
+		
+		const Array<EID>& GetEntities() const { return Entities; }
+	private:
+		template <typename ComponentType>
+		ComponentContainer<ComponentType>* GetComponentContainer() const
+		{
+			if (const auto It = ComponentContainers.find(ComponentTypeID<ComponentType>::Value()); It != ComponentContainers.end())
+			{
+				return static_cast<ComponentContainer<ComponentType>*>(It->second.get());
 			}
 			return nullptr;
 		}
 
-		template <typename T>
-		ComponentContainer<T>* GetOrCreateComponentContainer()
+		template <typename ComponentType>
+		ComponentContainer<ComponentType>* GetOrCreateComponentContainer()
 		{
-			ZoneScoped
-			ComponentContainer<T>* Container = GetComponentContainer<T>();
+			UniquePtr<IComponentContainer>& Container = ComponentContainers[ComponentTypeID<ComponentType>::Value()];
 			if (!Container)
 			{
-				Container = GlobalAllocator<ComponentContainer<T>>::New();
-				ComponentContainers[ComponentTypeID<T>::Value()] = UniquePtr<IComponentContainer>(Container);
+				Container = UniquePtr<IComponentContainer>(ScarNew(ComponentContainer<ComponentType>));
+				MarkComponentContainerDirty<ComponentType>();
 			}
-			return Container;
+			return static_cast<ComponentContainer<ComponentType>*>(Container.get());
 		}
+
 	private:
 		EID NextAvailableEID = 1;
 		UnorderedMap<CTID, UniquePtr<IComponentContainer>> ComponentContainers;
+		mutable UnorderedSet<CTID> DirtyComponentContainers;
+		Array<EID> Entities;
 	};
 }

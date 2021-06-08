@@ -395,3 +395,6 @@ FodyWeavers.xsd
 out/
 build/
 CMakeSettings.json
+
+# VSCode config files
+.vscode

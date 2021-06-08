@@ -3,9 +3,9 @@
 #include "CoreUIStyle.h"
 #include "UIStyle.h"
 #include "RAL.h"
-#include "RenderModule.h"
-
-#include <imgui.h>
+#include "Window.h"
+#include "Engine.h"
+#include "imgui.h"
 
 #ifdef RAL_USE_OPENGL
 #include <GLFW/glfw3.h>
@@ -45,12 +45,12 @@ namespace ScarletEngine
 		Config.OversampleH = 4;
 		Config.OversampleV = 4;
 		Config.GlyphOffset.y -= 1.0f;
-		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/content/OpenSans-Regular.ttf", 18.0f, &Config);
+		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/Content/OpenSans-Regular.ttf", 18.0f, &Config);
 
 		Config.MergeMode = true;
 		Config.GlyphOffset.y -= -4.f;
 		const ImWchar MDIconRanges[] = { ICON_MIN_MD, ICON_MAX_MD, 0 };
-		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/content/MaterialIcons-Regular.ttf", 18.0f, &Config, MDIconRanges);
+		IO.Fonts->AddFontFromFileTTF("../ScarletEngine/Content/MaterialIcons-Regular.ttf", 18.0f, &Config, MDIconRanges);
 		IO.Fonts->Build();
 
 		IUIStyle* CoreStyle = UIStyleRegistry::Get().GetStyle("Core");
@@ -109,9 +109,12 @@ namespace ScarletEngine
 		Style.WindowMenuButtonPosition = ImGuiDir_Right;
 		Style.TabRounding = 0.f;
 		Style.FramePadding.x = 8.f;
+		Style.CellPadding.x = 8.f;
 
 #ifdef RAL_USE_OPENGL
-		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)RAL::Get().GetWindowPtr(), true);
+		ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
+		check(AppWindow);
+		ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(AppWindow->GetWindowHandle()), true);
 		ImGui_ImplOpenGL3_Init("#version 450");
 #elif RAL_USE_VULKAN
 		// #todo: implement vulkan setup for UI
@@ -120,6 +123,7 @@ namespace ScarletEngine
 
 	void UIModule::Shutdown()
 	{
+		ZoneScoped
 		if (ActiveLayer != nullptr)
 		{
 			ActiveLayer->Terminate();
@@ -137,6 +141,7 @@ namespace ScarletEngine
 
 	void UIModule::PreUpdate()
 	{
+		ZoneScoped
 #ifdef RAL_USE_OPENGL
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -159,20 +164,13 @@ namespace ScarletEngine
 			ActiveLayer->DrawWidgets();
 		}
 
-		ImGui::Render();
-#ifdef RAL_USE_OPENGL
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#endif
-
-		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		RAL::Get().QueueCommand([](RALCommandList&)
 		{
-			ZoneScopedN("Render ImGUI::Viewports")
-			RenderModule* Renderer = ModuleManager::GetModuleChecked<RenderModule>("RenderModule");
-			void* BackupCurrentContext = Renderer->GetWindowPtr();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			Renderer->SetWindowCtx(BackupCurrentContext);
-		}
+			ImGui::Render();
+#ifdef RAL_USE_OPENGL
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
+		},"ImGuiRender");
 	}
 
 	void UIModule::SetActiveLayer(const SharedPtr<UILayer>& InLayer)
@@ -180,6 +178,4 @@ namespace ScarletEngine
 		ActiveLayer = InLayer;
 		ActiveLayer->Initialize();
 	}
-
-	DECLARE_MODULE(UIModule);
 }

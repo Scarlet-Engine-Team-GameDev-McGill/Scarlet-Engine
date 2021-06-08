@@ -4,6 +4,11 @@
 #include "TypeInfo.h"
 #include "Registry.h"
 
+template <class T, class... U>
+struct Contains : std::disjunction<std::is_same<T, U>...>{};
+template <class... Traits>
+constexpr bool Contains_V = Contains<Traits...>::value;
+
 namespace ScarletEngine
 {
 	class Registry;
@@ -11,44 +16,80 @@ namespace ScarletEngine
 	class ISystem
 	{
 	public:
-		ISystem(Registry* InReg, const String& InName)
-			: Reg(InReg)
-			, Name(InName) 
-		{}
-
-		virtual void Run(EID EntityID) const = 0;
 		virtual ~ISystem() {}
 
-		Registry* Reg;
-		String Name;
+		virtual void Update() const {}
+		virtual void FixedUpdate() const {}
+		// #todo_ecs: make into static rather than virtual?
+		virtual bool IsGameplayOnly() const { return false; }
+	protected:
+		template <typename ...Components>
+		const Array<ProxyType<Components...>>& GetEntities() const
+		{
+			return Reg->GetProxies<Components...>();
+		}
+		
+		template <typename ...Components>
+		std::optional<ProxyType<Components...>> GetEntity(EID EntityID) const
+		{
+			return Reg->GetProxy<Components...>(EntityID);
+		}
+
+		template <typename SingletonType>
+        SingletonType* GetSingleton() const
+		{
+			return Reg->GetSingleton<std::remove_cv_t<SingletonType>>();
+		}
+
+		const String Name;
+	private:
+		friend class SystemScheduler;
+
+		Registry* Reg = nullptr;
 	};
 
 	template <typename... ComponentTypes>
 	class System : public ISystem
 	{
 	public:
-		using ForEachFunctionType = std::function<void(EID EntityID, std::add_lvalue_reference_t<ComponentTypes>...)>;
-
-		System(Registry* InReg, const String& InName)
-			: ISystem(InReg, InName)
-			, ForEach()
-		{}
-
-		virtual void Run(EID EntityID) const override
+		/** Get the entity proxies matching this systems signature */
+		template <typename ...Components>
+		Array<ProxyType<Components...>> GetEntities() const
 		{
-			ZoneScoped
-			// If our entity has the specified components
-			if((Reg->HasComponent<std::remove_cv_t<ComponentTypes>>(EntityID) && ...))
-			{
-				ForEach(EntityID, *Reg->GetComponent<std::remove_cv_t<ComponentTypes>>(EntityID)...);
-			}
+			static_assert(std::conjunction_v<Contains<Components, ComponentTypes...>...>,
+				"Trying to get components which are not marked in the system's signature!");
+
+			// Create an array of std::tuples of references to components
+			// could probably cache some of this work
+			return ISystem::GetEntities<Components...>();
 		}
 
-		inline void Each(const ForEachFunctionType& InForEach)
+		/** Get the entity proxy that matches this systems signature for the specified entity if possible */
+		template <typename ...Components>
+		std::optional<ProxyType<Components...>> GetEntity(EID EntityID) const
 		{
-			ForEach = InForEach;
+			static_assert(std::conjunction_v<Contains<Components, ComponentTypes...>...>,
+				"Trying to get components which are not marked in the system's signature!");
+
+			return ISystem::GetEntity<Components...>(EntityID);
 		}
-	
-		ForEachFunctionType ForEach;
+
+		/** Get the entity proxy that matches this systems signature for the specified entity. */
+		template <typename ...Components>
+		ProxyType<Components...> GetEntityChecked(EID EntityID) const
+		{
+			const std::optional<ProxyType<Components...>> OptProxy = GetEntity<Components...>(EntityID);
+			check(OptProxy.has_value());
+			return OptProxy.value();
+		}
+
+		/** Returns a pointer to the singleton component of the templated type */
+		template <typename SingletonType>
+		SingletonType* GetSingleton() const
+		{
+			static_assert(Contains_V<SingletonType, ComponentTypes...>,
+				"Trying to get singleton which is not marked in the system's signature!");
+			return ISystem::GetSingleton<SingletonType>();
+		}
 	};
 }

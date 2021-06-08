@@ -2,7 +2,11 @@
 
 namespace ScarletEngine
 {
-	/** Base class for all tickable objects */
+	/** 
+	 * Base class for all tickable objects.
+	 * When a tickable object is created, it is automatically tracked by the engine
+	 * and ticked on every frame.
+	 */
 	class ITickable
 	{
 	public:
@@ -10,11 +14,18 @@ namespace ScarletEngine
 		ITickable();
 
 		/** Removes the object from the engine tickable list */
-		~ITickable();
+		virtual ~ITickable();
 
-		virtual void Tick(double DeltaTime) = 0;
+		/** Called each frame by the Engine with the delta time since the last Tick. */
+		virtual void Tick(double /* DeltaTime */) {}
 
-		/** Override if object wants a fixed timestep rather than variable */
+		/** Called at a fixed-interval with a fixed timestep. */
+		virtual void FixedTick(double /* DeltaTime */) {}
+
+		/** Override if object wants to tick on the variable timestep update. */
+		virtual bool WantsVariableTimestep() const { return true; }
+
+		/** Override if object wants to tick on the fixed timestep update. */
 		virtual bool WantsFixedTimestep() const { return false; }
 	};
 }

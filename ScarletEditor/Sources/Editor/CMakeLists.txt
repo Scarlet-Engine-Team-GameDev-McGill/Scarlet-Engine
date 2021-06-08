@@ -1,13 +1,16 @@
 set(Editor_PrivateDeps
 	"Core"
 	"UI"
-	"SceneGraph"
+	"SceneHierarchy"
 	"OutputLog"
-	"PropertyEditor")
+	"PropertyEditor"
+	"AssetView"
+	"ImGuizmo")
 
 set(Editor_PublicDeps
 	"Gameplay"
-	"ECS")
+	"ECS"
+	"Engine")
 
 DECLARE_EDITOR_MODULE(
 	MODULE_NAME "Editor" 

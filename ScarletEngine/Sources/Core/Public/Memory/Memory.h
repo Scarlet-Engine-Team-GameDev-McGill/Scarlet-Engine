@@ -8,6 +8,33 @@ namespace ScarletEngine
 
 	void ScarFree(void* Ptr);
 
+	template <typename T, typename ... Args>
+	NODISCARD inline T* _ScarNew(Args&&... args)
+	{
+		T* Ptr = new T(std::forward<Args>(args)...);
+		check(Ptr != nullptr);
+		MemoryTracker::Get().MarkAlloc(Ptr, sizeof(T));
+		TracyAlloc(Ptr, sizeof(T));
+		return Ptr;
+	}
+
+	template <typename T>
+	inline void _ScarDelete(T* Ptr)
+	{
+		check(Ptr != nullptr);
+		MemoryTracker::Get().RemoveAlloc(Ptr);
+		TracyFree(Ptr);
+		delete Ptr;
+	}
+}
+
+/** Allocates a new object on the heap */
+#define ScarNew(TypeName, ...) ScarletEngine::_ScarNew<TypeName>(__VA_ARGS__)
+/** Deletes a heap-allocated object */
+#define ScarDelete(Ptr) ScarletEngine::_ScarDelete(Ptr)
+
+namespace ScarletEngine
+{
 	template <class T>
 	struct GlobalAllocator
 	{
@@ -34,24 +61,6 @@ namespace ScarletEngine
 			ScarFree(Ptr);
 		}
 
-		template <typename... Args>
-		NODISCARD static inline T* New(Args&&... args)
-		{
-			T* Ptr = new T(std::forward<Args>(args)...);
-			check(Ptr != nullptr);
-			MemoryTracker::Get().MarkAlloc(Ptr, sizeof(T));
-			TracyAlloc(Ptr, sizeof(T));
-			return Ptr;
-		}
-
-		static inline void Free(T* Ptr)
-		{
-			check (Ptr != nullptr)
-			MemoryTracker::Get().RemoveAlloc(Ptr, sizeof(T));
-			TracyFree(Ptr);
-			delete Ptr;
-		}
-
 		inline bool operator==(const GlobalAllocator&) const{ return true; }
 		inline bool operator==(GlobalAllocator&) const { return true; }
 
@@ -59,10 +68,7 @@ namespace ScarletEngine
 		{
 			void operator()(T* Ptr)
 			{
-				check(Ptr != nullptr);
-				MemoryTracker::Get().RemoveAlloc(Ptr, sizeof(T));
-				TracyFree(Ptr);
-				delete Ptr;
+				ScarDelete(Ptr);
 			}
 		};
 	};
@@ -76,15 +82,17 @@ namespace ScarletEngine
 	template <typename T>
 	using WeakPtr = std::weak_ptr<T>;
 
+	/** Construct a shared pointer of type T */
 	template <typename T, typename... Args>
 	NODISCARD SharedPtr<T> MakeShared(Args&&... args)
 	{
-		return SharedPtr<T>(GlobalAllocator<T>::New(std::forward<Args>(args)...), typename GlobalAllocator<T>::Delete());
+		return SharedPtr<T>(ScarNew(T, std::forward<Args>(args)...), typename GlobalAllocator<T>::Delete());
 	}
 
+	/** Construct a unique pointer of type T */
 	template <typename T, typename... Args>
 	NODISCARD UniquePtr<T> MakeUnique(Args&&... args)
 	{
-		return UniquePtr<T>(GlobalAllocator<T>::New(std::forward<Args>(args)...));
+		return UniquePtr<T>(ScarNew(T, std::forward<Args>(args)...));
 	}
 }

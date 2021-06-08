@@ -5,20 +5,26 @@
 
 namespace ScarletEngine
 {
+	/** Abstract interface which handles all file-based assets. */
 	class IAssetHandle
 	{
 	public:
 		virtual ~IAssetHandle();
 
+		/** The type of the asset */
 		AssetType Type;
+		/** The path of the asset relative to the engine content directory */
 		String FilePath;
-		std::string_view Leafname;
-		std::string_view Extension;
+		/** the leaf name of the asset file */
+		StringView Leafname;
+		/** The file extension of the asset */
+		StringView Extension;
 	protected:
 		// Constructor is protected to prevent instantiation of this abstract class
 		IAssetHandle(AssetType InType, const String& InFilePath);
 	};
 
+	/** Represents a texture asset file */
 	class TextureHandle final : public IAssetHandle
 	{
 	public:
@@ -32,7 +38,7 @@ namespace ScarletEngine
 		uint8_t Channels;
 	};
 
-	// #todo: move this somewhere else
+	// #todo_rendering: move this somewhere else
 	struct Vertex
 	{
 		glm::vec3 VertexPos;
@@ -40,6 +46,7 @@ namespace ScarletEngine
 		glm::vec2 UV;
 	};
 
+	/** Represents a static mesh asset file */
 	class StaticMeshHandle final : public IAssetHandle
 	{
 	public:

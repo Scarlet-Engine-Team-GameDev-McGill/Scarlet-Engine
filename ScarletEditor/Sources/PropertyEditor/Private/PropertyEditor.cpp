@@ -2,6 +2,8 @@
 
 #include "Editor.h"
 #include "ECS.h"
+#include "Widgets.h"
+#include "Components/RigidBodyComponent.h"
 
 namespace ScarletEngine
 {
@@ -13,27 +15,41 @@ namespace ScarletEngine
 
 	void PropertyEditorPanel::Construct()
 	{
-		ZoneScoped
-		GEditor->GetOnSelectionChanged().Bind(this, &PropertyEditorPanel::OnSelectionChanged);
-		GEditor->GetOnSelectionCleared().Bind(this, &PropertyEditorPanel::OnSelectionCleared);
+		GEditor->GetOnSelectionChanged().BindMember(this, &PropertyEditorPanel::OnSelectionChanged);
+		GEditor->GetOnSelectionCleared().BindMember(this, &PropertyEditorPanel::OnSelectionCleared);
 	}
 
 	void PropertyEditorPanel::DrawWindowContent()
 	{
-		ZoneScoped
 		if (FocusedEntity)
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 10, ImGui::GetStyle().FramePadding.y });
 			ImGui::Text("Name");
 			ImGui::SameLine();
-			ImGui::InputText("###Name", (char*)FocusedEntity->Name.c_str(), FocusedEntity->Name.capacity());
+			ImGui::InputText("###Name", FocusedEntity->Name.data(), FocusedEntity->Name.capacity());
 
-			ImGui::Text("ID: %lu", FocusedEntity->ID);
+			ImGui::Text("ID: %u", FocusedEntity->ID);
 
 			ImGui::Separator();
 			
-			DrawTransformEditor();
-			
+			if (FocusedEntity != nullptr)
+			{
+				const World* OwningWorld = FocusedEntity->OwningWorld;
+				check(OwningWorld);
+				
+				if (TransformComponent* Transform = OwningWorld->GetComponent<TransformComponent>(*FocusedEntity))
+				{
+					DrawTransformWidget(*Transform);
+				}
+
+				ImGui::Separator();
+
+				if (Achilles::RigidBodyComponent* RigidBody = OwningWorld->GetComponent<Achilles::RigidBodyComponent>(*FocusedEntity))
+				{
+					DrawRigidBodyWidget(*RigidBody);
+				}
+			}
+
 			ImGui::Separator();
 			
 			ImGui::Button("Add Component");
@@ -41,45 +57,41 @@ namespace ScarletEngine
 		}
 	}
 
-	void PropertyEditorPanel::DrawTransformEditor()
+	void PropertyEditorPanel::DrawTransformWidget(TransformComponent& Transform) const
 	{
-		ZoneScoped
-		if (FocusedEntity != nullptr)
+		Widgets::DrawTransformInput("Transform Component", Transform);
+	}
+
+	void PropertyEditorPanel::DrawRigidBodyWidget(Achilles::RigidBodyComponent& RigidBody) const
+	{
+		if (ImGui::CollapsingHeader("Rigidbody Component", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			Transform* TransformComponent = FocusedEntity->OwningWorld->GetComponent<Transform>(*FocusedEntity);
+			ImGui::BeginTable("RigidbodyComponentContent", 2, ImGuiTableFlags_Resizable);
 			
-			if (ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				static bool bFirstColumnOffsetSet = false;
-				float FirstColumnOffset = ImGui::CalcTextSize("Position").x + 2 * ImGui::GetStyle().ItemSpacing.x;
-				
-				ImGui::Columns(2);
+			ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed, Widgets::GetDefaultColumnWidth());
+			ImGui::TableSetupColumn("Value");
 
-				if (!bFirstColumnOffsetSet)
-				{
-					bFirstColumnOffsetSet = true;
-					ImGui::SetColumnWidth(-1, FirstColumnOffset);
-				}
+			ImGui::TableNextColumn();
+			ImGui::Text("Gravity");
+			ImGui::TableNextColumn();
+			Widgets::DrawVec3Input("Gravity", RigidBody.Gravity);
 
-				ImGui::Text("Position");
-				ImGui::Text("Rotation");
-				ImGui::Text("Scale");
+			ImGui::TableNextRow();
 
-				ImGui::NextColumn();
+			ImGui::TableNextColumn();
+			ImGui::Text("Mass");
+			ImGui::TableNextColumn();
+			ImGui::DragFloat("###Mass", &RigidBody.Mass, 0.1f, 0.0000001f, std::numeric_limits<float>::max(), "%.2f kg", ImGuiSliderFlags_AlwaysClamp);
 
-				ImGui::InputFloat3("###Position", glm::value_ptr(TransformComponent->Position), 3);
-				ImGui::InputFloat3("###Rotation", glm::value_ptr(TransformComponent->Rotation), 3);
-				ImGui::InputFloat3("###Scale", glm::value_ptr(TransformComponent->Scale), 3);
+			ImGui::EndTable();
 
-				// Restore default columns
-				ImGui::Columns(1);
-			}
+			Widgets::DrawBooleanInput("Use Kepler Gravity", RigidBody.bUsesKeplerGravity);
 		}
 	}
 
+
 	void PropertyEditorPanel::OnSelectionChanged()
 	{
-		ZoneScoped
 		const auto& Selection = GEditor->GetSelection();
 		if (Selection.size() == 1)
 		{
@@ -93,7 +105,6 @@ namespace ScarletEngine
 	
 	void PropertyEditorPanel::OnSelectionCleared()
 	{
-		ZoneScoped
 		FocusedEntity = nullptr;
 	}
 }

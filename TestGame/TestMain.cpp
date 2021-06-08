@@ -1,114 +1,30 @@
-#include "Core.h"
+#include "Engine.h"
+#include "AssetManager.h"
 #include "World.h"
-#include "ECS.h"
-
-struct Position
-{
-	float X = 0.f;
-	float Y = 0.f;
-	float Z = 0.f;
-
-	void Serialize(ScarletEngine::Archive& Arc) const
-	{
-		Arc << X
-			<< Y
-			<< Z;
-	}
-
-	void Deserialize(ScarletEngine::Archive& Arc)
-	{
-		Arc >> X
-			>> Y
-			>> Z;
-	}
-};
-
-struct Velocity
-{
-	float X = 0.f;
-	float Y = 0.f;
-	float Z = 0.f;
-};
+#include "ModuleManager.h"
+#include "RenderModule.h"
 
 int main()
 {
 	using namespace ScarletEngine;
-	{
-		Archive Arch;
 
-		for (int i = 0; i < 20; ++i)
-		{
-			Position Pos{ (float)i, (float)(i + 1), (float)(i + 2) };
-			Arch << Pos;
-		}
-
-		Arch.SaveToFile("TestFile.data");
-
-		Array<Position> Values;
-
-		Archive InArch("TestFile.data");
-
-		for (int i = 0; i < 20; ++i)
-		{
-			Position Pos;
-			InArch >> Pos;
-			Values.push_back(Pos);
-		}
-
-		Values.clear();
-	}
-	{
-		Array<Position> SerializedArray;
-		for (int i = 0; i < 20; ++i)
-		{
-			SerializedArray.push_back({ (float)(i / 1.f), (float)(i / 2.f), (float)(i / 3.f) });
-		}
-		Archive ArrayArch;
-		ArrayArch << SerializedArray;
-		ArrayArch.SaveToFile("ArrayFile.data");
-
-		Archive InArrayArch("ArrayFile.data");
-		Array<Position> InArray;
-		InArrayArch >> InArray;
-	}
-	{
-		Array<String> SerializedStringArray;
-		for (int i = 0; i < 20; ++i)
-		{
-			char Buff[32];
-			snprintf(Buff, 32, "Hello world %d", i);
-			SerializedStringArray.emplace_back(Buff);
-		}
-		Archive StringArch;
-		StringArch << SerializedStringArray;
-		StringArch.SaveToFile("StringFile.data");
-
-		Archive InStringArch("StringFile.data");
-		Array<String> InStringArray;
-		InStringArch >> InStringArray;
-	}
-	{
-		Archive NestedArrayArch;
-		Array<Array<int>> NestedArray(10);
-		for (int i = 0; i < 10; ++i)
-		{
-			for (int j = 0; j < 10; ++j)
-			{
-				NestedArray[i].emplace_back(j + i);
-			}
-		}
-		NestedArrayArch << NestedArray;
-		NestedArrayArch.SaveToFile("NestedArray.data");
-
-
-		Array<Array<int>> InNestedArray;
-		Archive InNestedArrayArch("NestedArray.data");
-		InNestedArrayArch >> InNestedArray;
-		
-		InNestedArray.clear();
-	}
-
+	// #todo_Core: this should be loaded by a config file or something, for now default it to this.
+	AssetManager::SetAssetRoot("../");
 	
+	ModuleManager::RegisterModule<RenderModule>();
+
+	GEngine = MakeUnique<Engine>();	
+	GEngine->Initialize();
+
+	{
+		SharedPtr<World> TestWorld = MakeShared<World>();
+
+		GEngine->Run();
+	}
+
+
+	GEngine->Terminate();
+	GEngine.reset();
 
 	return 0;
 }

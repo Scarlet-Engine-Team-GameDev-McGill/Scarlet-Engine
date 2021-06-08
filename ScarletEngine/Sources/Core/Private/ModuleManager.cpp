@@ -1,123 +1,110 @@
 #include "ModuleManager.h"
+
 #include "IModule.h"
 
 namespace ScarletEngine
 {
-	Array<IModule*> ModuleManager::ModulesToAdd;
-	UnorderedMap<String, IModule*> ModuleManager::Modules;
-	UnorderedMap<IModule*, Set<IModule*>> ModuleManager::ModuleDepMap;
+    void ModuleManager::ResolveModuleOrder()
+    {
+        Array<SharedPtr<IModule>> InitOrder;
+        InitOrder.reserve(Modules.size());
 
-	bool ModuleManager::bStarted = false;
+        auto FindModuleByString = [](StringView String, const Array<SharedPtr<IModule>>& ModuleList)
+        {
+            const auto It = std::find_if(ModuleList.begin(), ModuleList.end(), [String](const SharedPtr<IModule>& PotentialDep)
+            {
+                return String == StringView(PotentialDep->GetModuleName());
+            });
+            return It != ModuleList.end() ? std::optional<SharedPtr<IModule>>(*It) : std::optional<SharedPtr<IModule>> {};
+        };
 
-	void ModuleManager::RegisterModule(IModule* Module)
-	{
-		check(!bStarted);
-		ModulesToAdd.push_back(Module);
-	}
+        Function<void(const SharedPtr<IModule>&)> AddModuleToInitOrder = [this, &InitOrder, &AddModuleToInitOrder, &
+                FindModuleByString](const SharedPtr<IModule>& ModuleToAdd)
+        {
+            const bool bModuleToAddExists = std::find(InitOrder.begin(), InitOrder.end(), ModuleToAdd) != InitOrder.end();
+            if (bModuleToAddExists) return;
+            
+            // Find this modules dependencies by name
+            for (const char* const DependencyName : ModuleToAdd->GetDependencies())
+            {
+                if (const std::optional<SharedPtr<IModule>> Dependency = FindModuleByString(DependencyName, Modules))
+                {
+                    // Ensure the dep module doesn't already exist in the map
+                    const bool bDependencyExists = FindModuleByString(DependencyName, InitOrder).has_value();
+                    if (!bDependencyExists) AddModuleToInitOrder(Dependency.value());
+                }
+            }
 
-	void ModuleManager::Startup()
-	{
-		FillDependencyMap();
+            InitOrder.emplace_back(ModuleToAdd);
+        };
 
-		for (const auto& Module : ModulesToAdd)
-		{
-			InitializeModuleAndDependencies(Module);
-		}
+        for (SharedPtr<IModule>& Module : Modules)
+        {
+            AddModuleToInitOrder(Module);
+        }
 
-#ifdef DEBUG
-		SCAR_LOG(LogVerbose, "Module dependency graph: \ndigraph ModuleDependencies {\n%s\n}", GetDependencyGraphViz().c_str());
-#endif
+        Modules = std::move(InitOrder);
+    }
+    
+    void ModuleManager::Startup()
+    {
+        if (Modules.size() == 0)
+        {
+            SCAR_LOG(LogWarning, "No modules detected. This is probably an error!");
+            return;
+        }
 
-		ModulesToAdd.clear();
-		bStarted = true;
-	}
-	
-	void ModuleManager::FillDependencyMap()
-	{
-		for (const auto& Module : ModulesToAdd)
-		{
-			ModuleDepMap[Module] = Set<IModule*>();
-			for (const auto& DependencyName : Module->GetDependencies())
-			{
-				String DependencyNameString(DependencyName);
-				auto It = std::find_if(ModulesToAdd.begin(), ModulesToAdd.end(), [&DependencyNameString](IModule* PotentialDep)
-					{
-						return DependencyNameString == PotentialDep->GetModuleName();
-					});
+        ResolveModuleOrder();
 
-				if (It != ModulesToAdd.end())
-				{
-					ModuleDepMap[Module].insert(*It);
-				}
-			}
-		}
-	}
+        for (const SharedPtr<IModule>& Module : Modules)
+        {
+            Module->Startup();
 
-	void ModuleManager::InitializeModuleAndDependencies(IModule* Module)
-	{
-		if (Module->IsInitialized())
-		{
-			return;
-		}
+            SCAR_LOG(LogVerbose, "Initialized module: %s", Module->GetModuleName());
+        }
 
-		check(ModuleDepMap.find(Module) != ModuleDepMap.end());
+        bStarted = true;
+    }
 
-		for (const auto& Dependency : ModuleDepMap[Module])
-		{
-			if (!Dependency->IsInitialized())
-			{
-				InitializeModuleAndDependencies(Dependency);
-			}
-		}
+    void ModuleManager::Shutdown()
+    {
+        for (auto It = Modules.rbegin(); It != Modules.rend(); ++It)
+        {
+            (*It)->Shutdown();
 
-		SCAR_LOG(LogVerbose, "Initializing Module %s", Module->GetModuleName());
-		Module->Initialize();
-		Modules[Module->GetModuleName()] = Module;
-	}
+            SCAR_LOG(LogVerbose, "Shutdown module: %s", (*It)->GetModuleName());
+        }
 
-	String ModuleManager::GetDependencyGraphViz()
-	{
-		StringStream Stream;
-		for (const auto& [Module, Deps] : ModuleDepMap)
-		{
-			for (const auto& Dep : Deps)
-			{
-				Stream << "\"" << Dep->GetModuleName() << "\"" << "->" << "\"" << Module->GetModuleName() << "\"" << std::endl;
-			}
-		}
+        Modules.clear();
+    }
 
-		return Stream.str();
-	}
+    void ModuleManager::PreUpdate()
+    {
+        check(bStarted);
 
-	void ModuleManager::Shutdown()
-	{
-		for (const auto& [Name, Module] : Modules)
-		{
-			Module->Shutdown();
-		}
-	}
+        for (const auto& Module : Modules)
+        {
+            Module->PreUpdate();
+        }
+    }
 
-	void ModuleManager::PreUpdate()
-	{
-		for (const auto& [Name, Module] : Modules)
-		{
-			Module->PreUpdate();
-		}
-	}
+    void ModuleManager::Update()
+    {
+        check(bStarted);
 
-	void ModuleManager::Update()
-	{
-		for (const auto& [Name, Module] : Modules)
-		{
-			Module->Update();
-		}
-	}
+        for (const auto& Module : Modules)
+        {
+            Module->Update();
+        }
+    }
 
-	void ModuleManager::PostUpdate()
-	{
-		for (const auto& [Name, Module] : Modules)
-		{
-			Module->PostUpdate();
-		}
-	}
+    void ModuleManager::PostUpdate()
+    {
+        check(bStarted);
+
+        for (auto It = Modules.rbegin(); It != Modules.rend(); ++It)
+        {
+            (*It)->PostUpdate();
+        }
+    }
 }

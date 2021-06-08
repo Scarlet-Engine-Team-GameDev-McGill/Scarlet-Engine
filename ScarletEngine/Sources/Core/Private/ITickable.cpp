@@ -1,17 +1,15 @@
 #include "ITickable.h"
-#include "Engine.h"
+#include "TickableList.h"
 
 namespace ScarletEngine
 {
 	ITickable::ITickable()
 	{
-		ZoneScoped
-		GEngine->QueueAddTickable(this);
+		TickableList::Get().QueueAddTickable(this);
 	}
 
 	ITickable::~ITickable()
 	{
-		ZoneScoped
-		GEngine->RemoveTickable(this);
+		TickableList::Get().RemoveTickable(this);
 	}
 }

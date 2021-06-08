@@ -11,3 +11,4 @@ target_compile_options(TracyProfiler PUBLIC
 	$<$<CXX_COMPILER_ID:MSVC>:>)
 
 target_link_libraries(TracyProfiler PRIVATE Threads::Threads)
+set_target_properties(TracyProfiler PROPERTIES FOLDER "Thirdparty")

@@ -6,6 +6,8 @@ project("ScarletEngine" VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # --- Set compiler warnings and disable RTTI/Exceptions
 # https://github.com/izenecloud/cmake/blob/master/SetCompilerWarningAll.cmake
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -23,7 +25,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	# Disable RTTI.
 	string(REGEX REPLACE "/GR" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	message("Detected Clang")
 	# Use -Wall for clang and gcc.
 	if(NOT CMAKE_CXX_FLAGS MATCHES "-Wall")
@@ -47,6 +49,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 	endif(NOT CMAKE_CXX_FLAGS MATCHES "-fsanitize")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-volatile")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	message("Detected GNU-GCC")
 	# Use -Wall for clang and gcc.
@@ -68,6 +71,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	string(REGEX REPLACE "-frtti" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=volatile")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
 endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
 # Add a helper macro to move files to the build directory
@@ -116,10 +120,20 @@ add_subdirectory("ScarletEngine")
 option(COMPILE_EDITOR "Should compile Editor" ON)
 if (COMPILE_EDITOR)
 	add_subdirectory("ScarletEditor")
-endif()
+endif(COMPILE_EDITOR)
+
+# TestGame sandbox
+option(COMPILE_TESTGAME "Compile test game" OFF)
+if (COMPILE_TESTGAME)
+	enable_testing()
+    include(GoogleTest)
+	add_subdirectory("TestGame")
+endif(COMPILE_TESTGAME)
 
 # Testing
-option(TESTING "Compile test app" ON)
-if (TESTING)
-	add_subdirectory("TestGame")
-endif()
+option(COMPILE_UNIT_TESTS "Compile engine unit tests" OFF)
+if (COMPILE_UNIT_TESTS)
+	enable_testing()
+    include(GoogleTest)
+	add_subdirectory("EngineTests")
+endif(COMPILE_UNIT_TESTS)

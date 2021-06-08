@@ -1,11 +1,14 @@
 #include "EditorUILayer.h"
 
+#include "Engine.h"
 #include "Editor.h"
-#include "SceneGraph.h"
+#include "SceneHierarchy.h"
 #include "EditorViewport.h"
 #include "PropertyEditor.h"
 #include "OutputLog.h"
 #include "Stats.h"
+#include "AssetView.h"
+#include "ImGuizmo.h"
 
 namespace ScarletEngine
 {
@@ -15,20 +18,30 @@ namespace ScarletEngine
 		AddWidget(MakeShared<PropertyEditorPanel>());
 		AddWidget(MakeShared<OutputLogPanel>());
 		AddWidget(MakeShared<StatsPanel>());
+		AddWidget(MakeShared<AssetView>());
 
 		// Create an initial viewport
 		AddWidget(MakeShared<EditorViewportPanel>(GEditor->GetActiveWorld()));
+
+		ImGuizmo::SetImGuiContext(ImGui::GetCurrentContext());
+	}
+
+	void EditorUILayer::BeginFrame()
+	{
+		ImGuizmo::BeginFrame();
 	}
 
 	void EditorUILayer::Draw()
 	{
-		ZoneScoped
+		ZoneScopedN("Draw Editor UI")
 
 		static bool bDockspaceOpen = true;
-		static ImGuiDockNodeFlags DockspaceFlags = ImGuiDockNodeFlags_None;
 
 		{
 			ZoneScopedN("Editor Dockspace")
+
+			static ImGuiDockNodeFlags DockspaceFlags = ImGuiDockNodeFlags_None;
+
 			// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
 			// because it would be confusing to have two docking targets within each others.
 			ImGuiWindowFlags WindowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
@@ -58,7 +71,7 @@ namespace ScarletEngine
 
 			ImGui::PopStyleVar(2);
 
-			ImGuiID DockspaceID = ImGui::GetID("DockSpace");
+			const ImGuiID DockspaceID = ImGui::GetID("DockSpace");
 			ImGui::DockSpace(DockspaceID, ImVec2(0.0f, 0.0f), DockspaceFlags);
 		}
 
@@ -67,7 +80,7 @@ namespace ScarletEngine
 		ImGui::End(); // end Dockspace
 
 		{
-			ZoneScopedN("Demo Window")
+			ZoneScopedN("Draw Demo Window")
 			ImGui::ShowDemoWindow();
 		}
 	}

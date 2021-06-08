@@ -3,7 +3,9 @@ set(UI_PrivateDeps
 	"RAL"
 	"RenderModule"
 	"glfw"
-	"glad")
+	"glad"
+	"Window"
+	"Engine")
 
 set(UI_PublicDeps
 	"ImGUI"

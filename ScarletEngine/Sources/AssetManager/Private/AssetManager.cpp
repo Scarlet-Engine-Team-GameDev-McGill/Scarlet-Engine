@@ -1,29 +1,38 @@
 #include "AssetManager.h"
+#include "Utils/StringUtils.h"
 
 namespace ScarletEngine
 {
 	UnorderedMap<String, WeakPtr<IAssetHandle>> AssetManager::CachedAssets;
+	String AssetManager::AssetRoot;
+
+	void AssetManager::SetAssetRoot(const String& InAssetRoot)
+	{
+		AssetRoot = InAssetRoot;
+	}
 
 	SharedPtr<TextureHandle> AssetManager::LoadTextureFile(const String& FilePath)
 	{
 		ZoneScoped
-		return std::static_pointer_cast<TextureHandle>(LoadAsset(FilePath, AssetType::Texture));
+		return std::static_pointer_cast<TextureHandle>(LoadAsset_Impl(FilePath, AssetType::Texture));
 	}
 
 	SharedPtr<StaticMeshHandle> AssetManager::LoadStaticMesh(const String& FilePath)
 	{
 		ZoneScoped
-		return std::static_pointer_cast<StaticMeshHandle>(LoadAsset(FilePath, AssetType::StaticMesh));
+		return std::static_pointer_cast<StaticMeshHandle>(LoadAsset_Impl(FilePath, AssetType::StaticMesh));
 	}
 
-	SharedPtr<IAssetHandle> AssetManager::LoadAsset(const String& FilePath, AssetType Type)
+	SharedPtr<IAssetHandle> AssetManager::LoadAsset_Impl(const String& FilePath, AssetType Type)
 	{
 		ZoneScoped
+		const String FullPath = ToFullPath(FilePath);
+
 		// Check that we are loading a file which exists
-		check(std::filesystem::exists(FilePath));
+		check(std::filesystem::exists(FullPath));
 
 		// Check if the item is already in the cache and it is not invalid
-		if (auto It = CachedAssets.find(FilePath); It != CachedAssets.end())
+		if (const auto It = CachedAssets.find(FullPath); It != CachedAssets.end())
 		{
 			if (!It->second.expired())
 			{
@@ -36,33 +45,32 @@ namespace ScarletEngine
 			}
 		}
 
-		SharedPtr<IAssetHandle> Ret(nullptr);
-
-		switch (Type)
+		// Immediately Invoked Lambda Expression
+		SharedPtr<IAssetHandle> AssetHandle = [&]() -> SharedPtr<IAssetHandle>
 		{
-		case AssetType::Texture:
-			Ret = std::make_shared<TextureHandle>(FilePath);
-			break;
-		case AssetType::Font:
-		case AssetType::StaticMesh:
-			Ret = std::make_shared<StaticMeshHandle>(FilePath);
-			break;
-		default:
-			// Unsupported asset type
-			check(false);
-			break;
-		}
+			switch (Type)
+			{
+			case AssetType::Texture:
+				return MakeShared<TextureHandle>(FilePath);
+			case AssetType::StaticMesh:
+				return MakeShared<StaticMeshHandle>(FilePath);
+			default:
+				// Unsupported asset type
+				check(false);
+				return SharedPtr<IAssetHandle>(nullptr);
+			}
+		}();
 		
-		if (Ret != nullptr)
+		if (AssetHandle != nullptr)
 		{
-			CachedAssets.emplace(FilePath, Ret);
+			CachedAssets.emplace(FilePath, AssetHandle);
 		}
-		return Ret;
+
+		return AssetHandle;
 	}
 
 	void AssetManager::ForEachLoadedAsset(const std::function<bool(IAssetHandle&)>& Func)
 	{
-		ZoneScoped
 		for (const auto& Pair : CachedAssets)
 		{
 			if (!Func(*(Pair.second.lock())))
@@ -74,8 +82,12 @@ namespace ScarletEngine
 
 	void AssetManager::UnloadAsset(const String& AssetToUnload)
 	{
-		ZoneScoped
 		CachedAssets.erase(AssetToUnload);
+	}
+
+	String AssetManager::ToFullPath(const String& AssetPath)
+	{
+		return StringUtils::PathConcat(AssetRoot, AssetPath);
 	}
 	
 }

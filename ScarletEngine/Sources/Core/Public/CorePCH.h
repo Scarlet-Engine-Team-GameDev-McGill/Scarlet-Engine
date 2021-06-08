@@ -26,6 +26,9 @@
 #include <map>
 #include <compare>
 #include <filesystem>
+#include <deque>
+#include <queue>
+
 
 // thirdparty
 #include <glm/glm.hpp>
