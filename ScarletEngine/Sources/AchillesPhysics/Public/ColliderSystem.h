@@ -13,17 +13,21 @@ namespace ScarletEngine::Achilles
 		glm::vec3 Direction;
 	};
 
-	class AABBvsAABBColliderSystem final : public System<BoxColliderComponent, RigidBodyComponent, TransformComponent>
+	class AABBvsAABBCollisionSystem final : public System<BoxColliderComponent, RigidBodyComponent, TransformComponent>
 	{
 	public:
+		virtual String GetName() const override { return "AABBvsAABBCollisionSystem"; }
+
 		virtual bool IsGameplayOnly() const override { return true;}
 
 		virtual void FixedUpdate() const override;
 	};
 
-	class SphereVsSphereColliderSystem final : public System<SphereColliderComponent, RigidBodyComponent, TransformComponent>
+	class SphereVsSphereCollisionSystem final : public System<SphereColliderComponent, RigidBodyComponent, TransformComponent>
 	{
 	public:
+		virtual String GetName() const override { return "SphereVsSphereCollisionSystem"; }
+
 		virtual bool IsGameplayOnly() const override { return true;}
 
 		virtual void FixedUpdate() const override;
@@ -32,9 +36,11 @@ namespace ScarletEngine::Achilles
 		static void SolveIntersection(RigidBodyComponent* Rb, TransformComponent* Trans, SphereColliderComponent* Sphere, SphereColliderComponent* OtherSphere, glm::vec3 Fi, glm::vec3 NewPos);
 	};
 
-	class PlaneVsSphereColliderSystem final : public System<SphereColliderComponent, PlaneColliderComponent, RigidBodyComponent, TransformComponent>
+	class PlaneVsSphereCollisionSystem final : public System<SphereColliderComponent, PlaneColliderComponent, RigidBodyComponent, TransformComponent>
 	{
 	public:
+		virtual String GetName() const override { return "PlaneVsSphereCollisionSystem"; }
+
 		virtual bool IsGameplayOnly() const override { return true;}
 
 		virtual void FixedUpdate() const override;

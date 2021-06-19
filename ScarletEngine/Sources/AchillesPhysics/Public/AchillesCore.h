@@ -12,9 +12,9 @@ namespace ScarletEngine::Achilles
 	{
 		SystemScheduler::Get().RegisterSystem<SpringSystem>();
 		SystemScheduler::Get().RegisterSystem<RigidBodySystem>();
-		SystemScheduler::Get().RegisterSystem<AABBvsAABBColliderSystem>();
-		SystemScheduler::Get().RegisterSystem<SphereVsSphereColliderSystem>();
-		SystemScheduler::Get().RegisterSystem<PlaneVsSphereColliderSystem>();
+		SystemScheduler::Get().RegisterSystem<AABBvsAABBCollisionSystem>();
+		SystemScheduler::Get().RegisterSystem<SphereVsSphereCollisionSystem>();
+		SystemScheduler::Get().RegisterSystem<PlaneVsSphereCollisionSystem>();
 	}
 }
 

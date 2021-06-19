@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TypeInfo.h"
 #include "ComponentContainer.h"
 
 namespace ScarletEngine
@@ -171,7 +170,7 @@ namespace ScarletEngine
 						}
 					}
 				}
-				(DirtyComponentContainers.erase(ComponentTypeID<ComponentTypes>::Value()), ...);
+				(DirtyComponentContainers.erase(ComponentTypes::StaticTypeID), ...);
 			}
 
 			return EntityProxies;
@@ -202,13 +201,13 @@ namespace ScarletEngine
 		template <typename ComponentType>
 		void MarkComponentContainerDirty() const
 		{
-			DirtyComponentContainers.emplace(ComponentTypeID<std::remove_cv_t<ComponentType>>::Value());
+			DirtyComponentContainers.emplace(ComponentType::StaticTypeID);
 		}
 
 		template <typename ComponentType>
 		bool IsComponentContainerClean() const
 		{
-			return !DirtyComponentContainers.contains(ComponentTypeID<std::remove_cv_t<ComponentType>>::Value());
+			return !DirtyComponentContainers.contains(ComponentType::StaticTypeID);
 		}
 		
 		const Array<EID>& GetEntities() const { return Entities; }
@@ -216,7 +215,7 @@ namespace ScarletEngine
 		template <typename ComponentType>
 		ComponentContainer<ComponentType>* GetComponentContainer() const
 		{
-			if (const auto It = ComponentContainers.find(ComponentTypeID<ComponentType>::Value()); It != ComponentContainers.end())
+			if (const auto It = ComponentContainers.find(ComponentType::StaticTypeID); It != ComponentContainers.end())
 			{
 				return static_cast<ComponentContainer<ComponentType>*>(It->second.get());
 			}
@@ -226,7 +225,7 @@ namespace ScarletEngine
 		template <typename ComponentType>
 		ComponentContainer<ComponentType>* GetOrCreateComponentContainer()
 		{
-			UniquePtr<IComponentContainer>& Container = ComponentContainers[ComponentTypeID<ComponentType>::Value()];
+			UniquePtr<IComponentContainer>& Container = ComponentContainers[ComponentType::StaticTypeID];
 			if (!Container)
 			{
 				Container = UniquePtr<IComponentContainer>(ScarNew(ComponentContainer<ComponentType>));

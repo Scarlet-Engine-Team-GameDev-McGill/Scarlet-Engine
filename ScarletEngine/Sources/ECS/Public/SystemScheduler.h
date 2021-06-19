@@ -17,7 +17,7 @@ namespace ScarletEngine
             SharedPtr<ISystem> System(ScarNew(SystemType));
             check(System);
 
-            SCAR_LOG(LogInfo, "Activating systems: %s", System->Name.c_str());
+            SCAR_LOG(LogInfo, "Activating systems: %s", System->GetName().c_str());
 
             if (System->IsGameplayOnly())
             {

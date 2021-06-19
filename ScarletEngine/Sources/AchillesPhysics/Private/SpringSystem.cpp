@@ -21,11 +21,11 @@ namespace ScarletEngine::Achilles
 	void SpringSystem::FixedUpdate() const
 	{
 		ZoneScoped
-		for (const auto& [EntityID, Springs, Rb, Trans] : GetEntities<const SpringCollection, RigidBodyComponent, const TransformComponent>())
+		for (const auto& [EntityID, Springs, Rb, Trans] : GetEntities<SpringCollection, RigidBodyComponent, const TransformComponent>())
 		{
-			for (size_t i = 0; i < Springs->size(); i++)
+			for (size_t i = 0; i < Springs->Size(); i++)
 			{
-				UpdateEntity(&Springs->at(i), Rb, Trans);
+				UpdateEntity(&Springs->At(i), Rb, Trans);
 			}
 		}
 

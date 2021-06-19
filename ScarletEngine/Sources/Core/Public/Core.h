@@ -11,6 +11,7 @@
 #include "IModule.h"
 #include "ModuleManager.h"
 #include "InputCodes.h"
+#include "Components/IComponent.h"
 
 // Core component types
 #include "Components/TransformComponent.h"

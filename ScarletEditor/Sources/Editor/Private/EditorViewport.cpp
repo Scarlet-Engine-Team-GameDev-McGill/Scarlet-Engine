@@ -247,7 +247,7 @@ namespace ScarletEngine
 			Entity* SelectedEntity = *Selection.begin();
 			check(SelectedEntity != nullptr);
 
-			if (TransformComponent* Transform = SelectedEntity->OwningWorld->GetComponent<TransformComponent>(*SelectedEntity))
+			if (TransformComponent* Transform = RepresentingWorld->GetComponent<TransformComponent>(SelectedEntity->GetEntityID()))
 			{
 				glm::mat4 TransformMatrix = Transform->GetTransformMatrix();
 				ImGuizmo::Manipulate(glm::value_ptr(ViewportCamera.GetView()), glm::value_ptr(ViewportCamera.GetProj()), ImGuizmo::TRANSLATE, ImGuizmo::WORLD, glm::value_ptr(TransformMatrix));

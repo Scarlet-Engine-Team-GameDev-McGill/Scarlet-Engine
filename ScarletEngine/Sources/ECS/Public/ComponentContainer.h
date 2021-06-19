@@ -1,6 +1,7 @@
 ﻿#pragma once
+
 #include "Core.h"
-#include "TypeInfo.h"
+#include "Components/IComponent.h"
 
 namespace ScarletEngine
 {
@@ -16,6 +17,7 @@ namespace ScarletEngine
 	template <typename ComponentType>
 	struct ComponentContainer final : public IComponentContainer
 	{
+		static_assert(std::is_base_of_v<IComponent, ComponentType>, "Invalid component type! Must derive from IComponent");
 	public:
 		/** Add a component to a specified entity. Returns a pointer to the newly created component */
 		inline ComponentType* Add(EID EntityID)

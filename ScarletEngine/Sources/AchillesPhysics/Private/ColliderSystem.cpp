@@ -4,7 +4,7 @@
 
 namespace ScarletEngine::Achilles
 {
-	void AABBvsAABBColliderSystem::FixedUpdate() const
+	void AABBvsAABBCollisionSystem::FixedUpdate() const
 	{
 		ZoneScoped
 		// Move collider
@@ -18,7 +18,7 @@ namespace ScarletEngine::Achilles
 		// @todo : bounce
 	}
 
-	void SphereVsSphereColliderSystem::FixedUpdate() const
+	void SphereVsSphereCollisionSystem::FixedUpdate() const
 	{
 		ZoneScoped
 		// Move collider
@@ -55,7 +55,7 @@ namespace ScarletEngine::Achilles
 		}
 	}
 
-	IntersectionData SphereVsSphereColliderSystem::GetIntersection(const SphereColliderComponent* SphereA, const SphereColliderComponent* SphereB) const
+	IntersectionData SphereVsSphereCollisionSystem::GetIntersection(const SphereColliderComponent* SphereA, const SphereColliderComponent* SphereB) const
 	{
 		ZoneScoped
 		const glm::vec3 CentDist = SphereB->Pos - SphereA->Pos;
@@ -66,7 +66,7 @@ namespace ScarletEngine::Achilles
 		return Data;
 	}
 
-	void SphereVsSphereColliderSystem::SolveIntersection(
+	void SphereVsSphereCollisionSystem::SolveIntersection(
 		RigidBodyComponent* Rb,
 		TransformComponent* Trans,
 		SphereColliderComponent* Sphere,
@@ -81,7 +81,7 @@ namespace ScarletEngine::Achilles
 		Rb->Force -= Rb->Gravity * Rb->Mass;
 	}
 
-	void PlaneVsSphereColliderSystem::FixedUpdate() const
+	void PlaneVsSphereCollisionSystem::FixedUpdate() const
 	{
 		ZoneScoped
 		// Get Intersection
@@ -105,7 +105,7 @@ namespace ScarletEngine::Achilles
 		}
 	}
 
-	IntersectionData PlaneVsSphereColliderSystem::GetIntersection(const PlaneColliderComponent* Plane, const SphereColliderComponent* Sphere) const
+	IntersectionData PlaneVsSphereCollisionSystem::GetIntersection(const PlaneColliderComponent* Plane, const SphereColliderComponent* Sphere) const
 	{
 		ZoneScoped
 		const float Dist = glm::dot(Plane->Normal, Sphere->Pos) - Plane->Distance - Sphere->Radius;

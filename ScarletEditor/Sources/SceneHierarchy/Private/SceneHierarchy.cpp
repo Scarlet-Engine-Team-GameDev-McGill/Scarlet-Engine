@@ -32,8 +32,8 @@ namespace ScarletEngine
 		{
 			ImGui::PushID(static_cast<uint32_t>(ID));
 			char Buffer[128];
-			snprintf(Buffer, 128, "%s   %s", ICON_MD_CUBE, EntItem->GetDisplayString());
-			
+			snprintf(Buffer, 128, "%s   %s", ICON_MD_CUBE, EntItem->GetDisplayString().c_str());
+
 			ImGuiTreeNodeFlags Flags = BaseFlags;
 			if (EntItem->bIsSelected)
 			{
@@ -77,9 +77,9 @@ namespace ScarletEngine
 		ZoneScoped
 		for (const auto& Ent : RepresentingWorld.lock()->GetEntities())
 		{
-			if (Items.find(Ent->ID) == Items.end())
+			if (Items.find(Ent->GetEntityID()) == Items.end())
 			{
-				Items.emplace(Ent->ID, ScarNew(SceneHierarchyItem, Ent));
+				Items.emplace(Ent->GetEntityID(), ScarNew(SceneHierarchyItem, Ent));
 			}
 		}
 	}
@@ -87,9 +87,9 @@ namespace ScarletEngine
 	void SceneHierarchyPanel::OnEntityAddedToWorld(const EntityPtr& AddedEntity)
 	{
 		// If the item is not in the map, emplace it
-		if (Items.find(AddedEntity->ID) == Items.end())
+		if (Items.find(AddedEntity->GetEntityID()) == Items.end())
 		{
-			Items.emplace(AddedEntity->ID, ScarNew(SceneHierarchyItem, AddedEntity));
+			Items.emplace(AddedEntity->GetEntityID(), ScarNew(SceneHierarchyItem, AddedEntity));
 		}
 	}
 
@@ -128,14 +128,14 @@ namespace ScarletEngine
 		{
 			// Select items from the current selection index until the newly selected item
 			Array<Entity*> EntitiesToSelect;
-			const EID ClickedIndex = Item.Ent.lock()->ID;
+			const EID ClickedIndex = Item.Ent.lock()->GetEntityID();
 
 			// Determine the iterator direction
 			if (ClickedIndex > CurrentSelectionIndex)
 			{
 				auto It = Items.find(CurrentSelectionIndex);
 				// We want to select everything up to _and including_ the clicked item
-				const auto EndIndex = (++Items.find(Item.Ent.lock()->ID));
+				const auto EndIndex = (++Items.find(Item.Ent.lock()->GetEntityID()));
 				for (; It != EndIndex; ++It)
 				{
 					EntitiesToSelect.push_back(It->second->Ent.lock().get());
@@ -145,7 +145,7 @@ namespace ScarletEngine
 			{
 				auto It = Items.find(CurrentSelectionIndex);
 				// We want to select everything up to _and including_ the clicked item
-				const auto EndIndex = (--Items.find(Item.Ent.lock()->ID));
+				const auto EndIndex = (--Items.find(Item.Ent.lock()->GetEntityID()));
 				for (; It != EndIndex; --It)
 				{
 					EntitiesToSelect.push_back(It->second->Ent.lock().get());

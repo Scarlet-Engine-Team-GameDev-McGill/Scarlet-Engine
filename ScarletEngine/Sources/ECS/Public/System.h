@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core.h"
-#include "TypeInfo.h"
 #include "Registry.h"
 
 template <class T, class... U>
@@ -22,6 +21,8 @@ namespace ScarletEngine
 		virtual void FixedUpdate() const {}
 		// #todo_ecs: make into static rather than virtual?
 		virtual bool IsGameplayOnly() const { return false; }
+
+		virtual String GetName() const = 0;
 	protected:
 		template <typename ...Components>
 		const Array<ProxyType<Components...>>& GetEntities() const
@@ -40,8 +41,6 @@ namespace ScarletEngine
 		{
 			return Reg->GetSingleton<std::remove_cv_t<SingletonType>>();
 		}
-
-		const String Name;
 	private:
 		friend class SystemScheduler;
 

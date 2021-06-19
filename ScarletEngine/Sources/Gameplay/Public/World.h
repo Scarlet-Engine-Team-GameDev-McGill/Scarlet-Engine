@@ -39,15 +39,15 @@ namespace ScarletEngine
 		const Array<EntityPtr>& GetEntities() const { return Entities; }
 
 		template <typename ComponentType>
-		ComponentType* GetComponent(const Entity& Ent) const
+		ComponentType* GetComponent(const EID& EntityID) const
 		{
-			return Reg.GetComponent<ComponentType>(Ent.ID);
+			return Reg.GetComponent<ComponentType>(EntityID);
 		}
 
 		template <typename ComponentType>
-		ComponentType* AddComponent(const EID Ent)
+		ComponentType* AddComponent(const EID EntityID)
 		{
-			return Reg.AddComponent<ComponentType>(Ent);
+			return Reg.AddComponent<ComponentType>(EntityID);
 		}
 
 		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }

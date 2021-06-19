@@ -8,6 +8,8 @@ namespace ScarletEngine
     class SMCRenderSystem : public System<SceneProxy, const StaticMeshComponent, const TransformComponent>
     {
     public:
+        virtual String GetName() const override { return "SMCRenderSystem"; }
+
         virtual void Update() const override
         {
             SceneProxy* Proxy = GetSingleton<SceneProxy>();

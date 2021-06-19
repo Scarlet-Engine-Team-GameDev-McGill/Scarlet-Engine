@@ -7,9 +7,11 @@
 
 namespace ScarletEngine::Achilles
 {
-	class SpringSystem final : public System<RigidBodyComponent, const TransformComponent, const SpringComponent, const SpringCollection>
+	// #todo_physics: split this into a SpringSystem and a SpringCollection system
+	class SpringSystem final : public System<RigidBodyComponent, SpringCollection, const TransformComponent, const SpringComponent>
 	{
 	public:
+		virtual String GetName() const override { return "SpringSystem"; }
 		virtual bool IsGameplayOnly() const override { return true;}
 
 		virtual void FixedUpdate() const override;

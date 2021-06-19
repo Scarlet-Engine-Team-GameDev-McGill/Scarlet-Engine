@@ -6,6 +6,7 @@
 #include "UIModule.h"
 
 #include "AchillesDemo.h"
+#include "Components/IComponent.h"
 
 using namespace ScarletEngine;
 

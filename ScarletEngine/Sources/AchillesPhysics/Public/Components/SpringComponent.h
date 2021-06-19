@@ -3,13 +3,30 @@
 
 namespace ScarletEngine::Achilles
 {
-	struct SpringComponent
+	class SpringComponent final : public IComponent
 	{
+		COMPONENT_DEFINITION(SpringComponent);
+
 		float RestLength = 0.25f;
 		float Stiffness = 1000.f;
 		float Damping = 0.4f;
 		EID Anchor;
 	};
 
-	using SpringCollection = Array<SpringComponent>;
+	class SpringCollection final : public IComponent
+	{
+		COMPONENT_DEFINITION(SpringCollection);
+
+		size_t Size() const { return SpringComponents.size(); }
+
+		SpringComponent& At(size_t Index) { return SpringComponents.at(Index); }
+
+		template <class... Args>
+		decltype(auto) EmplaceBack(Args&&... args)
+		{
+			return SpringComponents.emplace_back(std::forward(args)...);
+		}
+
+		Array<SpringComponent> SpringComponents;
+	};
 }

@@ -1,7 +1,6 @@
 #include "PropertyEditor.h"
 
 #include "Editor.h"
-#include "ECS.h"
 #include "Widgets.h"
 #include "Components/RigidBodyComponent.h"
 
@@ -26,25 +25,30 @@ namespace ScarletEngine
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 10, ImGui::GetStyle().FramePadding.y });
 			ImGui::Text("Name");
 			ImGui::SameLine();
-			ImGui::InputText("###Name", FocusedEntity->Name.data(), FocusedEntity->Name.capacity());
+			// #todo_editor: this is disgusting and needs to be fixed.
+			String& EntityName = const_cast<String&>(FocusedEntity->GetName());
+			if (ImGui::InputText("###Name", EntityName.data(), EntityName.capacity(), ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				SCAR_LOG(LogInfo, "Set entity name to %s", EntityName.c_str());
+			}
 
-			ImGui::Text("ID: %u", FocusedEntity->ID);
+			ImGui::Text("ID: %u", FocusedEntity->GetEntityID());
 
 			ImGui::Separator();
 			
 			if (FocusedEntity != nullptr)
 			{
-				const World* OwningWorld = FocusedEntity->OwningWorld;
+				const World* OwningWorld = FocusedEntity->GetWorld();
 				check(OwningWorld);
 				
-				if (TransformComponent* Transform = OwningWorld->GetComponent<TransformComponent>(*FocusedEntity))
+				if (TransformComponent* Transform = OwningWorld->GetComponent<TransformComponent>(FocusedEntity->GetEntityID()))
 				{
 					DrawTransformWidget(*Transform);
 				}
 
 				ImGui::Separator();
 
-				if (Achilles::RigidBodyComponent* RigidBody = OwningWorld->GetComponent<Achilles::RigidBodyComponent>(*FocusedEntity))
+				if (Achilles::RigidBodyComponent* RigidBody = OwningWorld->GetComponent<Achilles::RigidBodyComponent>(FocusedEntity->GetEntityID()))
 				{
 					DrawRigidBodyWidget(*RigidBody);
 				}
