@@ -1,10 +1,10 @@
-#include "Archive.h"
+#include "BinaryArchive.h"
 
 #include <fstream>
 
 namespace ScarletEngine
 {
-	Archive::Archive()
+	BinaryArchive::BinaryArchive()
 		: Filename()
 		, DataArray()
 		, Pos(0)
@@ -13,7 +13,7 @@ namespace ScarletEngine
 		DataArray.resize(128);
 	}
 
-	Archive::Archive(const String& InFilename, ArchiveMode InMode)
+	BinaryArchive::BinaryArchive(const String& InFilename, ArchiveMode InMode)
 		: Filename(InFilename)
 		, DataArray()
 		, Pos(0)
@@ -36,7 +36,7 @@ namespace ScarletEngine
 		}
 	}
 
-	void Archive::Close()
+	void BinaryArchive::Close()
 	{
 		if (Mode == ArchiveMode::Write && !Filename.empty())
 		{
@@ -45,7 +45,7 @@ namespace ScarletEngine
 		DataArray.clear();
 	}
 
-	bool Archive::SaveToFile(const char* OverrideFile)
+	bool BinaryArchive::SaveToFile(const char* OverrideFile)
 	{
 		if (Pos > 0)
 		{

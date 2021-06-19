@@ -33,6 +33,13 @@ namespace ScarletEngine
     public:
         /* Component Interface */
 
+        /** Register a component type, ensuring a container exists for it */
+        template <typename ComponentType>
+        void RegisterComponentType()
+        {
+            GetOrCreateComponentContainer<ComponentType>();
+        }
+
         /** Add a component of the templated type to an entity */
         template <typename ComponentType>
         ComponentType* AddComponent(EID EntityID)
@@ -211,9 +218,47 @@ namespace ScarletEngine
         }
 
         const Array<EID>& GetEntities() const { return Entities; }
+
+        void Serialize(BinaryArchive& Arc)
+        {
+            // Serialize a debug tag to ensure we don't read from the wrong place in the archive
+            Arc << "Registry Chunk";
+            Arc << NextAvailableEID;
+            Arc << ComponentContainers.size();
+
+            for (auto& [ComponentTypeID, ComponentContainer] : ComponentContainers)
+            {
+                Arc << ComponentTypeID;
+                Arc << *ComponentContainer;
+            }
+        }
+
+        void Deserialize(BinaryArchive& Arc)
+        {
+            String Tag;
+            Arc >> Tag;
+            check(Tag.compare("Registry Chunk") == 0);
+
+            Arc >> NextAvailableEID;
+
+            uint32_t ContainerCount = 0;
+            Arc >> ContainerCount;
+            // For each container in the archive, find the corresponding container and then 
+            for (size_t Index = 0; Index < ContainerCount; ++Index)
+            {
+                CTID ComponentTypeID = INVALID_CTID;
+                Arc >> ComponentTypeID;
+
+                if (const auto It = ComponentContainers.find(ComponentTypeID); It != ComponentContainers.end())
+                {
+                    UniquePtr<IComponentContainer>& ComponentContainer = It->second;
+                    Arc >> ComponentContainer;
+                }
+            }
+        }
     private:
         template <typename ComponentType>
-        ComponentContainer<ComponentType>* GetComponentContainer() const
+        NODISCARD ComponentContainer<ComponentType>* GetComponentContainer() const
         {
             if (const auto It = ComponentContainers.find(ComponentType::StaticTypeID); It != ComponentContainers.end())
             {
