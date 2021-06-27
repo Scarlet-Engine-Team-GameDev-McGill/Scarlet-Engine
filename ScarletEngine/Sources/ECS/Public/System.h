@@ -22,7 +22,7 @@ namespace ScarletEngine
 		// #todo_ecs: make into static rather than virtual?
 		virtual bool IsGameplayOnly() const { return false; }
 
-		virtual String GetName() const = 0;
+		virtual String GetName() const { return ""; };
 	protected:
 		template <typename ...Components>
 		const Array<ProxyType<Components...>>& GetEntities() const
