@@ -136,13 +136,15 @@ namespace ScarletEngine::Utils
         0x2d02ef8dL
     };
 
+
     template<size_t Idx>
     constexpr uint32_t Crc32(const char* Str)
     {
-        static_assert(Idx < 1024, "Compile time string Crc32 too long! Maximum supported 1024 characters.");
-        return (Crc32<Idx - 1>(Str) >> 8) ^ CrcTable[(Crc32<Idx - 1>(Str) ^ Str[Idx]) & 0x000000FF];
+        const uint32_t Val = Crc32<Idx - 1>(Str);
+        return (Val >> 8) ^ CrcTable[(Val ^ Str[Idx]) & 0x000000FF];
     }
 
+    // This is the stop-recursion function
     template<>
     constexpr uint32_t Crc32<static_cast<size_t>(-1)>(const char*)
     {

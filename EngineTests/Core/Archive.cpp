@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <Archive.h>
+#include <BinaryArchive.h>
 
 using namespace ScarletEngine;
 
