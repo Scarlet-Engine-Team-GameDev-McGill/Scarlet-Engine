@@ -9,6 +9,7 @@ namespace ScarletEngine
     class Entity
     {
     public:
+        Entity() : Name(), ID(), OwningWorld(nullptr) {}
         Entity(const String& InName, EID InID, World* InOwningWorld);
 
         const String& GetName() const { return Name; }
@@ -19,10 +20,16 @@ namespace ScarletEngine
         World* GetWorld() const { return OwningWorld; }
 
         // #todo_core: add a way to retrieve components directly from the entity
+
+        void ChangeWorld(World* NewOwningWorld);
+
+        void Serialize(BinaryArchive& Arc);
+
+        void Deserialize(BinaryArchive& Arc);
     protected:
         String Name;
-        const EID ID;
-        World* const OwningWorld;
+        EID ID;
+        World* OwningWorld;
     };
 
     using EntityPtr = SharedPtr<Entity>;

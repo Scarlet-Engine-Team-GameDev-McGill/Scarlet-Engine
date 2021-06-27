@@ -9,4 +9,22 @@ namespace ScarletEngine
     {
         Name.reserve(64);
     }
+
+    void Entity::ChangeWorld(World* NewOwningWorld)
+    {
+        check(NewOwningWorld);
+        OwningWorld = NewOwningWorld;
+    }
+
+    void Entity::Serialize(BinaryArchive& Arc)
+    {
+        Arc << Name;
+        Arc << ID;
+    }
+
+    void Entity::Deserialize(BinaryArchive& Arc)
+    {
+        Arc >> Name;
+        Arc >> ID;
+    }
 }

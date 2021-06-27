@@ -28,7 +28,8 @@ int main()
 		// Register gameplay systems with the ECS
 		Achilles::RegisterSystems();
 
-		Achilles::DemoKepler(GEngine->GetActiveWorld());
+		//Achilles::DemoKepler(GEngine->GetActiveWorld());
+		GEditor->GetActiveWorld()->CreateEntity<TransformComponent>("TestEntity");
 	}
 
 	// Run the engine

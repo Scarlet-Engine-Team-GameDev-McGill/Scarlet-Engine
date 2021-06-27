@@ -13,21 +13,13 @@ namespace ScarletEngine
     {
         // replace the entry with a nullptr to prevent invalidating the iterator
 
-        if (TickableObject->WantsFixedTimestep())
+        if (TickableObject->bWantsFixedTimestep)
         {
-            const auto It = std::remove(FixedUpdateTickables.begin(), FixedUpdateTickables.end(), TickableObject);
-            if (It != FixedUpdateTickables.end())
-            {
-                FixedUpdateTickables.emplace(It, nullptr);
-            }
+            std::replace(FixedUpdateTickables.begin(), FixedUpdateTickables.end(), TickableObject, static_cast<ITickable*>(nullptr));
         }
-        if (TickableObject->WantsVariableTimestep())
+        if (TickableObject->bWantsVariableTimestep)
         {
-            const auto It = std::remove(VariableUpdateTickables.begin(), VariableUpdateTickables.end(), TickableObject);
-            if (It != VariableUpdateTickables.end())
-            {
-                VariableUpdateTickables.emplace(It, nullptr);
-            }
+            std::replace(VariableUpdateTickables.begin(), VariableUpdateTickables.end(), TickableObject, static_cast<ITickable*>(nullptr));
         }
     }
 
@@ -83,12 +75,12 @@ namespace ScarletEngine
 
     void TickableList::AddTickable(ITickable* TickableObject)
     {
-        if (TickableObject->WantsFixedTimestep())
+        if (TickableObject->bWantsFixedTimestep)
         {
             FixedUpdateTickables.push_back(TickableObject);
         }
 
-        if (TickableObject->WantsVariableTimestep())
+        if (TickableObject->bWantsVariableTimestep)
         {
             VariableUpdateTickables.push_back(TickableObject);
         }

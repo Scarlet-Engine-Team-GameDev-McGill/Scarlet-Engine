@@ -134,7 +134,7 @@ namespace ScarletEngine
         }
 
         template <typename ElemType, typename Alloc>
-        inline BinaryArchive& operator<<(const Array<ElemType, Alloc>& Arr)
+        inline BinaryArchive& operator<<(Array<ElemType, Alloc>& Arr)
         {
             (*this) << Arr.size();
             for (const auto& Data : Arr)
@@ -144,12 +144,31 @@ namespace ScarletEngine
             return *this;
         }
 
-        template <typename ElemType, typename Traits, typename Alloc>
-        inline BinaryArchive& operator<<(const BasicString<ElemType, Traits, Alloc>& Str)
+        template <typename ElemType, typename Alloc>
+        inline BinaryArchive& operator<<(Array<SharedPtr<ElemType>, Alloc>& Arr)
         {
-            size_t StrCount = (size_t)Str.size();
+            (*this) << Arr.size();
+            for (const auto& DataPtr : Arr)
+            {
+                (*this) << *DataPtr;
+            }
+            return *this;
+        }
+
+        template <typename ElemType, typename Traits, typename Alloc>
+        inline BinaryArchive& operator<<(BasicString<ElemType, Traits, Alloc>& Str)
+        {
+            const size_t StrCount = (size_t)Str.size();
             (*this) << StrCount;
             Write(*Str.c_str(), StrCount);
+            return *this;
+        }
+
+        inline BinaryArchive& operator<<(const char* CStr)
+        {
+            const size_t StrCount = (size_t)strlen(CStr);
+            (*this) << StrCount;
+            Write(*CStr, StrCount);
             return *this;
         }
 
@@ -278,6 +297,20 @@ namespace ScarletEngine
             for (size_t i = 0; i < ArrayCount; ++i)
             {
                 (*this) >> Arr[i];
+            }
+            return *this;
+        }
+
+        template <typename ElemType, typename Alloc>
+        inline BinaryArchive& operator>>(Array<SharedPtr<ElemType>, Alloc>& Arr)
+        {
+            size_t ArrayCount = 0;
+            (*this) >> ArrayCount;
+            Arr.resize(ArrayCount);
+            for (size_t i = 0; i < ArrayCount; ++i)
+            {
+                Arr[i] = MakeShared<ElemType>();
+                (*this) >> *Arr[i];
             }
             return *this;
         }

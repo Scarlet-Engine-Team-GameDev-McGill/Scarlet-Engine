@@ -208,7 +208,7 @@ namespace ScarletEngine
         template <typename ComponentType>
         void MarkComponentContainerDirty() const
         {
-            DirtyComponentContainers.emplace(ComponentType::StaticTypeID);
+            MarkComponentContainerDirty_Impl(ComponentType::StaticTypeID);
         }
 
         template <typename ComponentType>
@@ -248,12 +248,14 @@ namespace ScarletEngine
             {
                 CTID ComponentTypeID = INVALID_CTID;
                 Arc >> ComponentTypeID;
+                const auto It = ComponentContainers.find(ComponentTypeID);
+                // We cannot currently handle being unable to find the container. it will create issues 
+                // where the archive won't move forward in position and we can't skip ahead yet.
+                check(It != ComponentContainers.end());
 
-                if (const auto It = ComponentContainers.find(ComponentTypeID); It != ComponentContainers.end())
-                {
-                    UniquePtr<IComponentContainer>& ComponentContainer = It->second;
-                    Arc >> ComponentContainer;
-                }
+                UniquePtr<IComponentContainer>& ComponentContainer = It->second;
+                Arc >> *ComponentContainer;
+                MarkComponentContainerDirty_Impl(ComponentTypeID);
             }
         }
     private:
@@ -278,6 +280,8 @@ namespace ScarletEngine
             }
             return static_cast<ComponentContainer<ComponentType>*>(Container.get());
         }
+
+        void MarkComponentContainerDirty_Impl(CTID DirtyContainerID) const;
 
     private:
         EID NextAvailableEID = 1;

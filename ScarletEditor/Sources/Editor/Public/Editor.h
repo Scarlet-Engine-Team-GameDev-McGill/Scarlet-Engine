@@ -17,6 +17,7 @@ namespace ScarletEngine
 		virtual ~Editor() {}
 
 		virtual void Initialize() override;
+		virtual void Terminate() override;
 
 		/* Selection */
 		void SetSelection(const Array<Entity*>& NewSelection);
@@ -42,6 +43,9 @@ namespace ScarletEngine
 		void StopPlayInEditor();
 
 		bool IsPlayingInEditor() const { return bPlayingInEditor; }
+
+	private:
+		void OnWorldChanged(const SharedPtr<World>& NewWorld);
 	private:
 		Set<Entity*> SelectedEntities;
 

@@ -9,4 +9,9 @@ namespace ScarletEngine
             Pair.second->Remove(EntityID);
         }
     }
+
+    void Registry::MarkComponentContainerDirty_Impl(CTID DirtyContainerID) const
+    {
+        DirtyComponentContainers.emplace(DirtyContainerID);
+    }
 }
