@@ -17,7 +17,7 @@ namespace ScarletEngine
 		SetColor("TitleBg", Color(0.129f, 0.141f, 0.149f, 1.0f));
 		SetColor("TitleBgActive", Color(0.129f, 0.141f, 0.149f, 1.0F));
 		SetColor("TitleBgCollapsed", Color(0.00f, 0.00f, 0.00f, 0.51f));
-		SetColor("MenuBarBg", Color(0.14f, 0.14f, 0.14f, 1.00f));
+		SetColor("MenuBarBg", Color(0.23f, 0.23f, 0.24f, 1.00f));
 		SetColor("ScrollbarBg", Color(0.02f, 0.02f, 0.02f, 0.53f));
 		SetColor("ScrollbarGrab", Color(0.31f, 0.31f, 0.31f, 1.00f));
 		SetColor("ScrollbarGrabHovered", Color(0.41f, 0.41f, 0.41f, 1.00f));
@@ -41,7 +41,7 @@ namespace ScarletEngine
 		SetColor("TabHovered", Color(0.33f, 0.34f, 0.36f, 0.83f));
 		SetColor("TabActive", Color(0.23f, 0.23f, 0.24f, 1.00f));
 		SetColor("TabUnfocused", Color(0.08f, 0.08f, 0.09f, 1.00f));
-		SetColor("TabUnfocusedActive", Color(0.13f, 0.14f, 0.15f, 1.00f));
+		SetColor("TabUnfocusedActive", Color(0.23f, 0.23f, 0.24f, 1.00f));
 		SetColor("DockingPreview", Color(0.26f, 0.59f, 0.98f, 0.70f));
 		SetColor("DockingEmptyBg", Color(0.20f, 0.20f, 0.20f, 1.00f));
 		SetColor("PlotLines", Color(0.61f, 0.61f, 0.61f, 1.00f));

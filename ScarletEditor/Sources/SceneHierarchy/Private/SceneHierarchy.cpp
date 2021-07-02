@@ -2,18 +2,18 @@
 
 #include "Core.h"
 #include "World.h"
-
 #include "Editor.h"
-
 #include "AssetManager.h"
 #include "EngineDelegates.h"
+#include "Widgets.h"
+
+#include <imgui_internal.h>
 
 namespace ScarletEngine
 {
     SceneHierarchyPanel::SceneHierarchyPanel(const SharedPtr<World>& InRepresentingWorld)
-        : UIWindow(ICON_MD_ACCOUNT_TREE " Scene Hierarchy")
+        : UIWindow(ICON_MD_ACCOUNT_TREE " Scene Hierarchy", ImGuiWindowFlags_MenuBar)
           , RepresentingWorld(InRepresentingWorld)
-          , CurrentSelectionIndex(INVALID_EID)
     {
     }
 
@@ -39,48 +39,71 @@ namespace ScarletEngine
     {
         ZoneScopedN("Draw Scene Hierarchy")
 
-        const ImGuiTreeNodeFlags BaseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-        for (const auto& [ID, EntItem] : Items)
+        if (ImGui::BeginMenuBar())
         {
-            ImGui::PushID(static_cast<uint32_t>(ID));
-            char Buffer[128];
-            snprintf(Buffer, 128, "%s   %s", ICON_MD_CUBE, EntItem->GetDisplayString().c_str());
-
-            ImGuiTreeNodeFlags Flags = BaseFlags;
-            if (EntItem->bIsSelected)
+            ImGui::PushID("SceneHierarchyShowComponents");
+            if (Widgets::DrawToggleButton(ICON_MD_SETTINGS, bShowingComponents))
             {
-                Flags |= ImGuiTreeNodeFlags_Selected;
+                Refresh();
             }
-
-            if (EntItem->Children.size() > 0)
+            if (ImGui::IsItemHovered())
             {
-                const bool bNodeOpen = ImGui::TreeNodeEx(Buffer, Flags);
-                if (ImGui::IsItemClicked())
-                {
-                    if (SelectItem(*EntItem))
-                    {
-                        CurrentSelectionIndex = ID;
-                    }
-                }
-
-                if (bNodeOpen)
-                {
-                    ImGui::TreePop();
-                }
-            }
-            else
-            {
-                Flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-                ImGui::TreeNodeEx(Buffer, Flags);
-                if (ImGui::IsItemClicked())
-                {
-                    if (SelectItem(*EntItem))
-                    {
-                        CurrentSelectionIndex = ID;
-                    }
-                }
+                ImGui::SetTooltip("Show Components");
             }
             ImGui::PopID();
+
+
+            ImGui::EndMenuBar();
+        }
+
+        const ImGuiTreeNodeFlags BaseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+        if (ImGui::TreeNodeEx(ICON_MD_PUBLIC "  World", BaseFlags | ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            for (const auto& [ID, EntItem] : Items)
+            {
+                ImGui::PushID(static_cast<uint32_t>(ID));
+                char Buffer[128];
+                snprintf(Buffer, 128, "%s   %s", ICON_MD_RADIO_BUTTON_CHECKED, EntItem->GetDisplayString().c_str());
+
+                ImGuiTreeNodeFlags Flags = BaseFlags;
+                if (EntItem->bIsSelected)
+                {
+                    Flags |= ImGuiTreeNodeFlags_Selected;
+                }
+
+                if (EntItem->Children.size() > 0)
+                {
+                    const bool bNodeOpen = ImGui::TreeNodeEx(Buffer, Flags);
+                    if (ImGui::IsItemClicked())
+                    {
+                        if (SelectItem(*EntItem))
+                        {
+                            CurrentSelectionIndex = ID;
+                        }
+                    }
+
+                    if (bNodeOpen)
+                    {
+                        ImGui::TreePop();
+                    }
+                }
+                else
+                {
+                    Flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+                    ImGui::TreeNodeEx(Buffer, Flags);
+                    if (ImGui::IsItemClicked())
+                    {
+                        if (SelectItem(*EntItem))
+                        {
+                            CurrentSelectionIndex = ID;
+                        }
+                    }
+                }
+                ImGui::PopID();
+            }
+
+            ImGui::TreePop();
         }
     }
 
@@ -98,8 +121,13 @@ namespace ScarletEngine
 
     void SceneHierarchyPanel::Refresh()
     {
+        const std::clock_t StartTime = std::clock();
+
         Items.clear();
         RepopulateItems();
+
+        const float Duration = static_cast<float>(std::clock() - StartTime) / CLOCKS_PER_SEC;
+        SCAR_LOG(LogInfo, "Finished SceneHierarchy refresh in %.2f ms", Duration);
     }
 
     void SceneHierarchyPanel::OnEntityAddedToWorld(const EntityPtr& AddedEntity)

@@ -8,4 +8,5 @@ namespace ScarletEngine::Widgets
     void DrawTransformInput(const char* Label, TransformComponent& Trans);
     void DrawBooleanInput(const char* Label, bool& Boolean);
     void DrawSeparator(const char* Label = nullptr);
+    bool DrawToggleButton(const char* Label, bool& Boolean);
 }
