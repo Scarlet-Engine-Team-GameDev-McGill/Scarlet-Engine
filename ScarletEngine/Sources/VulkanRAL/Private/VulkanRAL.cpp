@@ -190,7 +190,7 @@ namespace ScarletEngine
         CHECK_RESULT(glfwCreateWindowSurface(Instance, WindowHandle, nullptr, &Surface));
     }
 
-    VulkanRAL::QueueFamilyIndices VulkanRAL::FindQueueFamilies(const VkPhysicalDevice Device) const
+    QueueFamilyIndices VulkanRAL::FindQueueFamilies(const VkPhysicalDevice Device) const
     {
         QueueFamilyIndices Result {};
 
@@ -964,6 +964,8 @@ namespace ScarletEngine
         CreateCommandPool();
         CreateCommandBuffers();
         CreateSyncObjects();
+
+        CreateImGuiVulkanObjects();
     }
 
     void VulkanRAL::PreFrame()
@@ -1256,23 +1258,29 @@ namespace ScarletEngine
         return nullptr;
     }
 
+    void VulkanRAL::CreateImGuiVulkanObjects() 
+    {
+
+    }
+
     // ImGuiVulkanObjects Begin -----------------------------------------
 
     ImGuiVulkanObjects::ImGuiVulkanObjects() {}
     
     void ImGuiVulkanObjects::Initialize(VkDevice device, VkFormat swapChainImageFormat, 
-        size_t swapChainImageCount) {
-        CommandBuffers.resize(swapChainImageCount);
-        Framebuffers.resize(swapChainImageCount);
+        uint32_t width, uint32_t height, QueueFamilyIndices queueFamilyIndices, const std::vector<VkImageView>& swapChainImageViews) {
+        CommandBuffers.resize(swapChainImageViews.size());
+        Framebuffers.resize(swapChainImageViews.size());
 
         CreateRenderPass(device, swapChainImageFormat);
-        CreateCommandPool();
+        CreateCommandPool(device, queueFamilyIndices);
         CreateCommandBuffers();
-        CreateFramebuffers();
+        CreateFramebuffers(device, width, height, swapChainImageViews);
     }
 
     void ImGuiVulkanObjects::CleanUp(VkDevice device) {
         vkDestroyRenderPass(device, RenderPass, nullptr);
+        for(auto framebuffer : Framebuffers) vkDestroyFramebuffer(device, framebuffer, nullptr);
     }
 
     void ImGuiVulkanObjects::CreateRenderPass(VkDevice device, VkFormat swapChainImageFormat) {
@@ -1283,7 +1291,7 @@ namespace ScarletEngine
         attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         VkAttachmentReference color_attachment = {};
@@ -1317,10 +1325,37 @@ namespace ScarletEngine
         }
     }
 
-    //TODO
-    void ImGuiVulkanObjects::CreateCommandPool() {}
+    void ImGuiVulkanObjects::CreateCommandPool(VkDevice device, QueueFamilyIndices queueFamilyIndices) 
+    {
+        VkCommandPoolCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        createInfo.queueFamilyIndex = queueFamilyIndices.GraphicsFamily.value();
+        createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        
+        if (vkCreateCommandPool(device, &createInfo, nullptr, &CommandPool) != VK_SUCCESS) {
+            throw std::runtime_error("unable to create imgui command pool");
+        }
+    }
     void ImGuiVulkanObjects::CreateCommandBuffers() {}
-    void ImGuiVulkanObjects::CreateFramebuffers() {}
+    void ImGuiVulkanObjects::CreateFramebuffers(VkDevice device, uint32_t width, uint32_t height, 
+        const std::vector<VkImageView>& swapChainImageViews) 
+    {
+        VkImageView attachments[1];
+        VkFramebufferCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        createInfo.width = width;
+        createInfo.height = height;
+        createInfo.pAttachments = attachments;
+        createInfo.attachmentCount = 1;
+        createInfo.renderPass = RenderPass;
+        createInfo.layers = 1;
+        
+        for(int i = 0; i < swapChainImageViews.size(); i++) 
+        {
+            attachments[0] = swapChainImageViews[i];
+            CHECK_RESULT(vkCreateFramebuffer(device, &createInfo, nullptr, &Framebuffers[i]));
+        }
+    }
 
     // ImGuiVulkanObjects End ---------------------------------------------
 }

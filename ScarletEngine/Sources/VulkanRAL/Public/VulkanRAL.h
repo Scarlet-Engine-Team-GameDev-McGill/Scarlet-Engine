@@ -8,19 +8,32 @@
 
 namespace ScarletEngine
 {
+    struct QueueFamilyIndices
+    {
+        std::optional<uint32_t> GraphicsFamily;
+        std::optional<uint32_t> PresentFamily;
+
+        bool IsComplete() const
+        {
+            return GraphicsFamily.has_value() && PresentFamily.has_value();
+        }
+    };
+
     class ImGuiVulkanObjects {
     public:
         ImGuiVulkanObjects();
-        void Initialize(VkDevice device, VkFormat swapChainImageFormat, size_t swapChainImageCount);
+        void Initialize(VkDevice device, VkFormat swapChainImageFormat, 
+            uint32_t width, uint32_t height, QueueFamilyIndices queueFamilyIndices, const std::vector<VkImageView>& swapChainImageViews);
         void CleanUp(VkDevice device);
     private:
         void CreateRenderPass(VkDevice device, VkFormat swapChainFormat);
-        void CreateCommandPool();
+        void CreateCommandPool(VkDevice device, QueueFamilyIndices queueFamilyIndices);
         void CreateCommandBuffers();
-        void CreateFramebuffers();
+        void CreateFramebuffers(VkDevice device, uint32_t width, uint32_t height, const std::vector<VkImageView>& attachments);
 
         VkRenderPass RenderPass;
         VkCommandPool CommandPool;
+        VkDescriptorPool DescriptorPool;
         std::vector<VkCommandBuffer> CommandBuffers;
         std::vector<VkFramebuffer> Framebuffers;
     };
@@ -66,16 +79,7 @@ namespace ScarletEngine
         void CreateInstance();
         void SetupDebugMessenger();
 
-        struct QueueFamilyIndices
-        {
-            std::optional<uint32_t> GraphicsFamily;
-            std::optional<uint32_t> PresentFamily;
-
-            bool IsComplete() const
-            {
-                return GraphicsFamily.has_value() && PresentFamily.has_value();
-            }
-        };
+        void CreateImGuiVulkanObjects();
 
         struct SwapchainSupportDetails
         {
