@@ -63,10 +63,10 @@ namespace ScarletEngine::Achilles
 
 		for (int i = 0; i < (int)Anchors.size(); i++)
 		{
-			SpringArray->emplace_back();
-			SpringArray->at(i).Anchor = Anchors.at(i);
-			SpringArray->at(i).RestLength = Lengths.size() == 1 ? Lengths.at(0) : Lengths.at(i);
-			SpringArray->at(i).Stiffness = Stiffness;
+			SpringArray->EmplaceBack();
+			SpringArray->At(i).Anchor = Anchors.at(i);
+			SpringArray->At(i).RestLength = Lengths.size() == 1 ? Lengths.at(0) : Lengths.at(i);
+			SpringArray->At(i).Stiffness = Stiffness;
 		}
 
 		return Ent;

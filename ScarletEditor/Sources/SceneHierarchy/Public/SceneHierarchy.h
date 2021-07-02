@@ -7,29 +7,32 @@
 
 namespace ScarletEngine
 {
-	class World;
-	class SceneHierarchyItem;
+    class World;
+    class SceneHierarchyItem;
 
-	class SceneHierarchyPanel : public UIWindow
-	{
-	public:
-		SceneHierarchyPanel(const SharedPtr<World>& InRepresentingWorld);
-		virtual void Construct() override;
-		virtual void DrawWindowContent() override;
+    class SceneHierarchyPanel : public UIWindow
+    {
+    public:
+        SceneHierarchyPanel(const SharedPtr<World>& InRepresentingWorld);
+        virtual void Construct() override;
+        virtual void Destroy() override;
+        virtual void DrawWindowContent() override;
 
-		void RepopulateItems();
-	private:
-		void SynchronizeSelection();
+        void RepopulateItems();
+    private:
+        void Refresh();
+        void SynchronizeSelection();
 
-		bool SelectItem(const SceneHierarchyItem& Item);
-	private:
-		/* Event callbacks */
-		void OnEntityAddedToWorld(const EntityPtr& AddedEntity);
-		void OnWorldSelectionChanged();
-	private:
-		WeakPtr<World> RepresentingWorld;
+        bool SelectItem(const SceneHierarchyItem& Item);
+    private:
+        /* Event callbacks */
+        void OnEntityAddedToWorld(const EntityPtr& AddedEntity);
+        void OnWorldSelectionChanged();
+        void OnWorldChange(const SharedPtr<World>& InNewWorld);
+    private:
+        WeakPtr<World> RepresentingWorld;
 
-		Map<EID, UniquePtr<SceneHierarchyItem>> Items;
-		EID CurrentSelectionIndex;
-	};
+        Map<EID, UniquePtr<SceneHierarchyItem>> Items;
+        EID CurrentSelectionIndex;
+    };
 }

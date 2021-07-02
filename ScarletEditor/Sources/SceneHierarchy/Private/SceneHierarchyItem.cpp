@@ -6,8 +6,8 @@ namespace ScarletEngine
 		: Ent(InEnt)
 	{}
 
-	const char* SceneHierarchyItem::GetDisplayString() const
+	const String& SceneHierarchyItem::GetDisplayString() const
 	{
-		return Ent.lock()->Name.c_str();
+		return Ent.lock()->GetName();
 	}
 }

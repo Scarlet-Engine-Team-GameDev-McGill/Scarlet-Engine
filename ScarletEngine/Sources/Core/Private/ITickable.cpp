@@ -3,13 +3,13 @@
 
 namespace ScarletEngine
 {
-	ITickable::ITickable()
-	{
-		TickableList::Get().QueueAddTickable(this);
-	}
+    ITickable::ITickable()
+    {
+        TickableList::Get().QueueAddTickable(this);
+    }
 
-	ITickable::~ITickable()
-	{
-		TickableList::Get().RemoveTickable(this);
-	}
+    ITickable::~ITickable()
+    {
+        TickableList::Get().RemoveTickable(this);
+    }
 }

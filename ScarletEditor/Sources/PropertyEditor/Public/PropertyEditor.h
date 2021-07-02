@@ -7,10 +7,10 @@ namespace ScarletEngine
 {
 	namespace Achilles
 	{
-		struct RigidBodyComponent;
+		class RigidBodyComponent;
 	}
 
-	struct Entity;
+	class Entity;
 
 	class PropertyEditorPanel : public UIWindow
 	{

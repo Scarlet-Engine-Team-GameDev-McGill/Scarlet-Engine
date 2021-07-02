@@ -5,60 +5,65 @@
 
 namespace ScarletEngine
 {
-	class ITickable;
-	class ISystem;
-	class ApplicationWindow;
+    class ITickable;
+    class ISystem;
+    class ApplicationWindow;
 
-	// -----------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
 
-	class Engine
-	{
-	public:
-		Engine();
-		virtual ~Engine() {}
+    class Engine
+    {
+    public:
+        Engine();
+        virtual ~Engine() {}
 
-		virtual void Initialize();
-		void Run();
+        virtual void Initialize();
+        void Run();
 
-		/** Signals that the engine should quit on the next update */
-		void SignalQuit() { bIsRunning = false; }
+        /** Signals that the engine should quit on the next update */
+        void SignalQuit() { bIsRunning = false; }
 
-		void Update(double DeltaTime);
-		void FixedUpdate(double DeltaTime);
+        void Update(double DeltaTime);
+        void FixedUpdate(double DeltaTime);
 
-		bool IsInitialized() const { return bIsInitialized; }
+        bool IsInitialized() const { return bIsInitialized; }
 
-		const SharedPtr<World>& GetActiveWorld() const { return ActiveWorld; }
-		ApplicationWindow* GetApplicationWindow() const { return AppWindow; }
-	protected:
-		virtual void Terminate();
+        void SaveWorld(const String& WorldPath) const;
+        void LoadWorldFromFile(const String& WorldPath);
+        void LoadWorld();
 
-		/** Called before objects are ticked each frame */
-		void PreUpdate();
+        const SharedPtr<World>& GetActiveWorld() const { return ActiveWorld; }
+        ApplicationWindow* GetApplicationWindow() const { return AppWindow; }
+    protected:
+        virtual void Terminate();
 
-		/** Called after objects are ticked each frame */
-		void PostUpdate();
-	protected:
-		// Prevent copy/move constructors
-		Engine(const Engine&) = delete;
-		Engine(Engine&&) = delete;
+        /** Called before objects are ticked each frame */
+        void PreUpdate();
 
-		SharedPtr<World> ActiveWorld = nullptr;
+        /** Called after objects are ticked each frame */
+        void PostUpdate();
+    protected:
+        // Prevent copy/move constructors
+        Engine(const Engine&) = delete;
+        Engine(Engine&&) = delete;
 
-		/** Main engine application window */
-		ApplicationWindow* AppWindow = nullptr;
+        SharedPtr<World> ActiveWorld = nullptr;
+        SharedPtr<World> QueuedWorldToLoad = nullptr;
 
-		/** True when the engine is initialized */
-		uint32_t bIsInitialized : 1 = false;
-		/** True when the engine is in the running state */
-		uint32_t bIsRunning : 1 = false;
-		/** True after the engine has finished running */
-		uint32_t bIsTerminated : 1 = false;
-		/** True when the engine is in the middle of ticking objects */
-		uint32_t bTickingObjects : 1 = false;
-		/** Should the engine immediately start all gameplay systems */
-		uint32_t bStartGameplaySystemsOnLoad : 1 = true;
-	};
+        /** Main engine application window */
+        ApplicationWindow* AppWindow = nullptr;
 
-	extern Engine* GEngine;
+        /** True when the engine is initialized */
+        uint32_t bIsInitialized : 1 = false;
+        /** True when the engine is in the running state */
+        uint32_t bIsRunning : 1 = false;
+        /** True after the engine has finished running */
+        uint32_t bIsTerminated : 1 = false;
+        /** True when the engine is in the middle of ticking objects */
+        uint32_t bTickingObjects : 1 = false;
+        /** Should the engine immediately start all gameplay systems */
+        uint32_t bStartGameplaySystemsOnLoad : 1 = true;
+    };
+
+    extern Engine* GEngine;
 }

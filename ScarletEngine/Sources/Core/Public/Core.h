@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "Event.h"
 #include "Delegate.h"
-#include "Archive.h"
+#include "BinaryArchive.h"
 #include "Color.h"
 #include "Utils/StringUtils.h"
 #include "IModule.h"
 #include "ModuleManager.h"
 #include "InputCodes.h"
+#include "Components/IComponent.h"
 
 // Core component types
 #include "Components/TransformComponent.h"

@@ -2,19 +2,20 @@
 
 namespace ScarletEngine
 {
-	World::World()
-	{
-	}
+    World::World()
+    {
+        bWantsFixedTimestep = true;
+    }
 
-	void World::Tick(double)
-	{
-		ZoneScoped
-		SystemScheduler::Get().RunUpdate(&Reg);
-	}
+    void World::Tick(double)
+    {
+        ZoneScoped
+        SystemScheduler::Get().RunUpdate(&Reg);
+    }
 
-	void World::FixedTick(double)
-	{
-		ZoneScoped
-		SystemScheduler::Get().RunFixedUpdate(&Reg);
-	}
+    void World::FixedTick(double)
+    {
+        ZoneScoped
+        SystemScheduler::Get().RunFixedUpdate(&Reg);
+    }
 }

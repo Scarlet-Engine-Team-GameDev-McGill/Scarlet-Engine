@@ -19,6 +19,8 @@ namespace ScarletEngine
 		virtual void PushWindowFlags() override;
 		virtual void PopWindowFlags() override;
 
+		void OnWorldChange(const SharedPtr<World>& InNewWorld);
+
 		void OnKeyDown(EKeyCode KeyCode);
 		void OnMouseButtonDown(EMouseCode MouseCode);
 		void OnMouseButtonUp(EMouseCode MouseCode);

@@ -7,8 +7,10 @@
 
 using namespace ScarletEngine;
 
-struct TestComponent
+struct TestComponent : public IComponent
 {
+	COMPONENT_DEFINITION(TestComponent)
+
 	inline static uint32_t ConstructorCounter = 0;
 	inline static uint32_t MoveCounter = 0;
 
@@ -169,13 +171,15 @@ TEST(ECS, RegistrySort)
 	}
 }
 
+struct Component : public IComponent
+{
+	COMPONENT_DEFINITION(Component);
+
+	uint32_t X = 20;
+};
+
 TEST(ECS, System)
 {
-	struct Component
-	{
-		uint32_t X = 11;
-	};
-	
 	class TestSystem : public ScarletEngine::System<Component>
 	{
 	public:
@@ -194,7 +198,7 @@ TEST(ECS, System)
 	auto [Entity, TC] = Reg.CreateEntity<Component>();
 
 	ASSERT_NE(TC, nullptr);
-	EXPECT_EQ(TC->X, static_cast<uint32_t>(11));
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(20));
 
 	Scheduler.RunUpdate(&Reg);
 
@@ -203,11 +207,6 @@ TEST(ECS, System)
 
 TEST(ECS, ConstSystem)
 {
-	struct Component
-	{
-		uint32_t X = 11;	
-	};
-	
 	class TestSystem : public ScarletEngine::System<const Component>
 	{
 	public:
@@ -227,11 +226,11 @@ TEST(ECS, ConstSystem)
 	auto [Entity, TC] = Reg.CreateEntity<Component>();
 
 	ASSERT_NE(TC, nullptr);
-	EXPECT_EQ(TC->X, static_cast<uint32_t>(11));
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(20));
 
 	Scheduler.RunUpdate(&Reg);
 
-	EXPECT_EQ(TC->X, static_cast<uint32_t>(11));
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(20));
 }
 
 TEST(ECS, Singleton)
@@ -311,11 +310,6 @@ TEST(ECS, ConstSingleton)
 
 TEST(ECS, GetEntity)
 {
-	struct Component
-	{
-		uint32_t X = 11;
-	};
-	
 	class TestSystem : public ScarletEngine::System<Component>
 	{
 	public:
@@ -342,11 +336,6 @@ TEST(ECS, GetEntity)
 
 TEST(ECS, UncachedProxy)
 {
-	struct Component
-	{
-		uint32_t X = 20;
-	};
-	
 	class TestSystem : public ScarletEngine::System<Component>
 	{
 	public:
@@ -384,11 +373,6 @@ TEST(ECS, UncachedProxy)
 
 TEST(ECS, CachedProxy)
 {
-	struct Component
-	{
-		uint32_t X = 20;
-	};
-	
 	class TestSystem : public ScarletEngine::System<Component>
 	{
 	public:

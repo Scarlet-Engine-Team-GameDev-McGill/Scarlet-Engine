@@ -1,27 +1,36 @@
 #pragma once
 
 #include "Core.h"
-#include "TypeInfo.h"
 
 namespace ScarletEngine
-{
-	class World;
+{    
+    class World;
 
-	struct Entity
-	{
-	public:
-		Entity(const String& InName, EID InID, World* InOwningWorld)
-			: Name(InName)
-			, ID(InID)
-			, OwningWorld(InOwningWorld)
-		{
-			Name.reserve(64);
-		}
+    class Entity
+    {
+    public:
+        Entity() : Name(), ID(), OwningWorld(nullptr) {}
+        Entity(const String& InName, EID InID, World* InOwningWorld);
 
-		String Name;
-		const EID ID;
-		World* const OwningWorld;
-	};
+        const String& GetName() const { return Name; }
+        void SetName(const String& InName) { Name = String(InName); }
 
-	using EntityPtr = SharedPtr<Entity>;
+        EID GetEntityID() const { return ID; }
+
+        World* GetWorld() const { return OwningWorld; }
+
+        // #todo_core: add a way to retrieve components directly from the entity
+
+        void ChangeWorld(World* NewOwningWorld);
+
+        void Serialize(BinaryArchive& Arc);
+
+        void Deserialize(BinaryArchive& Arc);
+    protected:
+        String Name;
+        EID ID;
+        World* OwningWorld;
+    };
+
+    using EntityPtr = SharedPtr<Entity>;
 }

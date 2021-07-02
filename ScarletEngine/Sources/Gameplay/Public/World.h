@@ -9,52 +9,81 @@
 
 namespace ScarletEngine
 {
-	using OnEntityAddedToWorldEvent = Event<const EntityPtr&>;
+    using OnEntityAddedToWorldEvent = Event<const EntityPtr&>;
 
-	class World final : public ITickable
-	{
-	public:
-		World();
-		
-		/* ITickable interface */
-		virtual void Tick(double DeltaTime) override;
-		virtual void FixedTick(double DeltaTime) override;
-		virtual bool WantsFixedTimestep() const override { return true; }
+    class World final : public ITickable
+    {
+    public:
+        World();
+        virtual ~World() {}
 
-		/** Returns the render scene proxy for this world */
-		// #todo_rendering: should be managed by the renderer directly
-		SceneProxy* GetRenderSceneProxy() const { return Reg.GetSingleton<SceneProxy>(); }
+        /* ITickable interface */
+        virtual void Tick(double DeltaTime) override;
+        virtual void FixedTick(double DeltaTime) override;
 
-		/** Create a new entity in the world with specified component types */
-		template <typename... ComponentTypes>
-		std::tuple<EID, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name)
-		{
-			const auto EntityProxy = Reg.CreateEntity<ComponentTypes...>();
-			EntityPtr& Ent = Entities.emplace_back(ScarNew(Entity, Name, std::get<EID>(EntityProxy), this));
-			
-			OnEntityAddedToWorld.Broadcast(Ent);
-			return EntityProxy;
-		}
+        /** Returns the render scene proxy for this world */
+        // #todo_rendering: should be managed by the renderer directly
+        SceneProxy* GetRenderSceneProxy() const { return Reg.GetSingleton<SceneProxy>(); }
 
-		const Array<EntityPtr>& GetEntities() const { return Entities; }
+        /** Create a new entity in the world with specified component types */
+        template <typename... ComponentTypes>
+        std::tuple<EID, std::add_pointer_t<ComponentTypes>...> CreateEntity(const char* Name)
+        {
+            const auto EntityProxy = Reg.CreateEntity<ComponentTypes...>();
+            EntityPtr& Ent = Entities.emplace_back(ScarNew(Entity, Name, std::get<EID>(EntityProxy), this));
 
-		template <typename ComponentType>
-		ComponentType* GetComponent(const Entity& Ent) const
-		{
-			return Reg.GetComponent<ComponentType>(Ent.ID);
-		}
+            OnEntityAddedToWorld.Broadcast(Ent);
+            return EntityProxy;
+        }
 
-		template <typename ComponentType>
-		ComponentType* AddComponent(const EID Ent)
-		{
-			return Reg.AddComponent<ComponentType>(Ent);
-		}
+        const Array<EntityPtr>& GetEntities() const { return Entities; }
 
-		OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
-	private:
-		Registry Reg;
-		Array<EntityPtr> Entities;
+        template <typename ComponentType>
+        ComponentType* GetComponent(const EID& EntityID) const
+        {
+            return Reg.GetComponent<ComponentType>(EntityID);
+        }
 
-		OnEntityAddedToWorldEvent OnEntityAddedToWorld;
-	};
+        template <typename ComponentType>
+        ComponentType* AddComponent(const EID EntityID)
+        {
+            return Reg.AddComponent<ComponentType>(EntityID);
+        }
+
+        OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
+
+        void Serialize(BinaryArchive& Arc)
+        {
+            // Serialize debug tag
+            Arc << "World";
+            Arc << Reg;
+            Arc << Entities;
+        }
+
+        void Deserialize(BinaryArchive& Arc)
+        {
+            String Tag;
+            Arc >> Tag;
+            check(Tag.compare("World") == 0);
+
+            Arc >> Reg;
+            Arc >> Entities;
+            for (const EntityPtr& Entity : Entities)
+            {
+                Entity->ChangeWorld(this);
+            }
+        }
+
+        void SetWorldName(const String& InNewName) { WorldName = InNewName; }
+        const String& GetWorldName() const { return WorldName; }
+
+        // #todo_core: hacky solution. should be made private again
+        Registry& GetRegistry() { return Reg; }
+    private:
+        Registry Reg;
+        Array<EntityPtr> Entities;
+        String WorldName;
+
+        OnEntityAddedToWorldEvent OnEntityAddedToWorld;
+    };
 }

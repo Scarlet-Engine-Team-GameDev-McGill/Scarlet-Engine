@@ -9,8 +9,8 @@ namespace ScarletEngine
 	{
 	public:
 		SceneHierarchyItem(const SharedPtr<Entity>& InEnt);
-		
-		const char* GetDisplayString() const;
+
+		const String& GetDisplayString() const;
 
 		bool bIsSelected = false;
 
