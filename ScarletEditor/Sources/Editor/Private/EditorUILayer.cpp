@@ -51,6 +51,7 @@ namespace ScarletEngine
             ImGui::SetNextWindowViewport(ImGuiMainViewport->ID);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+            ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(0.14f, 0.14f, 0.14f, 1.00f));
             WindowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
             WindowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
@@ -69,6 +70,7 @@ namespace ScarletEngine
             ImGui::Begin("DockSpace", &bDockspaceOpen, WindowFlags);
             ImGui::PopStyleVar();
 
+            ImGui::PopStyleColor();
             ImGui::PopStyleVar(2);
 
             const ImGuiID DockspaceID = ImGui::GetID("DockSpace");

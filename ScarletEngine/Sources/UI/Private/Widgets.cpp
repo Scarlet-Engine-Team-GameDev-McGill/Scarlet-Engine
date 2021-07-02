@@ -165,4 +165,28 @@ namespace ScarletEngine::Widgets
             ImGui::GetWindowDrawList()->AddLine(StartPos, EndPos, ImGui::GetColorU32({ 0.3f, 0.3f, 0.3f, 1.f }), 2);
         }
     }
+
+    bool DrawToggleButton(const char* Label, bool& Boolean)
+    {
+        if (Boolean)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_ButtonActive));
+        }
+        else
+        {
+            // Push a dummy value so the next call to Pop is ignored.
+            ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_Button));
+        }
+
+        bool bStateChanged = false;
+        if (ImGui::Button(Label))
+        {
+            bStateChanged = true;
+            Boolean = !Boolean;
+        }
+
+        ImGui::PopStyleColor();
+
+        return bStateChanged;
+    }
 }

@@ -33,6 +33,8 @@ namespace ScarletEngine
         WeakPtr<World> RepresentingWorld;
 
         Map<EID, UniquePtr<SceneHierarchyItem>> Items;
-        EID CurrentSelectionIndex;
+        String FilterText;
+        EID CurrentSelectionIndex = INVALID_EID;
+        bool bShowingComponents = false;
     };
 }
