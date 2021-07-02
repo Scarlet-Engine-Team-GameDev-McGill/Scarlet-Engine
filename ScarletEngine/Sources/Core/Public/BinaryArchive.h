@@ -175,11 +175,13 @@ namespace ScarletEngine
         template <typename Type>
         inline BinaryArchive& operator<<(Type& Data)
         {
+            // Prefer the explicit Serialize method if one exists
             if constexpr (Utils::HasSerialize<Type>::Value)
             {
                 Data.Serialize(*this);
             }
-            else
+            // Otherwise use a memcpy if the type is trivially copyable
+            else if constexpr (std::is_trivially_copyable<Type>::value)
             {
                 Write(Data);
             }
@@ -276,13 +278,14 @@ namespace ScarletEngine
         template <typename Type>
         inline BinaryArchive& operator>>(Type& DataOut)
         {
+            // Prefer the explicit Serialize method if one exists
             if constexpr (Utils::HasDeserialize<Type>::Value)
             {
                 DataOut.Deserialize(*this);
             }
-            else
+            // Otherwise use a memcpy if the type is trivially copyable
+            else if constexpr (std::is_trivially_copyable<Type>::value)
             {
-                // Default to memcpy if there is no custom deserialize method
                 Read(DataOut);
             }
             return *this;
