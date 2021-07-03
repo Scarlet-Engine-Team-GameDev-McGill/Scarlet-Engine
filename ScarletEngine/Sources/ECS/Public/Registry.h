@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "ComponentContainer.h"
+#include "ComponentTypeRegistry.h"
 
 namespace ScarletEngine
 {
@@ -276,6 +277,10 @@ namespace ScarletEngine
             if (!Container)
             {
                 Container = UniquePtr<IComponentContainer>(ScarNew(ComponentContainer<ComponentType>, ComponentType::StaticTypeID));
+                ComponentTypeRegistry::Get().RegisterComponentType<ComponentType>([](EID EntityID, Registry* Reg)
+                {
+                    Reg->AddComponent<ComponentType>(EntityID);
+                });
                 MarkComponentContainerDirty<ComponentType>();
             }
             return static_cast<ComponentContainer<ComponentType>*>(Container.get());

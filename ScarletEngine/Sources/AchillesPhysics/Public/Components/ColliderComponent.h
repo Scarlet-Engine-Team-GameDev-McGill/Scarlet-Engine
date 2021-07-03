@@ -5,7 +5,7 @@ namespace ScarletEngine::Achilles
 {
 	class BoxColliderComponent final : public IComponent
 	{
-		COMPONENT_DEFINITION(BoxCollider);
+		COMPONENT_DEFINITION(Box Collider);
 
 		glm::vec3 Min;
 		glm::vec3 Max;
@@ -14,7 +14,7 @@ namespace ScarletEngine::Achilles
 
 	class SphereColliderComponent final : public IComponent
 	{
-		COMPONENT_DEFINITION(SphereCollider);
+		COMPONENT_DEFINITION(Sphere Collider);
 
 		glm::vec3 Pos;
 		float Radius;
@@ -23,7 +23,7 @@ namespace ScarletEngine::Achilles
 
 	class PlaneColliderComponent final : public IComponent
 	{
-		COMPONENT_DEFINITION(PlaneCollider);
+		COMPONENT_DEFINITION(Plane Collider);
 
 		glm::vec3 Normal;
 		float Distance;

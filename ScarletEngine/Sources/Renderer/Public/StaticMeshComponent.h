@@ -8,7 +8,7 @@ namespace ScarletEngine
 {
 	class StaticMeshComponent final : public IComponent
 	{
-		COMPONENT_DEFINITION(StaticMeshComponent);
+		COMPONENT_DEFINITION(Static Mesh);
 
 		SharedPtr<StaticMeshHandle> MeshHandle;
 		RALGpuBuffer* IndexBuff = nullptr;

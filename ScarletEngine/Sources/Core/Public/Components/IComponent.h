@@ -14,5 +14,6 @@ namespace ScarletEngine
 
 #define COMPONENT_DEFINITION(ComponentTypeName)                     \
     public:                                                         \
-    constexpr static CTID StaticTypeID = COMPILE_TIME_CRC32_STR(#ComponentTypeName);
+    constexpr static CTID StaticTypeID = COMPILE_TIME_CRC32_STR(#ComponentTypeName);\
+    const static inline String StaticTypeName = #ComponentTypeName; 
 }
