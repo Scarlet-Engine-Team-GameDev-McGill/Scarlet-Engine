@@ -33,6 +33,7 @@ namespace ScarletEngine
         /* Internal events */
         void OnTextFilterChanged();
         void OnShowingComponentsChanged();
+        void OnCreateEntityPressed() const;
     private:
         WeakPtr<World> RepresentingWorld;
 

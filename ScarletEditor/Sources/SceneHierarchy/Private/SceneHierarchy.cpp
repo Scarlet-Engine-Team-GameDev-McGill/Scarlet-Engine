@@ -64,6 +64,17 @@ namespace ScarletEngine
             }
             ImGui::PopID();
 
+            ImGui::PushID("SceneHierarchyShowComponents");
+            if (Widgets::DrawToggleButton(ICON_MD_ADD, bShowingComponents))
+            {
+                OnCreateEntityPressed();
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Create new entity");
+            }
+            ImGui::PopID();
+
 
             ImGui::EndMenuBar();
         }
@@ -247,4 +258,11 @@ namespace ScarletEngine
         Refresh();
     }
 
+    void SceneHierarchyPanel::OnCreateEntityPressed() const
+    {
+        if (SharedPtr<World> RepresentingWorldPtr = RepresentingWorld.lock())
+        {
+            RepresentingWorldPtr->CreateEntity<>("New Entity");
+        }
+    }
 }

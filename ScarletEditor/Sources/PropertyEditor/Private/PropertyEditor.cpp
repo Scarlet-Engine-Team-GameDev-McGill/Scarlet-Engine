@@ -45,19 +45,20 @@ namespace ScarletEngine
                 if (TransformComponent* Transform = OwningWorld->GetComponent<TransformComponent>(FocusedEntity->GetEntityID()))
                 {
                     DrawTransformWidget(*Transform);
+
+                    ImGui::Separator();
                 }
 
-                ImGui::Separator();
 
                 if (Achilles::RigidBodyComponent* RigidBody = OwningWorld->GetComponent<Achilles::RigidBodyComponent>(FocusedEntity->GetEntityID()))
                 {
                     DrawRigidBodyWidget(*RigidBody);
+
+                    ImGui::Separator();
                 }
             }
 
-            ImGui::Separator();
-
-            if (ImGui::Button("Add Component"))
+            if (ImGui::Button("Add Component", ImVec2(-1.f, 0.f)))
             {
                 ImGui::OpenPopup("AddComponentList");
             }
@@ -85,13 +86,33 @@ namespace ScarletEngine
 
     void PropertyEditorPanel::DrawTransformWidget(TransformComponent& Transform) const
     {
-        Widgets::DrawTransformInput("Transform Component", Transform);
+        if (ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            if (ImGui::BeginPopupContextItem("Transform Component Context Menu"))
+            {
+                if (ImGui::MenuItem("Delete"))
+                {
+                    FocusedEntity->GetWorld()->RemoveComponent<TransformComponent>(FocusedEntity->GetEntityID());
+                }
+                ImGui::EndPopup();
+            }
+            Widgets::DrawTransformInput("Transform Component", Transform);
+        }
     }
 
     void PropertyEditorPanel::DrawRigidBodyWidget(Achilles::RigidBodyComponent& RigidBody) const
     {
         if (ImGui::CollapsingHeader("Rigidbody Component", ImGuiTreeNodeFlags_DefaultOpen))
         {
+            if (ImGui::BeginPopupContextItem("RigidBody Component Context Menu"))
+            {
+                if (ImGui::MenuItem("Delete"))
+                {
+                    FocusedEntity->GetWorld()->RemoveComponent<Achilles::RigidBodyComponent>(FocusedEntity->GetEntityID());
+                }
+                ImGui::EndPopup();
+            }
+
             ImGui::BeginTable("RigidbodyComponentContent", 2, ImGuiTableFlags_Resizable);
 
             ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed, Widgets::GetDefaultColumnWidth());

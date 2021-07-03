@@ -61,37 +61,34 @@ namespace ScarletEngine::Widgets
 
     void DrawTransformInput(const char* Label, TransformComponent& Trans)
     {
-        if (ImGui::CollapsingHeader(Label, ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            ImGui::PushID(Label);
-            ImGui::BeginTable(Label, 2, ImGuiTableFlags_Resizable);
+        ImGui::PushID(Label);
+        ImGui::BeginTable(Label, 2, ImGuiTableFlags_Resizable);
 
-            ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed, GetDefaultColumnWidth());
-            ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthAlwaysAutoResize);
+        ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed, GetDefaultColumnWidth());
+        ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthAlwaysAutoResize);
 
-            ImGui::TableNextColumn();
-            ImGui::Text("Position");
-            ImGui::TableNextColumn();
-            DrawVec3Input("Position", Trans.Position);
+        ImGui::TableNextColumn();
+        ImGui::Text("Position");
+        ImGui::TableNextColumn();
+        DrawVec3Input("Position", Trans.Position);
 
-            ImGui::TableNextRow();
+        ImGui::TableNextRow();
 
-            ImGui::TableNextColumn();
-            ImGui::Text("Rotation");
-            ImGui::TableNextColumn();
-            DrawVec3Input("Rotation", Trans.Rotation);
+        ImGui::TableNextColumn();
+        ImGui::Text("Rotation");
+        ImGui::TableNextColumn();
+        DrawVec3Input("Rotation", Trans.Rotation);
 
-            ImGui::TableNextRow();
+        ImGui::TableNextRow();
 
-            ImGui::TableNextColumn();
-            ImGui::Text("Scale");
-            ImGui::TableNextColumn();
-            DrawVec3Input("Scale", Trans.Scale);
+        ImGui::TableNextColumn();
+        ImGui::Text("Scale");
+        ImGui::TableNextColumn();
+        DrawVec3Input("Scale", Trans.Scale);
 
-            // Restore default columns
-            ImGui::EndTable();
-            ImGui::PopID();
-        }
+        // Restore default columns
+        ImGui::EndTable();
+        ImGui::PopID();
     }
 
     void DrawBooleanInput(const char* Label, bool& Boolean)

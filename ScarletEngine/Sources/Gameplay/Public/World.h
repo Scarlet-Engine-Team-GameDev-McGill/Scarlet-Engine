@@ -50,6 +50,12 @@ namespace ScarletEngine
             return Reg.AddComponent<ComponentType>(EntityID);
         }
 
+        template <typename ComponentType>
+        bool RemoveComponent(const EID EntityID)
+        {
+            return Reg.RemoveComponent<ComponentType>(EntityID);
+        }
+
         OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
 
         void Serialize(BinaryArchive& Arc)
