@@ -12,6 +12,7 @@
 #include "ModuleManager.h"
 #include "InputCodes.h"
 #include "Components/IComponent.h"
+#include "Reflection/Reflection.h"
 
 // Core component types
 #include "Components/TransformComponent.h"
