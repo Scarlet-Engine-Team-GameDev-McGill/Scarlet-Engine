@@ -8,6 +8,7 @@
 #include "Widgets.h"
 
 #include <imgui_internal.h>
+#include <imgui_stdlib.h>
 
 namespace ScarletEngine
 {
@@ -15,7 +16,6 @@ namespace ScarletEngine
         : UIWindow(ICON_MD_ACCOUNT_TREE " Scene Hierarchy", ImGuiWindowFlags_MenuBar)
           , RepresentingWorld(InRepresentingWorld)
     {
-        FilterText.reserve(128);
     }
 
     void SceneHierarchyPanel::Construct()
@@ -44,15 +44,19 @@ namespace ScarletEngine
         {
             ImGui::Text(ICON_MD_FILTER_LIST);
             ImGui::SameLine();
-            if (ImGui::InputText("###HierarchyTextFilter", FilterText.data(), FilterText.capacity()))
+            if (Widgets::DrawTextInput("###HierarchyTextFilter", FilterText))
             {
-                Refresh();
+                OnTextFilterChanged();
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Filter");
             }
 
             ImGui::PushID("SceneHierarchyShowComponents");
             if (Widgets::DrawToggleButton(ICON_MD_SETTINGS, bShowingComponents))
             {
-                Refresh();
+                OnShowingComponentsChanged();
             }
             if (ImGui::IsItemHovered())
             {
@@ -122,7 +126,11 @@ namespace ScarletEngine
         {
             if (Items.find(Ent->GetEntityID()) == Items.end())
             {
-                Items.emplace(Ent->GetEntityID(), ScarNew(SceneHierarchyItem, Ent));
+                const size_t Index = Ent->GetName().find(FilterText);
+                if (Index != String::npos)
+                {
+                    Items.emplace(Ent->GetEntityID(), ScarNew(SceneHierarchyItem, Ent));
+                }
             }
         }
     }
@@ -215,7 +223,6 @@ namespace ScarletEngine
             {
                 EntitiesToSelect.push_back(Item.Ent.lock().get());
             }
-			
 
             if (EntitiesToSelect.size() > 0)
             {
@@ -229,4 +236,15 @@ namespace ScarletEngine
 
         return true;
     }
+
+    void SceneHierarchyPanel::OnTextFilterChanged()
+    {
+        Refresh();
+    }
+
+    void SceneHierarchyPanel::OnShowingComponentsChanged()
+    {
+        Refresh();
+    }
+
 }

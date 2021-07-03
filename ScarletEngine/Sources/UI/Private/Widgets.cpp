@@ -189,4 +189,23 @@ namespace ScarletEngine::Widgets
 
         return bStateChanged;
     }
+
+    bool DrawTextInput(const char* Label, String& Output, ImGuiInputTextFlags Flags)
+    {
+        static auto Callback = +[](ImGuiInputTextCallbackData* Data)
+        {
+            String* Str = static_cast<String*>(Data->UserData);
+            if (Data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+            {
+                // Resize string callback
+                // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+                IM_ASSERT(Data->Buf == Str->c_str());
+                Str->resize(Data->BufTextLen);
+                Data->Buf = const_cast<char*>(Str->c_str());
+            }
+            return 0;
+        };
+
+        return ImGui::InputText(Label, const_cast<char*>(Output.c_str()), Output.capacity(), Flags | ImGuiInputTextFlags_CallbackResize, Callback, &Output);
+    }
 }

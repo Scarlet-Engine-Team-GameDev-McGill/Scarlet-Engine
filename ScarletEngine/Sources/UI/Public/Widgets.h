@@ -1,4 +1,6 @@
 #pragma once
+
+#include "imgui.h"
 #include "Components/TransformComponent.h"
 
 namespace ScarletEngine::Widgets
@@ -9,4 +11,5 @@ namespace ScarletEngine::Widgets
     void DrawBooleanInput(const char* Label, bool& Boolean);
     void DrawSeparator(const char* Label = nullptr);
     bool DrawToggleButton(const char* Label, bool& Boolean);
+    bool DrawTextInput(const char* Label, String& Output, ImGuiInputTextFlags Flags = 0);
 }

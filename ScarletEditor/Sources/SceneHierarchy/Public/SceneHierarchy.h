@@ -29,6 +29,10 @@ namespace ScarletEngine
         void OnEntityAddedToWorld(const EntityPtr& AddedEntity);
         void OnWorldSelectionChanged();
         void OnWorldChange(const SharedPtr<World>& InNewWorld);
+
+        /* Internal events */
+        void OnTextFilterChanged();
+        void OnShowingComponentsChanged();
     private:
         WeakPtr<World> RepresentingWorld;
 
