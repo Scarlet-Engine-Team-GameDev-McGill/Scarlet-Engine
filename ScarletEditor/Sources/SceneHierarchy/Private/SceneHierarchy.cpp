@@ -65,7 +65,7 @@ namespace ScarletEngine
             ImGui::PopID();
 
             ImGui::PushID("SceneHierarchyShowComponents");
-            if (Widgets::DrawToggleButton(ICON_MD_ADD, bShowingComponents))
+            if (ImGui::Button(ICON_MD_ADD))
             {
                 OnCreateEntityPressed();
             }
