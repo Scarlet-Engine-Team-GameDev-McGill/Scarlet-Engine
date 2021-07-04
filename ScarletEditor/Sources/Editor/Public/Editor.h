@@ -1,54 +1,59 @@
 #pragma once
+
 #include "Core.h"
-#include "ECS.h"
 #include "World.h"
 #include "Viewport.h"
-#include "AssetHandle.h"
-#include "RALResources.h"
-#include "Camera.h"
+#include "Engine.h"
 
 namespace ScarletEngine
 {
 	using OnSelectionChangedEvent = Event<>;
 	using OnSelectionClearedEvent = Event<>;
 
-	class Editor : public ITickable
+	class Editor final : public Engine
 	{
 	public:
 		Editor();
 		virtual ~Editor() {}
 
-		void Initialize();
-		virtual void Tick(double DeltaTime) override;
+		virtual void Initialize() override;
+		virtual void Terminate() override;
 
-	public:
 		/* Selection */
-		void SetSelection(const Array<EntityHandle*>& NewSelection);
-		void SetSelection(EntityHandle* SelectedItem);
+		void SetSelection(const Array<Entity*>& NewSelection);
+		void SetSelection(Entity* SelectedItem);
 
-		void AddToSelection(const Array<EntityHandle*>& EntitiesToAdd);
-		void AddToSelection(EntityHandle* EntityToAdd);
+		void AddToSelection(const Array<Entity*>& EntitiesToAdd);
+		void AddToSelection(Entity* EntityToAdd);
 
-		void RemoveFromSelection(EntityHandle* EntityToRemove);
+		void RemoveFromSelection(Entity* EntityToRemove);
 
 		void ClearSelection();
 
-		bool IsEntitySelected(EntityHandle* Ent) const;
+		bool IsEntitySelected(Entity* Ent) const;
 
-		const Set<EntityHandle*>& GetSelection() const { return SelectedEntities; }
-
-		SharedPtr<World>& GetActiveWorld() { return EditorWorld; }
+		const Set<Entity*>& GetSelection() const { return SelectedEntities; }
 
 		const OnSelectionChangedEvent& GetOnSelectionChanged() const { return OnSelectionChanged; }
 		const OnSelectionClearedEvent& GetOnSelectionCleared() const { return OnSelectionCleared; }
-	private:
-		SharedPtr<World> EditorWorld;
 
-		Set<EntityHandle*> SelectedEntities;
+		/* Play in editor */
+		void StartPlayInEditor();
+
+		void StopPlayInEditor();
+
+		bool IsPlayingInEditor() const { return bPlayingInEditor; }
+
+	private:
+		void OnWorldChanged(const SharedPtr<World>& NewWorld);
+	private:
+		Set<Entity*> SelectedEntities;
 
 		OnSelectionChangedEvent OnSelectionChanged;
 		OnSelectionClearedEvent OnSelectionCleared;
+
+		bool bPlayingInEditor = false;
 	};
 
-	extern UniquePtr<Editor> GEditor;
+	extern Editor* GEditor;
 }

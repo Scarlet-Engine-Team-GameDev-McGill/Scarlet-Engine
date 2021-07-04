@@ -1,7 +1,6 @@
 #include "Engine.h"
 #include "AssetManager.h"
 #include "World.h"
-#include "RAL.h"
 #include "ModuleManager.h"
 #include "RenderModule.h"
 
@@ -16,12 +15,12 @@ int main()
 	
 	ModuleManager::RegisterModule<RenderModule>();
 
-	GEngine = MakeUnique<Engine>();	
+	GEngine = ScarNew(Engine);
 	GEngine->Initialize();
 
 	{
 		SharedPtr<World> TestWorld = MakeShared<World>();
-		TestWorld->Initialize();
+		TestWorld->SetWorldName("Test World");
 		
 		const Array<Vertex> Vertices = {
             {{0.0f, -0.5f, 0.f}, {1.0f, 1.0f, 1.0f}},
@@ -31,7 +30,7 @@ int main()
 
 		const Array<uint32_t> Indices = { 0, 1, 2};
 		
-		auto [Ent, Trans, Mesh] = TestWorld->CreateEntity<Transform, StaticMeshComponent>("TestEntity");
+		auto [Ent, Trans, Mesh] = TestWorld->CreateEntity<TransformComponent, StaticMeshComponent>("TestEntity");
 
 		Trans->Position = glm::vec3(0.f, 0.5f, 0.f);
 		Trans->Rotation = glm::vec3(0.f, 0.f, 0.f);
@@ -66,10 +65,6 @@ int main()
 
 		GEngine->Run();
 	}
-
-
-	GEngine->Terminate();
-	GEngine.reset();
 
 	return 0;
 }

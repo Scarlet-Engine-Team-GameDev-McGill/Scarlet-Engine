@@ -735,12 +735,6 @@ enum ImGuiSelectableFlagsPrivate_
     ImGuiSelectableFlags_NoPadWithHalfSpacing   = 1 << 26   // Disable padding each side with ItemSpacing * 0.5f
 };
 
-// Extend ImGuiTreeNodeFlags_
-enum ImGuiTreeNodeFlagsPrivate_
-{
-    ImGuiTreeNodeFlags_ClipLabelForTrailingButton = 1 << 20
-};
-
 enum ImGuiSeparatorFlags_
 {
     ImGuiSeparatorFlags_None                = 0,

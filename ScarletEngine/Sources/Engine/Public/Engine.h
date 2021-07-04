@@ -1,70 +1,69 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "World.h"
 
 namespace ScarletEngine
 {
-	class ITickable;
-	class ApplicationWindow;
+    class ITickable;
+    class ISystem;
+    class ApplicationWindow;
 
-	class Engine
-	{
-	public:
-		Engine();
+    // -----------------------------------------------------------------------------------------------------------------
 
-		void Initialize();
-		void Terminate();
-		void Run();
+    class Engine
+    {
+    public:
+        Engine();
+        virtual ~Engine() {}
 
-		void SignalQuit() { bIsRunning = false; }
+        virtual void Initialize();
+        void Run();
 
-		void Update(double DeltaTime);
-		void FixedUpdate(double DeltaTime);
+        /** Signals that the engine should quit on the next update */
+        void SignalQuit() { bIsRunning = false; }
 
-		bool IsInitialized() const { return bIsInitialized; }
+        void Update(double DeltaTime);
+        void FixedUpdate(double DeltaTime);
 
-		/** Enqueue the addition of a new tickable object for the next frame */
-		void QueueAddTickable(ITickable* TickableObject);
-		/** Remove a tickable object. This must be immediate as it will only be called on destruction of an ITickable */
-		void RemoveTickable(ITickable* TickableObject);
+        bool IsInitialized() const { return bIsInitialized; }
 
-		ApplicationWindow* GetApplicationWindow() const { return AppWindow; }
-	private:
+        void SaveWorld(const String& WorldPath) const;
+        void LoadWorldFromFile(const String& WorldPath);
+        void LoadWorld();
 
-		/** Called before objects are ticked each frame */
-		void PreUpdate();
-		/** Called after objects are ticked each frame */
-		void PostUpdate();
-		
-		/** Moves queued tickables into the list of objects to tick on the next frame */
-		void AddQueuedTickables();
-		void AddTickable(ITickable* TickableToAdd);
-	private:
-		// Prevent disable copy/move constructors
-		Engine(const Engine&) = delete;
-		Engine(Engine&&) = delete;
-		
-		/** List of tickables to update on a fixed-timestep */
-		Array<ITickable*> VariableUpdateTickables;
-		/** List of tickables to update on a variable-timestep */
-		Array<ITickable*> FixedUpdateTickables;
-		/** Queue of tickables to add at the beginning of the next frame */
-		Array<ITickable*> TickableQueue;
-		/** Used to lock the TickableQueue */
-		std::mutex TickableQueueMutex;
-		
-		/** Main engine application window */
-		ApplicationWindow* AppWindow = nullptr;
+        const SharedPtr<World>& GetActiveWorld() const { return ActiveWorld; }
+        ApplicationWindow* GetApplicationWindow() const { return AppWindow; }
+    protected:
+        virtual void Terminate();
 
-		/** True when the engine is initialized */
-		uint32_t bIsInitialized : 1;
-		/** True when the engine is in the running state */
-		uint32_t bIsRunning : 1;
-		/** True after the engine has finished running */
-		uint32_t bIsTerminated : 1;
-		/** True when the engine is in the middle of ticking objects */
-		uint32_t bTickingObjects : 1;
-	};
+        /** Called before objects are ticked each frame */
+        void PreUpdate();
 
-	extern UniquePtr<Engine> GEngine;
+        /** Called after objects are ticked each frame */
+        void PostUpdate();
+    protected:
+        // Prevent copy/move constructors
+        Engine(const Engine&) = delete;
+        Engine(Engine&&) = delete;
+
+        SharedPtr<World> ActiveWorld = nullptr;
+        SharedPtr<World> QueuedWorldToLoad = nullptr;
+
+        /** Main engine application window */
+        ApplicationWindow* AppWindow = nullptr;
+
+        /** True when the engine is initialized */
+        uint32_t bIsInitialized : 1 = false;
+        /** True when the engine is in the running state */
+        uint32_t bIsRunning : 1 = false;
+        /** True after the engine has finished running */
+        uint32_t bIsTerminated : 1 = false;
+        /** True when the engine is in the middle of ticking objects */
+        uint32_t bTickingObjects : 1 = false;
+        /** Should the engine immediately start all gameplay systems */
+        uint32_t bStartGameplaySystemsOnLoad : 1 = true;
+    };
+
+    extern Engine* GEngine;
 }

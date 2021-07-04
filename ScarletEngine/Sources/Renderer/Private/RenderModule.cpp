@@ -2,7 +2,7 @@
 #include "CoreUtils.h"
 #include "OpenGLRAL.h"
 #include "VulkanRAL.h"
-#include "Transform.h"
+#include "Components/TransformComponent.h"
 #include "SceneProxy.h"
 #include "Viewport.h"
 #include "SystemScheduler.h"
@@ -12,7 +12,6 @@ namespace ScarletEngine
 {
 	void RenderModule::Startup()
 	{
-		ZoneScoped
 #ifdef RAL_USE_OPENGL
 		RAL::Instance = UniquePtr<RAL>(ScarNew(OpenGLRAL));
 		RAL::API = RenderAPI::OpenGL;

@@ -945,7 +945,9 @@ namespace ScarletEngine
         {
             const ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
             check(AppWindow != nullptr);
-            AppWindow->OnWindowResize.Bind([this](uint32_t, uint32_t)
+
+            // TODO: test this once demo is working again
+            AppWindow->OnWindowResize.Bind([this](glm::ivec2 NewDims)
             {
                 bFramebufferResized = true;
             }, this);
@@ -970,11 +972,6 @@ namespace ScarletEngine
 
     void VulkanRAL::PreFrame()
     {
-        OnScopeExit Scoped([this]()
-        {
-            CommandListQueue.push(UniquePtr<RALCommandList>(CreateCommandList()));
-        });
-
         if (!bShouldSubmitFrame)
         {
             RebuildSwapchain();
@@ -997,16 +994,13 @@ namespace ScarletEngine
         {
             SCAR_LOG(LogError, "Failed to acquire swapchain image!");
         }
+
+        CommandListQueue.push(UniquePtr<RALCommandList>(CreateCommandList()));
     }
 
     void VulkanRAL::Submit()
     {
         VulkanCommandList& CmdList = static_cast<VulkanCommandList&>(*CommandListQueue.front().get());
-
-        OnScopeExit Scoped([this]()
-        {
-            CommandListQueue.pop();
-        });
 
         if (ImageIndex == -1 || CmdList.CmdBuff == VK_NULL_HANDLE || !bShouldSubmitFrame || bFramebufferResized)
         {
@@ -1071,6 +1065,7 @@ namespace ScarletEngine
         vkQueuePresentKHR(PresentQueue, &PresentInfo);
 
         CurrentFrameIndex = (CurrentFrameIndex + 1) % MaxFramesInFlight;
+        CommandListQueue.pop();
     }
 
     void VulkanRAL::Terminate()

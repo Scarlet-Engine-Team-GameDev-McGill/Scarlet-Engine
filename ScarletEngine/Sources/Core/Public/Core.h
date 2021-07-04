@@ -5,22 +5,13 @@
 #include "CoreMinimal.h"
 #include "Event.h"
 #include "Delegate.h"
-#include "Archive.h"
+#include "BinaryArchive.h"
 #include "Color.h"
 #include "Utils/StringUtils.h"
 #include "IModule.h"
 #include "ModuleManager.h"
+#include "InputCodes.h"
+#include "Components/IComponent.h"
 
 // Core component types
-#include "Transform.h"
-
-namespace ScarletEngine
-{
-    struct OnScopeExit
-    {
-        OnScopeExit(const std::function<void()>& InFunc) : Func(InFunc) {}
-        ~OnScopeExit() { Func(); }
-			
-        Function<void()> Func;
-    };
-}
+#include "Components/TransformComponent.h"

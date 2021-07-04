@@ -4,8 +4,8 @@ set(UI_PrivateDeps
 	"RenderModule"
 	"glfw"
 	"glad"
-	"Engine"
-	"Window")
+	"Window"
+	"Engine")
 
 set(UI_PublicDeps
 	"ImGUI"

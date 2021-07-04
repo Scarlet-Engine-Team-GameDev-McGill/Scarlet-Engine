@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
-#include <Archive.h>
+#include <BinaryArchive.h>
 
 using namespace ScarletEngine;
 
 TEST(Archive, Basic)
 {
-	Archive Ar;
+	BinaryArchive Ar;
 
 	int A = 10;
 	int B = 11;
@@ -15,7 +15,7 @@ TEST(Archive, Basic)
 	Ar << B;
 	Ar << C;
 
-	Ar.SetReadModeandResetPos();
+	Ar.SetReadModeAndResetPos();
 
 	int ReadA = 0;
 	int ReadB = 0;
@@ -33,7 +33,7 @@ TEST(Archive, Basic)
 
 TEST(Archive, Primitives)
 {
-	Archive Ar;
+	BinaryArchive Ar;
 
 	bool Boolean1 = true;
 	bool Boolean2 = false;
@@ -61,7 +61,7 @@ TEST(Archive, Primitives)
 		<< Float
 		<< Double;
 
-	Ar.SetReadModeandResetPos();
+	Ar.SetReadModeAndResetPos();
 
 	bool ReadBoolean1 = false;
 	bool ReadBoolean2 = false;
@@ -105,18 +105,18 @@ TEST(Archive, Primitives)
 
 TEST(Archive, Serializable)
 {
-	Archive Ar;
+	BinaryArchive Ar;
 
 	struct SerializableType
 	{
 		int X;
 
-		void Serialize(Archive& Arch) const
+		void Serialize(BinaryArchive& Arch) const
 		{
 			Arch << X;
 		}
 
-		void Deserialize(Archive& Arch)
+		void Deserialize(BinaryArchive& Arch)
 		{
 			Arch >> X;
 		}
@@ -126,7 +126,7 @@ TEST(Archive, Serializable)
 
 	Ar << S;
 
-	Ar.SetReadModeandResetPos();
+	Ar.SetReadModeAndResetPos();
 
 	SerializableType ReadS{};
 
@@ -137,13 +137,13 @@ TEST(Archive, Serializable)
 
 TEST(Archive, Array)
 {
-	Archive Ar;
+	BinaryArchive Ar;
 
 	Array<uint32_t> IntArray{ 9, 6, 10, 11, 100, 2, 0, 40 };
 
 	Ar << IntArray;
 
-	Ar.SetReadModeandResetPos();
+	Ar.SetReadModeAndResetPos();
 
 	Array<uint32_t> ReadIntArray;
 
@@ -159,13 +159,13 @@ TEST(Archive, Array)
 
 TEST(Archive, String)
 {
-	Archive Ar;
+	BinaryArchive Ar;
 
 	String Str = "This is a test string";
 
 	Ar << Str;
 
-	Ar.SetReadModeandResetPos();
+	Ar.SetReadModeAndResetPos();
 
 	String ReadStr;
 
@@ -176,7 +176,7 @@ TEST(Archive, String)
 
 TEST(Archive, File)
 {
-	Archive Ar;
+	BinaryArchive Ar;
 
 	Array<uint32_t> IntArray{ 9, 6, 10, 11, 100, 2, 0, 40 };
 
@@ -184,7 +184,7 @@ TEST(Archive, File)
 
 	Ar.SaveToFile("TestFile.data");
 
-	Archive InArch("TestFile.data");
+	BinaryArchive InArch("TestFile.data");
 
 	Array<uint32_t> ReadIntArray;
 

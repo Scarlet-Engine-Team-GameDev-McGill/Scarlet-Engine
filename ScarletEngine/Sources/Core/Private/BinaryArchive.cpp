@@ -1,10 +1,10 @@
-#include "Archive.h"
+#include "BinaryArchive.h"
 
 #include <fstream>
 
 namespace ScarletEngine
 {
-	Archive::Archive()
+	BinaryArchive::BinaryArchive()
 		: Filename()
 		, DataArray()
 		, Pos(0)
@@ -13,13 +13,12 @@ namespace ScarletEngine
 		DataArray.resize(128);
 	}
 
-	Archive::Archive(const String& InFilename, ArchiveMode InMode)
+	BinaryArchive::BinaryArchive(const String& InFilename, ArchiveMode InMode)
 		: Filename(InFilename)
 		, DataArray()
 		, Pos(0)
 		, Mode(InMode)
 	{
-		ZoneScoped
 		if (!Filename.empty())
 		{
 			if (InMode == ArchiveMode::Read)
@@ -37,9 +36,8 @@ namespace ScarletEngine
 		}
 	}
 
-	void Archive::Close()
+	void BinaryArchive::Close()
 	{
-		ZoneScoped
 		if (Mode == ArchiveMode::Write && !Filename.empty())
 		{
 			SaveToFile();
@@ -47,16 +45,15 @@ namespace ScarletEngine
 		DataArray.clear();
 	}
 
-	bool Archive::SaveToFile(const char* OverrideFile)
+	bool BinaryArchive::SaveToFile(const char* OverrideFile)
 	{
-		ZoneScoped
 		if (Pos > 0)
 		{
 			// trunc to immediately remove the old file contents
 			std::ofstream File(OverrideFile != nullptr ? OverrideFile : Filename.c_str(), std::ios::binary | std::ios::trunc | std::ios::out);
 			if (File.is_open())
 			{
-				File.write((const char*)DataArray.data(), (std::streamsize)Pos);
+				File.write(reinterpret_cast<const char*>(DataArray.data()), static_cast<std::streamsize>(Pos));
 				File.close();
 				return true;
 			}

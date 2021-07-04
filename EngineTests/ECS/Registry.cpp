@@ -7,8 +7,10 @@
 
 using namespace ScarletEngine;
 
-struct TestComponent
+struct TestComponent : public IComponent
 {
+	COMPONENT_DEFINITION(TestComponent)
+
 	inline static uint32_t ConstructorCounter = 0;
 	inline static uint32_t MoveCounter = 0;
 
@@ -101,6 +103,31 @@ TEST(ECS, RegistryAttachComponent)
 	EXPECT_NE(Reg.GetComponent<TestComponent>(TestEntity), nullptr);
 }
 
+TEST(ECS, RegistryRemove)
+{
+	TestComponent::ResetCounter();
+
+	Registry Reg;
+
+	auto [TestEntity, TC] = Reg.CreateEntity<TestComponent>();
+
+	EXPECT_EQ(TestComponent::ConstructorCounter, static_cast<uint32_t>(1));
+
+	EXPECT_NE(Reg.GetComponent<TestComponent>(TestEntity), nullptr);
+
+	bool Result = Reg.RemoveComponent<TestComponent>(TestEntity);
+
+	EXPECT_TRUE(Result);
+
+	EXPECT_EQ(Reg.GetComponent<TestComponent>(TestEntity), nullptr);
+
+	Result = Reg.RemoveComponent<TestComponent>(TestEntity);
+
+	EXPECT_FALSE(Result);
+
+	EXPECT_EQ(Reg.GetComponent<TestComponent>(TestEntity), nullptr);
+}
+
 TEST(ECS, RegistrySort)
 {
 	const uint32_t NumEntities = 100;
@@ -144,13 +171,15 @@ TEST(ECS, RegistrySort)
 	}
 }
 
+struct Component : public IComponent
+{
+	COMPONENT_DEFINITION(Component);
+
+	uint32_t X = 20;
+};
+
 TEST(ECS, System)
 {
-	struct Component
-	{
-		uint32_t X = 11;
-	};
-	
 	class TestSystem : public ScarletEngine::System<Component>
 	{
 	public:
@@ -169,7 +198,7 @@ TEST(ECS, System)
 	auto [Entity, TC] = Reg.CreateEntity<Component>();
 
 	ASSERT_NE(TC, nullptr);
-	EXPECT_EQ(TC->X, static_cast<uint32_t>(11));
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(20));
 
 	Scheduler.RunUpdate(&Reg);
 
@@ -178,11 +207,6 @@ TEST(ECS, System)
 
 TEST(ECS, ConstSystem)
 {
-	struct Component
-	{
-		uint32_t X = 11;	
-	};
-	
 	class TestSystem : public ScarletEngine::System<const Component>
 	{
 	public:
@@ -202,11 +226,11 @@ TEST(ECS, ConstSystem)
 	auto [Entity, TC] = Reg.CreateEntity<Component>();
 
 	ASSERT_NE(TC, nullptr);
-	EXPECT_EQ(TC->X, static_cast<uint32_t>(11));
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(20));
 
 	Scheduler.RunUpdate(&Reg);
 
-	EXPECT_EQ(TC->X, static_cast<uint32_t>(11));
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(20));
 }
 
 TEST(ECS, Singleton)
@@ -286,11 +310,6 @@ TEST(ECS, ConstSingleton)
 
 TEST(ECS, GetEntity)
 {
-	struct Component
-	{
-		uint32_t X = 11;
-	};
-	
 	class TestSystem : public ScarletEngine::System<Component>
 	{
 	public:
@@ -313,4 +332,75 @@ TEST(ECS, GetEntity)
 	ASSERT_NE(TC, nullptr);
 
 	Scheduler.RunUpdate(&Reg);
+}
+
+TEST(ECS, UncachedProxy)
+{
+	class TestSystem : public ScarletEngine::System<Component>
+	{
+	public:
+		virtual void Update() const override
+		{
+			for (auto& [Ent, TC] : GetEntities<Component>())
+			{
+				TC->X += 1;
+			}
+		}
+	};
+
+	Registry Reg;
+	SystemScheduler Scheduler;
+	Scheduler.RegisterSystem<TestSystem>();
+	auto [Entity, TC] = Reg.CreateEntity<Component>();
+
+	ASSERT_NE(TC, nullptr);
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(20));
+
+	Scheduler.RunUpdate(&Reg);
+
+	EXPECT_TRUE(Reg.IsComponentContainerClean<Component>());
+	
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(21));
+
+	Scheduler.RunUpdate(&Reg);
+	
+	Reg.CreateEntity<Component>();
+	EXPECT_FALSE(Reg.IsComponentContainerClean<Component>());
+
+	TC = Reg.GetComponent<Component>(Entity);
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(22));
+}
+
+TEST(ECS, CachedProxy)
+{
+	class TestSystem : public ScarletEngine::System<Component>
+	{
+	public:
+		virtual void Update() const override
+		{
+			for (auto& [Ent, TC] : GetEntities<Component>())
+			{
+				TC->X += 1;
+			}
+		}
+	};
+
+	Registry Reg;
+	SystemScheduler Scheduler;
+	Scheduler.RegisterSystem<TestSystem>();
+	auto [Entity, TC] = Reg.CreateEntity<Component>();
+
+	ASSERT_NE(TC, nullptr);
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(20));
+
+	Scheduler.RunUpdate(&Reg);
+
+	EXPECT_TRUE(Reg.IsComponentContainerClean<Component>());
+	
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(21));
+
+	Scheduler.RunUpdate(&Reg);
+
+	TC = Reg.GetComponent<Component>(Entity);
+	EXPECT_EQ(TC->X, static_cast<uint32_t>(22));
 }

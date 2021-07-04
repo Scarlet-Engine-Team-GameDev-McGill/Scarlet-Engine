@@ -13,13 +13,15 @@ namespace ScarletEngine
 		LogError
 	};
 
-	using OnMessageLoggedEvent = Event<LogLevel, const char*>;
+	using OnMessageLoggedEvent = Event<LogLevel, StringView>;
 
 	class Logger
 	{
 	public:
+		/** Log a message to the standard output. May also log to a file if the file is present. */
 		void Log(LogLevel Level, const char* Message);
 
+		/** Set the log file */
 		void SetLogFile(const char* FilePath);
 
 		static Logger& Get() { static Logger Instance; return Instance; }
@@ -35,7 +37,6 @@ namespace ScarletEngine
 
 #define SCAR_LOG(Level, Format, ...)		\
 {											\
-    ZoneScoped								\
 	constexpr int BufferSize = 4096;		\
 	char Buffer[BufferSize];				\
 	snprintf(Buffer, BufferSize, Format, ##__VA_ARGS__);\

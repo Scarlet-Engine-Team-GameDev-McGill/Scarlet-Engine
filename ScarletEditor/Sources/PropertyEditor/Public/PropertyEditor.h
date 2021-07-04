@@ -5,7 +5,12 @@
 
 namespace ScarletEngine
 {
-	struct EntityHandle;
+	namespace Achilles
+	{
+		class RigidBodyComponent;
+	}
+
+	class Entity;
 
 	class PropertyEditorPanel : public UIWindow
 	{
@@ -19,8 +24,10 @@ namespace ScarletEngine
 		void OnSelectionCleared();
 
 	private:
-		void DrawTransformEditor();
+		void DrawTransformWidget(TransformComponent& Transform) const;
+		void DrawRigidBodyWidget(Achilles::RigidBodyComponent& RigidBody) const;
+		
 	private:
-		EntityHandle* FocusedEntity;
+		Entity* FocusedEntity;
 	};
 }

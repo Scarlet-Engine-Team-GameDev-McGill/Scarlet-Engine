@@ -2,85 +2,98 @@
 
 #include "UIModule.h"
 #include "EditorUILayer.h"
+#include "EngineDelegates.h"
 
 namespace ScarletEngine
 {
-	UniquePtr<Editor> GEditor = nullptr;
+    Editor* GEditor = nullptr;
 
-	Editor::Editor()
-		: EditorWorld(nullptr)
-		, SelectedEntities()
-	{
-	}
+    Editor::Editor()
+    {
+        bStartGameplaySystemsOnLoad = false;
+    }
 
-	void Editor::Initialize()
-	{
-		ZoneScoped
-		EditorWorld = MakeShared<World>();
-		// #todo_core: this should be handled by the engine
-		EditorWorld->Initialize();
+    void Editor::Initialize()
+    {
+        Engine::Initialize();
 
-		ModuleManager::GetModuleChecked<UIModule>("UIModule")->SetActiveLayer(MakeShared<EditorUILayer>());
-	}
+        ModuleManager::GetModuleChecked<UIModule>("UIModule")->SetActiveLayer(MakeShared<EditorUILayer>());
 
-	void Editor::Tick(double)
-	{
-		ZoneScoped
-	}
+        EngineDelegates::OnWorldChanged.BindMember(this, &Editor::OnWorldChanged);
+    }
 
-	void Editor::SetSelection(const Array<EntityHandle*>& NewSelection)
-	{
-		ZoneScoped
-		SelectedEntities.clear();
-		for (EntityHandle* Ent : NewSelection)
-		{
-			SelectedEntities.insert(Ent);
-		}
-		OnSelectionChanged.Broadcast();
-	}
-	
-	void Editor::SetSelection(EntityHandle* SelectedItem)
-	{
-		ZoneScoped
-		SelectedEntities.clear();
-		SelectedEntities.insert(SelectedItem);
-		OnSelectionChanged.Broadcast();
-	}
+    void Editor::Terminate()
+    {
+        EngineDelegates::OnWorldChanged.Unbind(this);
 
-	void Editor::AddToSelection(const Array<EntityHandle*>& EntitiesToAdd)
-	{
-		ZoneScoped
-		for (EntityHandle* Ent : EntitiesToAdd)
-		{
-			SelectedEntities.insert(Ent);
-		}
-		OnSelectionChanged.Broadcast();
-	}
+        Engine::Terminate();
+    }
 
-	void Editor::AddToSelection(EntityHandle* EntityToAdd)
-	{
-		ZoneScoped
-		SelectedEntities.insert(EntityToAdd);
-		OnSelectionChanged.Broadcast();
-	}
+    void Editor::SetSelection(const Array<Entity*>& NewSelection)
+    {
+        SelectedEntities.clear();
+        for (Entity* Ent : NewSelection)
+        {
+            SelectedEntities.insert(Ent);
+        }
+        OnSelectionChanged.Broadcast();
+    }
 
-	void Editor::ClearSelection()
-	{
-		ZoneScoped
-		SelectedEntities.clear();
-		OnSelectionCleared.Broadcast();
-	}
+    void Editor::SetSelection(Entity* SelectedItem)
+    {
+        SelectedEntities.clear();
+        SelectedEntities.insert(SelectedItem);
+        OnSelectionChanged.Broadcast();
+    }
 
-	void Editor::RemoveFromSelection(EntityHandle* EntityToRemove)
-	{
-		ZoneScoped
-		SelectedEntities.erase(EntityToRemove);
-		OnSelectionChanged.Broadcast();
-	}
+    void Editor::AddToSelection(const Array<Entity*>& EntitiesToAdd)
+    {
+        for (Entity* Ent : EntitiesToAdd)
+        {
+            SelectedEntities.insert(Ent);
+        }
+        OnSelectionChanged.Broadcast();
+    }
 
-	bool Editor::IsEntitySelected(EntityHandle* Ent) const
-	{
-		ZoneScoped
-		return SelectedEntities.find(Ent) != SelectedEntities.end();
-	}
+    void Editor::AddToSelection(Entity* EntityToAdd)
+    {
+        SelectedEntities.insert(EntityToAdd);
+        OnSelectionChanged.Broadcast();
+    }
+
+    void Editor::ClearSelection()
+    {
+        SelectedEntities.clear();
+        OnSelectionCleared.Broadcast();
+    }
+
+    void Editor::RemoveFromSelection(Entity* EntityToRemove)
+    {
+        SelectedEntities.erase(EntityToRemove);
+        OnSelectionChanged.Broadcast();
+    }
+
+    bool Editor::IsEntitySelected(Entity* Ent) const
+    {
+        return SelectedEntities.find(Ent) != SelectedEntities.end();
+    }
+
+    void Editor::StartPlayInEditor()
+    {
+        SystemScheduler::Get().EnableGameplaySystems();
+
+        bPlayingInEditor = true;
+    }
+
+    void Editor::StopPlayInEditor()
+    {
+        SystemScheduler::Get().DisableGameplaySystems();
+
+        bPlayingInEditor = false;
+    }
+
+    void Editor::OnWorldChanged(const SharedPtr<World>&)
+    {
+        ClearSelection();
+    }
 }

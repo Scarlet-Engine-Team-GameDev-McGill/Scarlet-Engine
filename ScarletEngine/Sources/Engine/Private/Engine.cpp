@@ -1,199 +1,175 @@
 #include "Engine.h"
 
 #include "CoreUtils.h"
-#include "ITickable.h"
 
 #include <chrono>
 #include <common/TracySystem.hpp>
-#include "ModuleManager.h"
-#include "Window.h"
 
-#define FIXED_UPDATE_S 0.020
+#include "InputManager.h"
+#include "ModuleManager.h"
+#include "TickableList.h"
+#include "Window.h"
+#include "EngineDelegates.h"
 
 namespace ScarletEngine
 {
-	UniquePtr<Engine> GEngine = nullptr;
+    Engine* GEngine = nullptr;
 
-	Engine::Engine()
-		: VariableUpdateTickables()
-		, FixedUpdateTickables()
-		, TickableQueue()
-		, bIsInitialized(false)
-		, bIsRunning(false)
-		, bIsTerminated(false)
-		, bTickingObjects(false)
-	{
-		tracy::SetThreadName("Engine Thread");
-	}
+    // -----------------------------------------------------------------------------------------------------------------
 
-	void Engine::Initialize()
-	{
-		ZoneScoped
-		Logger::Get().SetLogFile("Log.txt");
+    Engine::Engine()
+    {
+    }
 
-		AppWindow = ScarNew(ApplicationWindow, 800, 600, "Scarlet Engine");
-		check(AppWindow);
+    void Engine::Initialize()
+    {
+        ZoneScoped
+        Logger::Get().SetLogFile("Log.txt");
 
-		AppWindow->OnWindowClose.BindMember(this, &Engine::SignalQuit);
+        AppWindow = ScarNew(ApplicationWindow, 800, 600, "Scarlet Engine");
+        check(AppWindow);
 
-		ModuleManager::GetInstance().Startup();
+        AppWindow->OnWindowClose.BindMember(this, &Engine::SignalQuit);
 
-		bIsInitialized = true;
-	}
+        ModuleManager::GetInstance().Startup();
 
-	void Engine::Run()
-	{
-		ZoneScoped
-		check(bIsInitialized);
+        // Create a default world
+        ActiveWorld = MakeShared<World>();
+        ActiveWorld->SetWorldName("Editor World");
 
-		std::chrono::high_resolution_clock Clock;
+        if (bStartGameplaySystemsOnLoad)
+        {
+            SystemScheduler::Get().EnableGameplaySystems();
+        }
 
-		using seconds = std::chrono::duration<double, std::ratio<1>>;
-		auto LastTime = Clock.now();
-		double Lag = 0.0;
+        bIsInitialized = true;
+    }
 
-		bIsRunning = true;
-		while (bIsRunning)
-		{
-			FrameMark
-			const double DeltaTime = std::chrono::duration_cast<seconds>(Clock.now() - LastTime).count();
-			LastTime = Clock.now();
-			Lag += DeltaTime;
+    void Engine::Run()
+    {
+        ZoneScoped
+        tracy::SetThreadName("Engine Thread");
 
-			PreUpdate();
-			// In this scope we are ticking objects
-			{
-				bTickingObjects = true;
-				// If it has been more than FIXED_UPDATE_S since our last fixed timestep update,
-				// we should run a fixed update before running a regular update
-				while (Lag >= FIXED_UPDATE_S)
-				{
-					Lag -= FIXED_UPDATE_S;
-					FixedUpdate(FIXED_UPDATE_S);
-				}
+        check(bIsInitialized);
 
-				Update(DeltaTime);
-				bTickingObjects = false;
-			}
+        std::chrono::high_resolution_clock Clock;
 
-			// Process anything that should happen before the next update
-			PostUpdate();
-		}
-	}
+        using seconds = std::chrono::duration<double, std::ratio<1>>;
+        auto LastTime = Clock.now();
+        double Lag = 0.0;
 
-	void Engine::PreUpdate()
-	{
-		ZoneScoped
-		AppWindow->PollEvents();
-		
-		AddQueuedTickables();
-		ModuleManager::GetInstance().PreUpdate();
-	}
+        bIsRunning = true;
+        while (bIsRunning)
+        {
+            FrameMark
 
-	void Engine::PostUpdate()
-	{
-		ZoneScoped
-		ModuleManager::GetInstance().PostUpdate();
+            const double DeltaTime = std::chrono::duration_cast<seconds>(Clock.now() - LastTime).count();
+            LastTime = Clock.now();
+            Lag += DeltaTime;
 
-		AppWindow->SwapBuffer();
-	}
+            PreUpdate();
+            // In this scope we are ticking objects
+            {
+                bTickingObjects = true;
+                // If it has been more than FIXED_UPDATE since our last fixed timestep update,
+                // we should run a fixed update before running a regular update
+                while (Lag >= FIXED_UPDATE_TIME)
+                {
+                    Lag -= FIXED_UPDATE_TIME;
+                    FixedUpdate(FIXED_UPDATE_TIME);
+                }
 
-	void Engine::Terminate()
-	{
-		ZoneScoped
-		ModuleManager::GetInstance().Shutdown();
+                Update(DeltaTime);
+                bTickingObjects = false;
+            }
 
-		ScarDelete(AppWindow);
+            // Process anything that should happen before the next update
+            PostUpdate();
+        }
 
-		bIsInitialized = false;
-		VariableUpdateTickables.clear();
-		FixedUpdateTickables.clear();
+        Terminate();
+    }
 
-		bIsTerminated = true;
-	}
+    void Engine::PreUpdate()
+    {
+        ZoneScoped
 
-	void Engine::Update(double DeltaTime)
-	{
-		ZoneScoped
-		ModuleManager::GetInstance().Update();
-		for (const auto Tickable : VariableUpdateTickables)
-		{
-			Tickable->Tick(DeltaTime);
-		}
-	}
+        AppWindow->PollEvents();
 
-	void Engine::FixedUpdate(double DeltaTime)
-	{
-		ZoneScoped
-		for (const auto Tickable : FixedUpdateTickables)
-		{
-			Tickable->FixedTick(DeltaTime);
-		}
-	}
+        TickableList::Get().AddQueuedTickables();
 
-	void Engine::QueueAddTickable(ITickable* TickableObject)
-	{
-		ZoneScoped
-		//std::lock_guard<std::mutex> Lock(TickableQueueMutex);
+        ModuleManager::GetInstance().PreUpdate();
+    }
 
-		TickableQueue.push_back(TickableObject);
-	}
+    void Engine::PostUpdate()
+    {
+        ZoneScoped
+        ModuleManager::GetInstance().PostUpdate();
 
-	void Engine::RemoveTickable(ITickable* TickableObject)
-	{
-		ZoneScoped
-		// Tickables cannot be removed while objects are being ticked as this would invalidate the iterator
-		check(!bTickingObjects);
+        InputManager::Get().PostUpdate();
 
-		if (TickableObject->WantsFixedTimestep())
-		{
-			auto It = std::remove(FixedUpdateTickables.begin(), FixedUpdateTickables.end(), TickableObject);
-			if (It != FixedUpdateTickables.end())
-			{
-				FixedUpdateTickables.erase(It, FixedUpdateTickables.end());
-			}
-		}
-		if (TickableObject->WantsVariableTimestep())
-		{
-			auto It = std::remove(VariableUpdateTickables.begin(), VariableUpdateTickables.end(), TickableObject);
-			if (It != VariableUpdateTickables.end())
-			{
-				VariableUpdateTickables.erase(It, VariableUpdateTickables.end());
-			}
-		}
-	}
+        if (QueuedWorldToLoad)
+        {
+            LoadWorld();
+        }
 
-	void Engine::AddQueuedTickables()
-	{
-		ZoneScoped
-		//std::lock_guard<std::mutex> Lock(TickableQueueMutex);
-		// Add any new tickables which may have been enqueued during the last frame
-		for (const auto TickableToAdd : TickableQueue)
-		{
-			AddTickable(TickableToAdd);
-		}
-	}
+        TickableList::Get().Cleanup();
 
-	void Engine::AddTickable(ITickable* TickableObject)
-	{
-		ZoneScoped
-		check(bIsInitialized);
-		check(!bTickingObjects);
+        AppWindow->SwapBuffer();
+    }
 
-		if (TickableObject->WantsFixedTimestep())
-		{
-			FixedUpdateTickables.push_back(TickableObject);
-		}
+    void Engine::Terminate()
+    {
+        ZoneScoped
+        SCAR_LOG(LogInfo, "Terminating engine");
+        ModuleManager::GetInstance().Shutdown();
 
-		if (TickableObject->WantsVariableTimestep())
-		{
-			VariableUpdateTickables.push_back(TickableObject);
-		}
+        ScarDelete(AppWindow);
 
-		auto It = std::remove(TickableQueue.begin(), TickableQueue.end(), TickableObject);
-		if (It != TickableQueue.end())
-		{
-			TickableQueue.erase(It, TickableQueue.end());
-		}
-	}
+        TickableList::Get().Reset();
+        bIsInitialized = false;
+        bIsTerminated = true;
+    }
+
+    void Engine::Update(double DeltaTime)
+    {
+        ZoneScoped
+        ModuleManager::GetInstance().Update();
+
+        TickableList::Get().Update(DeltaTime);
+    }
+
+    void Engine::FixedUpdate(double DeltaTime)
+    {
+        ZoneScoped
+        TickableList::Get().FixedUpdate(DeltaTime);
+    }
+
+    void Engine::SaveWorld(const String& WorldPath) const
+    {
+        BinaryArchive WorldArchive(WorldPath, ArchiveMode::Write);
+        WorldArchive << *ActiveWorld;
+    }
+
+    void Engine::LoadWorldFromFile(const String& WorldPath)
+    {
+        BinaryArchive WorldArchive(WorldPath, ArchiveMode::Read);
+        QueuedWorldToLoad = MakeShared<World>();
+        QueuedWorldToLoad->SetWorldName(WorldPath);
+
+        // #todo_core: for now copy the worlds registry to prevent having to re-register component types some other way
+        QueuedWorldToLoad->GetRegistry() = std::move(ActiveWorld->GetRegistry());
+
+        WorldArchive >> *QueuedWorldToLoad;
+    }
+
+    void Engine::LoadWorld()
+    {
+        ActiveWorld.reset();
+        ActiveWorld = QueuedWorldToLoad;
+
+        EngineDelegates::OnWorldChanged.Broadcast(ActiveWorld);
+
+        QueuedWorldToLoad = nullptr;
+    }
 }

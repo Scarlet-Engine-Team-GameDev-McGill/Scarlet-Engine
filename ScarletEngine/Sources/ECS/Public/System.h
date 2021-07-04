@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core.h"
-#include "TypeInfo.h"
 #include "Registry.h"
 
 template <class T, class... U>
@@ -20,13 +19,17 @@ namespace ScarletEngine
 
 		virtual void Update() const {}
 		virtual void FixedUpdate() const {}
+		// #todo_ecs: make into static rather than virtual?
+		virtual bool IsGameplayOnly() const { return false; }
 
+		virtual String GetName() const { return ""; };
+	protected:
 		template <typename ...Components>
-		Array<ProxyType<Components...>> GetEntities() const
+		const Array<ProxyType<Components...>>& GetEntities() const
 		{
 			return Reg->GetProxies<Components...>();
 		}
-
+		
 		template <typename ...Components>
 		std::optional<ProxyType<Components...>> GetEntity(EID EntityID) const
 		{
@@ -38,10 +41,9 @@ namespace ScarletEngine
 		{
 			return Reg->GetSingleton<std::remove_cv_t<SingletonType>>();
 		}
-
-		const String Name;
 	private:
 		friend class SystemScheduler;
+
 		Registry* Reg = nullptr;
 	};
 
@@ -49,10 +51,10 @@ namespace ScarletEngine
 	class System : public ISystem
 	{
 	public:
+		/** Get the entity proxies matching this systems signature */
 		template <typename ...Components>
 		Array<ProxyType<Components...>> GetEntities() const
 		{
-			ZoneScoped
 			static_assert(std::conjunction_v<Contains<Components, ComponentTypes...>...>,
 				"Trying to get components which are not marked in the system's signature!");
 
@@ -61,16 +63,17 @@ namespace ScarletEngine
 			return ISystem::GetEntities<Components...>();
 		}
 
+		/** Get the entity proxy that matches this systems signature for the specified entity if possible */
 		template <typename ...Components>
 		std::optional<ProxyType<Components...>> GetEntity(EID EntityID) const
 		{
-			ZoneScoped
 			static_assert(std::conjunction_v<Contains<Components, ComponentTypes...>...>,
 				"Trying to get components which are not marked in the system's signature!");
 
 			return ISystem::GetEntity<Components...>(EntityID);
 		}
 
+		/** Get the entity proxy that matches this systems signature for the specified entity. */
 		template <typename ...Components>
 		ProxyType<Components...> GetEntityChecked(EID EntityID) const
 		{
@@ -79,6 +82,7 @@ namespace ScarletEngine
 			return OptProxy.value();
 		}
 
+		/** Returns a pointer to the singleton component of the templated type */
 		template <typename SingletonType>
 		SingletonType* GetSingleton() const
 		{
@@ -87,8 +91,4 @@ namespace ScarletEngine
 			return ISystem::GetSingleton<SingletonType>();
 		}
 	};
-
-	template <typename Type>
-	concept ECSSystem = std::derived_from<Type, ISystem>;
-
 }
