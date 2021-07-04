@@ -35,20 +35,20 @@ namespace ScarletEngine
 			glDeleteTextures(2, Textures);
 		}
 
-		glCreateFramebuffers(1, &FramebufferObject);
+		glGenFramebuffers(1, &FramebufferObject);
 		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferObject);
 
 		// Create the color attachment texture for the framebuffer
-		glCreateTextures(GL_TEXTURE_2D, 1, &ColorAttachment);
+		glGenTextures(1, &ColorAttachment);
 		glBindTexture(GL_TEXTURE_2D, ColorAttachment);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		// Create the depth attachment texture for the framebuffer
-		glCreateTextures(GL_TEXTURE_2D, 1, &DepthAttachment);
+		glGenTextures(1, &DepthAttachment);
 		glBindTexture(GL_TEXTURE_2D, DepthAttachment);
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, Width, Height);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_STENCIL, Width, Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
 
 		// Bind the textures to the framebuffer object
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ColorAttachment, 0);
