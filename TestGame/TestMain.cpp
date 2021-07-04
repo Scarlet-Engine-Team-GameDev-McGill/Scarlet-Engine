@@ -22,5 +22,7 @@ int main()
 		GEngine->Run();
 	}
 
+	ScarDelete(GEngine);
+
 	return 0;
 }

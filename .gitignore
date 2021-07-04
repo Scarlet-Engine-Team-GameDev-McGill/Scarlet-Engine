@@ -398,3 +398,6 @@ CMakeSettings.json
 
 # VSCode config files
 .vscode
+
+# macos files
+.DS_STORE

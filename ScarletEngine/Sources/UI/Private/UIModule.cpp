@@ -37,8 +37,8 @@ namespace ScarletEngine
 		ImGuiIO& IO = ImGui::GetIO();
 		IO.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		IO.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		IO.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleViewports;
-		IO.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts;
+		IO.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
+		// #todo_core: handle DPI properly.
 		// Enable floating windows
 		//IO.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		ImFontConfig Config;
@@ -115,7 +115,7 @@ namespace ScarletEngine
 		ApplicationWindow* AppWindow = GEngine->GetApplicationWindow();
 		check(AppWindow);
 		ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(AppWindow->GetWindowHandle()), true);
-		ImGui_ImplOpenGL3_Init("#version 450");
+		ImGui_ImplOpenGL3_Init("#version 410");
 #elif RAL_USE_VULKAN
 		// #todo: implement vulkan setup for UI
 #endif

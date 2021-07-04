@@ -18,7 +18,7 @@
 #define NODISCARD [[nodiscard]]
 
 // These attributes are only defined in cpp 20 builds
-#if __cplusplus >= 202002L
+#if __has_attribute(likely)
 /** Indicate to the compiler that this branch is likely to be taken */
 #define LIKELY [[likely]]
 /** Indicate to the compiler that this branch is less likely to be taken */ 
