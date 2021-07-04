@@ -12,10 +12,10 @@ namespace ScarletEngine::Achilles
 	{
 		Mesh->MeshHandle = AssetManager::LoadStaticMesh(Model);
 		Mesh->VertexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Vertices.size() * sizeof(Vertex), RALBufferType::VERTEX_BUFFER,
-			RALBufferUsage::STATIC_DRAW, RALBufferPropertyFlagBits::DEVICE_LOCAL_BIT);
+			RALBufferUsage::STATIC_DRAW, RALBufferPropertyFlagBits::HOST_COHERENT_BIT | RALBufferPropertyFlagBits::HOST_VISIBLE_BIT);
 		Mesh->VertexBuff->UploadData(Mesh->MeshHandle->Vertices.data(), Mesh->MeshHandle->Vertices.size() * sizeof(Vertex));
 		Mesh->IndexBuff = RAL::Get().CreateBuffer((uint32_t)Mesh->MeshHandle->Indices.size() * sizeof(uint32_t), RALBufferType::INDEX_BUFFER,
-			RALBufferUsage::STATIC_DRAW, RALBufferPropertyFlagBits::DEVICE_LOCAL_BIT);
+			RALBufferUsage::STATIC_DRAW, RALBufferPropertyFlagBits::HOST_COHERENT_BIT | RALBufferPropertyFlagBits::HOST_VISIBLE_BIT);
 		Mesh->IndexBuff->UploadData(Mesh->MeshHandle->Indices.data(), Mesh->MeshHandle->Indices.size() * sizeof(uint32_t));
 		Mesh->VertexArray = RAL::Get().CreateVertexArray(Mesh->VertexBuff, Mesh->IndexBuff);
 
