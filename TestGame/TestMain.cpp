@@ -15,10 +15,11 @@ int main()
 
 	GEngine = ScarNew(Engine);
 	GEngine->Initialize();
-
+ 
 	{
-		SharedPtr<World> TestWorld = MakeShared<World>();
+		//const SharedPtr<World>& ActiveWorld = GEngine->GetActiveWorld();
 
+		// initialize anything you want in the world above this commment
 		GEngine->Run();
 	}
 
