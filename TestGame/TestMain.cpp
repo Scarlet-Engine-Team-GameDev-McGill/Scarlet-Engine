@@ -13,7 +13,7 @@ int main()
 	
 	ModuleManager::RegisterModule<RenderModule>();
 
-	GEngine = MakeUnique<Engine>();	
+	GEngine = ScarNew(Engine);
 	GEngine->Initialize();
 
 	{
@@ -21,10 +21,6 @@ int main()
 
 		GEngine->Run();
 	}
-
-
-	GEngine->Terminate();
-	GEngine.reset();
 
 	return 0;
 }
