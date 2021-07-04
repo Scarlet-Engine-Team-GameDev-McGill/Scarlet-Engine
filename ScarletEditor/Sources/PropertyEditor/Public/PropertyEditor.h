@@ -26,7 +26,9 @@ namespace ScarletEngine
 	private:
 		void DrawTransformWidget(TransformComponent& Transform) const;
 		void DrawRigidBodyWidget(Achilles::RigidBodyComponent& RigidBody) const;
-		
+
+		void DrawComponentFactoryList() const;
+
 	private:
 		Entity* FocusedEntity;
 	};

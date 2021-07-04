@@ -8,6 +8,7 @@
 #include "Widgets.h"
 
 #include <imgui_internal.h>
+#include <imgui_stdlib.h>
 
 namespace ScarletEngine
 {
@@ -41,14 +42,36 @@ namespace ScarletEngine
 
         if (ImGui::BeginMenuBar())
         {
+            ImGui::Text(ICON_MD_FILTER_LIST);
+            ImGui::SameLine();
+            if (Widgets::DrawTextInput("###HierarchyTextFilter", FilterText))
+            {
+                OnTextFilterChanged();
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Filter");
+            }
+
             ImGui::PushID("SceneHierarchyShowComponents");
             if (Widgets::DrawToggleButton(ICON_MD_SETTINGS, bShowingComponents))
             {
-                Refresh();
+                OnShowingComponentsChanged();
             }
             if (ImGui::IsItemHovered())
             {
                 ImGui::SetTooltip("Show Components");
+            }
+            ImGui::PopID();
+
+            ImGui::PushID("SceneHierarchyShowComponents");
+            if (ImGui::Button(ICON_MD_ADD))
+            {
+                OnCreateEntityPressed();
+            }
+            if (ImGui::IsItemHovered())
+            {
+                ImGui::SetTooltip("Create new entity");
             }
             ImGui::PopID();
 
@@ -64,7 +87,7 @@ namespace ScarletEngine
             {
                 ImGui::PushID(static_cast<uint32_t>(ID));
                 char Buffer[128];
-                snprintf(Buffer, 128, "%s   %s", ICON_MD_RADIO_BUTTON_CHECKED, EntItem->GetDisplayString().c_str());
+                snprintf(Buffer, 128, "%s   %s", ICON_MD_FILTER_CENTER_FOCUS, EntItem->GetDisplayString().c_str());
 
                 ImGuiTreeNodeFlags Flags = BaseFlags;
                 if (EntItem->bIsSelected)
@@ -114,7 +137,11 @@ namespace ScarletEngine
         {
             if (Items.find(Ent->GetEntityID()) == Items.end())
             {
-                Items.emplace(Ent->GetEntityID(), ScarNew(SceneHierarchyItem, Ent));
+                const size_t Index = Ent->GetName().find(FilterText);
+                if (Index != String::npos)
+                {
+                    Items.emplace(Ent->GetEntityID(), ScarNew(SceneHierarchyItem, Ent));
+                }
             }
         }
     }
@@ -207,7 +234,6 @@ namespace ScarletEngine
             {
                 EntitiesToSelect.push_back(Item.Ent.lock().get());
             }
-			
 
             if (EntitiesToSelect.size() > 0)
             {
@@ -220,5 +246,23 @@ namespace ScarletEngine
         }
 
         return true;
+    }
+
+    void SceneHierarchyPanel::OnTextFilterChanged()
+    {
+        Refresh();
+    }
+
+    void SceneHierarchyPanel::OnShowingComponentsChanged()
+    {
+        Refresh();
+    }
+
+    void SceneHierarchyPanel::OnCreateEntityPressed() const
+    {
+        if (SharedPtr<World> RepresentingWorldPtr = RepresentingWorld.lock())
+        {
+            RepresentingWorldPtr->CreateEntity<>("New Entity");
+        }
     }
 }

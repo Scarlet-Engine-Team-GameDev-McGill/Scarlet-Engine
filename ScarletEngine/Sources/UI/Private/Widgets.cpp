@@ -61,37 +61,34 @@ namespace ScarletEngine::Widgets
 
     void DrawTransformInput(const char* Label, TransformComponent& Trans)
     {
-        if (ImGui::CollapsingHeader(Label, ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            ImGui::PushID(Label);
-            ImGui::BeginTable(Label, 2, ImGuiTableFlags_Resizable);
+        ImGui::PushID(Label);
+        ImGui::BeginTable(Label, 2, ImGuiTableFlags_Resizable);
 
-            ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed, GetDefaultColumnWidth());
-            ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthAlwaysAutoResize);
+        ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed, GetDefaultColumnWidth());
+        ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthAlwaysAutoResize);
 
-            ImGui::TableNextColumn();
-            ImGui::Text("Position");
-            ImGui::TableNextColumn();
-            DrawVec3Input("Position", Trans.Position);
+        ImGui::TableNextColumn();
+        ImGui::Text("Position");
+        ImGui::TableNextColumn();
+        DrawVec3Input("Position", Trans.Position);
 
-            ImGui::TableNextRow();
+        ImGui::TableNextRow();
 
-            ImGui::TableNextColumn();
-            ImGui::Text("Rotation");
-            ImGui::TableNextColumn();
-            DrawVec3Input("Rotation", Trans.Rotation);
+        ImGui::TableNextColumn();
+        ImGui::Text("Rotation");
+        ImGui::TableNextColumn();
+        DrawVec3Input("Rotation", Trans.Rotation);
 
-            ImGui::TableNextRow();
+        ImGui::TableNextRow();
 
-            ImGui::TableNextColumn();
-            ImGui::Text("Scale");
-            ImGui::TableNextColumn();
-            DrawVec3Input("Scale", Trans.Scale);
+        ImGui::TableNextColumn();
+        ImGui::Text("Scale");
+        ImGui::TableNextColumn();
+        DrawVec3Input("Scale", Trans.Scale);
 
-            // Restore default columns
-            ImGui::EndTable();
-            ImGui::PopID();
-        }
+        // Restore default columns
+        ImGui::EndTable();
+        ImGui::PopID();
     }
 
     void DrawBooleanInput(const char* Label, bool& Boolean)
@@ -188,5 +185,24 @@ namespace ScarletEngine::Widgets
         ImGui::PopStyleColor();
 
         return bStateChanged;
+    }
+
+    bool DrawTextInput(const char* Label, String& Output, ImGuiInputTextFlags Flags)
+    {
+        static auto Callback = +[](ImGuiInputTextCallbackData* Data)
+        {
+            String* Str = static_cast<String*>(Data->UserData);
+            if (Data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+            {
+                // Resize string callback
+                // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+                IM_ASSERT(Data->Buf == Str->c_str());
+                Str->resize(Data->BufTextLen);
+                Data->Buf = const_cast<char*>(Str->c_str());
+            }
+            return 0;
+        };
+
+        return ImGui::InputText(Label, const_cast<char*>(Output.c_str()), Output.capacity(), Flags | ImGuiInputTextFlags_CallbackResize, Callback, &Output);
     }
 }

@@ -150,6 +150,22 @@ namespace ScarletEngine::Utils
     {
         return 0xFFFFFFFF;
     }
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+    template <typename T, typename Name>
+    struct HasMember {
+        using MatchedReturnType = char;
+        using UnmatchedReturnType = long;
+
+        template <typename C>
+        static MatchedReturnType F(typename Name::template Check<C>*);
+
+        template <typename C>
+        static UnmatchedReturnType F(...);
+    public:
+        static const bool Value = (sizeof(F<T>(0)) == sizeof(MatchedReturnType)); 
+    };
 }
 
 /** Computes the CRC32 hash of a string literal at compile time */

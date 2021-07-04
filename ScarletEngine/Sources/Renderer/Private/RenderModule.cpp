@@ -67,13 +67,15 @@ namespace ScarletEngine
 			ActiveViewport->Bind();
 			for (const auto& [Trans, SMC] : Scene->SMCs)
 			{
-				RALShaderProgram* Shader = SMC->Shader;
-				Shader->Bind();
-				Shader->SetUniformMat4(Trans->GetTransformMatrix() , "model");
-				Shader->SetUniformMat4(ActiveViewport->GetCamera().GetViewProj(), "vp");
-				Shader->SetUniformVec3(ActiveViewport->GetCamera().GetPosition(), "CameraPos");
-				RAL::Get().DrawVertexArrayCmd(SMC->VertexArray);
-				Shader->Unbind();
+				if (RALShaderProgram* Shader = SMC->Shader)
+				{
+					Shader->Bind();
+					Shader->SetUniformMat4(Trans->GetTransformMatrix() , "model");
+					Shader->SetUniformMat4(ActiveViewport->GetCamera().GetViewProj(), "vp");
+					Shader->SetUniformVec3(ActiveViewport->GetCamera().GetPosition(), "CameraPos");
+					RAL::Get().DrawVertexArrayCmd(SMC->VertexArray);
+					Shader->Unbind();
+				}
 			}
 		
 			ActiveViewport->Unbind();

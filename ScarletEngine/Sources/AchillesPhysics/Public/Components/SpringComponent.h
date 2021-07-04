@@ -5,7 +5,7 @@ namespace ScarletEngine::Achilles
 {
 	class SpringComponent final : public IComponent
 	{
-		COMPONENT_DEFINITION(SpringComponent);
+		COMPONENT_DEFINITION(Spring);
 
 		float RestLength = 0.25f;
 		float Stiffness = 1000.f;
@@ -15,7 +15,7 @@ namespace ScarletEngine::Achilles
 
 	class SpringCollection final : public IComponent
 	{
-		COMPONENT_DEFINITION(SpringCollection);
+		COMPONENT_DEFINITION(Spring Collection);
 
 		size_t Size() const { return SpringComponents.size(); }
 

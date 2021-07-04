@@ -29,10 +29,16 @@ namespace ScarletEngine
         void OnEntityAddedToWorld(const EntityPtr& AddedEntity);
         void OnWorldSelectionChanged();
         void OnWorldChange(const SharedPtr<World>& InNewWorld);
+
+        /* Internal events */
+        void OnTextFilterChanged();
+        void OnShowingComponentsChanged();
+        void OnCreateEntityPressed() const;
     private:
         WeakPtr<World> RepresentingWorld;
 
         Map<EID, UniquePtr<SceneHierarchyItem>> Items;
+        String FilterText;
         EID CurrentSelectionIndex = INVALID_EID;
         bool bShowingComponents = false;
     };
