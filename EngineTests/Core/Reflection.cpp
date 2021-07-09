@@ -31,6 +31,63 @@ BEGIN_REFLECTION_INFO(TestOuter)
     Property(&TestOuter::AString, "AString");
 END_REFLECTION_INFO()
 
+struct TestArrayInt
+{
+    REFLECTION();
+
+    Array<uint32_t> Arr = { 1, 2, 3 };
+};
+
+BEGIN_REFLECTION_INFO(TestArrayInt)
+    Property(&TestArrayInt::Arr, "Arr");
+END_REFLECTION_INFO()
+
+struct TestArrayFloat
+{
+    REFLECTION();
+
+    Array<float> FloatArr = { 0.1f, 0.2f, 0.3f };
+    Array<double> DoubleArr = { 0.4, 0.5, 0.6 };
+};
+
+BEGIN_REFLECTION_INFO(TestArrayFloat)
+    Property(&TestArrayFloat::FloatArr, "FloatArr");
+    Property(&TestArrayFloat::DoubleArr, "DoubleArr");
+END_REFLECTION_INFO()
+
+struct TestArrayStr
+{
+    REFLECTION();
+
+    Array<String> Arr = { "empty" };
+};
+
+BEGIN_REFLECTION_INFO(TestArrayStr)
+    Property(&TestArrayStr::Arr, "Arr");
+END_REFLECTION_INFO()
+
+struct TestArrayArray
+{
+    REFLECTION();
+
+    Array<Array<uint8_t>> Arr = { { 0u } };
+};
+
+BEGIN_REFLECTION_INFO(TestArrayArray)
+    Property(&TestArrayArray::Arr, "Arr");
+END_REFLECTION_INFO()
+
+struct TestArrayObj
+{
+    REFLECTION();
+
+    Array<TestOuter> Arr = { TestOuter{} };
+};
+
+BEGIN_REFLECTION_INFO(TestArrayObj)
+    Property(&TestArrayObj::Arr, "Arr");
+END_REFLECTION_INFO()
+
 TEST(Reflection, Construct)
 {
     TestObject* Obj = static_cast<TestObject*>(malloc(sizeof(TestObject)));
@@ -80,12 +137,116 @@ TEST(Reflection, NestedObjectSerialization)
     Json Arc;
     Outer.Serialize(Arc, "TestObject");
 
+    std::cout << Arc.dump(4) << std::endl;
+
     TestOuter Compare;
     EXPECT_NE(Compare.InnerObject.SomeFloat, 3.14f);
     Compare.Deserialize(Arc, "TestObject");
 
     EXPECT_EQ(Outer.InnerObject.SomeFloat, 3.14f);
     EXPECT_STREQ(Compare.AString.c_str(), Outer.AString.c_str());
+}
+
+TEST(Reflection, IntArrayProperty)
+{
+    TestArrayInt Obj;
+    Obj.Arr = { 5u, 6u, 7u };
+
+    Json Arc;
+    Obj.Serialize(Arc, "TestObject");
 
     std::cout << Arc.dump(4) << std::endl;
+
+    TestArrayInt Compare;
+    EXPECT_NE(Compare.Arr[0], 5u);
+    Compare.Deserialize(Arc, "TestObject");
+
+    EXPECT_EQ(Compare.Arr.size(), Obj.Arr.size());
+    EXPECT_EQ(Compare.Arr[0], Obj.Arr[0]);
+    EXPECT_EQ(Compare.Arr[1], Obj.Arr[1]);
+    EXPECT_EQ(Compare.Arr[2], Obj.Arr[2]);
+}
+
+TEST(Reflection, FloatArrayProperty)
+{
+    TestArrayFloat Obj;
+    Obj.FloatArr = { 0.4f, 0.5f, 0.6f };
+    Obj.DoubleArr = { 0.1, 0.2, 0.3 };
+
+    Json Arc;
+    Obj.Serialize(Arc, "TestObject");
+
+    std::cout << Arc.dump(4) << std::endl;
+
+    TestArrayFloat Compare;
+    EXPECT_NE(Compare.DoubleArr[0], 0.1);
+    Compare.Deserialize(Arc, "TestObject");
+
+    EXPECT_EQ(Compare.FloatArr.size(), Obj.FloatArr.size());
+    EXPECT_EQ(Compare.FloatArr[0], Obj.FloatArr[0]);
+    EXPECT_EQ(Compare.FloatArr[1], Obj.FloatArr[1]);
+    EXPECT_EQ(Compare.FloatArr[2], Obj.FloatArr[2]);
+
+    EXPECT_EQ(Compare.DoubleArr.size(), Obj.DoubleArr.size());
+    EXPECT_EQ(Compare.DoubleArr[0], Obj.DoubleArr[0]);
+    EXPECT_EQ(Compare.DoubleArr[1], Obj.DoubleArr[1]);
+    EXPECT_EQ(Compare.DoubleArr[2], Obj.DoubleArr[2]);
+}
+
+TEST(Reflection, StringArrayProperty)
+{
+    TestArrayStr Obj;
+    Obj.Arr = { "Hello", "World" };
+
+    Json Arc;
+    Obj.Serialize(Arc, "TestObject");
+
+    std::cout << Arc.dump(4) << std::endl;
+
+    TestArrayStr Compare;
+    EXPECT_STRNE(Compare.Arr[0].c_str(), "Hello");
+    Compare.Deserialize(Arc, "TestObject");
+
+    EXPECT_EQ(Compare.Arr.size(), Obj.Arr.size());
+    EXPECT_STREQ(Compare.Arr[0].c_str(), Obj.Arr[0].c_str());
+    EXPECT_STREQ(Compare.Arr[1].c_str(), Obj.Arr[1].c_str());
+}
+
+TEST(Reflection, ArrayArrayProperty)
+{
+    TestArrayArray Obj;
+    Obj.Arr = { { 1u }, { 2u }};
+
+    Json Arc;
+    Obj.Serialize(Arc, "TestObject");
+
+    std::cout << Arc.dump(4) << std::endl;
+
+    TestArrayArray Compare;
+    EXPECT_NE(Compare.Arr[0][0], 1u);
+    Compare.Deserialize(Arc, "TestObject");
+
+    EXPECT_EQ(Compare.Arr[0].size(), Obj.Arr[0].size());
+    EXPECT_EQ(Compare.Arr[0][0], Obj.Arr[0][0]);
+    EXPECT_EQ(Compare.Arr[1].size(), Obj.Arr[1].size());
+    EXPECT_EQ(Compare.Arr[1][0], Obj.Arr[1][0]);
+}
+
+TEST(Reflection, ObjectArrayProperty)
+{
+    TestArrayObj Obj;
+    Obj.Arr = { TestOuter{ .InnerObject.SomeFloat = 2.71f }, TestOuter{ .InnerObject.SomeFloat = 3.14f } };
+
+    Json Arc;
+    Obj.Serialize(Arc, "TestObject");
+
+    std::cout << Arc.dump(4) << std::endl;
+
+    TestArrayObj Compare;
+    EXPECT_NE(Compare.Arr[0].InnerObject.SomeFloat, Obj.Arr[0].InnerObject.SomeFloat);
+    Compare.Deserialize(Arc, "TestObject");
+
+    EXPECT_EQ(Compare.Arr.size(), Obj.Arr.size());
+    EXPECT_EQ(Compare.Arr[0].InnerObject.SomeFloat, Obj.Arr[0].InnerObject.SomeFloat);
+    EXPECT_EQ(Compare.Arr[1].InnerObject.SomeFloat, Obj.Arr[1].InnerObject.SomeFloat);
 }

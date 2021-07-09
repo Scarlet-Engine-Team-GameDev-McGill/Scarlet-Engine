@@ -14,7 +14,7 @@ namespace ScarletEngine::Reflection
         const String& GetPropertyName() const { return PropertyName; };
         virtual const TypeInfo* GetPropertyType() const = 0;
         virtual void SerializeProperty(const ObjectType* Object, Json& Arc) const = 0;
-        virtual void DeserializeProperty(ObjectType* OutObject, Json& Arc) const = 0;
+        virtual void DeserializeProperty(ObjectType* OutObject, Json& Arc, size_t Index = 0) const = 0;
     protected:
         String PropertyName;
     };
@@ -49,10 +49,10 @@ namespace ScarletEngine::Reflection
             GetPropertyType()->Serialize(reinterpret_cast<const byte_t*>(&Value), Arc, PropertyOfType<ObjectType>::GetPropertyName().c_str());
         }
 
-        virtual void DeserializeProperty(ObjectType* OutObject, Json& Arc) const override
+        virtual void DeserializeProperty(ObjectType* OutObject, Json& Arc, size_t Index = 0) const override
         {
             MemberType* Ptr = &(OutObject->*MemberPtr);
-            GetPropertyType()->Deserialize(reinterpret_cast<byte_t*>(Ptr), Arc, PropertyOfType<ObjectType>::GetPropertyName().c_str());
+            GetPropertyType()->Deserialize(reinterpret_cast<byte_t*>(Ptr), Arc, PropertyOfType<ObjectType>::GetPropertyName().c_str(), Index);
         }
     private:
         MemberPointer MemberPtr;

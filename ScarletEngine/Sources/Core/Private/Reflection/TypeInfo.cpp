@@ -30,85 +30,178 @@ namespace ScarletEngine::Reflection
 
     void IntegerTypeInfo::Serialize(const byte_t* Location, Json& Arc, const char* Label) const
     {
-        if (bSigned)
+        // When label is nullptr we are inside an array
+        if (Arc.is_array())
         {
-            switch (Size)
+            if (bSigned)
             {
-            case 1: Arc[Label] = (*reinterpret_cast<const int8_t*>(Location)); return;
-            case 2: Arc[Label] = (*reinterpret_cast<const int16_t*>(Location)); return;
-            case 4: Arc[Label] = (*reinterpret_cast<const int32_t*>(Location)); return;
-            case 8: Arc[Label] = (*reinterpret_cast<const int64_t*>(Location)); return;
-            default: check(false);
+                switch (Size)
+                {
+                case 1: Arc.push_back(*reinterpret_cast<const int8_t*>(Location)); return;
+                case 2: Arc.push_back(*reinterpret_cast<const int16_t*>(Location)); return;
+                case 4: Arc.push_back(*reinterpret_cast<const int32_t*>(Location)); return;
+                case 8: Arc.push_back(*reinterpret_cast<const int64_t*>(Location)); return;
+                default: check(false); return;
+                }
+            }
+            else
+            {
+                switch (Size)
+                {
+                case 1: Arc.push_back(*reinterpret_cast<const uint8_t*>(Location)); return;
+                case 2: Arc.push_back(*reinterpret_cast<const uint16_t*>(Location)); return;
+                case 4: Arc.push_back(*reinterpret_cast<const uint32_t*>(Location)); return;
+                case 8: Arc.push_back(*reinterpret_cast<const uint64_t*>(Location)); return;
+                default: check(false); return;
+                }
             }
         }
         else
         {
-            switch (Size)
+            if (bSigned)
             {
-            case 1: Arc[Label] = (*reinterpret_cast<const uint8_t*>(Location)); return;
-            case 2: Arc[Label] = (*reinterpret_cast<const uint16_t*>(Location)); return;
-            case 4: Arc[Label] = (*reinterpret_cast<const uint32_t*>(Location)); return;
-            case 8: Arc[Label] = (*reinterpret_cast<const uint64_t*>(Location)); return;
-            default: check(false);
+                switch (Size)
+                {
+                case 1: Arc[Label] = (*reinterpret_cast<const int8_t*>(Location)); return;
+                case 2: Arc[Label] = (*reinterpret_cast<const int16_t*>(Location)); return;
+                case 4: Arc[Label] = (*reinterpret_cast<const int32_t*>(Location)); return;
+                case 8: Arc[Label] = (*reinterpret_cast<const int64_t*>(Location)); return;
+                default: check(false);
+                }
+            }
+            else
+            {
+                switch (Size)
+                {
+                case 1: Arc[Label] = (*reinterpret_cast<const uint8_t*>(Location)); return;
+                case 2: Arc[Label] = (*reinterpret_cast<const uint16_t*>(Location)); return;
+                case 4: Arc[Label] = (*reinterpret_cast<const uint32_t*>(Location)); return;
+                case 8: Arc[Label] = (*reinterpret_cast<const uint64_t*>(Location)); return;
+                default: check(false);
+                }
             }
         }
     }
 
-    void IntegerTypeInfo::Deserialize(byte_t* Location, Json& Arc, const char* Label) const
+    void IntegerTypeInfo::Deserialize(byte_t* Location, Json& Arc, const char* Label, size_t Index) const
     {
-        if (bSigned)
+        if (Arc.is_array())
         {
-            switch (Size)
+            if (bSigned)
             {
-            case 1: (*reinterpret_cast<int8_t*>(Location)) = Arc[Label]; return;
-            case 2: (*reinterpret_cast<int16_t*>(Location)) = Arc[Label]; return;
-            case 4: (*reinterpret_cast<int32_t*>(Location)) = Arc[Label]; return;
-            case 8: (*reinterpret_cast<int64_t*>(Location)) = Arc[Label]; return;
-            default: check(false); // Unknown int size
+                switch (Size)
+                {
+                case 1: (*reinterpret_cast<int8_t*>(Location)) = Arc.at(Index); return;
+                case 2: (*reinterpret_cast<int16_t*>(Location)) = Arc.at(Index); return;
+                case 4: (*reinterpret_cast<int32_t*>(Location)) = Arc.at(Index); return;
+                case 8: (*reinterpret_cast<int64_t*>(Location)) = Arc.at(Index); return;
+                default: check(false); return; // Unknown int size
+                }
+            }
+            else
+            {
+                switch (Size)
+                {
+                case 1: (*reinterpret_cast<uint8_t*>(Location)) = Arc.at(Index); return;
+                case 2: (*reinterpret_cast<uint16_t*>(Location)) = Arc.at(Index); return;
+                case 4: (*reinterpret_cast<uint32_t*>(Location)) = Arc.at(Index); return;
+                case 8: (*reinterpret_cast<uint64_t*>(Location)) = Arc.at(Index); return;
+                default: check(false); return; // Unknown int size
+                }
             }
         }
         else
         {
-            switch (Size)
+            if (bSigned)
             {
-            case 1: (*reinterpret_cast<uint8_t*>(Location)) = Arc[Label]; return;
-            case 2: (*reinterpret_cast<uint16_t*>(Location)) = Arc[Label]; return;
-            case 4: (*reinterpret_cast<uint32_t*>(Location)) = Arc[Label]; return;
-            case 8: (*reinterpret_cast<uint64_t*>(Location)) = Arc[Label]; return;
-            default: check(false); // Unknown int size
+                switch (Size)
+                {
+                case 1: (*reinterpret_cast<int8_t*>(Location)) = Arc[Label]; return;
+                case 2: (*reinterpret_cast<int16_t*>(Location)) = Arc[Label]; return;
+                case 4: (*reinterpret_cast<int32_t*>(Location)) = Arc[Label]; return;
+                case 8: (*reinterpret_cast<int64_t*>(Location)) = Arc[Label]; return;
+                default: check(false); return; // Unknown int size
+                }
+            }
+            else
+            {
+                switch (Size)
+                {
+                case 1: (*reinterpret_cast<uint8_t*>(Location)) = Arc[Label]; return;
+                case 2: (*reinterpret_cast<uint16_t*>(Location)) = Arc[Label]; return;
+                case 4: (*reinterpret_cast<uint32_t*>(Location)) = Arc[Label]; return;
+                case 8: (*reinterpret_cast<uint64_t*>(Location)) = Arc[Label]; return;
+                default: check(false); return; // Unknown int size
+                }
             }
         }
     }
 
     void FloatTypeInfo::Serialize(const byte_t* Location, Json& Arc, const char* Label) const
     {
-        if (Size == 4)
+        if (Arc.is_array())
         {
-            Arc[Label] = (*reinterpret_cast<const float*>(Location));
-        }
-        else if (Size == 8)
-        {
-            Arc[Label] = (*reinterpret_cast<const double*>(Location));
+            if (Size == 4)
+            {
+                Arc.push_back(*reinterpret_cast<const float*>(Location));
+            }
+            else if (Size == 8)
+            {
+                Arc.push_back(*reinterpret_cast<const double*>(Location));
+            }
+            else
+            {
+                check(false); // Unknown float size
+            }
         }
         else
         {
-            check(false); // Unknown float size
+            if (Size == 4)
+            {
+                Arc[Label] = (*reinterpret_cast<const float*>(Location));
+            }
+            else if (Size == 8)
+            {
+                Arc[Label] = (*reinterpret_cast<const double*>(Location));
+            }
+            else
+            {
+                check(false); // Unknown float size
+            }
         }
     }
 
-    void FloatTypeInfo::Deserialize(byte_t* Location, Json& Arc, const char* Label) const
+    void FloatTypeInfo::Deserialize(byte_t* Location, Json& Arc, const char* Label, size_t Index) const
     {
-        if (Size == 4)
+        if (Arc.is_array())
         {
-            (*reinterpret_cast<float*>(Location)) = Arc[Label];
-        }
-        else if (Size == 8)
-        {
-            (*reinterpret_cast<double*>(Location)) = Arc[Label];
+            if (Size == 4)
+            {
+                (*reinterpret_cast<float*>(Location)) = Arc.at(Index);
+            }
+            else if (Size == 8)
+            {
+                (*reinterpret_cast<double*>(Location)) = Arc.at(Index);
+            }
+            else
+            {
+                check(false); // Unknown float size
+            }
         }
         else
         {
-            check(false); // Unknown float size
+            if (Size == 4)
+            {
+                (*reinterpret_cast<float*>(Location)) = Arc[Label];
+            }
+            else if (Size == 8)
+            {
+                (*reinterpret_cast<double*>(Location)) = Arc[Label];
+            }
+            else
+            {
+                check(false); // Unknown float size
+            }
         }
     }
 
@@ -120,12 +213,26 @@ namespace ScarletEngine::Reflection
 
     void StringTypeInfo::Serialize(const String& Str, Json& Arc, const char* Label) const
     {
-        Arc[Label] = Str;
+        if (Arc.is_array())
+        {
+            Arc.emplace_back(Str);
+        }
+        else
+        {
+            Arc[Label] = Str;
+        }
     }
 
-    void StringTypeInfo::Deserialize(String& Str, Json& Arc, const char* Label) const
+    void StringTypeInfo::Deserialize(String& Str, Json& Arc, const char* Label, size_t Index) const
     {
-        Str = Arc[Label];
+        if (Arc.is_array())
+        {
+            Str = Arc.at(Index);
+        }
+        else
+        {
+            Str = Arc[Label];
+        }
     }
 
     const String& StringTypeInfo::TypeName() const

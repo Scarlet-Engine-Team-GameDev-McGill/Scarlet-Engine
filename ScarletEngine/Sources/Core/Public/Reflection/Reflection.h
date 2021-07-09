@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 
+#include "Array.h"
 #include "Property.h"
 
 namespace ScarletEngine::Reflection
@@ -31,15 +32,32 @@ namespace ScarletEngine::Reflection
             {
                 Property->SerializeProperty(&Object, JsonObj);
             }
-            Arc[Label] = JsonObj;
+            
+            if (Arc.is_array())
+            {
+                Arc.emplace_back(JsonObj);
+            }
+            else
+            {
+                Arc[Label] = JsonObj;
+            }
         }
 
-        virtual void Deserialize(T& Object, Json& Arc, const char* Label) const override
+        virtual void Deserialize(T& Object, Json& Arc, const char* Label, size_t Index = 0) const override
         {
-            Json JsobObj = Arc[Label];
+            Json JsonObj;
+            if (Arc.is_array())
+            {
+                JsonObj = Arc.at(Index);
+            }
+            else
+            {
+                JsonObj = Arc[Label];
+            }
+
             for (auto& Property : Properties)
             {
-                Property->DeserializeProperty(&Object, JsobObj);
+                Property->DeserializeProperty(&Object, JsonObj, Index);
             }
         }
 
