@@ -10,6 +10,7 @@
 #include "TickableList.h"
 #include "Window.h"
 #include "EngineDelegates.h"
+#include "Serialization/BinaryArchive.h"
 
 namespace ScarletEngine
 {

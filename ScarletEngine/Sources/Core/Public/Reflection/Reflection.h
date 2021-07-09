@@ -24,21 +24,22 @@ namespace ScarletEngine::Reflection
             Properties = std::move(InProperties);
         }
 
-        virtual void Serialize(const T& Object, Archive& Arc) const override
+        virtual void Serialize(const T& Object, Json& Arc, const char* Label) const override
         {
+            Json JsonObj;
             for (auto& Property : Properties)
             {
-                // #todo_core: Arc.FindPropertyByName(Property->GetName())
-                Property->SerializeProperty(&Object, Arc);
+                Property->SerializeProperty(&Object, JsonObj);
             }
+            Arc[Label] = JsonObj;
         }
 
-        virtual void Deserialize(T& Object, Archive& Arc) const override
+        virtual void Deserialize(T& Object, Json& Arc, const char* Label) const override
         {
+            Json JsobObj = Arc[Label];
             for (auto& Property : Properties)
             {
-                // #todo_core: Arc.FindPropertyByName(Property->GetName())
-                Property->DeserializeProperty(&Object, Arc);
+                Property->DeserializeProperty(&Object, JsobObj);
             }
         }
 

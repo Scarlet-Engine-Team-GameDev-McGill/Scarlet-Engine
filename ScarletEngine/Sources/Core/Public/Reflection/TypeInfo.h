@@ -8,9 +8,9 @@ namespace ScarletEngine::Reflection
     {
     public:
         virtual ~TypeInfo() {}
-        // #todo_core: replace this once generic Archive type is ready
-        virtual void Deserialize(byte_t* Location, Archive&) const = 0;
-        virtual void Serialize(const byte_t* Location, Archive&) const = 0;
+        // #todo_core: replace this once a more generic Archive type is ready
+        virtual void Deserialize(byte_t* Location, Json& Arc, const char* Label) const = 0;
+        virtual void Serialize(const byte_t* Location, Json& Arc, const char* Label) const = 0;
 
         virtual void Construct(byte_t* Location) const = 0;
         virtual void Destruct(byte_t* Location) const = 0;
@@ -25,17 +25,17 @@ namespace ScarletEngine::Reflection
     class TypeInfoOf : public TypeInfo
     {
     public:
-        virtual void Deserialize(T& Object, Archive&) const = 0;
-        virtual void Serialize(const T& Object, Archive&) const = 0;
+        virtual void Deserialize(T& Object, Json& Arc, const char* Label) const = 0;
+        virtual void Serialize(const T& Object, Json& Arc, const char* Label) const = 0;
 
         // Specifically do not override the interface
-        virtual void Deserialize(byte_t* Location, Archive& Arc) const override
+        virtual void Deserialize(byte_t* Location, Json& Arc, const char* Label) const override
         {
-            this->Deserialize(*reinterpret_cast<T*>(Location), Arc);
+            this->Deserialize(*reinterpret_cast<T*>(Location), Arc, Label);
         }
-        virtual void Serialize(const byte_t* Location, Archive& Arc) const override
+        virtual void Serialize(const byte_t* Location, Json& Arc, const char* Label) const override
         {
-            this->Serialize(*reinterpret_cast<const T*>(Location), Arc);
+            this->Serialize(*reinterpret_cast<const T*>(Location), Arc, Label);
         }
         virtual void Construct(byte_t* Location) const override
         {
@@ -73,16 +73,16 @@ namespace ScarletEngine::Reflection
     {
     public:
         IntegerTypeInfo(String InTypeName, size_t InSize, bool bInSigned = true) : BasicTypeInfo(InTypeName, InSize, InSize, bInSigned) {}
-        virtual void Serialize(const byte_t* Location, Archive&) const override;
-        virtual void Deserialize(byte_t* Location, Archive&) const override;
+        virtual void Serialize(const byte_t* Location, Json& Arc, const char* Label) const override;
+        virtual void Deserialize(byte_t* Location, Json& Arc, const char* Label) const override;
     };
 
     class FloatTypeInfo : public BasicTypeInfo
     {
     public:
         FloatTypeInfo(String InTypeName, size_t InSize) : BasicTypeInfo(InTypeName, InSize, InSize, true) {}
-        virtual void Serialize(const byte_t* Location, Archive&) const override;
-        virtual void Deserialize(byte_t* Location, Archive&) const override;
+        virtual void Serialize(const byte_t* Location, Json& Arc, const char* Label) const override;
+        virtual void Deserialize(byte_t* Location, Json& Arc, const char* Label) const override;
     };
 
     class StringTypeInfo : public TypeInfoOf<String>
@@ -90,8 +90,8 @@ namespace ScarletEngine::Reflection
     public:
         static const StringTypeInfo* Get();
 
-        void Serialize(const String& Object, Archive&) const override;
-        void Deserialize(String& Object, Archive&) const override;
+        void Serialize(const String& Object, Json& Arc, const char* Label) const override;
+        void Deserialize(String& Object, Json& Arc, const char* Label) const override;
         virtual const String& TypeName() const override;
     };
 
