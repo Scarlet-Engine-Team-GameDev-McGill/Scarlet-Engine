@@ -76,7 +76,13 @@ namespace ScarletEngine::Reflection
     };
 }
 
-#define REFLECTION() public: static const Reflection::TypeInfo* BuildTypeInfo();
+#define REFLECTION() \
+    public: \
+        static const Reflection::TypeInfo* BuildTypeInfo();\
+        void Construct() { BuildTypeInfo()->Construct(reinterpret_cast<byte_t*>(this)); } \
+        void Destruct() { BuildTypeInfo()->Destruct(reinterpret_cast<byte_t*>(this)); } \
+        void Serialize(Json& Arc, const char* Label) const { BuildTypeInfo()->Serialize(reinterpret_cast<const byte_t*>(this), Arc, Label); } \
+        void Deserialize(Json& Arc, const char* Label) { BuildTypeInfo()->Deserialize(reinterpret_cast<byte_t*>(this), Arc, Label); }
 
 #define BEGIN_REFLECTION_INFO(TypeName)           \
     const Reflection::TypeInfo* TypeName::BuildTypeInfo()   \

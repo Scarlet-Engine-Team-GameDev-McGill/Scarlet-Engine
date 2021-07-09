@@ -33,59 +33,56 @@ END_REFLECTION_INFO()
 
 TEST(Reflection, Construct)
 {
-    const Reflection::TypeInfo* TestObjectReflection = TestObject::BuildTypeInfo();
     TestObject* Obj = static_cast<TestObject*>(malloc(sizeof(TestObject)));
 
     ASSERT_NE(Obj, nullptr);
 
-    TestObjectReflection->Construct(reinterpret_cast<byte_t*>(Obj));
+    Obj->Construct();
 
     EXPECT_EQ(Obj->SomeInt, 10u);
     EXPECT_EQ(Obj->SomeFloat, 15.f);
 
-    TestObjectReflection->Destruct(reinterpret_cast<byte_t*>(Obj));
+    Obj->Destruct();
     free(Obj);
 }
 
 TEST(Reflection, Serialize)
 {
-    const Reflection::TypeInfo* TestObjectReflection = TestObject::BuildTypeInfo();
     TestObject* Obj = static_cast<TestObject*>(malloc(sizeof(TestObject)));
 
     ASSERT_NE(Obj, nullptr);
 
-    TestObjectReflection->Construct(reinterpret_cast<byte_t*>(Obj));
+    Obj->Construct();
     Obj->SomeInt = 1000;
     Obj->TransientVal = "Don't Serialize";
 
     Json Arc;
-    TestObjectReflection->Serialize(reinterpret_cast<byte_t*>(Obj), Arc, "TestObject");
+    Obj->Serialize(Arc, "TestObject");
 
     TestObject Compare{};
-    TestObjectReflection->Deserialize(reinterpret_cast<byte_t*>(&Compare), Arc, "TestObject");
+    Compare.Deserialize(Arc, "TestObject");
 
     EXPECT_EQ(Compare.SomeInt, Obj->SomeInt);
     EXPECT_EQ(Compare.SomeFloat, Obj->SomeFloat);
     EXPECT_STRNE(Compare.TransientVal.c_str(), Obj->TransientVal.c_str());
 
-    TestObjectReflection->Destruct(reinterpret_cast<byte_t*>(Obj));
+    Obj->Destruct();
 
     free(Obj);
 }
 
 TEST(Reflection, NestedObjectSerialization)
 {
-    const Reflection::TypeInfo* TestObjectReflection = TestOuter::BuildTypeInfo();
     TestOuter Outer;
     Outer.InnerObject.SomeFloat = 3.14f;
     Outer.AString = "Hello world";
 
     Json Arc;
-    TestObjectReflection->Serialize(reinterpret_cast<const byte_t*>(&Outer), Arc, "TestObject");
+    Outer.Serialize(Arc, "TestObject");
 
     TestOuter Compare;
     EXPECT_NE(Compare.InnerObject.SomeFloat, 3.14f);
-    TestObjectReflection->Deserialize(reinterpret_cast<byte_t*>(&Compare), Arc, "TestObject");
+    Compare.Deserialize(Arc, "TestObject");
 
     EXPECT_EQ(Outer.InnerObject.SomeFloat, 3.14f);
     EXPECT_STREQ(Compare.AString.c_str(), Outer.AString.c_str());
