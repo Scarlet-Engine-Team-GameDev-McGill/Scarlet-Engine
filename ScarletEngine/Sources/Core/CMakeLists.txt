@@ -1,10 +1,10 @@
-set(Core_PrivateDeps
-	"json")
+set(Core_PrivateDeps)
 
 set(Core_PublicDeps
 	"${CMAKE_DL_LIBS}"
 	"TracyProfiler"
-	"glm")
+	"glm"
+	"json")
 
 DECLARE_MODULE(
 	MODULE_NAME "Core"
