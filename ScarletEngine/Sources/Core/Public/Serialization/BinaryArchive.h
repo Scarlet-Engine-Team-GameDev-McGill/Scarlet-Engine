@@ -26,15 +26,18 @@ namespace ScarletEngine
     protected:
         virtual void WriteBool(bool Val) override;
         virtual void WriteChar(unsigned char Val) override;
-        virtual void WriteInt(uint64_t Data, bool bIsSigned) override;
-        virtual void WriteFloat(double Data) override;
+        virtual void WriteInt(uint64_t Val, bool bIsSigned) override;
+        virtual void WriteFloat(double Val) override;
         virtual void WriteString(const char* Str, size_t Length) override;
 
         virtual void ReadBool(bool& OutVal) override;
         virtual void ReadChar(unsigned char& OutVal) override;
-        virtual void ReadInt(uint64_t& Data, bool bIsSigned) override;
-        virtual void ReadFloat(double& Data) override;
-        virtual void ReadString(char* Str, size_t Length) override;
+        virtual void ReadInt(uint64_t& OutVal, bool bIsSigned) override;
+        virtual void ReadFloat(double& OutVal) override;
+        virtual void ReadString(char* OutStr, size_t Length) override;
+
+        void Write(const byte_t* Data, size_t Size);
+        void Read(byte_t* OutData, size_t Size);
     protected:
         Array<byte_t> DataArray;
         size_t Pos;

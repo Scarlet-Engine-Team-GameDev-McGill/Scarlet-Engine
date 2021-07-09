@@ -12,6 +12,5 @@ namespace ScarletEngine
         : Filename(InFilename)
         , Mode(InMode)
     {
-
     }
 }
