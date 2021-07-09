@@ -16,13 +16,13 @@ namespace ScarletEngine
         OwningWorld = NewOwningWorld;
     }
 
-    void Entity::Serialize(BinaryArchive& Arc)
+    void Entity::Serialize(Archive& Arc) const
     {
         Arc << Name;
         Arc << ID;
     }
 
-    void Entity::Deserialize(BinaryArchive& Arc)
+    void Entity::Deserialize(Archive& Arc)
     {
         Arc >> Name;
         Arc >> ID;

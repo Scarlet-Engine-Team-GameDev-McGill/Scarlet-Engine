@@ -1,6 +1,6 @@
 #include "Reflection/TypeInfo.h"
 
-#include "BinaryArchive.h"
+#include "Serialization/Archive.h"
 
 namespace ScarletEngine::Reflection
 {
@@ -28,7 +28,7 @@ namespace ScarletEngine::Reflection
     DEFINE_INTEGRAL_TYPE(float, true, true)
     DEFINE_INTEGRAL_TYPE(double, true, true)
 
-    void IntegerTypeInfo::Serialize(const byte_t* Location, BinaryArchive& Arc) const
+    void IntegerTypeInfo::Serialize(const byte_t* Location, Archive& Arc) const
     {
         if (bSigned)
         {
@@ -54,7 +54,7 @@ namespace ScarletEngine::Reflection
         }
     }
 
-    void IntegerTypeInfo::Deserialize(byte_t* Location, BinaryArchive& Arc) const
+    void IntegerTypeInfo::Deserialize(byte_t* Location, Archive& Arc) const
     {
         if (bSigned)
         {
@@ -80,7 +80,7 @@ namespace ScarletEngine::Reflection
         }
     }
 
-    void FloatTypeInfo::Serialize(const byte_t* Location, BinaryArchive& Arc) const
+    void FloatTypeInfo::Serialize(const byte_t* Location, Archive& Arc) const
     {
         if (Size == 4)
         {
@@ -96,7 +96,7 @@ namespace ScarletEngine::Reflection
         }
     }
 
-    void FloatTypeInfo::Deserialize(byte_t* Location, BinaryArchive& Arc) const
+    void FloatTypeInfo::Deserialize(byte_t* Location, Archive& Arc) const
     {
         if (Size == 4)
         {
@@ -118,12 +118,12 @@ namespace ScarletEngine::Reflection
         return &TypeInfo;
     }
 
-    void StringTypeInfo::Serialize(const String& Object, BinaryArchive& Arc) const
+    void StringTypeInfo::Serialize(const String& Object, Archive& Arc) const
     {
         Arc << Object;
     }
 
-    void StringTypeInfo::Deserialize(String& Object, BinaryArchive& Arc) const
+    void StringTypeInfo::Deserialize(String& Object, Archive& Arc) const
     {
         Arc >> Object;
     }

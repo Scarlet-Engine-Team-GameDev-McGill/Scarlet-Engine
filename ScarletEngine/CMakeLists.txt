@@ -10,6 +10,7 @@ add_subdirectory("Thirdparty/imguizmo")
 add_subdirectory("Thirdparty/tracy")
 add_subdirectory("Thirdparty/stb_image")
 add_subdirectory("Thirdparty/IconFontCppHeaders")
+add_subdirectory("Thirdparty/json")
 
 configure_files("${CMAKE_CURRENT_SOURCE_DIR}/Content" "${CMAKE_CURRENT_BINARY_DIR}/Content")
 configure_files("${CMAKE_CURRENT_SOURCE_DIR}/Shaders" "${CMAKE_CURRENT_BINARY_DIR}/Shaders")

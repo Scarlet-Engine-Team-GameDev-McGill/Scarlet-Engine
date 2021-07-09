@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <BinaryArchive.h>
+#include <Serialization/BinaryArchive.h>
 
 using namespace ScarletEngine;
 
-TEST(Archive, Basic)
+TEST(BinaryArchive, Basic)
 {
 	BinaryArchive Ar;
 
@@ -15,7 +15,7 @@ TEST(Archive, Basic)
 	Ar << B;
 	Ar << C;
 
-	Ar.SetReadModeAndResetPos();
+	Ar.SetReadMode();
 
 	int ReadA = 0;
 	int ReadB = 0;
@@ -31,7 +31,7 @@ TEST(Archive, Basic)
 }
 
 
-TEST(Archive, Primitives)
+TEST(BinaryArchive, Primitives)
 {
 	BinaryArchive Ar;
 
@@ -61,7 +61,7 @@ TEST(Archive, Primitives)
 		<< Float
 		<< Double;
 
-	Ar.SetReadModeAndResetPos();
+	Ar.SetReadMode();
 
 	bool ReadBoolean1 = false;
 	bool ReadBoolean2 = false;
@@ -103,7 +103,7 @@ TEST(Archive, Primitives)
 	EXPECT_EQ(Double, ReadDouble);
 }
 
-TEST(Archive, Serializable)
+TEST(BinaryArchive, Serializable)
 {
 	BinaryArchive Ar;
 
@@ -111,12 +111,12 @@ TEST(Archive, Serializable)
 	{
 		int X;
 
-		void Serialize(BinaryArchive& Arch) const
+		void Serialize(Archive& Arch) const
 		{
 			Arch << X;
 		}
 
-		void Deserialize(BinaryArchive& Arch)
+		void Deserialize(Archive& Arch)
 		{
 			Arch >> X;
 		}
@@ -126,7 +126,7 @@ TEST(Archive, Serializable)
 
 	Ar << S;
 
-	Ar.SetReadModeAndResetPos();
+	Ar.SetReadMode();
 
 	SerializableType ReadS{};
 
@@ -135,7 +135,7 @@ TEST(Archive, Serializable)
 	EXPECT_EQ(S.X, ReadS.X);
 }
 
-TEST(Archive, Array)
+TEST(BinaryArchive, Array)
 {
 	BinaryArchive Ar;
 
@@ -143,7 +143,7 @@ TEST(Archive, Array)
 
 	Ar << IntArray;
 
-	Ar.SetReadModeAndResetPos();
+	Ar.SetReadMode();
 
 	Array<uint32_t> ReadIntArray;
 
@@ -157,7 +157,7 @@ TEST(Archive, Array)
 	}
 }
 
-TEST(Archive, String)
+TEST(BinaryArchive, String)
 {
 	BinaryArchive Ar;
 
@@ -165,7 +165,7 @@ TEST(Archive, String)
 
 	Ar << Str;
 
-	Ar.SetReadModeAndResetPos();
+	Ar.SetReadMode();
 
 	String ReadStr;
 
@@ -174,7 +174,7 @@ TEST(Archive, String)
 	EXPECT_EQ(Str, ReadStr);
 }
 
-TEST(Archive, File)
+TEST(BinaryArchive, File)
 {
 	BinaryArchive Ar;
 

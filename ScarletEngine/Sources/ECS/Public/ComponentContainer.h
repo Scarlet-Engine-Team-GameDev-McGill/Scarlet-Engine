@@ -15,9 +15,6 @@ namespace ScarletEngine
         virtual bool Remove(EID EntityID) = 0;
         virtual void Sort() = 0;
 
-        virtual void Serialize(BinaryArchive& Arc) = 0;
-        virtual void Deserialize(BinaryArchive& Arc) = 0;
-
         CTID GetComponentTypeID() const { return ComponentTypeID; }
     protected:
         const CTID ComponentTypeID;
@@ -122,43 +119,6 @@ namespace ScarletEngine
                     std::swap(Components[i], Components[IndexToSwap]);
                     std::swap(Ids[i], Ids[IndexToSwap]);
                 }
-            }
-        }
-
-        /** Serialize the data and indices in this component container. */
-        inline virtual void Serialize(BinaryArchive& Arc) override
-        {
-            // Sort the container first to pack entries in the data array.
-            // This also allows us to serialize a flat list of IDs.
-            Sort();
-
-            Array<EID> EntityIDs;
-            EntityIDs.reserve(EntityMap.size());
-            for (const auto& [EntityID, Index] : EntityMap)
-            {
-                EntityIDs.push_back(EntityID);
-            }
-
-            Arc << ComponentTypeID;
-            Arc << EntityIDs;
-            Arc << Components;
-        }
-
-        /** Deserialize the data and indices in this component container. */
-        inline virtual void Deserialize(BinaryArchive& Arc) override
-        {
-            Array<EID> EntityIDs;
-
-            CTID ArchiveTypeID;
-            Arc >> ArchiveTypeID;
-            check (ComponentTypeID == ArchiveTypeID);
-
-            Arc >> EntityIDs;
-            Arc >> Components;
-
-            for (size_t NextIndex = 0; EID EntityID : EntityIDs)
-            {
-                EntityMap[EntityID] = NextIndex++;
             }
         }
     private:

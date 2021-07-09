@@ -147,12 +147,14 @@ namespace ScarletEngine
 
     void Engine::SaveWorld(const String& WorldPath) const
     {
+        // #todo_core: change this to a json archive when ready
         BinaryArchive WorldArchive(WorldPath, ArchiveMode::Write);
-        WorldArchive << *ActiveWorld;
+        //WorldArchive << *ActiveWorld;
     }
 
     void Engine::LoadWorldFromFile(const String& WorldPath)
     {
+        // #todo_core: change this to a json archive when ready
         BinaryArchive WorldArchive(WorldPath, ArchiveMode::Read);
         QueuedWorldToLoad = MakeShared<World>();
         QueuedWorldToLoad->SetWorldName(WorldPath);
@@ -160,7 +162,7 @@ namespace ScarletEngine
         // #todo_core: for now copy the worlds registry to prevent having to re-register component types some other way
         QueuedWorldToLoad->GetRegistry() = std::move(ActiveWorld->GetRegistry());
 
-        WorldArchive >> *QueuedWorldToLoad;
+        //WorldArchive >> *QueuedWorldToLoad;
     }
 
     void Engine::LoadWorld()

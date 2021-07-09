@@ -24,7 +24,7 @@ namespace ScarletEngine::Reflection
             Properties = std::move(InProperties);
         }
 
-        virtual void Serialize(const T& Object, BinaryArchive& Arc) const override
+        virtual void Serialize(const T& Object, Archive& Arc) const override
         {
             for (auto& Property : Properties)
             {
@@ -33,7 +33,7 @@ namespace ScarletEngine::Reflection
             }
         }
 
-        virtual void Deserialize(T& Object, BinaryArchive& Arc) const override
+        virtual void Deserialize(T& Object, Archive& Arc) const override
         {
             for (auto& Property : Properties)
             {

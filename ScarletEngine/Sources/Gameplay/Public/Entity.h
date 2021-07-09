@@ -23,9 +23,9 @@ namespace ScarletEngine
 
         void ChangeWorld(World* NewOwningWorld);
 
-        void Serialize(BinaryArchive& Arc);
+        void Serialize(Archive& Arc) const;
 
-        void Deserialize(BinaryArchive& Arc);
+        void Deserialize(Archive& Arc);
     protected:
         String Name;
         EID ID;

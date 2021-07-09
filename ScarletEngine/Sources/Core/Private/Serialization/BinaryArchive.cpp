@@ -1,23 +1,21 @@
-#include "BinaryArchive.h"
+#include "Serialization/BinaryArchive.h"
 
 #include <fstream>
 
 namespace ScarletEngine
 {
-	BinaryArchive::BinaryArchive()
-		: Filename()
+	BinaryArchive::BinaryArchive(ArchiveMode InMode)
+		: Archive(InMode)
 		, DataArray()
 		, Pos(0)
-		, Mode(ArchiveMode::Write)
 	{
 		DataArray.resize(128);
 	}
 
 	BinaryArchive::BinaryArchive(const String& InFilename, ArchiveMode InMode)
-		: Filename(InFilename)
+		: Archive(InFilename, InMode)
 		, DataArray()
 		, Pos(0)
-		, Mode(InMode)
 	{
 		if (!Filename.empty())
 		{
@@ -38,14 +36,10 @@ namespace ScarletEngine
 
 	void BinaryArchive::Close()
 	{
-		if (Mode == ArchiveMode::Write && !Filename.empty())
-		{
-			SaveToFile();
-		}
 		DataArray.clear();
 	}
 
-	bool BinaryArchive::SaveToFile(const char* OverrideFile)
+	bool BinaryArchive::SaveToFile(const char* OverrideFile) const
 	{
 		if (Pos > 0)
 		{
@@ -62,4 +56,53 @@ namespace ScarletEngine
 		return false;
 	}
 
+	void BinaryArchive::WriteBool(bool Val)
+	{
+
+	}
+
+	void BinaryArchive::WriteChar(unsigned char Val)
+	{
+
+	}
+
+	void BinaryArchive::WriteInt(uint64_t Data, bool bIsSigned)
+	{
+
+	}
+
+	void BinaryArchive::WriteFloat(double Data)
+	{
+
+	}
+
+	void BinaryArchive::WriteString(const char* Str, size_t Length)
+	{
+
+	}	
+
+	void BinaryArchive::ReadBool(bool& OutVal)
+	{
+
+	}
+
+	void BinaryArchive::ReadChar(unsigned char& OutVal)
+	{
+
+	}
+
+	void BinaryArchive::ReadInt(uint64_t& Data, bool bIsSigned)
+	{
+
+	}
+
+	void BinaryArchive::ReadFloat(double& Data)
+	{
+
+	}
+
+	void BinaryArchive::ReadString(char* Str, size_t Length)
+	{
+
+	}
 }

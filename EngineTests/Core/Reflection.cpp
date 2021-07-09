@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <Serialization/BinaryArchive.h>
 #include <Reflection/Reflection.h>
 
 using namespace ScarletEngine;
@@ -45,7 +46,7 @@ TEST(Reflection, Serialize)
     BinaryArchive Arc;
     TestObjectReflection->Serialize(reinterpret_cast<byte_t*>(Obj), Arc);
 
-    Arc.SetReadModeAndResetPos();
+    Arc.SetReadMode();
     TestObject Compare{};
     TestObjectReflection->Deserialize(reinterpret_cast<byte_t*>(&Compare), Arc);
 

@@ -14,8 +14,8 @@ namespace ScarletEngine::Reflection
         const String& GetPropertyName() const { return PropertyName; };
 
         virtual const TypeInfo* GetPropertyType() const = 0;
-        virtual void SerializeProperty(const ObjectType* Object, BinaryArchive&) const = 0;
-        virtual void DeserializeProperty(ObjectType* OutObject, BinaryArchive&) const = 0;
+        virtual void SerializeProperty(const ObjectType* Object, Archive&) const = 0;
+        virtual void DeserializeProperty(ObjectType* OutObject, Archive&) const = 0;
     protected:
         String PropertyName;
     };
@@ -44,13 +44,13 @@ namespace ScarletEngine::Reflection
 
         virtual const TypeInfo* GetPropertyType() const override { return GetTypeInfo<MemberType>(); }
 
-        virtual void SerializeProperty(const ObjectType* Object, BinaryArchive& Arc) const override
+        virtual void SerializeProperty(const ObjectType* Object, Archive& Arc) const override
         {
             MemberType Value = GetValue(*Object);
             GetPropertyType()->Serialize(reinterpret_cast<const byte_t*>(&Value), Arc);
         }
 
-        virtual void DeserializeProperty(ObjectType* OutObject, BinaryArchive& Arc) const override
+        virtual void DeserializeProperty(ObjectType* OutObject, Archive& Arc) const override
         {
             MemberType* Ptr = &(OutObject->*MemberPtr);
             GetPropertyType()->Deserialize(reinterpret_cast<byte_t*>(Ptr), Arc);
