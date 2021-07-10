@@ -13,4 +13,9 @@ namespace ScarletEngine
         , Mode(InMode)
     {
     }
+
+    bool Archive::SaveToFile(const char*) const
+    {
+        return false;
+    }
 }

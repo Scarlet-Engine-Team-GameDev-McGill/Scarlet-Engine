@@ -67,7 +67,7 @@ namespace ScarletEngine
         Write(&Val, sizeof(uint8_t));
     }
 
-    void BinaryArchive::WriteInt(uint64_t Val, bool bIsSigned)
+    void BinaryArchive::WriteInt(uint64_t Val)
     {
         Write(reinterpret_cast<const byte_t*>(&Val), sizeof(uint64_t));
     }
@@ -94,7 +94,7 @@ namespace ScarletEngine
         Read(&OutVal, sizeof(uint8_t));
     }
 
-    void BinaryArchive::ReadInt(uint64_t& OutVal, bool bIsSigned)
+    void BinaryArchive::ReadInt(uint64_t& OutVal)
     {
         Read(reinterpret_cast<byte_t*>(&OutVal), sizeof(uint64_t));
     }

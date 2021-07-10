@@ -235,7 +235,7 @@ TEST(Reflection, ArrayArrayProperty)
 TEST(Reflection, ObjectArrayProperty)
 {
     TestArrayObj Obj;
-    Obj.Arr = { TestOuter{ .InnerObject.SomeFloat = 2.71f }, TestOuter{ .InnerObject.SomeFloat = 3.14f } };
+    Obj.Arr = { TestOuter{ .InnerObject{ .SomeFloat = 2.71f } }, TestOuter{ .InnerObject{ .SomeFloat = 3.14f } } };
 
     Json Arc;
     Obj.Serialize(Arc, "TestObject");

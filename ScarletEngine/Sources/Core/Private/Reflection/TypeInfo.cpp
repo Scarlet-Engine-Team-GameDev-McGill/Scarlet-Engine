@@ -1,7 +1,5 @@
 #include "Reflection/TypeInfo.h"
 
-#include "Serialization/Archive.h"
-
 namespace ScarletEngine::Reflection
 {
 #define DEFINE_INTEGRAL_TYPE(T, bIsFloat, bIsSigned)    \

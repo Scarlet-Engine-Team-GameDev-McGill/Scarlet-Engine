@@ -58,7 +58,7 @@ namespace ScarletEngine
         ArchiveMode GetMode() const { return Mode; }
 
         /** Dump the contents of the Archive to a file. By default uses the stored filename but can be overriden with the OverrideFile param.  */
-        virtual bool SaveToFile(const char* OverrideFile = nullptr) const { return false; }
+        virtual bool SaveToFile(const char* OverrideFile = nullptr) const;
         /** Clear the stored data. */
         virtual void Close() = 0;
         /** Set the archive to Read mode. */
@@ -94,49 +94,49 @@ namespace ScarletEngine
 
         inline Archive& operator<<(unsigned short Data)
         {
-            WriteInt(Data, false);
+            WriteInt(Data);
             return *this;
         }
 
         inline Archive& operator<<(unsigned int Data)
         {
-            WriteInt(Data, false);
+            WriteInt(Data);
             return *this;
         }
 
         inline Archive& operator<<(unsigned long Data)
         {
-            WriteInt(Data, false);
+            WriteInt(Data);
             return *this;
         }
         
         inline Archive& operator<<(unsigned long long Data)
         {
-            WriteInt(Data, false);
+            WriteInt(Data);
             return *this;
         }
 
         inline Archive& operator<<(short Data)
         {
-            WriteInt(Data, true);
+            WriteInt(Data);
             return *this;
         }
 
         inline Archive& operator<<(int Data)
         {
-            WriteInt(Data, true);
+            WriteInt(Data);
             return *this;
         }
 
         inline Archive& operator<<(long Data)
         {
-            WriteInt(Data, true);
+            WriteInt(Data);
             return *this;
         }
         
         inline Archive& operator<<(long long Data)
         {
-            WriteInt(Data, true);
+            WriteInt(Data);
             return *this;
         }
 
@@ -177,7 +177,7 @@ namespace ScarletEngine
         template <typename ElemType, typename Traits, typename Alloc>
         inline Archive& operator<<(const BasicString<ElemType, Traits, Alloc>& Str)
         {
-            const size_t StrCount = (size_t)Str.size();
+            const size_t StrCount = static_cast<size_t>(Str.size());
             (*this) << StrCount;
             WriteString(Str.c_str(), StrCount);
             return *this;
@@ -263,7 +263,7 @@ namespace ScarletEngine
         inline Archive& operator>>(unsigned short& DataOut)
         {
             uint64_t Temp;
-            ReadInt(Temp, false);
+            ReadInt(Temp);
             DataOut = static_cast<unsigned short>(Temp);
             return *this;
         }
@@ -271,7 +271,7 @@ namespace ScarletEngine
         inline Archive& operator>>(unsigned int& DataOut)
         {
             uint64_t Temp;
-            ReadInt(Temp, false);
+            ReadInt(Temp);
             DataOut = static_cast<unsigned int>(Temp);
             return *this;
         }
@@ -279,7 +279,7 @@ namespace ScarletEngine
         inline Archive& operator>>(unsigned long& DataOut)
         {
             uint64_t Temp;
-            ReadInt(Temp, false);
+            ReadInt(Temp);
             DataOut = static_cast<unsigned long>(Temp);
             return *this;
         }
@@ -287,7 +287,7 @@ namespace ScarletEngine
         inline Archive& operator>>(unsigned long long& DataOut)
         {
             uint64_t Temp;
-            ReadInt(Temp, false);
+            ReadInt(Temp);
             DataOut = static_cast<unsigned long long>(Temp);
             return *this;
         }
@@ -295,7 +295,7 @@ namespace ScarletEngine
         inline Archive& operator>>(short& DataOut)
         {
             uint64_t Temp;
-            ReadInt(Temp, true);
+            ReadInt(Temp);
             DataOut = static_cast<short>(Temp);
             return *this;
         }
@@ -303,7 +303,7 @@ namespace ScarletEngine
         inline Archive& operator>>(int& DataOut)
         {
             uint64_t Temp;
-            ReadInt(Temp, true);
+            ReadInt(Temp);
             DataOut = static_cast<int>(Temp);
             return *this;
         }
@@ -311,7 +311,7 @@ namespace ScarletEngine
         inline Archive& operator>>(long& DataOut)
         {
             uint64_t Temp;
-            ReadInt(Temp, true);
+            ReadInt(Temp);
             DataOut = static_cast<long>(Temp);
             return *this;
         }
@@ -319,7 +319,7 @@ namespace ScarletEngine
         inline Archive& operator>>(long long& DataOut)
         {
             uint64_t Temp;
-            ReadInt(Temp, true);
+            ReadInt(Temp);
             DataOut = static_cast<long long>(Temp);
             return *this;
         }
@@ -389,13 +389,13 @@ namespace ScarletEngine
     protected:
         virtual void WriteBool(bool Val) = 0;
         virtual void WriteChar(unsigned char Val) = 0;
-        virtual void WriteInt(uint64_t Data, bool bIsSigned) = 0;
+        virtual void WriteInt(uint64_t Data) = 0;
         virtual void WriteFloat(double Data) = 0;
         virtual void WriteString(const char* Str, size_t Length) = 0;
 
         virtual void ReadBool(bool& OutVal) = 0;
         virtual void ReadChar(unsigned char& OutVal) = 0;
-        virtual void ReadInt(uint64_t& Data, bool bIsSigned) = 0;
+        virtual void ReadInt(uint64_t& Data) = 0;
         virtual void ReadFloat(double& Data) = 0;
         virtual void ReadString(char* Str, size_t Length) = 0;
     protected:

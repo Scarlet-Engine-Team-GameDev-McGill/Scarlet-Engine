@@ -12,13 +12,6 @@ namespace ScarletEngine::Reflection
     {
     public:
         ObjectTypeInfo(String InName) : Name(InName) {}
-        virtual ~ObjectTypeInfo()
-        {
-            for (PropertyOfType<T>* Property : Properties)
-            {
-                delete Property;
-            }
-        }
 
         void SetProperties(Array<PropertyOfType<T>*> InProperties)
         {
@@ -63,6 +56,7 @@ namespace ScarletEngine::Reflection
 
         virtual const String& TypeName() const override { return Name; }
     protected:
+        // We will allow these to leak at exit since this object will never be destroyed at runtime.
         Array<PropertyOfType<T>*> Properties;
         String Name;
     };
