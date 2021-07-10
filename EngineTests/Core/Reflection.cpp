@@ -88,6 +88,28 @@ BEGIN_REFLECTION_INFO(TestArrayObj)
     Property(&TestArrayObj::Arr, "Arr");
 END_REFLECTION_INFO()
 
+struct TestVectorObj
+{
+    REFLECTION();
+
+    glm::vec2 vec2 = { 0.1f, 0.2f };
+    glm::vec3 vec3;
+    glm::vec4 vec4;
+    glm::ivec2 ivec2 = { 1, 2 };
+    glm::ivec3 ivec3;
+    glm::ivec4 ivec4;
+};
+
+BEGIN_REFLECTION_INFO(TestVectorObj)
+    Property(&TestVectorObj::vec2, "vec2");
+    Property(&TestVectorObj::vec3, "vec3");
+    Property(&TestVectorObj::vec4, "vec4");
+    Property(&TestVectorObj::ivec2, "ivec2");
+    Property(&TestVectorObj::ivec3, "ivec3");
+    Property(&TestVectorObj::ivec4, "ivec4");
+END_REFLECTION_INFO()
+
+
 TEST(Reflection, Construct)
 {
     TestObject* Obj = static_cast<TestObject*>(malloc(sizeof(TestObject)));
@@ -249,4 +271,25 @@ TEST(Reflection, ObjectArrayProperty)
     EXPECT_EQ(Compare.Arr.size(), Obj.Arr.size());
     EXPECT_EQ(Compare.Arr[0].InnerObject.SomeFloat, Obj.Arr[0].InnerObject.SomeFloat);
     EXPECT_EQ(Compare.Arr[1].InnerObject.SomeFloat, Obj.Arr[1].InnerObject.SomeFloat);
+}
+
+TEST(Reflection, VectorProperty)
+{
+    TestVectorObj Obj{};
+    Obj.vec2 = { .5f, .6f, };
+    Obj.ivec2 = { 5, 6, };
+
+    Json Arc;
+    Obj.Serialize(Arc, "TestObject");
+
+    std::cout << Arc.dump(4) << std::endl;
+
+    TestVectorObj Compare;
+    EXPECT_NE(Compare.vec2.x, .5f);
+    Compare.Deserialize(Arc, "TestObject");
+
+    EXPECT_EQ(Compare.vec2.x, Obj.vec2.x);
+    EXPECT_EQ(Compare.vec2.y, Obj.vec2.y);
+    EXPECT_EQ(Compare.ivec2.x, Obj.ivec2.x);
+    EXPECT_EQ(Compare.ivec2.y, Obj.ivec2.y);
 }

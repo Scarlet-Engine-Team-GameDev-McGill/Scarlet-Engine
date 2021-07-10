@@ -2,10 +2,10 @@
 
 namespace ScarletEngine::Reflection
 {
-#define DEFINE_INTEGRAL_TYPE(T, bIsFloat, bIsSigned)    \
-    template <> const TypeInfo* BuildTypeInfo<T>()        \
+#define DEFINE_INTEGRAL_TYPE(T, bIsFloat, bIsSigned)\
+    template <> const TypeInfo* BuildTypeInfo<T>()\
     {\
-        if constexpr (bIsFloat) \
+        if constexpr (bIsFloat)\
         {\
             static const FloatTypeInfo Type(#T, sizeof(T)); return &Type;\
         }\
@@ -26,6 +26,19 @@ namespace ScarletEngine::Reflection
     DEFINE_INTEGRAL_TYPE(float, true, true)
     DEFINE_INTEGRAL_TYPE(double, true, true)
 
+#define DEFINE_VECTOR_TYPE(T)\
+    template <> const TypeInfo* BuildTypeInfo<T>()\
+    {\
+        static const VectorTypeInfo<T> Type(#T); return &Type;\
+    }
+
+    DEFINE_VECTOR_TYPE(glm::vec2)
+    DEFINE_VECTOR_TYPE(glm::vec3)
+    DEFINE_VECTOR_TYPE(glm::vec4)
+    DEFINE_VECTOR_TYPE(glm::ivec2)
+    DEFINE_VECTOR_TYPE(glm::ivec3)
+    DEFINE_VECTOR_TYPE(glm::ivec4)
+    
     void IntegerTypeInfo::Serialize(const byte_t* Location, Json& Arc, const char* Label) const
     {
         // When label is nullptr we are inside an array

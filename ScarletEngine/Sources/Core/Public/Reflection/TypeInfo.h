@@ -61,12 +61,12 @@ namespace ScarletEngine::Reflection
 
         virtual const String& TypeName() const override { return Name; }
         virtual size_t TypeSize() const override { return Size; }
-        size_t ComponentNum() const { return Size / ComponentSize; }
+        size_t GetComponentNum() const { return Size / ComponentSize; }
     protected:
-        String Name;
-        size_t Size;
-        size_t ComponentSize;
-        bool bSigned;
+        const String Name;
+        const size_t Size;
+        const size_t ComponentSize;
+        const bool bSigned;
     };
 
     class IntegerTypeInfo : public BasicTypeInfo
@@ -90,26 +90,84 @@ namespace ScarletEngine::Reflection
     public:
         static const StringTypeInfo* Get();
 
-        void Serialize(const String& Object, Json& Arc, const char* Label) const override;
-        void Deserialize(String& Object, Json& Arc, const char* Label, size_t Index = 0) const override;
+        virtual void Serialize(const String& Object, Json& Arc, const char* Label) const override;
+        virtual void Deserialize(String& Object, Json& Arc, const char* Label, size_t Index = 0) const override;
         virtual const String& TypeName() const override;
     };
 
+    template <typename VectorType>
+    class VectorTypeInfo : public BasicTypeInfo
+    {
+    public:
+        using ComponentType = typename VectorType::value_type;
+        using LengthType = typename VectorType::length_type;
+
+        VectorTypeInfo(String InTypeName) : BasicTypeInfo(InTypeName, sizeof(VectorType), sizeof(ComponentType), true) {}
+
+        virtual void Serialize(const byte_t* Location, Json& Arc, const char* Label) const override
+        {
+            Json JsonObj = Json::object();
+
+            for (LengthType ComponentIndex = 0; ComponentIndex < GetComponentNum(); ++ComponentIndex)
+            {
+                const VectorType* Vector = reinterpret_cast<const VectorType*>(Location);
+
+                JsonObj[VectorComponentNames[ComponentIndex]] = (*Vector)[ComponentIndex];
+            }
+
+            if (Arc.is_array())
+            {
+                Arc.push_back(JsonObj);
+            }
+            else
+            {
+                Arc[Label] = JsonObj;
+            }
+        }
+
+        virtual void Deserialize(byte_t* Location, Json& Arc, const char* Label, size_t Index = 0) const override
+        {
+            Json JsonObj;
+            if (Arc.is_array())
+            {
+                JsonObj = Arc.at(Index);
+            }
+            else
+            {
+                JsonObj = Arc[Label];
+            }
+
+            for (LengthType ComponentIndex = 0; ComponentIndex < GetComponentNum(); ++ComponentIndex)
+            {
+                VectorType* Vector = reinterpret_cast<VectorType*>(Location);
+
+                (*Vector)[ComponentIndex] = JsonObj[VectorComponentNames[ComponentIndex]];
+            }
+        }
+    protected:
+        inline static const char* const VectorComponentNames[] = { "x", "y", "z", "w" };
+    };
 // ---------------------------------------------------------------------------------------------------------------------
 
     template <typename T> const TypeInfo* BuildTypeInfo();
 
-#define DECLARE_TYPE(T) template<> const TypeInfo* BuildTypeInfo<T>();
-    DECLARE_TYPE(int8_t)
-    DECLARE_TYPE(int16_t)
-    DECLARE_TYPE(int32_t)
-    DECLARE_TYPE(int64_t)
-    DECLARE_TYPE(uint8_t)
-    DECLARE_TYPE(uint16_t)
-    DECLARE_TYPE(uint32_t)
-    DECLARE_TYPE(uint64_t)
-    DECLARE_TYPE(float)
-    DECLARE_TYPE(double)
+#define DECLARE_INTEGRAL_TYPE(T) template<> const TypeInfo* BuildTypeInfo<T>();
+    DECLARE_INTEGRAL_TYPE(int8_t)
+    DECLARE_INTEGRAL_TYPE(int16_t)
+    DECLARE_INTEGRAL_TYPE(int32_t)
+    DECLARE_INTEGRAL_TYPE(int64_t)
+    DECLARE_INTEGRAL_TYPE(uint8_t)
+    DECLARE_INTEGRAL_TYPE(uint16_t)
+    DECLARE_INTEGRAL_TYPE(uint32_t)
+    DECLARE_INTEGRAL_TYPE(uint64_t)
+    DECLARE_INTEGRAL_TYPE(float)
+    DECLARE_INTEGRAL_TYPE(double)
+    DECLARE_INTEGRAL_TYPE(glm::vec2)
+    DECLARE_INTEGRAL_TYPE(glm::vec3)
+    DECLARE_INTEGRAL_TYPE(glm::vec4)
+    DECLARE_INTEGRAL_TYPE(glm::ivec2)
+    DECLARE_INTEGRAL_TYPE(glm::ivec3)
+    DECLARE_INTEGRAL_TYPE(glm::ivec4)
 
     template <typename T> struct TypeInfoBuilder {};
 
