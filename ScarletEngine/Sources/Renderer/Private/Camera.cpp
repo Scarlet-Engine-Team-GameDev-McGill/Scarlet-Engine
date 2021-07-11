@@ -70,7 +70,7 @@ namespace ScarletEngine
 		Projection = glm::perspective(glm::radians(FoV), Aspect, NearPlane, FarPlane);
 		if (bUpdateViewProj)
 		{
-			LIKELY RecalculateViewProj();
+			RecalculateViewProj();
 		}
 	}
 
@@ -79,7 +79,7 @@ namespace ScarletEngine
 		View = glm::lookAt(Position, Position + ForwardVector, UpVector);
 		if (bUpdateViewProj) 
 		{
-			LIKELY RecalculateViewProj();
+			RecalculateViewProj();
 		}
 	}
 }

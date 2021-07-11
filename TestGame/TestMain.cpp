@@ -17,7 +17,7 @@ int main()
 
 	GEngine = ScarNew(Engine);
 	GEngine->Initialize();
-
+ 
 	{
 		const Array<Vertex> Vertices = {
             {{0.0f, -0.5f, 0.f}, {1.0f, 1.0f, 1.0f}},
@@ -48,6 +48,7 @@ int main()
 		ScarDelete(VertShader);
 		ScarDelete(FragShader);
 
+		// initialize anything you want in the world above this commment
 		GEngine->Run();
 	}
 
