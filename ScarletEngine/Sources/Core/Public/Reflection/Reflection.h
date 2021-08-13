@@ -93,8 +93,19 @@ namespace ScarletEngine::Reflection
         static const Reflection::TypeInfo* BuildTypeInfo();\
         void Construct() { BuildTypeInfo()->Construct(reinterpret_cast<byte_t*>(this)); } \
         void Destruct() { BuildTypeInfo()->Destruct(reinterpret_cast<byte_t*>(this)); } \
-        void Serialize(Json& Arc, const char* Label) const { BuildTypeInfo()->Serialize(reinterpret_cast<const byte_t*>(this), Arc, Label); } \
-        void Deserialize(Json& Arc, const char* Label) { BuildTypeInfo()->Deserialize(reinterpret_cast<byte_t*>(this), Arc, Label); }
+        void Serialize(Json& Arc, const char* Label) const\
+        {\
+            Reflection::GCurrentPointerMap = &Arc["PointerMap"];\
+            BuildTypeInfo()->Serialize(reinterpret_cast<const byte_t*>(this), Arc, Label);\
+            Reflection::GCurrentPointerMap = nullptr;\
+        }\
+        void Deserialize(Json& Arc, const char* Label)\
+        {\
+            Reflection::GCurrentPointerMap = &Arc["PointerMap"];\
+            BuildTypeInfo()->Deserialize(reinterpret_cast<byte_t*>(this), Arc, Label);\
+            Reflection::GCurrentPointerMap = nullptr;\
+        }
+
 
 #define BEGIN_REFLECTION_INFO(TypeName)           \
     const Reflection::TypeInfo* TypeName::BuildTypeInfo()   \

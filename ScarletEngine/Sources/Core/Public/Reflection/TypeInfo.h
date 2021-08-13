@@ -4,6 +4,8 @@
 
 namespace ScarletEngine::Reflection
 {
+    extern Json* GCurrentPointerMap;
+
     class TypeInfo
     {
     public:
@@ -20,6 +22,31 @@ namespace ScarletEngine::Reflection
     protected:
         TypeInfo() {}
     };
+
+    template <typename T> struct TypeInfoBuilder {};
+
+    template <typename T>
+    const TypeInfo* BuildTypeInfo()
+    {
+        return TypeInfoBuilder<T>::Build();
+    }
+
+    struct CheckHasTypeInfo
+    {
+        template <typename T, const TypeInfo*(*)() = T::BuildTypeInfo>
+        struct Check {};
+    };
+
+    template <typename T>
+    struct HasReflectionData : Utils::HasMember<T, CheckHasTypeInfo> {};
+
+    template <typename T>
+    typename std::enable_if<HasReflectionData<T>::Value, const TypeInfo*>::type
+    GetTypeInfo() { return T::BuildTypeInfo(); }
+
+    template <typename T>
+    typename std::enable_if<!HasReflectionData<T>::Value, const TypeInfo*>::type
+    GetTypeInfo() { return BuildTypeInfo<T>(); }
 
     template <typename T>
     class TypeInfoOf : public TypeInfo
@@ -147,6 +174,71 @@ namespace ScarletEngine::Reflection
     protected:
         inline static const char* const VectorComponentNames[] = { "x", "y", "z", "w" };
     };
+
+    class PointerTypeInfo : public TypeInfo
+    {
+    public:
+        virtual void Construct(byte_t* /*Location*/) const override {}
+        virtual void Destruct(byte_t* /*Location*/) const override {}
+
+        virtual const String& TypeName() const override { return Name; }
+        virtual size_t TypeSize() const override { return sizeof(void*); }
+    protected:
+        /** Global pointer map used for deserialization. Maps a pointers unique id to its current location in memory. */
+        static UnorderedMap<uint64_t, void*> PointerIDMap;
+        const String Name = "Pointer";
+    };
+
+    template <typename PointerToType>
+    class PointerTypeInfoOf : public PointerTypeInfo
+    {
+    public:
+        virtual void Serialize(const byte_t* Location, Json& Arc, const char* Label) const override
+        {
+            // #todo: implement for array of pointers
+            const PointerToType** PointerToPointer = (const PointerToType**)(Location);
+            Json& PointerMap = *GCurrentPointerMap;
+            const uint64_t PointerID = (uintptr_t)(*PointerToPointer);
+            const auto PointerIDString = std::to_string(PointerID);
+
+            // If the pointer doesn't already exist, serialize it otherwise do nothing.
+            if (PointerMap.find(PointerIDString.c_str()) == PointerMap.end())
+            {
+                const PointerToType* ObjectPtr = *PointerToPointer;
+                if (ObjectPtr == nullptr)
+                {
+                    PointerMap[PointerIDString.c_str()] = nullptr;
+                }
+                else
+                {
+                    GetTypeInfo<PointerToType>()->Serialize(reinterpret_cast<const byte_t*>(ObjectPtr), PointerMap, PointerIDString.c_str());
+                }
+            }
+            Arc[Label] = PointerID;
+        }
+        virtual void Deserialize(byte_t* Location, Json& Arc, const char* Label, size_t Index = 0) const override
+        {
+            // #todo: implement for array of pointers
+            PointerToType** PointerToPointer = (PointerToType**)(Location);
+            Json& PointerMap = *GCurrentPointerMap;
+            const uint64_t PointerID = Arc[Label];
+            const auto PointerIDString = std::to_string(PointerID);
+
+            if (const auto It = PointerIDMap.find(PointerID); It != PointerIDMap.end())
+            {
+                // Set the pointer we are pointing to to point to the value stored in the map
+                *PointerToPointer = reinterpret_cast<PointerToType*>(It->second);
+            }
+            else
+            {
+                PointerToType* ObjectPtr = ScarNew(PointerToType);
+                GetTypeInfo<PointerToType>()->Deserialize(reinterpret_cast<byte_t*>(ObjectPtr), PointerMap, PointerIDString.c_str(), Index);
+                PointerIDMap[PointerID] = reinterpret_cast<void*>(ObjectPtr);
+                *PointerToPointer = ObjectPtr;
+            }
+        }
+    };
+
 // ---------------------------------------------------------------------------------------------------------------------
 
     template <typename T> const TypeInfo* BuildTypeInfo();
@@ -169,34 +261,14 @@ namespace ScarletEngine::Reflection
     DECLARE_INTEGRAL_TYPE(glm::ivec3)
     DECLARE_INTEGRAL_TYPE(glm::ivec4)
 
-    template <typename T> struct TypeInfoBuilder {};
-
     template <> struct TypeInfoBuilder<String>
     {
         static const StringTypeInfo* Build() { return StringTypeInfo::Get(); }
     };
 
-    template <typename T>
-    const TypeInfo* BuildTypeInfo()
+    template <typename T> struct TypeInfoBuilder<T*>
     {
-        return TypeInfoBuilder<T>::Build();
-    }
-
-    struct CheckHasTypeInfo
-    {
-        template <typename T, const TypeInfo*(*)() = T::BuildTypeInfo>
-        struct Check {};
+        static const PointerTypeInfo* Build() { static PointerTypeInfoOf<T> TypeInfo; return &TypeInfo; }
     };
-
-    template <typename T>
-    struct HasReflectionData : Utils::HasMember<T, CheckHasTypeInfo> {};
-
-    template <typename T>
-    typename std::enable_if<HasReflectionData<T>::Value, const TypeInfo*>::type
-    GetTypeInfo() { return T::BuildTypeInfo(); }
-
-    template <typename T>
-    typename std::enable_if<!HasReflectionData<T>::Value, const TypeInfo*>::type
-    GetTypeInfo() { return BuildTypeInfo<T>(); }
 
 }

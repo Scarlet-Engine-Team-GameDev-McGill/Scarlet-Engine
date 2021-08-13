@@ -251,4 +251,8 @@ namespace ScarletEngine::Reflection
         static const String Name = "String";
         return Name;
     }
+
+// ---------------------------------------------------------------------------------------------------------------------
+    Json* GCurrentPointerMap = nullptr;
+    UnorderedMap<uint64_t, void*> PointerTypeInfo::PointerIDMap;
 }

@@ -293,3 +293,39 @@ TEST(Reflection, VectorProperty)
     EXPECT_EQ(Compare.ivec2.x, Obj.ivec2.x);
     EXPECT_EQ(Compare.ivec2.y, Obj.ivec2.y);
 }
+
+struct TestPointerObject
+{
+    REFLECTION();
+
+    uint32_t* IntPtr = nullptr;
+};
+
+BEGIN_REFLECTION_INFO(TestPointerObject)
+    Property(&TestPointerObject::IntPtr, "IntPtr");
+END_REFLECTION_INFO()
+
+TEST(Reflection, PointerProperty)
+{
+    TestPointerObject Obj{}, Obj2{};
+    Obj.IntPtr = new uint32_t;
+    Obj2.IntPtr = Obj.IntPtr;
+    *Obj.IntPtr = 100;
+
+    Json Arc;
+    Obj.Serialize(Arc, "TestObject");
+    Obj2.Serialize(Arc, "TestObject2");
+
+    std::cout << Arc.dump(4) << std::endl;
+
+    EXPECT_FALSE(Arc["PointerMap"].empty());
+
+    TestPointerObject Compare1{}, Compare2{};
+
+    Compare1.Deserialize(Arc, "TestObject");
+    Compare2.Deserialize(Arc, "TestObject2");
+
+    ASSERT_NE(Compare1.IntPtr, nullptr);
+    EXPECT_EQ(Compare1.IntPtr, Compare2.IntPtr);
+    EXPECT_EQ(*(Compare1.IntPtr), 100);
+}
