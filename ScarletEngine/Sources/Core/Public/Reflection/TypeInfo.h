@@ -231,10 +231,17 @@ namespace ScarletEngine::Reflection
             }
             else
             {
-                PointerToType* ObjectPtr = ScarNew(PointerToType);
-                GetTypeInfo<PointerToType>()->Deserialize(reinterpret_cast<byte_t*>(ObjectPtr), PointerMap, PointerIDString.c_str(), Index);
-                PointerIDMap[PointerID] = reinterpret_cast<void*>(ObjectPtr);
-                *PointerToPointer = ObjectPtr;
+                if (PointerMap[PointerIDString.c_str()] == nullptr)
+                {
+                    *PointerToPointer = nullptr;
+                }
+                else
+                {
+                    PointerToType* ObjectPtr = ScarNew(PointerToType);
+                    GetTypeInfo<PointerToType>()->Deserialize(reinterpret_cast<byte_t*>(ObjectPtr), PointerMap, PointerIDString.c_str(), Index);
+                    PointerIDMap[PointerID] = reinterpret_cast<void*>(ObjectPtr);
+                    *PointerToPointer = ObjectPtr;
+                }
             }
         }
     };
