@@ -254,5 +254,5 @@ namespace ScarletEngine::Reflection
 
 // ---------------------------------------------------------------------------------------------------------------------
     Json* GCurrentPointerMap = nullptr;
-    UnorderedMap<uint64_t, void*> PointerTypeInfo::PointerIDMap;
+    std::unordered_map<uint64_t, void*> PointerTypeInfo::PointerIDMap;
 }

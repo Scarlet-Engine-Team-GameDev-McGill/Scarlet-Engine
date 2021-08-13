@@ -327,5 +327,5 @@ TEST(Reflection, PointerProperty)
 
     ASSERT_NE(Compare1.IntPtr, nullptr);
     EXPECT_EQ(Compare1.IntPtr, Compare2.IntPtr);
-    EXPECT_EQ(*(Compare1.IntPtr), 100);
+    EXPECT_EQ(*(Compare1.IntPtr), 100u);
 }

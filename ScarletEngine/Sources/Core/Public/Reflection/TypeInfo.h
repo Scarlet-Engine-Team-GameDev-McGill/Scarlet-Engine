@@ -135,7 +135,7 @@ namespace ScarletEngine::Reflection
         {
             Json JsonObj = Json::object();
 
-            for (LengthType ComponentIndex = 0; ComponentIndex < GetComponentNum(); ++ComponentIndex)
+            for (LengthType ComponentIndex = 0; ComponentIndex < static_cast<LengthType>(GetComponentNum()); ++ComponentIndex)
             {
                 const VectorType* Vector = reinterpret_cast<const VectorType*>(Location);
 
@@ -164,7 +164,7 @@ namespace ScarletEngine::Reflection
                 JsonObj = Arc[Label];
             }
 
-            for (LengthType ComponentIndex = 0; ComponentIndex < GetComponentNum(); ++ComponentIndex)
+            for (LengthType ComponentIndex = 0; ComponentIndex < static_cast<LengthType>(GetComponentNum()); ++ComponentIndex)
             {
                 VectorType* Vector = reinterpret_cast<VectorType*>(Location);
 
@@ -185,7 +185,7 @@ namespace ScarletEngine::Reflection
         virtual size_t TypeSize() const override { return sizeof(void*); }
     protected:
         /** Global pointer map used for deserialization. Maps a pointers unique id to its current location in memory. */
-        static UnorderedMap<uint64_t, void*> PointerIDMap;
+        static std::unordered_map<uint64_t, void*> PointerIDMap;
         const String Name = "Pointer";
     };
 
