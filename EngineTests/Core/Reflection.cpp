@@ -257,7 +257,7 @@ TEST(Reflection, ArrayArrayProperty)
 TEST(Reflection, ObjectArrayProperty)
 {
     TestArrayObj Obj;
-    Obj.Arr = { TestOuter{ .InnerObject{ .SomeFloat = 2.71f } }, TestOuter{ .InnerObject{ .SomeFloat = 3.14f } } };
+    Obj.Arr = { TestOuter{ .InnerObject{ .SomeFloat = 2.71f }, .AString = "" }, TestOuter{ .InnerObject{ .SomeFloat = 3.14f }, .AString = "" } };
 
     Json Arc;
     Obj.Serialize(Arc, "TestObject");
@@ -328,4 +328,7 @@ TEST(Reflection, PointerProperty)
     ASSERT_NE(Compare1.IntPtr, nullptr);
     EXPECT_EQ(Compare1.IntPtr, Compare2.IntPtr);
     EXPECT_EQ(*(Compare1.IntPtr), 100u);
+
+    delete Obj.IntPtr;
+    delete Compare1.IntPtr;
 }

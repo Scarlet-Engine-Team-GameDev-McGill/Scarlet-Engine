@@ -13,6 +13,22 @@ namespace ScarletEngine::Reflection
     public:
         ObjectTypeInfo(String InName) : Name(InName) {}
 
+        ObjectTypeInfo(ObjectTypeInfo<T>&& Other)
+        {
+            Properties = std::move(Other.Properties);
+            Name = std::move(Other.Name);
+
+            Other.Properties.clear();
+        }
+
+        virtual ~ObjectTypeInfo()
+        {
+            for (const PropertyOfType<T>* Property : Properties)
+            {
+                delete Property;
+            }
+        }
+
         void SetProperties(Array<PropertyOfType<T>*> InProperties)
         {
             Properties = std::move(InProperties);
@@ -65,7 +81,9 @@ namespace ScarletEngine::Reflection
     class ObjectReflectionInfoBuilder
     {
     public:
-        virtual ~ObjectReflectionInfoBuilder() {}
+        virtual ~ObjectReflectionInfoBuilder()
+        {
+        }
 
         template <typename AttributeType>
         void Property(AttributeType ObjectType::* AttributePtr, String PropertyName)
