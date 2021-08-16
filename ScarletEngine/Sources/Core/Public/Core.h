@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Event.h"
 #include "Delegate.h"
-#include "BinaryArchive.h"
 #include "Color.h"
 #include "Utils/StringUtils.h"
 #include "IModule.h"

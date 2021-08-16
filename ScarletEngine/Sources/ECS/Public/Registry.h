@@ -219,46 +219,6 @@ namespace ScarletEngine
         }
 
         const Array<EID>& GetEntities() const { return Entities; }
-
-        void Serialize(BinaryArchive& Arc)
-        {
-            // Serialize a debug tag to ensure we don't read from the wrong place in the archive
-            Arc << "Registry Chunk";
-            Arc << NextAvailableEID;
-            Arc << ComponentContainers.size();
-
-            for (auto& [ComponentTypeID, ComponentContainer] : ComponentContainers)
-            {
-                Arc << ComponentTypeID;
-                Arc << *ComponentContainer;
-            }
-        }
-
-        void Deserialize(BinaryArchive& Arc)
-        {
-            String Tag;
-            Arc >> Tag;
-            check(Tag.compare("Registry Chunk") == 0);
-
-            Arc >> NextAvailableEID;
-
-            uint32_t ContainerCount = 0;
-            Arc >> ContainerCount;
-            // For each container in the archive, find the corresponding container and then 
-            for (size_t Index = 0; Index < ContainerCount; ++Index)
-            {
-                CTID ComponentTypeID = INVALID_CTID;
-                Arc >> ComponentTypeID;
-                const auto It = ComponentContainers.find(ComponentTypeID);
-                // We cannot currently handle being unable to find the container. it will create issues 
-                // where the archive won't move forward in position and we can't skip ahead yet.
-                check(It != ComponentContainers.end());
-
-                UniquePtr<IComponentContainer>& ComponentContainer = It->second;
-                Arc >> *ComponentContainer;
-                MarkComponentContainerDirty_Impl(ComponentTypeID);
-            }
-        }
     private:
         template <typename ComponentType>
         NODISCARD ComponentContainer<ComponentType>* GetComponentContainer() const

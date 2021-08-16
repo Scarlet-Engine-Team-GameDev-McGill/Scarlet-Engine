@@ -12,10 +12,9 @@ namespace ScarletEngine::Reflection
         virtual ~PropertyOfType() {}
 
         const String& GetPropertyName() const { return PropertyName; };
-
         virtual const TypeInfo* GetPropertyType() const = 0;
-        virtual void SerializeProperty(const ObjectType* Object, BinaryArchive&) const = 0;
-        virtual void DeserializeProperty(ObjectType* OutObject, BinaryArchive&) const = 0;
+        virtual void SerializeProperty(const ObjectType* Object, Json& Arc) const = 0;
+        virtual void DeserializeProperty(ObjectType* OutObject, Json& Arc, size_t Index = 0) const = 0;
     protected:
         String PropertyName;
     };
@@ -44,16 +43,16 @@ namespace ScarletEngine::Reflection
 
         virtual const TypeInfo* GetPropertyType() const override { return GetTypeInfo<MemberType>(); }
 
-        virtual void SerializeProperty(const ObjectType* Object, BinaryArchive& Arc) const override
+        virtual void SerializeProperty(const ObjectType* Object, Json& Arc) const override
         {
             MemberType Value = GetValue(*Object);
-            GetPropertyType()->Serialize(reinterpret_cast<const byte_t*>(&Value), Arc);
+            GetPropertyType()->Serialize(reinterpret_cast<const byte_t*>(&Value), Arc, PropertyOfType<ObjectType>::GetPropertyName().c_str());
         }
 
-        virtual void DeserializeProperty(ObjectType* OutObject, BinaryArchive& Arc) const override
+        virtual void DeserializeProperty(ObjectType* OutObject, Json& Arc, size_t Index = 0) const override
         {
             MemberType* Ptr = &(OutObject->*MemberPtr);
-            GetPropertyType()->Deserialize(reinterpret_cast<byte_t*>(Ptr), Arc);
+            GetPropertyType()->Deserialize(reinterpret_cast<byte_t*>(Ptr), Arc, PropertyOfType<ObjectType>::GetPropertyName().c_str(), Index);
         }
     private:
         MemberPointer MemberPtr;

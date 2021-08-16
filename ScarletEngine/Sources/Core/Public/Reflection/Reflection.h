@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 
+#include "Array.h"
 #include "Property.h"
 
 namespace ScarletEngine::Reflection
@@ -11,9 +12,18 @@ namespace ScarletEngine::Reflection
     {
     public:
         ObjectTypeInfo(String InName) : Name(InName) {}
+
+        ObjectTypeInfo(ObjectTypeInfo<T>&& Other)
+        {
+            Properties = std::move(Other.Properties);
+            Name = std::move(Other.Name);
+
+            Other.Properties.clear();
+        }
+
         virtual ~ObjectTypeInfo()
         {
-            for (PropertyOfType<T>* Property : Properties)
+            for (const PropertyOfType<T>* Property : Properties)
             {
                 delete Property;
             }
@@ -24,26 +34,45 @@ namespace ScarletEngine::Reflection
             Properties = std::move(InProperties);
         }
 
-        virtual void Serialize(const T& Object, BinaryArchive& Arc) const override
+        virtual void Serialize(const T& Object, Json& Arc, const char* Label) const override
         {
+            Json JsonObj;
             for (auto& Property : Properties)
             {
-                // #todo_core: Arc.FindPropertyByName(Property->GetName())
-                Property->SerializeProperty(&Object, Arc);
+                Property->SerializeProperty(&Object, JsonObj);
+            }
+            
+            if (Arc.is_array())
+            {
+                Arc.emplace_back(JsonObj);
+            }
+            else
+            {
+                Arc[Label] = JsonObj;
             }
         }
 
-        virtual void Deserialize(T& Object, BinaryArchive& Arc) const override
+        virtual void Deserialize(T& Object, Json& Arc, const char* Label, size_t Index = 0) const override
         {
+            Json JsonObj;
+            if (Arc.is_array())
+            {
+                JsonObj = Arc.at(Index);
+            }
+            else
+            {
+                JsonObj = Arc[Label];
+            }
+
             for (auto& Property : Properties)
             {
-                // #todo_core: Arc.FindPropertyByName(Property->GetName())
-                Property->DeserializeProperty(&Object, Arc);
+                Property->DeserializeProperty(&Object, JsonObj, Index);
             }
         }
 
         virtual const String& TypeName() const override { return Name; }
     protected:
+        // We will allow these to leak at exit since this object will never be destroyed at runtime.
         Array<PropertyOfType<T>*> Properties;
         String Name;
     };
@@ -52,7 +81,9 @@ namespace ScarletEngine::Reflection
     class ObjectReflectionInfoBuilder
     {
     public:
-        virtual ~ObjectReflectionInfoBuilder() {}
+        virtual ~ObjectReflectionInfoBuilder()
+        {
+        }
 
         template <typename AttributeType>
         void Property(AttributeType ObjectType::* AttributePtr, String PropertyName)
@@ -75,7 +106,24 @@ namespace ScarletEngine::Reflection
     };
 }
 
-#define REFLECTION() public: static const Reflection::TypeInfo* BuildTypeInfo();
+#define REFLECTION() \
+    public: \
+        static const Reflection::TypeInfo* BuildTypeInfo();\
+        void Construct() { BuildTypeInfo()->Construct(reinterpret_cast<byte_t*>(this)); } \
+        void Destruct() { BuildTypeInfo()->Destruct(reinterpret_cast<byte_t*>(this)); } \
+        void Serialize(Json& Arc, const char* Label) const\
+        {\
+            Reflection::GCurrentPointerMap = &Arc["PointerMap"];\
+            BuildTypeInfo()->Serialize(reinterpret_cast<const byte_t*>(this), Arc, Label);\
+            Reflection::GCurrentPointerMap = nullptr;\
+        }\
+        void Deserialize(Json& Arc, const char* Label)\
+        {\
+            Reflection::GCurrentPointerMap = &Arc["PointerMap"];\
+            BuildTypeInfo()->Deserialize(reinterpret_cast<byte_t*>(this), Arc, Label);\
+            Reflection::GCurrentPointerMap = nullptr;\
+        }
+
 
 #define BEGIN_REFLECTION_INFO(TypeName)           \
     const Reflection::TypeInfo* TypeName::BuildTypeInfo()   \

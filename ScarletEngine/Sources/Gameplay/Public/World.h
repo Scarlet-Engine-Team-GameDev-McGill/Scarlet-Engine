@@ -58,28 +58,6 @@ namespace ScarletEngine
 
         OnEntityAddedToWorldEvent& GetOnEntityAddedToWorldEvent() { return OnEntityAddedToWorld; }
 
-        void Serialize(BinaryArchive& Arc)
-        {
-            // Serialize debug tag
-            Arc << "World";
-            Arc << Reg;
-            Arc << Entities;
-        }
-
-        void Deserialize(BinaryArchive& Arc)
-        {
-            String Tag;
-            Arc >> Tag;
-            check(Tag.compare("World") == 0);
-
-            Arc >> Reg;
-            Arc >> Entities;
-            for (const EntityPtr& Entity : Entities)
-            {
-                Entity->ChangeWorld(this);
-            }
-        }
-
         void SetWorldName(const String& InNewName) { WorldName = InNewName; }
         const String& GetWorldName() const { return WorldName; }
 

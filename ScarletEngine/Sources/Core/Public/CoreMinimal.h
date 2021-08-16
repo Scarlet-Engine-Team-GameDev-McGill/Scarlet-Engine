@@ -8,6 +8,7 @@
 #include "CoreSTL.h"
 #include "Logger.h"
 #include "Memory/Memory.h"
+#include "Serialization/Archive.h"
 
 namespace ScarletEngine
 {
